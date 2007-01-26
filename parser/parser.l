@@ -29,7 +29,7 @@ extern int yyerror(char *s);
 #define MAX_INCLUDE_DEPTH 10
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
 char include_filename_stack[MAX_INCLUDE_DEPTH][32];
- int include_linenum_stack[MAX_INCLUDE_DEPTH];
+int include_linenum_stack[MAX_INCLUDE_DEPTH];
 int include_stack_ptr = 0;
 
 int line_num = 1;

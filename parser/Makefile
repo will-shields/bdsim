@@ -1,4 +1,5 @@
 CC=g++
+#CC=gcc32
 OBJ=gmad.o lex.yy.o parser.tab.o 
 LIB=-lfl
 

@@ -1,9 +1,9 @@
 /*
    bison grammar for the gmad parser
-   Ilya Agapov, 2005
+   Ilya Agapov, 2005-2006
+   bdsim v.0.3
 */
 
-//TODO : implement loops!
 
 
 %{
@@ -397,7 +397,7 @@ parameters:
 		    else
 		  if(!strcmp($3->name,"psi"))  {params.psi = $5; params.psiset = 1;} // 3rd  angle
 		  else
-		  if(!strcmp($3->name,"ez"))  {params.ez = $5; params.ezset = 1;} // rf voltage
+		  if(!strcmp($3->name,"gradient"))  {params.gradient = $5; params.gradientset = 1;} // rf voltage
 		    else
 		  if(!strcmp($3->name,"fint")) {;} // fringe field parameters
 		    else
@@ -502,9 +502,15 @@ parameters:
 			 params.materialset = 1;
 			 strcpy(params.material, $5);
 		       }
-		     else 
+		   else 
+		   if(!strcmp($3->name,"spec")) 
+		       {
+			 params.specset = 1;
+			 strcpy(params.spec, $5);
+		       }
+		   else 
 		     	  
-		       if(VERBOSE) printf("unknown parameter %s\n",$3->name);
+		     if(VERBOSE) printf("unknown parameter %s\n",$3->name);
 		 }
 	     }         
            | VARIABLE '=' STR
@@ -535,8 +541,13 @@ parameters:
 			 params.materialset = 1;
 			 strcpy(params.material, $3);
 		       }
-		     else 
-		       if(VERBOSE) printf("unknown parameter %s\n",$1->name);
+                   if(!strcmp($1->name,"spec")) 
+		       {
+			 params.specset = 1;
+			 strcpy(params.spec, $3);
+		       }
+		   else 
+		   if(VERBOSE) printf("unknown parameter %s\n",$1->name);
 		 }         
 	     }
 

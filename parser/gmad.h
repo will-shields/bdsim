@@ -1,6 +1,9 @@
 /*
  * GMAD interface 
  * I. Agapov 2005-2006
+ * bdsim v.0.3
+ *
+ * modification history:
 */
 
 #ifndef _GMAD_H
@@ -65,6 +68,9 @@ const int _GUINEAPIG_PAIRS = 5;
 const int _GUINEAPIG_SLAC = 6;
 const int _CAIN = 7;
 
+
+// options passed with option and beam command
+
 struct Options {
 
   string physicsList;
@@ -105,10 +111,16 @@ struct Options {
   int numberOfEventsPerNtuple;
   unsigned long int eventNumberOffset;
   int backgroundScaleFactor;
+
+  // default geometry parameters
+
   double componentBoxSize;
   double tunnelRadius;
   double beampipeRadius;
   double beampipeThickness;
+
+  string pipeMaterial;
+
   double thresholdCutCharged;
   double thresholdCutPhotons;
   
@@ -159,6 +171,8 @@ struct Options {
 
 };
 
+// type of beamline list entries
+
 struct Element {
   short type;
   char * name;
@@ -167,7 +181,7 @@ struct Element {
   double l,k0,k1,k2,k3,angle,aper,tilt,xsize,ysize,r, outR;
   double xdir, ydir, zdir, waveLength; // for laser wire and 3d transforms
 
-  double ez; // for rf cavities
+  double gradient; // for rf cavities
 
   double phi, theta, psi; // for 3d transforms
 
@@ -184,6 +198,8 @@ struct Element {
   string geometryFile;
   string bmapFile;
   string material;
+
+  string spec;  // arbitrary specification to pass to beamline builder
   
   // in case the element is a list itself (line)
   list <Element> *lst;
@@ -191,6 +207,8 @@ struct Element {
   
 };
 
+
+// parameters - used in the parser
 
 struct Parameters {
 
@@ -217,7 +235,7 @@ struct Parameters {
   double phi, theta, psi; // for 3d transforms
   int phiset, thetaset, psiset;
 
-  double ez; int ezset;
+  double gradient; int gradientset;
 
   double outR; int outRset; // outer radius of magnets
 
@@ -234,6 +252,10 @@ struct Parameters {
   char bmap[64]; int bmapset;
   char emap[64];
   char material[64]; int materialset;
+
+
+  // string to pass a custom type specification
+  char spec[1024]; int specset;
 
   // material properties
 
@@ -281,12 +303,16 @@ struct Parameters {
     knl.erase(knl.begin(),knl.end());
     ksl.erase(ksl.begin(),ksl.end());
 
-    ez = 0; ezset = 0;
+    gradient = 0; gradientset = 0;
     
-    geomset = 0; bmapset = 0;
-    strcpy(geometry,"");
-    strcpy(bmap,"");
-    strcpy(material,"");
+  
+    strcpy(geometry,"");  geomset = 0;
+
+    strcpy(bmap,""); bmapset = 0;
+
+
+    strcpy(material,""); materialset = 0;
+    strcpy(spec,""); specset = 0;
   }
 
   

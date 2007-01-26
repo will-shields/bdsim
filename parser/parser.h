@@ -1,8 +1,9 @@
-
-/* parser.h
+/*
+ *  parser.h
  *
  *    GMAD parser functions
- *    Ilya Agapov
+ *    Ilya Agapov 2005-2006
+ *    bdsim v.0.3
  */
 
 #ifndef __PARSER_H
@@ -20,7 +21,6 @@
 #include "gmad.h"
 
 using namespace std;
-
 
 double pow(double x, double y) {return exp( y * log(x));}
 
@@ -118,7 +118,7 @@ void flush(struct Element& e )
   e.psi = 0;
   e.theta = 0;
 
-  e.ez = 0;
+  e.gradient = 0;
 
   e.aper = 0;
   e.outR = 0;
@@ -144,6 +144,9 @@ void flush(struct Element& e )
       bmapFile
       material;
   */
+
+  //e.material = "";
+  e.spec = "";
 };
 
 void copy_properties(list<struct Element>::iterator dest, list<struct Element>::iterator src)
@@ -177,7 +180,7 @@ void copy_properties(list<struct Element>::iterator dest, list<struct Element>::
   (*dest).knl = (*src).knl;
   (*dest).ksl = (*src).ksl;
 
-  (*dest).ez = (*src).ez; 
+  (*dest).gradient = (*src).gradient; 
 
   (*dest).A = (*src).A;
   (*dest).Z = (*src).Z;
@@ -190,6 +193,7 @@ void copy_properties(list<struct Element>::iterator dest, list<struct Element>::
 
   (*dest).material = (*src).material;
 
+  (*dest).spec = (*src).spec;
 
   return;
 }; 
@@ -225,11 +229,16 @@ void inherit_properties(struct Element e)
   if(!params.aperset) { params.aper = e.aper; params.aperset = 1; }
   if(!params.outRset) { params.outR = e.outR; params.outRset = 1; }
 
-  if(!params.ezset) { params.ez = e.ez; params.ezset = 1; }
+  if(!params.gradientset) { params.gradient = e.gradient; params.gradientset = 1; }
 
   if(!params.tiltset) { params.tilt = e.tilt; params.tiltset = 1; }
   if(!params.knlset) { params.knl = e.knl; params.knlset = 1; }
   if(!params.kslset) { params.ksl = e.ksl; params.kslset = 1; }
+
+  if(!params.specset) { strncpy(params.spec,e.spec.c_str(),1024); params.specset = 1; }
+  if(!params.materialset) { strncpy(params.material,e.spec.c_str(),64); params.materialset = 1; }
+
+
 
 };
 
@@ -292,6 +301,7 @@ int write_table(struct Parameters params,char* name, int type, list<struct Eleme
   e.xsize = params.xsize;
   e.ysize = params.ysize;
   
+  
   //specific parameters
   switch(type) {
   case _MARKER :
@@ -305,7 +315,7 @@ int write_table(struct Parameters params,char* name, int type, list<struct Eleme
   case _RF:
     e.type = _RF;
     e.l = params.l;
-    e.ez = params.ez;
+    e.gradient = params.gradient;
     break;
 
   case _SBEND:
@@ -350,6 +360,8 @@ int write_table(struct Parameters params,char* name, int type, list<struct Eleme
     if(params.tiltset) {
       e.tilt = params.tilt;
     }
+
+    e.spec = string(params.spec); 
     
     break;
 
@@ -930,6 +942,7 @@ void set_value(string name, string value )
   if(name == "distrType" ) options.distribType = value;
   if(name == "distrFile" ) options.distribFile = value;  
   if(name == "physicsList" ) options.physicsList = value; 
+  if(name == "pipeMaterial" ) options.pipeMaterial == value;
 }
 
 double property_lookup(char *element_name, char *property_name)
@@ -953,7 +966,7 @@ double property_lookup(char *element_name, char *property_name)
    if(!strcmp(property_name,"theta")) return (*it).theta;
    if(!strcmp(property_name,"waveLength")) return (*it).waveLength;
    if(!strcmp(property_name,"tilt")) return (*it).tilt;
-   if(!strcmp(property_name,"ez")) return (*it).ez;
+   if(!strcmp(property_name,"gradient")) return (*it).gradient;
 
    if(!strcmp(property_name,"A")) return (*it).A;
    if(!strcmp(property_name,"Z")) return (*it).Z;
