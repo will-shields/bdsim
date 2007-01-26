@@ -748,6 +748,8 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
   if(distribType == _UDEF)
     {
 
+      //G4cout<<"distrType=UDEF"<<G4endl;
+
       E = x0 = y0 = z0 = xp = yp = zp = 0;
 
      #define  _READ(value) InputBunchFile>>value

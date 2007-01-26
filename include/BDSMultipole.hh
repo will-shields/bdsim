@@ -41,7 +41,7 @@ public:
 
   virtual ~BDSMultipole();
 
-  void BuildBeampipe(G4double aLength,G4int nSegments=1);
+  void BuildBeampipe(G4double aLength,G4String material = "", G4int nSegments=1);
 
   void BuildDefaultMarkerLogicalVolume();
 
@@ -55,7 +55,9 @@ public:
 
   void BuildOuterFieldManager(G4int nPoles, G4double poleField, 
 			      G4double phiOffset);
+
   void SetOuterRadius(G4double outR);
+
 protected:
   G4LogicalVolume* itsBeampipeLogicalVolume;
   G4LogicalVolume* itsInnerBPLogicalVolume;

@@ -1,5 +1,27 @@
-#ifndef BDSAcceleratorComponent_h
-#define BDSAcceleratorComponent_h 
+//  
+//   BDSIM, (C) 2001-2006 
+//   
+//   version 0.3
+//  
+//
+//
+//
+//
+//   Generic accelerator component class
+//
+//
+//   History
+//
+//     24 Nov 2006 by Agapov,  v.0.3
+//     x  x   2002 by Blair
+//
+//
+
+
+
+
+#ifndef __BDSACCELERATORCOMPONENT_H
+#define __BDSACCELERATORCOMPONENT_H
 
 #include <string>
 #include "G4LogicalVolume.hh"
@@ -137,6 +159,13 @@ public:
 			      G4ThreeVector& localY,
 			      G4ThreeVector& localZ); 
 
+  
+  // get parameter value from the specification string
+
+  G4double getParameterValue(G4String spec, G4String name) const;
+  G4String getParameterValueString(G4String spec, G4String name) const;
+
+  // constructor
   BDSAcceleratorComponent (
 			  G4String& aName, 
 			  G4double aLength,
@@ -387,5 +416,55 @@ inline  const G4double BDSAcceleratorComponent::GetZOffset() const
 
 inline  const G4double BDSAcceleratorComponent::GetTilt() const
 {return itsTilt;}
+
+
+inline  G4double BDSAcceleratorComponent::getParameterValue(G4String spec, G4String name) const
+{
+  G4double value = 0;
+
+  string delimiters = "&";
+  string param = name + "=";
+
+  int pos = spec.find(param);
+  if( pos >= 0 )
+    {
+      
+      int pos2 = spec.find("&",pos);
+      int pos3 = spec.length();
+      int tend = pos2 < 0 ? pos3 : pos2; 
+      int llen = tend - pos - param.length();
+      
+      string val = spec.substr(pos + param.length(), llen);
+      
+      value = atof(val.c_str());
+
+  }
+
+  return value;
+
+}
+
+inline  G4String BDSAcceleratorComponent::getParameterValueString(G4String spec, G4String name) const
+{
+  G4String value = "";
+
+  string delimiters = "&";
+  string param = name + "=";
+
+  int pos = spec.find(param);
+  if( pos >= 0 )
+    {
+      
+      int pos2 = spec.find("&",pos);
+      int pos3 = spec.length();
+      int tend = pos2 < 0 ? pos3 : pos2; 
+      int llen = tend - pos - param.length();
+      
+      value = spec.substr(pos + param.length(), llen);
+  }
+
+  return value;
+
+}
 
 #endif

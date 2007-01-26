@@ -70,11 +70,22 @@ BDSMultipole::BDSMultipole( G4String aName,
 {}
 
 
-void BDSMultipole::BuildBeampipe(G4double aLength, G4int nSegments)
+void BDSMultipole::BuildBeampipe(G4double aLength, G4String materialName,  G4int nSegments)
 {
 
   itsNSegments=nSegments;
   G4double dSegments=double(nSegments);
+
+  G4Material *material;
+
+  if(materialName == "")
+    {
+      material = theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName());
+    }
+  else
+    {
+      material = theMaterials->GetMaterial(materialName);
+    }
 
   // build beampipe
 
@@ -111,7 +122,7 @@ void BDSMultipole::BuildBeampipe(G4double aLength, G4int nSegments)
   itsBeampipeLogicalVolume=	
     new G4LogicalVolume(itsBPTube,
 			//			theMaterials->LCIron,
-			theMaterials->LCAluminium,
+			theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName()),
 			itsName+"_bmp_logical");
 
   itsInnerBPLogicalVolume=	

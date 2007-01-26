@@ -36,6 +36,11 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
   else
     itsPhysListName = opt.physicsList;
 
+  if(opt.pipeMaterial == "") 
+    itsPipeMaterial = "Vacuum";
+  else
+    itsPipeMaterial = opt.pipeMaterial;
+  
   
   tmpParticleName = G4String(opt.particleName);
   

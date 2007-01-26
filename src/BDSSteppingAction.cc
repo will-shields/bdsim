@@ -352,7 +352,7 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 
   //G4cout<<"I am in "<<reg->GetName()<<G4endl;
 
-  if(reg->GetName() != "precision")
+  //if(reg->GetName() != "precision")
     {
       
       

@@ -1,13 +1,27 @@
-/* BDSIM code.    Version 1.0
-   Author: Grahame A. Blair, Royal Holloway, Univ. of London.
-   Last modified 24.7.2002
-   Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
-*/
+//  
+//   BDSIM, (C) 2001-2006 
+//   
+//   version 0.3
+//  
+//
+//
+//
+//
+//   Generic accelerator component class
+//
+//
+//   History
+//
+//     24 Nov 2006 by Agapov,  v.0.3
+//     x  x   2002 by Blair
+//
+//
+
+
+
 
 #include "BDSAcceleratorComponent.hh"
 
-//
-// Class BDSAcceleratorComponent 
 
 void BDSAcceleratorComponent::PrepareField(G4VPhysicalVolume *referenceVolume)
 {//do nothing by default

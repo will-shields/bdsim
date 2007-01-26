@@ -1,13 +1,25 @@
-/* BDSIM code.    Version 1.0
-   Author: Grahame A. Blair, Royal Holloway, Univ. of London.
-   Last modified 24.7.2002
-   Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
-*/
+//  
+//   BDSIM, (C) 2001-2006 
+//   
+//   version 0.3
+//  
+//
+//
+//   Quadrupole class
+//
+//
+//   History
+//
+//     21 Nov 2006 by Agapov,  v.0.3
+//     22 Mar 2005 by Agapov, Carter,  v.0.2
+//     x  x   2002 by Blair
+//
+//
 
-#ifndef BDSQuadrupole_h
-#define BDSQuadrupole_h 1
+#ifndef __BDSQUADRUPOLE_H
+#define __BDSQUADRUPOLE_H
 
-#include"globals.hh"
+#include "globals.hh"
 #include "BDSMaterials.hh"
 #include "G4LogicalVolume.hh"
 #include "BDSQuadStepper.hh"
@@ -28,7 +40,7 @@ class BDSQuadrupole :public BDSMultipole
   public:
     BDSQuadrupole(G4String aName, G4double aLength,
 		  G4double bpRad,G4double FeRad,
-		  G4double bGrad, G4double tilt, G4double outR);
+		  G4double bGrad, G4double tilt, G4String spec="");
     ~BDSQuadrupole();
 
   void SynchRescale(G4double factor);
@@ -37,9 +49,8 @@ class BDSQuadrupole :public BDSMultipole
   private:
   G4double itsBGrad;
 
-  //  void BuildOuterLogicalVolume();
+  void BuildOuterLogicalVolume();
   void BuildBPFieldAndStepper();
-  //void BuildMarkerLogicalVolume();
 
   G4VisAttributes* SetVisAttributes();
 

@@ -248,6 +248,10 @@ void BuildBeampipe2(BDSSectorBend *sb,G4double length, G4double angle)
 
 
   G4double halfLength = 0.5 * (xHalfLengthMinus + xHalfLengthPlus) ;
+
+
+  // use default beampipe material
+  G4Material *material =  theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName());
   
 
   // *** toroidal beampipes - problems with G4Torus::DistanceToTorus
@@ -373,12 +377,12 @@ void BuildBeampipe2(BDSSectorBend *sb,G4double length, G4double angle)
 
    sb->itsBeampipeLogicalVolume=	
     new G4LogicalVolume(pipeTubs,
-			theMaterials->LCAluminium,
+			material,
 			sb->itsName+"_bmp_logical");
   
   sb->itsInnerBPLogicalVolume=	
     new G4LogicalVolume(pipeInner,
-			theMaterials->LCVacuum,
+			material,
 			sb->itsName+"_bmp_Inner_log");
 
   G4VPhysicalVolume* PhysiInner = 

@@ -31,7 +31,7 @@
 class BDSRfCavity :public BDSMultipole
 {
   public:
-  BDSRfCavity(G4String aName, G4double aLength,G4double bpRad, G4double Ez);
+  BDSRfCavity(G4String aName, G4double aLength,G4double bpRad, G4double grad);
     ~BDSRfCavity();
 
   protected:
@@ -44,7 +44,7 @@ class BDSRfCavity :public BDSMultipole
 
   G4VisAttributes* SetVisAttributes();
 
-  G4double itsEz; // longitudinal E field in Megavolt
+  G4double itsGrad; // longitudinal E field grad in MV / m
 
   // field related objects:
   G4MagErrorStepper* itsStepper;

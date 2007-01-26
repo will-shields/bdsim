@@ -29,11 +29,11 @@ extern BDSMaterials* theMaterials;
 //============================================================
 
 BDSRfCavity::BDSRfCavity (G4String aName,G4double aLength, G4double bpRad, 
-			  G4double Ez):
+			  G4double grad):
   BDSMultipole(aName,aLength, bpRad, bpRad, SetVisAttributes())
 {
 
-  itsEz = Ez;
+  itsGrad = grad;
   
   if (!(*LogVolCount)[itsName])
     {
@@ -42,10 +42,29 @@ BDSRfCavity::BDSRfCavity (G4String aName,G4double aLength, G4double bpRad,
 
       BuildBeampipe(itsLength);
 
+      BuildDefaultOuterLogicalVolume(itsLength);
+
       // doesn't have an outer volume - but include it for laserwire
       //      BuildDefaultOuterLogicalVolume(itsLength);
       SetSensitiveVolume(itsBeampipeLogicalVolume);// for laserwire
       //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
+
+
+
+      G4VisAttributes* VisAtt = 
+	new G4VisAttributes(G4Colour(0., 0., 0));
+      VisAtt->SetForceSolid(true);
+      itsInnerBPLogicalVolume->SetVisAttributes(VisAtt);
+      
+      G4VisAttributes* VisAtt1 = 
+	new G4VisAttributes(G4Colour(0.4, 0.4, 0.4));
+      VisAtt1->SetForceSolid(true);
+      itsBeampipeLogicalVolume->SetVisAttributes(VisAtt1);
+      
+      G4VisAttributes* VisAtt2 = 
+	new G4VisAttributes(G4Colour(1.0, 1.0, 0.));
+      VisAtt2->SetForceSolid(true);
+      itsOuterLogicalVolume->SetVisAttributes(VisAtt2);
 
  
       (*LogVolCount)[itsName]=1;
@@ -74,7 +93,7 @@ void BDSRfCavity::BuildMarkerFieldAndStepper()
   G4int nvar = 8;
 
   // set up the magnetic field and stepper
-  G4ThreeVector Efield(0.,0.,itsEz * megavolt);
+  G4ThreeVector Efield(0.,0.,itsGrad * megavolt / m);
   itsField=new G4UniformElectricField(Efield);
 
   G4EqMagElectricField* fEquation = new G4EqMagElectricField(itsField);

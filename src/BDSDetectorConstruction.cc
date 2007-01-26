@@ -1,12 +1,18 @@
-/** BDSIM, v0.1   
-
-Last modified 15.11.2005 by Ilya Agapov
-
-**/
-
-
+//  
+//   BDSIM, (C) 2001-2006 
+//   
+//   version 0.3
+//  
 //
-//  geometry construction.
+//
+//   Geometry construction
+//
+//
+//   History
+//
+//     21 Nov 2006 by Agapov v.0.3
+//     28 Mar 2006 by Agapov v.0.2
+//     15 Dec 2005 by Agapov beta
 //
 
 
@@ -248,9 +254,9 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 
 	if(DEBUG) G4cout<<"---->adding RF "<<G4String( (*it).name )<<" l="<<(*it).l/m<<
-	  " aper="<<aper/m<<" Ez="<<(*it).ez/megavolt<<G4endl;
+	  " aper="<<aper/m<<"grad="<<(*it).gradient / megavolt<<G4endl;
 	if((*it).l > 0) // skip zero-length elements
-	  theBeamline.push_back(new BDSRfCavity(G4String((*it).name),(*it).l * m,aper,(*it).ez));
+	  theBeamline.push_back(new BDSRfCavity(G4String((*it).name),(*it).l * m,aper,(*it).gradient));
       
       added_comp=true;
       }
@@ -355,9 +361,12 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	  }
 
 	if(DEBUG) { G4cout<<"---->adding Quad, "<<G4String( (*it).name )<<
-	    " k1 ="<<(*it).k1<<" b' ="<<bPrime<<" brho = "<<brho<< " aper="<<aper/m<<G4endl; }
+	    " k1 ="<<(*it).k1<<" b' ="<<bPrime<<" brho = "<<brho<< " aper="<<
+	    aper/m<<"spec="<<(*it).spec<<G4endl; }
 
-	theBeamline.push_back(new BDSQuadrupole(G4String((*it).name),(*it).l * m,aper,FeRad,bPrime,(*it).tilt,(*it).outR * m));
+	theBeamline.push_back(
+			      new BDSQuadrupole(G4String((*it).name),(*it).l * m,aper,
+						FeRad,bPrime,(*it).tilt,(*it).spec));
 	
       
       added_comp=true;
@@ -711,7 +720,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   // set default output formats:
   G4cout.precision(15);
   
-  G4cout<<" total length="<<s_tot/m<< " s_local="<<s_local/m<<G4endl;
+  if(DEBUG) G4cout<<" total length="<<s_tot/m<< " s_local="<<s_local/m<<G4endl;
   
   // reset counters:
   for(iBeam=theBeamline.begin();iBeam!=theBeamline.end();iBeam++){
