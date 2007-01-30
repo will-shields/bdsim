@@ -1,25 +1,23 @@
 \input texinfo @c -*-texinfo-*-
 @c %**start of header
 @setfilename bdsim.info
-@settitle BDSIM User's Manual v0.2
+@settitle BDSIM User's Manual v0.3
 @c This date is automagically updated when you save this file:
-@set lastupdate May 18, 2006
+@set lastupdate Jan 26, 2007
+@set revision 0.3.1
 @c %**end of header
 
 @setchapternewpage off
 
-@copying
-
-Copyright @copyright{} 2004-2006 Royal Holloway University London.
-
-
-@end copying
+@c @copying
+@c Copyright @copyright{} 2004-2006 Royal Holloway University London.
+@c @end copying
 
 
 @titlepage
-@title BDSIM User's Manual v0.2
-@author I. Agapov, G. Blair, J. Carter
-@author last updated @value{lastupdate}
+@title BDSIM User's Manual v0.3
+@author I. Agapov
+@author revision @value{revision}, last updated @value{lastupdate}
 @end titlepage
 @setcontentsaftertitlepage
 
@@ -28,14 +26,13 @@ Copyright @copyright{} 2004-2006 Royal Holloway University London.
 
 
 @node Top, Intro, (dir), (dir)
-@top BDSIM v0.1 User's Manual
+@top BDSIM v0.3 User's Manual
 
 
-This file is updated automatically from @file{manual.texi}, which was
-last updated on @value{lastupdate}.
+This file is updated automatically from @file{manual.texi} last updated on @value{lastupdate}.
 
 
-@insertcopying
+@c @insertcopying
 
 @menu
 * Intro::                       
@@ -83,7 +80,8 @@ by running the @code{./configure} script.
 @code{./configure}
 
 
-It will create a Makefile from template defined in Makefile.in. Then start the compilation by typing
+It will create a Makefile from template defined in Makefile.in. You may want to edit the Makefile manually to meet your needs 
+(if your CLHEP version is greater than 2.x put -DCLHEP_VERSION=9). Then start the compilation by typing
 
 @code{./make}
 
@@ -154,6 +152,8 @@ relevant to radiation transport. GMAD is described in this section. Examples of 
 A GMAD program consists of a sequence of element definitions and control commands.
 For example, tracking a 1 GeV electron beam through a FODO cell will require a file like this:
 
+for example
+
 @example
 
 @code{qf: quadrupole, l=0.5*m, k1=0.1};
@@ -180,7 +180,7 @@ The GMAD language is discussed in more detail in this section.
 @section Arithmetical expressions
 
 Throughout the program a standard set of arithmetical expressions is available. Every expression is ended with a 
-semicolumn. For example
+semicolon. For example
 
 @example
 
@@ -485,35 +485,13 @@ Example :
 Attributes:
 @itemize 
 @item @code{l} - length [m] (default 0)
-@item @code{ez} - voltage [MV]
+@item @code{gradient} - field gradient [MV / m]
 @end itemize
 
 Example : 
 
-@code{rf1 : rf,l=0.4*m, ez=1}
+@code{rf1 : rf,l=5*m, gradient = 10 * MV / m; }
 
-
-@subsection rcol
-
-@code{rcol} defines a rectangular collimator
-
-Attributes:
-@itemize 
-@item @code{l} - length [m] (default 0)
-@item @code{xsize} - horizontal aperture [m]
-@item @code{xsize} - vertical aperture [m]
-@item @code{material} - material 
-@item @code{outR} - limits external extent [m] of collimator (default set to @code{componentBoxSize} option)
-@end itemize
-
-Example : 
-
-@code{col1 : rcol,l=0.4*m, xsize=2*mm, ysize=1*mm, material="W"}
-
-The longitudinal collimator structure is not taken into account. To do this the user has to describe the collimator
-with the generic type @code{element}   
-
-@subsection ecol
 
 @subsection rcol
 
@@ -609,10 +587,7 @@ The possible formats are given in @ref{Geometry}.
 
 Example :
 
-@code{qq : element, geometry = plain:qq.geom, bmap = plain:qq.bmap;}
-
-@code{<bmap>} and @code{<emap>} 
-are definitions of E and B field maps according to (field maps).
+@code{qq : element, geometry ="mokka:qq.sql", bmap ="mokka:qq.bmap";}
 
 @float Figure, fig1
 @caption{ An example a cryomodule described as @code{element} }
@@ -637,8 +612,8 @@ A sequence of FODO cells can be defines as
 @code{qd: quadrupole, l=0.5, k1=-0.1};
 @code{d: drift, l=0.5};
 @code{fodo : line=(qf,d,qd,d)};
-@code{section : line@{fodo,fodo,fodo@};}
-@code{beamline : line@{section,section,section@};}
+@code{section : line=(fodo,fodo,fodo);}
+@code{beamline : line=(section,section,section);}
 @end example
 
 @c @subsection aperture
@@ -766,22 +741,38 @@ the laser is considered to be the intersection of the laser beaam with the volum
 
 @c @end example 
 
+
+@subsection spec keyword
+
+Starting from v0.3 it is possible to add the @code{spec} keyword to all element definition. 
+
+@code{spec="keyword1=value1&keyword2=value2&.."}
+
+By this means any set of keyword/value pairs can be passed to the acelerator component construction classes.
+
+@example
+
+@code{qd : mquad,l=0.5 * m, k1 = qdk1, spec="type=cylinder&outR=20";}
+
+@end example
+
+
 @subsection Element number
 
-when several elements with the same name are present in the beamline they can be accessesd by their 
+when several elements with the same name are present in the beamline they can be accessed by their 
 number in the sequence. In the next example the sampler is put before the second drift 
 
 @example
 
 @code{bl:line=(d,d,d);}
-@code{sample,rang=d[2];}
+@code{sample,range=d[2];}
 
 @end example
 
 
 @subsection Element attributes
 
-Elements attributes such as length, multipole coefficiens etc. can be accessed by putting square brackets
+Element attributes such as length, multipole coefficiens etc. can be accessed by putting square brackets
 after the element name, f.e.
 
 @example
@@ -799,7 +790,7 @@ There is a set of predefined materials for use in elements such as collimators, 
 ``W''
 ``Iron''
 ``Copper''
-``Graphite'' etc
+``Graphite'' etc.
 
 Note that each geometry driver such as Mokka has its own set of materials
 
@@ -892,23 +883,30 @@ The available parameters are:
 
 @subsection @code{sample}
 
-To record the tracking results one uses the @code{sample} command:
+To record the tracking results one uses the @code{sample} 
 
-@code{sample, range=<range>,particle=<particle>,values=@{value1,value2,...@}}
+@code{sample, range=<element>;}
 
+The sampling plane is then inserted before @code{<element>}
 
 Example :
 @example
 @code{sample, range=d;}
-@code{csample, range=d;}
 @end example
+
+
+Cylindrical sampler of length @code{l} is put around element @code{<element>} at distance @code{<r>} with the command
+
+@code{sample, range=<element>, r=r0, l=l0;}
 
 
 @subsection @code{use}
 
 @code{use} command selects the beam line for study
 
-@code{use, period=,range=}
+@example
+@code{use, period=l1,range=q1/q2}
+@end example
 
 
 @c cccccccccccccccccccccccccccccccccccccccccc
@@ -1024,10 +1022,11 @@ Several predefined physics lists are available
 "em_standard"       -   transporation of primary particles, ionization,
                         bremsstrahlung, multiple scattering 
 "em_low"            -   the same but using low energy electromagnetic models
+"em_muon"            -   the same but using biased muon cross-sections
 "lw"                -   list for laser wire simulation - standard electromagnetic 
                         physics and "laser wire" physics which is Compton Scattering 
                         with total cross-section renormalized to 1.
-"standard_hadronic" -   standard electromagnetic, fission, neutron capture, neutron 
+"hadronic_standard" -   standard electromagnetic, fission, neutron capture, neutron 
                         and proton elastic and inelastic scattering.
 
 @end example
@@ -1041,82 +1040,16 @@ The transportation follows the scheme: the step length is selected which is defi
 to the boundary of the ``logical volume'' it is currently in (which could be, f.e. field boundary, material boundary or
 boundary between two adjacent elements) or by the mean free path of the activated processes. Then the particle is pushed
 to the new position and secondaries are generated if necessary. Each volume has an associated transporatation algorithm.
+For an on-energy particle travelling close to the optical axis of a quadrupole, dipole or a drift, standard matrix transportation 
+algorithms are used @ref{Course}. For multipoles of higher orders and for off-axis/energy particles Runge-Kutta methods are used.
 
 
-@subsection drift
-
-The particles are translated along straight lines inside drift spaces. 
-
-@example
-x          1 h 0 0            x0
-x'   =     0 1 0 0     x      x0'
-y          0 0 1 h            y0
-y'         0 0 0 1            y0'
-@end example
-
-
-If the trajectory reaches the boundary of
-the beam pipe then multiple scattering and other activated atomic and nuclear processes 
-basically determines the random transport.
-
-@subsection sbend and rbend
-
-@subsection quadrupole
-
-Similar procedure applies to quadrupoles with transport matrices inside the beampipe 
-
-@example
-x                     x0
-x'   =     M    x      x0'
-y                     y0
-y'                    y0'
-@end example
-
-
-
-@example
-          cos(h sqrt(k)) q/sqrt(k) sin(h sqrt(k) ) 0 0     
-M_f   =   -sqrt(k)sin(h sqrt(k)) cos(h sqrt(k)) 0 0    
-          0 0 ch(h sqrt(k)) 1/sqrt(k) sh(h sqrt(k))   
-          0 0 sqrt(k) sh(h sqrt(k)) ch(h sqrt(k))   
-@end example
-
-@example
-          0 0 ch(h sqrt(k)) 1/sqrt(k) sh(h sqrt(k))   
-M_d =     0 0 sqrt(k) sh(h sqrt(k)) ch(h sqrt(k))   
-          cos(h sqrt(k)) q/sqrt(k) sin(h sqrt(k) ) 0 0     
-          -sqrt(k)sin(h sqrt(k)) cos(h sqrt(k)) 0 0    
-
-@end example
-
-@float Figure, fig5
-@caption{ An example of distribution tracked through a beamline }
-@image{distr1,,2in}
-@image{distr2,,2in}
-@end float
-
-@subsection other elements
-
-In all other elements Runge-Kutta 
-
-@c @section Shower parametrization
-
-@section Electromagnetic Physics
-
-Synchrotron Radiation
-
-
-Laser wire (Compton Scattering)
-
-@section Hadronic Physics
-
-@c @section Gas scattering
 
 @section Tracking accuracy
 
 The following options influence the tracking accuracy
 
-@code{chordStepMinimum} minimum 
+@code{chordStepMinimum} minimum  chord length for the step
 
 
 
@@ -1125,7 +1058,7 @@ of the particle trajectory with the boundary and hence the error in the path len
 volume. This may influence the results especially in the case when EM fields are present.
 
 
-@code{deltaChord}
+@code{deltaChord} 
 
 
 @code{lengthSafety} all volumes will have an additional overlap of this length
@@ -1209,11 +1142,7 @@ as a class library.
 
 @section Features to be added in next releases
 
-
-will add hadronic stuff (already available, but...)
-
-gas
-
+current development is focused on the beam-gas scattering and implementation of wakefields.
 
 
 @c cccccccccccccccccccccccccccccccccccccccccc
@@ -1339,13 +1268,29 @@ E[GeV] x[micrometer] y[micrometer] z[micrometer] x'[microrad] y'[microrad]
 
 @code{guineapig_slac}
 
-E[GeV] z[nanometer] x[nanometer] y[micrometer] x'[rad] y'[rad]
+E[GeV] x'[rad] y'[rad] z[nanometer] x[nanometer] y[micrometer]
 
 @code{guineapig_pairs}
 
 E[GeV] x[rad] y[rad] z[rad] x[nanometer] y[nanometer] z[nanometer]
 
 here a particle with E>0 is assumed to be an electron and with E<0 a positron. 
+
+@code{guineapig_pairs}
+
+a custom distribution file format can be specified in the form
+
+@code{distrType="field1[unit1]:field1[unit1]:...}
+
+@example
+
+beam,  particle="e-",
+       energy=ener * GeV,
+       nparticles=1e+3,
+       distrType="pt[1]:E[GeV]:xp[rad]:yp[rad]:z[mum]:x[nm]:y[nm]",
+       distrFile="bunches/beam.dat";
+
+@end example
 
 
 The following distributoion types can be generated
@@ -1382,15 +1327,16 @@ Root User's Guide, @uref{http://root.cern.ch/root/doc/RootDoc.html}
 
 @anchor{Geant}
 @item 
-Geant4 User's Guide, @uref{http://wwwasd.web.cern.ch/wwwasd/geant4/G4UsersDocuments/Overview/html/index.html}
+Geant4 User's Guide, @uref{http://geant4.cern.ch/support/userdocuments.shtml}
 
 @anchor{MAD}
 @item 
 MAD-X User's Guide, @uref{http://mad.home.cern.ch/mad/uguide.html}
 
-@anchor{NLC}
+@anchor{Course}
 @item 
-NLC Zero-order design report 
+for example 'Basic course on Accelerator optics' by Schmuesser, Rossbach, CERN Accelerator school
+
 
 @end enumerate
 
