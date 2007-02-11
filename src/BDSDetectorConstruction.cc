@@ -266,8 +266,13 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 	FeRad = aper;
 	(*it).angle*=-1;
-	bField = brho * (*it).angle / (*it).l * tesla;
-	bPrime = brho * (*it).k1 * tesla / m;
+
+	// get the particle charge
+        double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();
+	
+
+	bField = -charge * brho * (*it).angle / (*it).l * tesla;
+	bPrime = -charge * brho * (*it).k1 * tesla / m;
 	
 	if( (*it).outR < (*it).aper)
 	  {
@@ -293,8 +298,11 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 
       if((*it).type==_HKICK ) {
-	bField = brho * (*it).angle / (*it).l * tesla;
-	bPrime = brho * (*it).k1 * tesla / m ;
+
+	// get the particle charge
+        double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();		
+	bField = -charge * brho * (*it).angle / (*it).l * tesla * synch_factor;
+	bPrime = -charge * brho * (*it).k1 * tesla / m * synch_factor;
 	
 	if( (*it).outR < (*it).aper)
 	  {
@@ -318,8 +326,11 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       }
 
       if((*it).type==_VKICK ) {
-	bField = brho * (*it).angle / (*it).l * tesla * synch_factor;
-	bPrime = brho * (*it).k1 * tesla / m * synch_factor;
+	// get the particle charge
+        double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();		
+
+	bField = -charge * brho * (*it).angle / (*it).l * tesla * synch_factor;
+	bPrime = -charge * brho * (*it).k1 * tesla / m * synch_factor;
 	
 
 	if( (*it).outR < (*it).aper)
@@ -345,9 +356,12 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 
       if((*it).type==_QUAD ) {
+
+	// get the particle charge
+        double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();	
 	
 	//bPrime = brho * (*it).k1 / (*it).l * tesla  * synch_factor;
-	bPrime = brho * (*it).k1 * tesla / m;
+	bPrime = -charge * brho * (*it).k1 * tesla / m;
 	G4double aper = bpRad;
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 	FeRad = aper;
@@ -373,8 +387,12 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       }
       
       if((*it).type==_SEXTUPOLE ) {
+
+	// get the particle charge
+        double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();	
+
 	//bDoublePrime = brho * (*it).k2 / (*it).l * tesla / (m*m) * synch_factor;
-	bDoublePrime = brho * (*it).k2 * tesla / (m*m) * synch_factor;
+	bDoublePrime = -charge * brho * (*it).k2 * tesla / (m*m) * synch_factor;
 	G4double aper = bpRad;
 
 	if( (*it).outR < (*it).aper)
@@ -395,10 +413,13 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       }
 
       if((*it).type==_OCTUPOLE ) {
+
+	double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();	
+
 	//bDoublePrime = brho * (*it).k2 / (*it).l * tesla / (m*m) * synch_factor;
 	//bTriplePrime = brho * (*it).k3 / (*it).l * tesla / (m*m*m) * synch_factor;
-	bDoublePrime = brho * (*it).k2 * tesla / (m*m) * synch_factor;
-	bTriplePrime = brho * (*it).k3 * tesla / (m*m*m) * synch_factor;
+	bDoublePrime = -charge * brho * (*it).k2 * tesla / (m*m) * synch_factor;
+	bTriplePrime = -charge * brho * (*it).k3 * tesla / (m*m*m) * synch_factor;
 
 	if( (*it).outR < (*it).aper)
 	  {
@@ -423,23 +444,23 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	if(DEBUG) { G4cout<<"---->adding multipole, "<<G4String( (*it).name )<<" aper="<<aper/m<<G4endl;}
 	
 	
-	G4cout<<"knl=";
+	if(DEBUG) G4cout<<"knl=";
 	list<double>::iterator kit;
 	for(kit=(it->knl).begin();kit!=(it->knl).end();kit++)
 	  {
-	    G4cout<<(*kit)<<" ";
+	    if(DEBUG) G4cout<<(*kit)<<" ";
 	    (*kit) /= (*it).l; 
 	  }
-	G4cout<<G4endl;
+	if(DEBUG) G4cout<<G4endl;
 	
-	G4cout<<"ksl=";
+	if(DEBUG) G4cout<<"ksl=";
 	
 	for(kit=(it->ksl).begin();kit!=(it->ksl).end();kit++)
 	  {
-	    G4cout<<(*kit)<<" ";
+	    if(DEBUG) G4cout<<(*kit)<<" ";
 	    (*kit) /= (*it).l; 
 	  }
-	G4cout<<G4endl;
+	if(DEBUG) G4cout<<G4endl;
 	
 	FeRad = aper;
 	theBeamline.push_back(new BDSTMultipole(G4String((*it).name),(*it).l * m,aper,FeRad, it->knl,it->ksl));
