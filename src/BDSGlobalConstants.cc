@@ -4,7 +4,7 @@ Last modified 01.02.2006 by Ilya Agapov
 
 **/
 
-const int DEBUG = 1;
+const int DEBUG = 0;
 
 #include "BDSGlobalConstants.hh"
 

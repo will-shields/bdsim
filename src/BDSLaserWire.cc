@@ -35,6 +35,13 @@ G4double aWavelength, G4ThreeVector aDirection,
 {
   LaserWireLogicalVolume();
   //  itsLaserCompton=new BDSLaserCompton(aWavelength, aDirection);
+
+  //  G4cout << "*****" << itsMarkerLogicalVolume->GetName() << "*****\n";
+
+  BDSGlobals->
+    SetLaserwireWavelength(itsMarkerLogicalVolume->GetName(),aWavelength);
+  BDSGlobals->
+    SetLaserwireDir(itsMarkerLogicalVolume->GetName(),aDirection);
 }
 
 void BDSLaserWire::LaserWireLogicalVolume()

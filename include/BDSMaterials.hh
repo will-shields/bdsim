@@ -43,6 +43,7 @@ public:
   G4Material*  LCNbTi;
   G4Material*  LCInvar;
   G4Material*  LCCarbonSteel;
+  G4Material*  SmCo;
 
 private:
 
@@ -72,6 +73,7 @@ inline G4Material* BDSMaterials::GetMaterial(G4String aMaterial)
   else if(aMaterial.compareTo("NbTi",cmpmode)==0) return LCNbTi;  
   else if(aMaterial.compareTo("Invar",cmpmode)==0) return LCInvar; 
   else if(aMaterial.compareTo("CarbonSteel", cmpmode)==0) return LCCarbonSteel;
+  else if(aMaterial.compareTo("SmCo", cmpmode)==0) return SmCo;
 
   else
     {

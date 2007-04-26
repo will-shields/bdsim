@@ -128,6 +128,8 @@ private:
   
   // event number for phase for ellipse for SR rescaling
   G4int partId;
+
+  G4int ignoreLines; // number of lines to ignore from opt
 };
 
 #endif

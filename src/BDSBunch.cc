@@ -38,6 +38,8 @@ BDSBunch::BDSBunch()
 
   partId = 0;
 
+  ignoreLines = 0;
+
   distribType = _GAUSSIAN;
   
   GaussGen=new RandGauss(*HepRandom::getTheEngine());
@@ -53,9 +55,22 @@ BDSBunch::~BDSBunch()
 
 // set options from gmad
 
+G4double val;
+
 void BDSBunch::SetOptions(struct Options& opt)
 {
-  G4double val;
+  map<const G4String, int, strCmp> distType;
+  distType["gauss"]=_GAUSSIAN;
+  distType["ring"]=_RING;
+  distType["square"]=_SQUARE;
+  distType["circle"]=_CIRCLE;
+  distType["guineapig_bunch"]=_GUINEAPIG_BUNCH;
+  distType["guineapig_pairs"]=_GUINEAPIG_PAIRS;
+  distType["guineapig_slac"]=_GUINEAPIG_SLAC;
+  distType["cain"]=_CAIN;
+  distType["eshell"]=_ESHELL;
+  distType["udef"]=_UDEF;
+
 #define _skip(nvalues) for(G4int i=0;i<nvalues;i++) InputBunchFile>>val;
 
   // twiss parameters - set always if present
@@ -66,9 +81,12 @@ void BDSBunch::SetOptions(struct Options& opt)
   SetEmitX(opt.emitx);
   SetEmitY(opt.emity);
 
+  ignoreLines = opt.nlinesIgnore;
   distribType = _GAUSSIAN; // default
 
-  if(opt.distribType == "gauss")
+  switch(distType[opt.distribType]){
+    //  if(opt.distribType == "gauss")
+  case _GAUSSIAN:
     {
       distribType = _GAUSSIAN; 
       SetSigmaX(opt.sigmaX); 
@@ -77,9 +95,11 @@ void BDSBunch::SetOptions(struct Options& opt)
       SetSigmaYp(opt.sigmaYp);
       SetSigmaT(opt.sigmaT);
       energySpread = opt.sigmaE;
-      return;
-    } else
-  if(opt.distribType == "ring")
+      break;
+      //return;
+    } 
+    //  else if(opt.distribType == "ring")
+  case _RING:
     {
       distribType = _RING; 
       X0 = opt.X0;
@@ -87,9 +107,12 @@ void BDSBunch::SetOptions(struct Options& opt)
       rMin = opt.Rmin;
       rMax = opt.Rmax;
       energySpread = opt.sigmaE;
-      return;
-    } else
-  if(opt.distribType == "eshell")
+      //return;
+      break;
+    } 
+    //else if(opt.distribType == "eshell")
+    
+  case _ESHELL:
     {
       distribType = _ESHELL;
       shellx = opt.x;
@@ -97,57 +120,72 @@ void BDSBunch::SetOptions(struct Options& opt)
       shellxp = opt.xp;
       shellyp = opt.yp;
       energySpread = opt.sigmaE;
-      return;
-    } else
-  if(opt.distribType == "guineapig_bunch")
+      //return;
+      break;
+    } 
+    //else if(opt.distribType == "guineapig_bunch")
+  case _GUINEAPIG_BUNCH:
     {
       distribType = _GUINEAPIG_BUNCH;
       inputfile = opt.distribFile;
       InputBunchFile.open(inputfile);
-      if(!InputBunchFile.good()) { G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
-      if(DEBUG) G4cout<<"GUINEAPIG_BUNCH: skipping "<<opt.nlinesIgnore<<"  lines"<<G4endl;
+      if(!InputBunchFile.good()) 
+	{ G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
+      if(DEBUG) 
+	G4cout<<"GUINEAPIG_BUNCH: skipping "<<opt.nlinesIgnore<<"  lines"<<G4endl;
       _skip(opt.nlinesIgnore * 6);
-      return;
-    } else
-  if(opt.distribType == "guineapig_slac")
+      //return;
+      break;
+    } 
+    //else if(opt.distribType == "guineapig_slac")
+  case _GUINEAPIG_SLAC:
     {
       distribType = _GUINEAPIG_SLAC;
       inputfile = opt.distribFile;
       InputBunchFile.open(inputfile);
-      if(!InputBunchFile.good()) { G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
+      if(!InputBunchFile.good()) 
+	{ G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
       _skip(opt.nlinesIgnore * 6);
-      return;
-    } else
-  if(opt.distribType == "guineapig_pairs")
+      //return;
+      break;
+    } 
+  case _GUINEAPIG_PAIRS:
+    //else if(opt.distribType == "guineapig_pairs")
     {
-      distribType = _GUINEAPIG_PAIRS;
-      inputfile = opt.distribFile;
-      InputBunchFile.open(inputfile);
-      if(!InputBunchFile.good()) { G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
-      _skip(opt.nlinesIgnore * 7);
-      return;
-    } else
-  if(opt.distribType == "cain")
+     distribType = _GUINEAPIG_PAIRS;
+     inputfile = opt.distribFile;
+     InputBunchFile.open(inputfile);
+     if(!InputBunchFile.good()) 
+       { G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
+     _skip(opt.nlinesIgnore * 7);
+     //return;
+     break;
+    }
+  case _CAIN:
+    //else if(opt.distribType == "cain")
     {
       distribType = _CAIN;
       inputfile = opt.distribFile;
       InputBunchFile.open(inputfile);
-      if(!InputBunchFile.good()) { G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
+      if(!InputBunchFile.good()) 
+	{ G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
       _skip(opt.nlinesIgnore * 14);
-      return;
+      //return;
+      break;
     } 
-  else //assuming the format is "field[unit]:field[unit]:..." - User Defined
+    //else //assuming the format is "field[unit]:field[unit]:..." - User Defined
+  default:
     {
       G4cout<<"distrType -> "<<opt.distribType<<G4endl;
       distribType = _UDEF; 
-   
+      
       // construct the list of read attributes
-
+      
       G4String unparsed_str = opt.distribType; 
       G4int pos = unparsed_str.find(":");
-
+      
       struct Doublet sd;
-
+      
       while(pos > 0)
 	{
 	  pos = unparsed_str.find(":");
@@ -156,7 +194,7 @@ void BDSBunch::SetOptions(struct Options& opt)
 	  //G4cout<<"token ->"<<token<<G4endl;
 	  //G4cout<<"unparsed_str ->"<<unparsed_str<<G4endl;
 	  //G4cout<<"pos ->"<<pos<<G4endl;
-
+	  
 	  // see if the token has a meeting
 	  if( token.length() > 2) {
 	    if(token.substr(0,1)=="E") {
@@ -175,7 +213,7 @@ void BDSBunch::SetOptions(struct Options& opt)
 		if(fmt=="MeV") sd.unit=1.e-3;
 		if(fmt=="KeV") sd.unit=1.e-6;
 		if(fmt=="eV") sd.unit=1.e-9;
-
+		
 		fields.push_back(sd);
 	      }
 	    }
@@ -193,15 +231,15 @@ void BDSBunch::SetOptions(struct Options& opt)
 		G4String fmt = rest.substr(pos1+1,pos2-1);
 		//G4cout<<"fmt ->"<<fmt<<G4endl;
 		sd.name="x";
-
+		
 		if(fmt=="m") sd.unit=1;
 		if(fmt=="cm") sd.unit=1.e-2;
 		if(fmt=="mm") sd.unit=1.e-3;
 		if(fmt=="mum") sd.unit=1.e-6;
 		if(fmt=="nm") sd.unit=1.e-9;
-
+		
 		fields.push_back(sd);
-
+		
 	      }
 	    }
 	    if(token.substr(0,1)=="y" && token.substr(1,1)!="p" ) {
@@ -216,13 +254,13 @@ void BDSBunch::SetOptions(struct Options& opt)
 		G4String fmt = rest.substr(pos1+1,pos2-1);
 		//G4cout<<"fmt ->"<<fmt<<G4endl;
 		sd.name="y";
-
+		
 		if(fmt=="m") sd.unit=1;
 		if(fmt=="cm") sd.unit=1.e-2;
 		if(fmt=="mm") sd.unit=1.e-3;
 		if(fmt=="mum") sd.unit=1.e-6;
 		if(fmt=="nm") sd.unit=1.e-9;
-
+		
 		fields.push_back(sd);
 	      }
 	    }
@@ -244,7 +282,7 @@ void BDSBunch::SetOptions(struct Options& opt)
 		if(fmt=="mm") sd.unit=1.e-3;
 		if(fmt=="mum") sd.unit=1.e-6;
 		if(fmt=="nm") sd.unit=1.e-9;
-	
+		
 		fields.push_back(sd);
 	      }
 	    }
@@ -260,11 +298,11 @@ void BDSBunch::SetOptions(struct Options& opt)
 		G4String fmt = rest.substr(pos1+1,pos2-1);
 		//G4cout<<"fmt ->"<<fmt<<G4endl;
 		sd.name="xp";
-
+		
 		if(fmt=="rad") sd.unit=1;
 		if(fmt=="mrad") sd.unit=1.e-3;
 		
-
+		
 		fields.push_back(sd);
 		
 	      }
@@ -281,11 +319,11 @@ void BDSBunch::SetOptions(struct Options& opt)
 		G4String fmt = rest.substr(pos1+1,pos2-1);
 		//G4cout<<"fmt ->"<<fmt<<G4endl;
 		sd.name="yp";
-
+		
 		if(fmt=="rad") sd.unit=1;
 		if(fmt=="mrad") sd.unit=1.e-3;
 		
-
+		
 		fields.push_back(sd);
 	      }
 	    }
@@ -301,11 +339,11 @@ void BDSBunch::SetOptions(struct Options& opt)
 		G4String fmt = rest.substr(pos1+1,pos2-1);
 		//G4cout<<"fmt ->"<<fmt<<G4endl;
 		sd.name="zp";
-
+		
 		if(fmt=="rad") sd.unit=1;
 		if(fmt=="mrad") sd.unit=1.e-3;
 		
-
+		
 		fields.push_back(sd);
 	      }
 	    }
@@ -321,26 +359,29 @@ void BDSBunch::SetOptions(struct Options& opt)
 		G4String fmt = rest.substr(pos1+1,pos2-1);
 		//G4cout<<"fmt ->"<<fmt<<G4endl;
 		sd.name="pt";
-
+		
 		fields.push_back(sd);
 	      }
 	    }
 	    
-
-	  } else {
-	      // definitely error
-	    }
-
+	    
+	  }
+	  else {
+	    G4cerr << "Cannot determine bunch data format" << G4endl; exit(1);
+	  }
+	  
 	}
-
-      
 
       inputfile = opt.distribFile;
       InputBunchFile.open(inputfile);
       if(!InputBunchFile.good()) {
-	G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
-      
+	G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; 
+	G4cerr<<"Reverting to gaussian bunch type" << G4endl;
+	distribType = _GAUSSIAN;
+      }
     }
+  }
+  return;  
 }
 
 // get initial bunch distribution parameters in Gaussian case 
@@ -379,7 +420,7 @@ G4double BDSBunch::GetNextX()
 
 G4double BDSBunch::GetNextY()
 {
-  return sigmaX * GaussGen->shoot() * m;
+  return sigmaY * GaussGen->shoot() * m;
 }
 
 G4double BDSBunch::GetNextZ()
@@ -458,8 +499,8 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       yp*=radian;
       return;
     }
-
-  if(distribType == _GAUSSIAN)
+  switch(distribType){
+  case _GAUSSIAN:
     {
       x0 = sigmaX * GaussGen->shoot() * m;
       y0 = sigmaY * GaussGen->shoot() * m;
@@ -469,14 +510,15 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       zp=sqrt(1.-xp*xp -yp*yp);  
       t = - sigmaT* (1.-2.*GaussGen->shoot());
       E = BDSGlobals->GetBeamKineticEnergy() * (1 + energySpread * GaussGen->shoot());
+      break;
     }
-  if(distribType == _RING)
+  case _RING:
     {
       if(DEBUG) G4cout<<"RING: rMin="<<rMin<<" rMax="<<rMax<<G4endl;
       
       r = ( rMin + (rMax - rMin) *  rand() / RAND_MAX ) * m;
       phi = 2 * pi * rand() / RAND_MAX;
-
+      
       x0 = r * sin(phi);
       y0 = r * cos(phi);
       z0 = 0;
@@ -486,117 +528,142 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       t = 0;
       E = BDSGlobals->GetBeamKineticEnergy()
 	* (1 + energySpread/2. * (1. -2. * FlatGen->shoot()));
+      break;
     }
-  if(distribType == _ESHELL)
-    {
-      // generate elliptical shell - first generate on S1 and then transform into ellipse
-
+  case _ESHELL:
+    {// generate elliptical shell - first generate on S1 and then transform into ellipse
+      
       if(DEBUG) G4cout<<"SHELL: x="<<shellx<<" xp="<<shellxp<<G4endl;
       
       phi = 2 * pi * rand() / RAND_MAX;
-
+      
       x0 = sin(phi) * shellx;
       xp = cos(phi) * shellxp;
-
+      
       phi = 2 * pi * rand() / RAND_MAX;
-
+      
       y0 = sin(phi) * shelly;
       yp = cos(phi) * shellyp;
-
+      
       z0 = 0;
-
-
+      
       zp=sqrt(1.-xp*xp -yp*yp);  
       t = 0;
       E = BDSGlobals->GetBeamKineticEnergy()
 	* (1 + energySpread/2. * (1. -2. * FlatGen->shoot()));
-
+      break;
     }
-  if(distribType == _GUINEAPIG_BUNCH)
+  case _GUINEAPIG_BUNCH:
     {
       #define  _READ(value) InputBunchFile>>value
       if(_READ(E))
-	  {
-	   _READ(x0);
-	   _READ(y0);
-	   _READ(z0);
-	   _READ(xp);
-	   _READ(yp);
-	   
-	   E*=GeV;
-	   x0*= micrometer;
-	   y0*= micrometer;
-           z0*= micrometer;
-           xp*=1.e-6*radian;
-           yp*=1.e-6*radian;
-	   zp=sqrt(1.-xp*xp -yp*yp);  
-	   t=-z0/c_light;
-	   // use the Kinetic energy:
-	   E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
-	  }
+	{
+	  _READ(x0);
+	  _READ(y0);
+	  _READ(z0);
+	  _READ(xp);
+	  _READ(yp);
+	  
+	  E*=GeV;
+	  x0*= micrometer;
+	  y0*= micrometer;
+	  z0*= micrometer;
+	  xp*=1.e-6*radian;
+	  yp*=1.e-6*radian;
+	  zp=sqrt(1.-xp*xp -yp*yp);  
+	  t=-z0/c_light;
+	  // use the Kinetic energy:
+	  E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
+	}
+      break;
     }
-  if(distribType == _GUINEAPIG_SLAC)
-    {
-       #define  _READ(value) InputBunchFile>>value
-       if(_READ(E))
-	 {
-	   _READ(xp);
-	   _READ(yp);
-	   _READ(z0);
-	   _READ(x0);
-	   _READ(y0);
-	   
-	   E*=GeV;
-	   x0*= nanometer;
-	   y0*= nanometer;
-	   z0*= micrometer;
-	   xp*=radian;
-	   yp*=radian;
-	   zp=sqrt(1.-xp*xp -yp*yp);  
-	   t=-z0/c_light;
-	   // use the Kinetic energy:
-	   E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
-	 }
-    }
-  if(distribType == _GUINEAPIG_PAIRS)
+  case _GUINEAPIG_SLAC:
     {
       #define  _READ(value) InputBunchFile>>value
- 	if(_READ(E))
-	  {
-	    _READ(xp);
-	    _READ(yp);
-	    _READ(zp);
-	    _READ(x0);
-	    _READ(y0);
-	    _READ(z0);
-	    if(E>0) BDSGlobals->SetParticleDefinition(G4ParticleTable::
-						      GetParticleTable()
-						      ->FindParticle("e-"));
-	    if(E<0) BDSGlobals->SetParticleDefinition(G4ParticleTable::
-						      GetParticleTable()
-						      ->FindParticle("e+"));
-	    E=fabs(E)*GeV;
-	    x0*= nanometer;
-	    y0*= nanometer;
-	    z0*= nanometer;
-	    xp*=radian;
-	    yp*=radian;
-	    zp*=radian;
-	    // Using the sign of the pair file zp
-	    // but calculating zp more accurately
-	    if(zp<0) zp = -sqrt(1-(xp*xp+yp*yp));
-	    else zp = sqrt(1-(xp*xp+yp*yp));
-	    t=-z0/c_light;
-	    // use the Kinetic energy:
-	    E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
-	  }
+      if(_READ(E))
+	{
+	  _READ(xp);
+	  _READ(yp);
+	  _READ(z0);
+	  _READ(x0);
+	  _READ(y0);
+	  
+	  E*=GeV;
+	  x0*= nanometer;
+	  y0*= nanometer;
+	  z0*= micrometer;
+	  xp*=radian;
+	  yp*=radian;
+	  zp=sqrt(1.-xp*xp -yp*yp);  
+	  t=-z0/c_light;
+	  // use the Kinetic energy:
+	  E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
+	}
+      else{
+	InputBunchFile.clear();
+	InputBunchFile.seekg(0);
+	_skip(ignoreLines * 6);
+	GetNextParticle(x0,y0,z0,xp,yp,zp,t,E);
+	
+	/*   _READ(E);
+	     _READ(xp);
+	     _READ(yp);
+	     _READ(z0);
+	     _READ(x0);
+	     _READ(y0);
+	     
+	     E*=GeV;
+	     x0*= nanometer;
+	     y0*= nanometer;
+	     z0*= micrometer;
+	     xp*=radian;
+	     yp*=radian;
+	     zp=sqrt(1.-xp*xp -yp*yp);
+	     t=-z0/c_light;
+	     // use the Kinetic energy:
+	     E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
+	*/
+      }
+      break;
     }
-
-  if(distribType == _CAIN)
+  case _GUINEAPIG_PAIRS:
     {
-      // Note that for the CAIN input the following variables are read in but NOT used by BDSIM:
+      #define  _READ(value) InputBunchFile>>value
+      if(_READ(E))
+	{
+	  _READ(xp);
+	  _READ(yp);
+	  _READ(zp);
+	  _READ(x0);
+	  _READ(y0);
+	  _READ(z0);
+	  if(E>0) BDSGlobals->SetParticleDefinition(G4ParticleTable::
+						    GetParticleTable()
+						    ->FindParticle("e-"));
+	  if(E<0) BDSGlobals->SetParticleDefinition(G4ParticleTable::
+						    GetParticleTable()
+						    ->FindParticle("e+"));
+	  E=fabs(E)*GeV;
+	  x0*= nanometer;
+	  y0*= nanometer;
+	  z0*= nanometer;
+	  xp*=radian;
+	  yp*=radian;
+	  zp*=radian;
+	  // Using the sign of the pair file zp
+	  // but calculating zp more accurately
+	  if(zp<0) zp = -sqrt(1-(xp*xp+yp*yp));
+	  else zp = sqrt(1-(xp*xp+yp*yp));
+	  t=-z0/c_light;
+	  // use the Kinetic energy:
+	  E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
+	}
+      break;
+    }
+  case _CAIN:
+    {// Note that for the CAIN input the following variables are read in but NOT used by BDSIM:
       //     generation, weight, spin_x, spin_y, spin_z
-
+      
       G4int type;
       G4int gen;
       G4int pos;
@@ -609,7 +676,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       G4String dbl_var;
       G4String rep = 'E';      
       #define  _READ(value) InputBunchFile>>value
-
+      
       if(_READ(type))
 	{
 	  
@@ -693,15 +760,19 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 	  _READ(sy);
 	  _READ(sz);
 	  
-	  if(type==1) BDSGlobals->SetParticleDefinition(G4ParticleTable::
-							GetParticleTable()
-							->FindParticle("gamma"));
-	  else if(type==2) BDSGlobals->SetParticleDefinition(G4ParticleTable::
-							     GetParticleTable()
-							     ->FindParticle("e-"));
-	  else if(type==3) BDSGlobals->SetParticleDefinition(G4ParticleTable::
-							     GetParticleTable()
-							     ->FindParticle("e+"));
+	  if(type==1) 
+	    BDSGlobals->SetParticleDefinition(G4ParticleTable::
+					      GetParticleTable()
+					      ->FindParticle("gamma"));
+	  else if(type==2) 
+	    BDSGlobals->SetParticleDefinition(G4ParticleTable::
+					      GetParticleTable()
+					      ->FindParticle("e-"));
+	  
+	  else if(type==3) 
+	    BDSGlobals->SetParticleDefinition(G4ParticleTable::
+					      GetParticleTable()
+					      ->FindParticle("e+"));
 	  
 	  t*= m/c_light;
 	  x0*= m;
@@ -712,8 +783,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 	  py*=eV/c_light;
 	  pz*=eV/c_light;
 	  
-	  part_mass = BDSGlobals->GetParticleDefinition()->GetPDGMass();	    
-	  
+	  part_mass = BDSGlobals->GetParticleDefinition()->GetPDGMass();
 	  // use the Kinetic energy:
 	  E-=part_mass;
 	  
@@ -722,40 +792,38 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 	  yp = py*c_light / sqrt(E*E + 2*E*part_mass);
 	  zp = pz*c_light / sqrt(E*E + 2*E*part_mass);
 	  /*	  
-	  G4cout << "Bunch input was: " << G4endl;
-	  G4cout << type << "\t"
-		 << gen << "\t"
-		 << weight << "\t"
-		 << t/m << "\t"
-		 << x0/m << "\t"
-		 << y0/m << "\t"
-		 << z0/m << "\t"
-		 << E/eV << "\t"
-		 << px/(eV/c_light) << "\t"
-		 << py/(eV/c_light) << "\t"
-		 << pz/(eV/c_light) << "\t"
-		 << sx << "\t"
-		 << sy << "\t"
-		 << sz << "\t"
-		 << xp << "\t"
-		 << yp << "\t"
-		 << zp << "\t"
-		 << G4endl << G4endl;
+		  G4cout << "Bunch input was: " << G4endl;
+		  G4cout << type << "\t"
+		  << gen << "\t"
+		  << weight << "\t"
+		  << t/m << "\t"
+		  << x0/m << "\t"
+		  << y0/m << "\t"
+		  << z0/m << "\t"
+		  << E/eV << "\t"
+		  << px/(eV/c_light) << "\t"
+		  << py/(eV/c_light) << "\t"
+		  << pz/(eV/c_light) << "\t"
+		  << sx << "\t"
+		  << sy << "\t"
+		  << sz << "\t"
+		  << xp << "\t"
+		  << yp << "\t"
+		  << zp << "\t"
+		  << G4endl << G4endl;
 	  */	  
 	}
+      break;
     }
-
-  if(distribType == _UDEF)
-    {
-
-      //G4cout<<"distrType=UDEF"<<G4endl;
-
+  case _UDEF:
+    {//G4cout<<"distrType=UDEF"<<G4endl;
+      
       E = x0 = y0 = z0 = xp = yp = zp = 0;
-
-     #define  _READ(value) InputBunchFile>>value
-
+      
+      #define  _READ(value) InputBunchFile>>value
+      
       G4int type;
-
+      
       list<struct Doublet>::iterator it;
       
       for(it=fields.begin();it!=fields.end();it++)
@@ -769,24 +837,28 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 	  if(it->name=="yp") { _READ(yp); yp *= ( radian * it->unit ); }
 	  if(it->name=="zp") { _READ(zp); zp *= ( radian * it->unit ); }
 	  if(it->name=="pt") {
-	       _READ(type);
-	       if(InputBunchFile.good())
-	       BDSGlobals->SetParticleDefinition(G4ParticleTable::
-						 GetParticleTable()
-						 ->FindParticle(type));
+	    _READ(type);
+	    if(InputBunchFile.good())
+	      BDSGlobals->SetParticleDefinition(G4ParticleTable::
+						GetParticleTable()
+						->FindParticle(type));
 	  }
-
-      
+	  
+	  
 	  zp=sqrt(1.-xp*xp -yp*yp);  
 	  t=-z0/c_light;
 	  // use the Kinetic energy:
 	  E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
 	  
 	}
+      break;
     }
-
+  default:
+    {
+      G4Exception("BDSBunch: Unknown distribution file type!");
+    }
+  }
 }
-
 
 
 G4double BDSBunch::GetEmitX()

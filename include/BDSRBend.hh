@@ -24,7 +24,7 @@
 #include "BDSSbendMagField.hh"
 #include "G4Mag_EqRhs.hh"
 
-class BDSRBend :public BDSMultipole
+class BDSRBend:public BDSMultipole
 {
   public:
     BDSRBend(G4String aName, G4double aLength,
@@ -45,6 +45,7 @@ class BDSRBend :public BDSMultipole
 
   //void BuildBeampipe2(G4double length,G4double angle);
   friend void BuildBeampipe2(BDSRBend *sb,G4double length,G4double angle);
+  //  friend void BuildDefaultOuterLogicalVolume2(BDSRBend* sb,G4double aLength, G4double angle, G4bool OuterMaterialIsVacuum=false);
 
   G4VisAttributes* SetVisAttributes();
 
@@ -57,5 +58,6 @@ class BDSRBend :public BDSMultipole
 };
 
 void BuildBeampipe2(BDSRBend *sb,G4double length,G4double angle);
+//void BuildDefaultOuterLogicalVolume2(BDSRBend* sb,G4double aLength, G4double angle, G4bool OuterMaterialIsVacuum=false);
 
 #endif

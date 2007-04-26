@@ -40,7 +40,8 @@ class BDSQuadrupole :public BDSMultipole
   public:
     BDSQuadrupole(G4String aName, G4double aLength,
 		  G4double bpRad,G4double FeRad,
-		  G4double bGrad, G4double tilt, G4String spec="");
+		  G4double bGrad, G4double tilt, G4double outR, 
+		  G4String spec="");
     ~BDSQuadrupole();
 
   void SynchRescale(G4double factor);

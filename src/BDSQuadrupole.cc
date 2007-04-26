@@ -31,7 +31,7 @@
 
 #include <map>
 
-const int DEBUG = 1;
+const int DEBUG = 0;
 
 
 //============================================================
@@ -49,7 +49,8 @@ extern G4RotationMatrix* RotY90;
 
 BDSQuadrupole::BDSQuadrupole(G4String aName,G4double aLength, 
 			     G4double bpRad,G4double FeRad,
-			     G4double bGrad, G4double tilt, G4String spec):
+			     G4double bGrad, G4double tilt, G4double outR,
+			     G4String spec):
   BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes()),
   itsBGrad(bGrad)
 {
@@ -67,7 +68,7 @@ BDSQuadrupole::BDSQuadrupole(G4String aName,G4double aLength,
 
   // get outer radius
 
-  G4double outR = getParameterValue(spec, "outR");
+   //  G4double outR = getParameterValue(spec, "outR");
    if(DEBUG) G4cout<<"outR : "<<outR<<G4endl;
   
   if( outR < bpRad)

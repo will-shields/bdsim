@@ -19,12 +19,13 @@ BDSLaserCompton::BDSLaserCompton(const G4String& processName)
   itsLaserDirection=BDSGlobals->GetLaserwireDir();
  
 
- if(itsLaserWavelength<=0.)
-   {G4Exception("BDSLaserCompton: Invalid Wavelength");}
- itsLaserEnergy=twopi*hbarc/itsLaserWavelength;
+  // if(itsLaserWavelength<=0.)
+  // {G4Exception("BDSLaserCompton: Invalid Wavelength");}
+  // itsLaserEnergy=twopi*hbarc/itsLaserWavelength;
  // point laserwire in x:     P_x        Py Pz   E
- G4LorentzVector Laser4mom(itsLaserEnergy,0,0,itsLaserEnergy);
- itsComptonEngine=new BDSComptonEngine(Laser4mom);
+ //G4LorentzVector Laser4mom(itsLaserEnergy,0,0,itsLaserEnergy);
+ //itsComptonEngine=new BDSComptonEngine(Laser4mom);
+  itsComptonEngine=new BDSComptonEngine();
 } 
  
  
@@ -46,11 +47,25 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
  
  if(aMaterial==theMaterials->LaserVac)
    {
+     G4LogicalVolume* lVolume = (trackData.GetVolume())->GetLogicalVolume();
+     
+     //     itsLaserWavelength=BDSGlobals->GetLaserwireWavelength();
+     //     itsLaserDirection=BDSGlobals->GetLaserwireDir();
+     itsLaserWavelength=BDSGlobals->GetLaserwireWavelength(lVolume->GetName());
+     itsLaserDirection=BDSGlobals->GetLaserwireDir(lVolume->GetName());
+     
+     //G4cout << "&&&&&" << itsLaserDirection << "&&&&&\n";
+     if(itsLaserWavelength<=0.)
+       {G4Exception("BDSLaserCompton::PostStepDoIt - Invalid Wavelength");}
+     itsLaserEnergy=twopi*hbarc/itsLaserWavelength;
+     // point laserwire in x:     P_x        Py Pz   E
+     G4LorentzVector Laser4mom(itsLaserEnergy*itsLaserDirection.unit(),itsLaserEnergy);
      
      const G4DynamicParticle* aDynamicParticle=trackData.GetDynamicParticle();
      
      itsComptonEngine->
        SetIncomingElectron4Vec(aDynamicParticle->Get4Momentum());
+     itsComptonEngine->SetIncomingPhoton4Vec(Laser4mom);
      
      itsComptonEngine->PerformCompton();
      
@@ -136,8 +151,8 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
        }    
      
    }
- 
- FireLaserCompton=false;
+ //commented to allow multiple laserwires in beamline - Steve
+ // FireLaserCompton=false;
  
  return G4VContinuousDiscreteProcess::PostStepDoIt(trackData,stepData);
  

@@ -116,7 +116,23 @@ BDSMaterials::BDSMaterials()
   
   G4Element* Si = new G4Element
     (name="Silicon",symbol="Si" , z= 14., a=28.09*g/mole);
+
+  G4Element* Sm = new G4Element
+    (name="Samarium",symbol="Sm", z= 62, a=150.4*g/mole);
+
+  G4Element* Co = new G4Element
+    (name="Cobalt",symbol="Co", z= 27, a=58.93*g/mole);
   
+  density = 8.4*g/cm3;
+  SmCo=new G4Material(name="SmCo",
+			   density,
+			   ncomponents=2,
+			   kStateSolid,
+			   300*kelvin,
+			   1*atmosphere);
+  SmCo->AddElement(Sm,fractionmass=0.338);
+  SmCo->AddElement(Co,fractionmass=0.662);
+
   density = 8.57*g/cm3;
   LCNiobium=new G4Material(name="LCNiobium",
 			   density,

@@ -57,6 +57,7 @@ BDSSectorBend::BDSSectorBend(G4String aName,G4double aLength,
       BuildBPFieldMgr(itsStepper,itsMagField);
 
       BuildDefaultOuterLogicalVolume(itsLength);
+      //BuildDefaultOuterLogicalVolume2(this,itsLength,itsAngle);
 
       SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
       SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
@@ -123,12 +124,14 @@ BDSSectorBend::BDSSectorBend(G4String aName,G4double aLength,
 	  BuildSBMarkerLogicalVolume();
 
 	  BuildBeampipe2(this,itsLength,itsAngle);
-
+	
 	  BuildBPFieldAndStepper();
 
 	  BuildBPFieldMgr(itsStepper,itsMagField);
 
 	  BuildDefaultOuterLogicalVolume(itsLength);
+	  //  BuildDefaultOuterLogicalVolume2(this,itsLength,itsAngle);
+
 	  SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
 	  SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
 
@@ -245,83 +248,80 @@ void BuildBeampipe2(BDSSectorBend *sb,G4double length, G4double angle)
     +fabs(cos(sb->itsAngle/2)) * LCComponentBoxSize*tan(sb->itsAngle/2)/2
     +BDSGlobals->GetLengthSafety()/2;
 
-
-
-  G4double halfLength = 0.5 * (xHalfLengthMinus + xHalfLengthPlus) ;
-
-
   // use default beampipe material
   G4Material *material =  theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName());
   
 
   // *** toroidal beampipes - problems with G4Torus::DistanceToTorus
   // *** when calling G4PolynomialSolver.Solve()
+  /*
+ G4double halfLength = 0.5 * (xHalfLengthMinus + xHalfLengthPlus) ;
 
- // G4double rSwept = halfLength /  fabs( sin( angle / 2 ) );
+ G4double rSwept = halfLength /  fabs( sin( angle / 2 ) );
 
-//  G4Torus *pipeTube = new G4Torus(sb->itsName+"_pipe_outer",
-// 				  sb->itsBpRadius-BDSGlobals->GetBeampipeThickness(),  // inner R
-// 				  sb->itsBpRadius, // outer R
-// 				  rSwept , // swept R
-// 				  0, // starting phi
-// 				  fabs(angle) ); // delta phi
+ G4Torus *pipeTube = new G4Torus(sb->itsName+"_pipe_outer",
+				  sb->itsBpRadius-BDSGlobals->GetBeampipeThickness(),  // inner R
+				  sb->itsBpRadius, // outer R
+				  rSwept , // swept R
+				  0, // starting phi
+				  fabs(angle) ); // delta phi
 
 
-//   G4Torus *pipeInner = new G4Torus(sb->itsName+"_pipe_inner",
-// 				   0,   // inner R
-// 				   sb->itsBpRadius-BDSGlobals->GetBeampipeThickness()-0.000*mm,// outer
-// 				   rSwept , // swept R
-// 				   0, // starting phi
-// 				   fabs(angle) ); // delta phi
+  G4Torus *pipeInner = new G4Torus(sb->itsName+"_pipe_inner",
+				   0,   // inner R
+				   sb->itsBpRadius-BDSGlobals->GetBeampipeThickness()-0.000*mm,// outer
+				   rSwept , // swept R
+				   0, // starting phi
+				   fabs(angle) ); // delta phi
   
-//   sb->itsBeampipeLogicalVolume=	
-//     new G4LogicalVolume(pipeTube,
-// 			theMaterials->LCAluminium,
-// 			sb->itsName+"_bmp_logical");
+  sb->itsBeampipeLogicalVolume=	
+    new G4LogicalVolume(pipeTube,
+			theMaterials->LCAluminium,
+			sb->itsName+"_bmp_logical");
   
-//   sb->itsInnerBPLogicalVolume=	
-//     new G4LogicalVolume(pipeInner,
-// 			theMaterials->LCVacuum,
-// 			sb->itsName+"_bmp_Inner_log");
+  sb->itsInnerBPLogicalVolume=	
+    new G4LogicalVolume(pipeInner,
+			theMaterials->LCVacuum,
+			sb->itsName+"_bmp_Inner_log");
   
-//   G4RotationMatrix* Rot= new G4RotationMatrix;
+  G4RotationMatrix* Rot= new G4RotationMatrix;
   
-//   Rot->rotateX(pi/2 * rad);
-//   Rot->rotateZ(- ( pi/2 - fabs(angle)/2 ) * rad);
+  Rot->rotateX(pi/2 * rad);
+  Rot->rotateZ(- ( pi/2 - fabs(angle)/2 ) * rad);
 
-//   G4ThreeVector pipeTorusOrigin(0, 0, rSwept * fabs( cos(angle / 2) ) );
+  G4ThreeVector pipeTorusOrigin(0, 0, rSwept * fabs( cos(angle / 2) ) );
 
-//   if(angle < 0)
-//     {
-//       //Rot->rotateY(pi);
-//       Rot->rotateZ(pi);
-//       pipeTorusOrigin.setZ(-rSwept * fabs( cos(angle / 2) ) );
-//     }
+  if(angle < 0)
+    {
+      //Rot->rotateY(pi);
+      Rot->rotateZ(pi);
+      pipeTorusOrigin.setZ(-rSwept * fabs( cos(angle / 2) ) );
+    }
   
 
-//   G4VPhysicalVolume* PhysiInner = 
-//     new G4PVPlacement(
-// 		      Rot,		       // rotation
-// 		      pipeTorusOrigin,	               // at (0,0,0)
-// 		      sb->itsInnerBPLogicalVolume, // its logical volume
-// 		      sb->itsName+"_InnerBmp",     // its name
-// 		      sb->itsMarkerLogicalVolume, // its mother  volume
-// 		      false,		       // no boolean operation
-// 		      0);		       // copy numbe
+  G4VPhysicalVolume* PhysiInner = 
+    new G4PVPlacement(
+		      Rot,		       // rotation
+		      pipeTorusOrigin,	               // at (0,0,0)
+		      sb->itsInnerBPLogicalVolume, // its logical volume
+		      sb->itsName+"_InnerBmp",     // its name
+		      sb->itsMarkerLogicalVolume, // its mother  volume
+		      false,		       // no boolean operation
+		      0);		       // copy numbe
 
-//   G4VPhysicalVolume* PhysiComp = 
-//     new G4PVPlacement(
-// 		      Rot,			     // rotation
-// 		      pipeTorusOrigin,	                     // at (0,0,0)
-// 		      sb->itsBeampipeLogicalVolume,  // its logical volume
-// 		      sb->itsName+"_bmp",	     // its name
-// 		      sb->itsMarkerLogicalVolume,     // its mother  volume
-// 		      false,		     // no boolean operation
-// 		      0);		             // copy number
+  G4VPhysicalVolume* PhysiComp = 
+    new G4PVPlacement(
+		      Rot,			     // rotation
+		      pipeTorusOrigin,	                     // at (0,0,0)
+		      sb->itsBeampipeLogicalVolume,  // its logical volume
+		      sb->itsName+"_bmp",	     // its name
+		      sb->itsMarkerLogicalVolume,     // its mother  volume
+		      false,		     // no boolean operation
+		      0);		             // copy number
   
-  
+  */  
   // *** try with tubes - but should really be rectangular apertures
-  
+    
   G4double tubLen = 0.5 * ( xHalfLengthPlus + xHalfLengthMinus );
 
   G4Tubs *pipeTubs = new G4Tubs(sb->itsName+"_pipe_outer",
@@ -548,7 +548,89 @@ void BuildBeampipe2(BDSSectorBend *sb,G4double length, G4double angle)
  
   
 }
+/*
+void BuildDefaultOuterLogicalVolume2(BDSSectorBend* sb,G4double aLength, G4double angle, G4bool OuterMaterialIsVacuum){
+ G4double LCComponentBoxSize=BDSGlobals->GetComponentBoxSize();
+ 
+ G4double xHalfLengthMinus=(sb->itsLength/sb->itsAngle)*sin(sb->itsAngle/2)
+    -fabs(cos(sb->itsAngle/2)) * LCComponentBoxSize*tan(sb->itsAngle/2)/2
+    +BDSGlobals->GetLengthSafety()/2;
 
+ G4double xHalfLengthPlus=(sb->itsLength/sb->itsAngle)*sin(sb->itsAngle/2)
+    +fabs(cos(sb->itsAngle/2)) * LCComponentBoxSize*tan(sb->itsAngle/2)/2
+    +BDSGlobals->GetLengthSafety()/2;
+
+ G4double halfLength = 0.5 * (xHalfLengthMinus + xHalfLengthPlus) ;
+
+ G4double rSwept = halfLength /  fabs( sin( angle / 2 ) );
+
+  //G4cout<<"length="<<aLength<<G4endl;
+
+  // compute saggita:
+  G4double sagitta=0.;
+
+  G4double outerRadius = sb->itsOuterR;
+  if(sb->itsOuterR==0) outerRadius = BDSGlobals->GetComponentBoxSize()/2;
+
+  if(sb->itsNSegments>1)
+    {
+      sagitta=sb->itsLength/sb->itsAngle*(1.-cos(sb->itsAngle/2.));
+    }
+  if(OuterMaterialIsVacuum)
+    {
+    sb->itsOuterLogicalVolume=
+      new G4LogicalVolume(new G4Torus(sb->itsName+"_solid",
+                                     sb->itsInnerIronRadius+sagitta,
+                                     outerRadius,
+                                     rSwept,
+				      0,fabs(angle)),
+                          theMaterials->LCVacuum,
+                          sb->itsName+"_outer");
+    }
+  if(!OuterMaterialIsVacuum)
+    {
+    sb->itsOuterLogicalVolume=
+      new G4LogicalVolume(new G4Torus(sb->itsName+"_solid",
+                                     sb->itsInnerIronRadius+sagitta,
+                                     outerRadius,
+                                     rSwept,
+                                     0,fabs(angle)),
+                          theMaterials->LCIron,
+                          sb->itsName+"_outer");
+    }
+
+  G4RotationMatrix* Rot= new G4RotationMatrix;
+  
+  Rot->rotateX(pi/2 * rad);
+  Rot->rotateZ(- ( pi/2 - fabs(angle)/2 ) * rad);
+
+  G4ThreeVector outerTorusOrigin(0, 0, rSwept * fabs( cos(angle / 2) ) );
+
+  if(angle < 0)
+    {
+      //Rot->rotateY(pi);
+      Rot->rotateZ(pi);
+      outerTorusOrigin.setZ(-rSwept * fabs( cos(angle / 2) ) );
+    }
+  
+  G4VPhysicalVolume* itsPhysiComp =
+    new G4PVPlacement(
+                      Rot,                        // rotation
+                      outerTorusOrigin,           // its position
+                      sb->itsOuterLogicalVolume,   // its logical volume
+                      sb->itsName+"_solid",   // its name
+                      sb->itsMarkerLogicalVolume,  // its mother  volume
+                      false,              // no boolean operation
+                      0);                         // copy number
+
+  sb->itsOuterUserLimits =
+    new G4UserLimits("multipole cut",aLength,DBL_MAX,DBL_MAX,
+                     BDSGlobals->GetThresholdCutCharged());
+  //  itsOuterUserLimits->SetMaxAllowedStep(aLength);
+  sb->itsOuterLogicalVolume->SetUserLimits(sb->itsOuterUserLimits);
+
+}
+*/
 BDSSectorBend::~BDSSectorBend()
 {
   

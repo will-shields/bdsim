@@ -16,7 +16,7 @@
 //
 
 
-const int DEBUG = 1;
+const int DEBUG = 0;
 
 //=================================================================
 
@@ -377,13 +377,14 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	if(DEBUG) { G4cout<<"---->adding Quad, "<<G4String( (*it).name )<<
 	    " k1 ="<<(*it).k1<<" b' ="<<bPrime<<" brho = "<<brho<< " aper="<<
 	    aper/m<<"spec="<<(*it).spec<<G4endl; }
-
-	theBeamline.push_back(
-			      new BDSQuadrupole(G4String((*it).name),(*it).l * m,aper,
-						FeRad,bPrime,(*it).tilt,(*it).spec));
 	
-      
-      added_comp=true;
+	theBeamline.push_back(
+			      new BDSQuadrupole(G4String((*it).name),
+						(*it).l * m,aper,
+						FeRad,bPrime,(*it).tilt,
+						(*it).outR,(*it).spec));
+	
+	added_comp=true;
       }
       
       if((*it).type==_SEXTUPOLE ) {
@@ -551,7 +552,9 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 		      "m, xdir="<<(*it).xdir/m<<" ydir="<<(*it).ydir<<"m, zdir="<<(*it).zdir/m<<
 		      G4endl; }
 	
-	G4ThreeVector direction = G4ThreeVector(1,0,0);
+	//G4ThreeVector direction = G4ThreeVector(1,0,0);
+	G4ThreeVector direction = 
+	  G4ThreeVector((*it).xdir,(*it).ydir,(*it).zdir);
 	G4ThreeVector position  = G4ThreeVector(0,0,0);
 	
 	theBeamline.push_back(new BDSLaserWire(G4String((*it).name),(*it).l * m,(*it).waveLength * m,
@@ -914,7 +917,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	vector<G4LogicalVolume*> MultipleSensVols = (*iBeam)->GetMultipleSensitiveVolumes();
 	if(LogVolName!="sampler"&&MultipleSensVols.size()>0)
 	   {
-	for(G4int i=0; i<MultipleSensVols.size(); i++)
+	     for(G4int i=0; i<(G4int)MultipleSensVols.size(); i++)
 	       {
 		 BDSEnergyCounterSD* ECounter=
 		   new BDSEnergyCounterSD(LogVolName+BDSGlobals->StringFromInt(i));

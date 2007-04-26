@@ -22,6 +22,7 @@ Last modified 01.02.2006 by Ilya Agapov
 #include "G4ThreeVector.hh"
 #include "globals.hh"
 #include "G4FieldManager.hh"
+#include "G4String.hh"
 
 #include "parser/gmad.h"
 
@@ -30,6 +31,11 @@ using std::ostream;
 using std::ifstream;
 using std::ofstream;
 using std::list;
+
+struct strCmp {
+  G4bool operator()( const G4String s1, const G4String s2 ) {
+    return  strcmp(s1,s2) < 0;}
+};
 
 class BDSGlobalConstants 
 {
@@ -132,6 +138,13 @@ public:
 
   G4double GetLaserwireWavelength();
   G4ThreeVector GetLaserwireDir();
+
+  //use map to generate multiple laserwires with independent wavelength 
+  //and direction
+  G4double GetLaserwireWavelength(G4String aName); 
+  G4ThreeVector GetLaserwireDir(G4String aName); 
+  void SetLaserwireWavelength(G4String aName, G4double aWavelength);
+  void SetLaserwireDir(G4String aName, G4ThreeVector aDirection);
 
   G4bool GetLaserwireTrackPhotons();
   G4bool GetLaserwireTrackElectrons();
@@ -282,6 +295,10 @@ private:
 
   G4bool itsPlanckOn;
   G4bool itsBDSeBremOn;
+
+  // test map container for laserwire parameters - Steve
+  map<const G4String, G4double, strCmp> lwWavelength;
+  map<const G4String, G4ThreeVector, strCmp> lwDirection;
 
   G4double itsLaserwireWavelength;
   G4ThreeVector itsLaserwireDir;
@@ -727,6 +744,20 @@ inline G4bool BDSGlobalConstants::DoTwiss()
 
 inline void BDSGlobalConstants::SetDoTwiss(G4bool val) 
 {doTwiss = val;}
+
+//for map of laserwire wavelengths
+inline G4double BDSGlobalConstants::GetLaserwireWavelength(G4String aName)
+{return lwWavelength[aName];}
+
+//for map of laserwire wavelengths
+inline G4ThreeVector BDSGlobalConstants::GetLaserwireDir(G4String aName)
+{return lwDirection[aName];}
+
+inline void BDSGlobalConstants::SetLaserwireWavelength(G4String aName, G4double aWavelength)
+{lwWavelength[aName]=aWavelength;}
+
+inline void BDSGlobalConstants::SetLaserwireDir(G4String aName, G4ThreeVector aDirection)
+{lwDirection[aName]=aDirection;}
 
 extern BDSGlobalConstants* BDSGlobals;
 #endif
