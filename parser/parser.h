@@ -22,7 +22,7 @@
 
 using namespace std;
 
-double pow(double x, double y) {return exp( y * log(x));}
+//double pow(double x, double y) {return exp( y * log(x));}
 
 int yyerror(char *);
 

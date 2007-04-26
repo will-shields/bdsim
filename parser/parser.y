@@ -419,6 +419,8 @@ parameters:
                     else
 		  if(!strcmp($3->name,"T")) {params.temper = $5; params.temperset = 1;}  //
 		    else
+		  if(!strcmp($3->name,"waveLength")) {params.waveLength = $5; params.waveLengthset = 1;}
+		    else
 		  if(VERBOSE) printf("Warning : unknown parameter %s\n",$3->name);
 		  
 		}

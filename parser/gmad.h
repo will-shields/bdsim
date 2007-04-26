@@ -20,54 +20,58 @@ using namespace std;
 
 // types of elements
 
-const int _NONE = -1;
-const int _MARKER = 1;
-const int _DRIFT = 2;
-const int _RF = 3;
-const int _SBEND = 4; 
-const int _QUAD  = 5;
-const int _SEXTUPOLE  = 6;
-const int _OCTUPOLE = 7;
-const int _MULT  = 8;
-const int _SOLENOID = 9;
-const int _ELEMENT = 10;
-const int _LINE = 11;
-const int _COLLIMATOR = 12;
-const int _ECOL = 13;
-const int _RCOL = 14;
-const int _LASER=15;
-const int _MATERIAL=16;
+enum {
+  _NONE = -1,
+  _MARKER = 1,
+  _DRIFT = 2,
+  _RF = 3,
+  _SBEND = 4, 
+  _QUAD  = 5,
+  _SEXTUPOLE  = 6,
+  _OCTUPOLE = 7,
+  _MULT  = 8,
+  _SOLENOID = 9,
+  _ELEMENT = 10,
+  _LINE = 11,
+  _COLLIMATOR = 12,
+  _ECOL = 13,
+  _RCOL = 14,
+  _LASER=15,
+  _MATERIAL=16,
 
-const int _VKICK=31;
-const int _HKICK=32;
+  _VKICK=31,
+  _HKICK=32,
+  
+  _SAMPLER = 41,
+  _CSAMPLER = 42,
+  _GAS = 51,
+  _TUNNEL = 52,
 
-const int _SAMPLER = 41;
-const int _CSAMPLER = 42;
-const int _GAS = 51;
-const int _TUNNEL = 52;
-
-const int _TRANSFORM3D = 61;
+  _TRANSFORM3D = 61
+};
 
 const char *typestr(int type);
 
 
 // geometry and field formats
+enum {
+  _GMAD = 0,
+  _MOKKA = 1
+};
 
-const int _GMAD = 0;
-const int _MOKKA = 1;
-
-const int _GAUSSIAN = 0;
-const int _RING = 1;
-const int _SQUARE = 2;
-const int _CIRCLE = 3; 
-const int _ESHELL = 31;
-const int _UDEF = 32;
-
-const int _GUINEAPIG_BUNCH = 4;
-const int _GUINEAPIG_PAIRS = 5;
-const int _GUINEAPIG_SLAC = 6;
-const int _CAIN = 7;
-
+enum {
+  _GAUSSIAN = 0,
+  _RING = 1,
+  _SQUARE = 2,
+  _CIRCLE = 3, 
+  _ESHELL = 31,
+  _UDEF = 32,
+  
+  _GUINEAPIG_BUNCH = 4,
+  _GUINEAPIG_PAIRS = 5,
+  _GUINEAPIG_SLAC = 6,
+  _CAIN = 7
+};
 
 // options passed with option and beam command
 
