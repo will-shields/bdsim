@@ -556,6 +556,9 @@ parameters:
 line : LINE '=' '(' element_seq ')'           
 ;
 
+line : LINE '=' '-' '(' rev_element_seq ')'           
+;
+
 sequence : SEQUENCE;
 
 
@@ -651,6 +654,133 @@ element_seq :
 		      e.lst = NULL;
 		      for(int i=0;i<(int)$1;i++)
 			tmp_list.push_back(e);
+		    }
+		  }
+	      }
+            | element_seq ',' '-' VARIABLE
+              {
+		if(execute)
+		  {
+		    if(DEBUG) printf("matched last sequence element, %s\n",$4->name);
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $4->name;
+		      e.type = _REV_LINE;
+		      e.lst = NULL;
+	    	      tmp_list.push_back(e);
+		    }
+		  }
+	      }
+            | '-' VARIABLE
+              {
+		if(execute)
+		  {
+		    if(DEBUG) printf("matched last sequence element, %s\n",$2->name);
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $2->name;
+		      e.type = _REV_LINE;
+		      e.lst = NULL;
+	    	      tmp_list.push_back(e);
+		    }
+		  }
+	      }
+;
+
+rev_element_seq : 
+            | rev_element_seq ',' VARIABLE 
+              {
+		if(execute)
+		  {
+		    if(DEBUG) printf("matched sequence element, %s\n",$3->name);
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $3->name;
+		      e.type = _LINE;
+		      e.lst = NULL;
+		      tmp_list.push_front(e);
+		    }
+		  }
+	      }
+            | rev_element_seq ',' VARIABLE '*' NUMBER 
+              {
+		if(execute)
+		  {
+		    if(DEBUG) printf("matched sequence element, %s * %d \n",$3->name,(int)$5);
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $3->name;
+		      e.type = _LINE;
+		      e.lst = NULL;
+		      for(int i=0;i<(int)$5;i++)
+			tmp_list.push_front(e);
+		    }
+		  }
+	      }
+            | rev_element_seq ',' NUMBER '*' VARIABLE 
+              {
+		if(execute)
+		  {
+		    if(DEBUG) printf("matched sequence element, %s * %d \n",$5->name,(int)$3);
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $5->name;
+		      e.type = _LINE;
+		      e.lst = NULL;
+		      for(int i=0;i<(int)$3;i++)
+			tmp_list.push_front(e);
+		    }
+		  }
+	      }
+            | VARIABLE
+              {
+		if(execute)
+		  {
+		    if(DEBUG) printf("matched last sequence element, %s\n",$1->name);
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $1->name;
+		      e.type = _LINE;
+		      e.lst = NULL;
+		      tmp_list.push_front(e);
+		    }
+		  }
+	      }
+           | VARIABLE '*' NUMBER
+              {
+		if(execute)
+		  {
+		    if(DEBUG) printf("matched last sequence element, %s * %d\n",$1->name,(int)$3);
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $1->name;
+		      e.type = _LINE;
+		      e.lst = NULL;
+		      for(int i=0;i<(int)$3;i++)
+			tmp_list.push_front(e);
+		    }
+		  }
+	      }
+            | NUMBER '*' VARIABLE
+              {
+		if(execute)
+		  {
+		    if(DEBUG) printf("matched last sequence element, %s * %d\n",$3->name,(int)$1);
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $3->name;
+		      e.type = _LINE;
+		      e.lst = NULL;
+		      for(int i=0;i<(int)$1;i++)
+			tmp_list.push_front(e);
 		    }
 		  }
 	      }

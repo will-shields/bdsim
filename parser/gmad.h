@@ -38,6 +38,7 @@ enum {
   _RCOL = 14,
   _LASER=15,
   _MATERIAL=16,
+  _REV_LINE=17,
 
   _VKICK=31,
   _HKICK=32,

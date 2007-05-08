@@ -72,6 +72,8 @@ const char *typestr(int type) {
     return "rcol";
   case _LINE :
     return "line";
+  case _REV_LINE :
+    return "rev_line";
   case _SAMPLER :
     return "sampler";
   case _CSAMPLER:
@@ -462,6 +464,12 @@ int write_table(struct Parameters params,char* name, int type, list<struct Eleme
     e.type = _LINE;
     break;
 
+  case _REV_LINE:
+
+    e.lst = lst;
+    e.type = _REV_LINE;
+    break;
+
   case _SAMPLER:
     e.type = _SAMPLER;
     break;
@@ -508,7 +516,7 @@ int expand_line(char *name, char *start, char* end)
   
   it = element_lookup(name);
   
-  if( (it!=NULL) && ((*it).type == _LINE) ) 
+  if( (it!=NULL) && ((*it).type == _LINE || (*it).type == _REV_LINE) ) 
     {
       
       // delete the previous beamline
@@ -517,7 +525,7 @@ int expand_line(char *name, char *start, char* end)
       
       // expand the desired beamline
       
-      e.type = _LINE;
+      e.type = (*it).type;
       e.name = name;
       e.l = 0;
       e.lst = NULL;
@@ -532,12 +540,18 @@ int expand_line(char *name, char *start, char* end)
       // first expand the whole range 
       list<struct Element>::iterator sit = (*it).lst->begin();
       list<struct Element>::iterator eit = (*it).lst->end();
-      
-      
-      
+
       // copy the list into the resulting list
-      beamline_list.insert(beamline_list.end(),(*it).lst->begin(),(*it).lst->end());
-      
+      switch((*it).type){
+	case _LINE:
+          beamline_list.insert(beamline_list.end(),(*it).lst->begin(),(*it).lst->end());
+          break;
+	case _REV_LINE:
+          beamline_list.insert(beamline_list.end(),(*it).lst->rbegin(),(*it).lst->rend());
+	  break;
+	default:
+          beamline_list.insert(beamline_list.end(),(*it).lst->begin(),(*it).lst->end());
+	}
       bool is_expanded = false;
       
       // insert material entries.
@@ -553,7 +567,7 @@ int expand_line(char *name, char *start, char* end)
 	    {
 	      if(DEBUG) printf("%s , %s \n",(*it).name,typestr((*it).type));
 	      
-	      if((*it).type == _LINE)  // list - expand further	  
+	      if((*it).type == _LINE || (*it).type == _REV_LINE)  // list - expand further	  
 		{
 		  is_expanded = false;
 		  // lookup the line in main list
@@ -563,9 +577,10 @@ int expand_line(char *name, char *start, char* end)
 		    
 		    if(DEBUG)
 		      printf("inserting sequence for %s - %s ...",(*it).name,(*tmpit).name);
-		    
+		    if((*it).type == _LINE)
 		    beamline_list.insert(it,(*tmpit).lst->begin(),(*tmpit).lst->end());
-		    
+		    else if((*it).type == _REV_LINE)
+		    beamline_list.insert(it,(*tmpit).lst->rbegin(),(*tmpit).lst->rend());
 		    if(DEBUG) printf("inserted\n");
 		    
 		    // delete the list pointer
