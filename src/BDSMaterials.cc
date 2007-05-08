@@ -123,6 +123,18 @@ BDSMaterials::BDSMaterials()
   G4Element* Co = new G4Element
     (name="Cobalt",symbol="Co", z= 27, a=58.93*g/mole);
   
+  G4Element* He = new G4Element
+    (name="Helium",symbol="He", z = 2, a=4.0026*g/mole); 
+
+  density = 0.12498*g/cm3;
+  LiquidHelium = new G4Material(name="LiquidHelium",
+			   density,
+			   ncomponents=1,
+			   kStateLiquid,
+			   4.15*kelvin,
+			   1*atmosphere);
+  LiquidHelium->AddElement(He,1);
+
   density = 8.4*g/cm3;
   SmCo=new G4Material(name="SmCo",
 			   density,

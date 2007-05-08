@@ -45,10 +45,12 @@ BDSDrift::BDSDrift (G4String aName,G4double aLength, G4double bpRad):
       itsBPFieldMgr=NULL;
       BuildDefaultMarkerLogicalVolume();
 
+      G4double outerR = bpRad + 1*mm;
       BuildBeampipe(itsLength);
+      SetOuterRadius(outerR);
 
       // drift doesn't have an outer volume - but include it for laserwire
-      //      BuildDefaultOuterLogicalVolume(itsLength);
+      BuildDefaultOuterLogicalVolume(itsLength);
       SetSensitiveVolume(itsBeampipeLogicalVolume);// for laserwire
       //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
 
