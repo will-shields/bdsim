@@ -365,24 +365,24 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	G4double aper = bpRad;
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 	FeRad = aper;
-
-	if( (*it).outR < (*it).aper)
+	
+	if( (*it).outR < aper)
 	  {
 	    G4cerr << (*it).name << " has outer radius smaller than aperture!"<<G4endl;
-	    G4cerr << "aper= "<<(*it).aper<<"m outR= "<<(*it).outR<<"m"<<G4endl;
+	    G4cerr << "aper= "<<aper<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << "Setting to default - 1*cm"<<G4endl;
-	    (*it).outR = (*it).aper + 0.01;
+	    (*it).outR = aper/m + 0.01;
 	  }
-
+	
 	if(DEBUG) { G4cout<<"---->adding Quad, "<<G4String( (*it).name )<<
 	    " k1 ="<<(*it).k1<<" b' ="<<bPrime<<" brho = "<<brho<< " aper="<<
-	    aper/m<<"spec="<<(*it).spec<<G4endl; }
+	    aper/m<<" outR="<<(*it).outR<<" spec="<<(*it).spec<<G4endl; }
 	
 	theBeamline.push_back(
 			      new BDSQuadrupole(G4String((*it).name),
-						(*it).l * m,aper,
-						FeRad,bPrime,(*it).tilt,
-						(*it).outR,(*it).spec));
+						(*it).l * m, aper,
+						FeRad, bPrime, (*it).tilt,
+						(*it).outR * m, (*it).spec));
 	
 	added_comp=true;
       }

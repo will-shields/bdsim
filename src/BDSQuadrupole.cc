@@ -70,7 +70,8 @@ BDSQuadrupole::BDSQuadrupole(G4String aName,G4double aLength,
 
    //  G4double outR = getParameterValue(spec, "outR");
    if(DEBUG) G4cout<<"outR : "<<outR<<G4endl;
-  
+
+  /* remove duplicated error message
   if( outR < bpRad)
     {
       G4cerr <<"WARNING: "<<aName<<" has outer radius smaller than aperture!"<<G4endl;
@@ -78,8 +79,8 @@ BDSQuadrupole::BDSQuadrupole(G4String aName,G4double aLength,
       G4cerr << "Setting to default - 1*mm"<<G4endl;
       outR = bpRad + 1*mm;
     }
-
-  SetOuterRadius(outR*mm);
+  */ 
+  SetOuterRadius(outR);
 
   
 
@@ -93,8 +94,8 @@ BDSQuadrupole::BDSQuadrupole(G4String aName,G4double aLength,
 
       // visual attributes
       G4VisAttributes* VisAtt = 
-	new G4VisAttributes(G4Colour(1., 1., 1.));
-      VisAtt->SetForceSolid(false);
+	new G4VisAttributes(G4Colour(0., 0., 0.));
+      VisAtt->SetForceSolid(true);
       itsInnerBPLogicalVolume->SetVisAttributes(VisAtt);
       
       G4VisAttributes* VisAtt1 = 
