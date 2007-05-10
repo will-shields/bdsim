@@ -555,7 +555,7 @@ G4Element* BDSGammaConversion::SelectRandomAtom(
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4bool BDSGammaConversion::StorePhysicsTable(G4ParticleDefinition* particle,
+G4bool BDSGammaConversion::StorePhysicsTable(const G4ParticleDefinition* particle,
 				              const G4String& directory, 
 				              G4bool          ascii)
 {
@@ -585,7 +585,7 @@ G4bool BDSGammaConversion::StorePhysicsTable(G4ParticleDefinition* particle,
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4bool BDSGammaConversion::RetrievePhysicsTable(G4ParticleDefinition* particle,
+G4bool BDSGammaConversion::RetrievePhysicsTable(const G4ParticleDefinition* particle,
 					         const G4String& directory, 
 				                 G4bool          ascii)
 {
@@ -656,7 +656,7 @@ G4double BDSGammaConversion::ComputeMuonCrossSectionPerAtom(
   static G4double CrossSection = 0.0 ;
 
   if ( A < 1. ) return 0;
-  if ( Egam < 4*Mmuon ) return 0 ; // below threshold return 0
+  if ( Egam < GammaEnergyLimit ) return 0 ; // below threshold return 0
 
   static G4double EgamLast=0,Zlast=0,PowThres,Ecor,B,Dn,Zthird,Winfty,WMedAppr,
       Wsatur,sigfac;

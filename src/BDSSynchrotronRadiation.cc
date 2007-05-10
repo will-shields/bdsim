@@ -79,7 +79,7 @@ BDSSynchrotronRadiation::PostStepDoIt(const G4Track& trackData,
 	  }
 
       BDSBeamline::const_iterator iBeam;
-      G4double zpos=trackData.GetPosition().z();
+      //G4double zpos=trackData.GetPosition().z();
       
     //   for(iBeam=theBeamline.begin();
 // 	  iBeam!=theBeamline.end() && zpos>=(*iBeam)->GetZUpper(); 

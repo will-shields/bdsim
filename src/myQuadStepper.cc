@@ -36,7 +36,7 @@ void myQuadStepper::AdvanceHelix( const G4double  yIn[],
   G4double InitMag=v0.mag();
   G4ThreeVector InitMomDir=v0.unit();
   
-  G4double h2=h*h;
+  //G4double h2=h*h;
 
   G4Navigator* HelixNavigator=
     G4TransportationManager::GetTransportationManager()->
@@ -97,7 +97,7 @@ void myQuadStepper::AdvanceHelix( const G4double  yIn[],
 
       BDSLocalRadiusOfCurvature=R;
 
-      itsDist=abs(R)*(1.-CosT_ov_2);
+      itsDist=fabs(R)*(1.-CosT_ov_2);
 
       G4ThreeVector dPos=R*(SinT*vhat + (1-CosT)*vnorm);
  	
@@ -125,14 +125,15 @@ void myQuadStepper::AdvanceHelix( const G4double  yIn[],
   G4double kappa= - fPtrMagEqOfMot->FCof()* ( itsBGrad) /InitMag; // was ist das? 
   if(fabs(kappa)<1.e-12) return; // no gradient
 
-  G4double x1,x1p,y1,y1p,z1,z1p;
+  G4double x1,x1p,y1,y1p,z1p;
+  //G4double z1;
   
   G4double NomEnergy = BDSGlobals->GetBeamTotalEnergy();
   G4double NomR = -(NomEnergy/GeV)/(0.299792458 * itsBField/tesla) * m;
 
-  G4double NominalPath = sqrt(NomR*NomR - LocalR.z()*LocalR.z()) - abs(NomR)*cos(itsAngle/2);
+  G4double NominalPath = sqrt(NomR*NomR - LocalR.z()*LocalR.z()) - fabs(NomR)*cos(itsAngle/2);
   
-  G4double EndNomPath = sqrt(NomR*NomR - itsFinalPoint.z()*itsFinalPoint.z()) - abs(NomR)*cos(itsAngle/2);
+  G4double EndNomPath = sqrt(NomR*NomR - itsFinalPoint.z()*itsFinalPoint.z()) - fabs(NomR)*cos(itsAngle/2);
 
   if(R<0)
     {
@@ -144,7 +145,7 @@ void myQuadStepper::AdvanceHelix( const G4double  yIn[],
   G4double y0=LocalR.y();
   G4double z0=LocalR.z();
 
-  G4double theta_in = asin(LocalR.z()/NomR);
+  G4double theta_in = asin(z0/NomR);
   
   LocalRp.rotateY(-theta_in);
 
@@ -155,7 +156,7 @@ void myQuadStepper::AdvanceHelix( const G4double  yIn[],
   // Save for Synchrotron Radiation calculations:
   BDSLocalRadiusOfCurvature=R;
   
-  G4double rootK=sqrt(abs(kappa*zp));
+  G4double rootK=sqrt(fabs(kappa*zp));
   G4double rootKh=rootK*h*zp;
   G4double X11,X12,X21,X22;
   G4double Y11,Y12,Y21,Y22;
@@ -164,24 +165,24 @@ void myQuadStepper::AdvanceHelix( const G4double  yIn[],
     {
       X11= cos(rootKh);
       X12= sin(rootKh)/rootK;
-      X21=-abs(kappa)*X12;
+      X21=-fabs(kappa)*X12;
       X22= X11;
       
       Y11= cosh(rootKh);
       Y12= sinh(rootKh)/rootK;
-      Y21= abs(kappa)*Y12;
+      Y21= fabs(kappa)*Y12;
       Y22= Y11;
     }
   else if (kappa<0)
     {
       X11= cosh(rootKh);
       X12= sinh(rootKh)/rootK;
-      X21= abs(kappa)*X12;
+      X21= fabs(kappa)*X12;
       X22= X11;
       
       Y11= cos(rootKh);
       Y12= sin(rootKh)/rootK;
-      Y21= -abs(kappa)*Y12;
+      Y21= -fabs(kappa)*Y12;
       Y22= Y11;
     }
   else

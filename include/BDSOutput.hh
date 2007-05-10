@@ -42,9 +42,9 @@ public:
   void Init(G4int FileNum);
   ~BDSOutput();
 
-  G4int WriteHits(BDSSamplerHitsCollection*);
+  void WriteHits(BDSSamplerHitsCollection*);
+  void WriteEnergyLoss(BDSEnergyCounterHitsCollection*);
   G4int WriteTrajectory(TrajectoryVector* TrajVec);
-  G4int WriteEnergyLoss(BDSEnergyCounterHitsCollection*);
 
   void Echo(G4String str);
 

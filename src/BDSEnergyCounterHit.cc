@@ -14,7 +14,7 @@
 G4Allocator<BDSEnergyCounterHit> BDSEnergyCounterHitAllocator;
 
 BDSEnergyCounterHit::BDSEnergyCounterHit(G4int nCopy, G4double anEnergy, 
-    G4double EnWeightZ):itsCopyNumber(nCopy),itsEnergy(anEnergy),
+    G4double EnWeightZ):itsEnergy(anEnergy),itsCopyNumber(nCopy),
          itsEnergyWeightedPosition(EnWeightZ)
 {;}
 

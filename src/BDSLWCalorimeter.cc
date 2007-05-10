@@ -46,8 +46,8 @@ BDSLWCalorimeter::BDSLWCalorimeter (G4String& aName,G4double aLength,
   LWCalorimeterLogicalVolume();
   BuildCal(aLength);
   BuildBeampipe(aLength);
-  G4int nLWCalorimeters=(*LogVolCount)[itsName];
 
+  //G4int nLWCalorimeters=(*LogVolCount)[itsName];
   //BDSRoot->SetLWCalorimeterNumber(nLWCalorimeters);
 
 }
@@ -99,8 +99,8 @@ void BDSLWCalorimeter::BuildCal(G4double aLength)
   G4RotationMatrix* Rot=NULL;
   if(itsAngle!=0)Rot=RotY90;
  
-  G4VPhysicalVolume* PhysiLWCal = 
-    new G4PVPlacement(
+  G4VPhysicalVolume* PhysiLWCal;
+  PhysiLWCal = new G4PVPlacement(
 		      Rot,			     // rotation
 		      G4ThreeVector(BDSGlobals->GetLWCalOffset(),0.,0.),
 		      itsLWCalLogicalVolume,  // its logical volume
@@ -108,7 +108,7 @@ void BDSLWCalorimeter::BuildCal(G4double aLength)
 		      itsMarkerLogicalVolume,     // its mother  volume
 		      false,		     // no boolean operation
 		      0);		             // copy number
-
+  
   // Sensitive Detector:
   G4SDManager* SDMan = G4SDManager::GetSDMpointer();
  
@@ -142,8 +142,8 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
 			theMaterials->LCVacuum,
 			itsName+"_bmp_Inner_log");
   
-  G4VPhysicalVolume* PhysiInner = 
-    new G4PVPlacement(
+  G4VPhysicalVolume* PhysiInner;
+  PhysiInner =  new G4PVPlacement(
 		      0,		       // rotation
 		      0,	               // at (0,0,0)
 		      itsInnerBPLogicalVolume, // its logical volume
@@ -156,8 +156,8 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
    G4RotationMatrix* Rot=NULL;
    if(itsAngle!=0)Rot=RotY90;
   
-   G4VPhysicalVolume* PhysiComp = 
-     new G4PVPlacement(
+   G4VPhysicalVolume* PhysiComp;
+   PhysiComp = new G4PVPlacement(
 		       Rot,			     // rotation
 		       0,	                     // at (0,0,0)
 		       itsBeampipeLogicalVolume,  // its logical volume

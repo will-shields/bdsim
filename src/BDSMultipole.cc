@@ -130,8 +130,8 @@ void BDSMultipole::BuildBeampipe(G4double aLength, G4String materialName,  G4int
 			theMaterials->LCVacuum,
 			itsName+"_bmp_Inner_log");
   
-  G4VPhysicalVolume* PhysiInner = 
-    new G4PVPlacement(
+  G4VPhysicalVolume* PhysiInner;
+  PhysiInner = new G4PVPlacement(
 		      0,		       // rotation
 		      0,	               // at (0,0,0)
 		      itsInnerBPLogicalVolume, // its logical volume
@@ -145,8 +145,8 @@ void BDSMultipole::BuildBeampipe(G4double aLength, G4String materialName,  G4int
       G4RotationMatrix* Rot=NULL;
       //if(itsAngle!=0)Rot=RotY90;  // doesn't apply to rbends 
       
-      G4VPhysicalVolume* PhysiComp = 
-	new G4PVPlacement(
+      G4VPhysicalVolume* PhysiComp;
+      PhysiComp = new G4PVPlacement(
 			  Rot,			     // rotation
 			  0,	                     // at (0,0,0)
 			  itsBeampipeLogicalVolume,  // its logical volume
@@ -185,8 +185,8 @@ void BDSMultipole::BuildBeampipe(G4double aLength, G4String materialName,  G4int
 	  itsSegPos.setY(Y);
 	  itsSegPos.setZ(Z);
 
-	  G4VPhysicalVolume* PhysiComp = 
-	    new G4PVPlacement(
+	  G4VPhysicalVolume* PhysiComp;
+	  PhysiComp = new G4PVPlacement(
 			      itsSegRot,		     // rotation
 			      itsSegPos,	             // at (0,0,0)
 			      itsBeampipeLogicalVolume,  // its logical volume
@@ -334,8 +334,8 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
   G4RotationMatrix* Rot=NULL;
   if(itsAngle!=0) Rot=RotY90;
   
-  G4VPhysicalVolume* itsPhysiComp = 
-    new G4PVPlacement(
+  G4VPhysicalVolume* itsPhysiComp;
+  itsPhysiComp = new G4PVPlacement(
 		      Rot,			  // no rotation
 		      0,                      // its position
 		      itsOuterLogicalVolume,   // its logical volume

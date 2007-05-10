@@ -196,8 +196,8 @@ void BDSXYMagField::GetFieldValue(const G4double Point[4], G4double *Bfield ) co
 
       local *= rotation;
 
-      i = nX/2.0 + nX * local[0] / (2.0 * xHalf);
-      j = nY/2.0 + nY * local[1] / (2.0 * yHalf);
+      i = (G4int)(nX/2.0 + nX * local[0] / (2.0 * xHalf));
+      j = (G4int)(nY/2.0 + nY * local[1] / (2.0 * yHalf));
 
       bx = Bx[i][j];
       by = By[i][j];

@@ -32,14 +32,14 @@ extern BDSMaterials* theMaterials;
 
 BDSSamplerCylinder::
 BDSSamplerCylinder (G4String aName,G4double aLength,G4double aRadius):
-  itsRadius(aRadius),
   BDSAcceleratorComponent(
 			 aName,
 			 aLength,0,0,0,
-			 SetVisAttributes())
+			 SetVisAttributes()),
+  itsRadius(aRadius)
 {
   SamplerCylinderLogicalVolume();
-  G4int nSamplers=(*LogVolCount)[itsName];
+  //G4int nSamplers=(*LogVolCount)[itsName];
   //BDSRoot->SetSampCylinderNumber(nSamplers);
 }
 

@@ -17,11 +17,12 @@ BDSMaterials::BDSMaterials()
  
   G4String name, symbol;             //a=mass of a mole;
   G4double a, z, density;            //z=mean number of protons;  
-  G4int iz, n;                       //iz=number of protons  in an isotope; 
+  //G4int iz, n;                       //iz=number of protons  in an isotope; 
                                    // n=number of nucleons in an isotope;
 
+  //G4double abundance;
+  G4double fractionmass;
   G4int ncomponents, natoms;
-  G4double abundance, fractionmass;
   G4double temperature, pressure;
 
 

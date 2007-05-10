@@ -186,7 +186,7 @@ void BDSRK4Stepper::Stepper( const G4double yInput[],
   G4int i;
   const G4double *pIn = yInput+3;
   G4ThreeVector v0= G4ThreeVector( pIn[0], pIn[1], pIn[2]);  
-  G4double InitMag=v0.mag();
+  //G4double InitMag=v0.mag();
   
   //  Saving yInput because yInput and yOut can reference the same array
   

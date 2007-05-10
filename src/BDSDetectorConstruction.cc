@@ -78,6 +78,7 @@ const int DEBUG = 0;
 #include "BDSSamplerCylinder.hh"
 #include "BDSComponentOffset.hh"
 #include "BDSCollimator.hh"
+#include "BDSDump.hh"
 
 // output interface
 #include "BDSOutput.hh"
@@ -237,6 +238,15 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       added_comp=true;
       }
 
+      if((*it).type==_DUMP ) {
+        if(DEBUG) G4cout<<"---->adding DUMP "<<G4String( (*it).name )<<G4endl;
+
+        theBeamline.push_back(new BDSDump( G4String( (*it).name ) , samplerLength ) );
+        //bdsOutput.nSamplers++;
+
+      added_comp=true;
+      }
+
       if((*it).type==_DRIFT ) {
 	G4double aper = bpRad;
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
@@ -369,7 +379,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	if( (*it).outR < aper)
 	  {
 	    G4cerr << (*it).name << " has outer radius smaller than aperture!"<<G4endl;
-	    G4cerr << "aper= "<<aper<<"m outR= "<<(*it).outR<<"m"<<G4endl;
+	    G4cerr << "aper= "<<aper<<"mm outR= "<<(*it).outR<<"mm"<<G4endl;
 	    G4cerr << "Setting to default - 1*cm"<<G4endl;
 	    (*it).outR = aper/m + 0.01;
 	  }

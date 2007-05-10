@@ -87,7 +87,7 @@ void BDSElement::BuildGeometry()
   // Build the logical volume 
 
   if(DEBUG) G4cout<<"BDSElement : creating logical volume"<<G4endl;
-  G4double elementSizeX,elementSizeY = itsOuterR;
+  G4double elementSizeX=itsOuterR, elementSizeY = itsOuterR;
   if(itsOuterR==0)
     {
       elementSizeX =BDSGlobals->GetTunnelRadius() / 2;

@@ -11,7 +11,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSSkewSextStepper.cc,v 1.1.1.1 2004/12/14 18:57:39 agapov Exp $
+// $Id: BDSSkewSextStepper.cc,v 1.1 2005/01/22 16:42:31 agapov Exp $
 // GEANT4 tag $Name:  $
 //
 #include "BDSSkewSextStepper.hh"
@@ -50,7 +50,7 @@ void BDSSkewSextStepper::AdvanceHelix( const G4double  yIn[],
    
   // relevant momentum scale is p_z, not P_tot:
   // check that the approximations are valid, else do a linear step:
-  if(abs(kappa)<1.e-12)
+  if(fabs(kappa)<1.e-12)
      {
        G4ThreeVector positionMove  = (h/InitMag) * v0;
        

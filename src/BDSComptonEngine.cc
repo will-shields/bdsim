@@ -17,7 +17,7 @@ BDSComptonEngine::BDSComptonEngine(){}
  
 BDSComptonEngine::BDSComptonEngine(G4LorentzVector InGam,
                                  G4LorentzVector InEl )
-  : itsIncomingGam(InGam),itsIncomingEl(InEl)
+  : itsIncomingEl(InEl),itsIncomingGam(InGam)
 {
  if(itsIncomingGam.e()<=0.)
       {G4Exception("BDSComptonEngine: Invalid Photon Energy");}

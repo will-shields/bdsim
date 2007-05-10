@@ -17,6 +17,7 @@
 #include "BDSStackingAction.hh"
 #include "G4SDManager.hh"
 #include "G4RunManager.hh"
+#include "G4Run.hh"
 #include "G4Event.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4Track.hh"
@@ -27,7 +28,7 @@
 
 
 
-const int DEBUG = 0;
+const int DEBUG = 1;
 
 
 BDSStackingAction::BDSStackingAction()
@@ -41,14 +42,29 @@ BDSStackingAction::~BDSStackingAction()
 G4ClassificationOfNewTrack 
 BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 {
-  G4ClassificationOfNewTrack classification = fWaiting;
+  //G4ClassificationOfNewTrack classification = fWaiting;
+  G4ClassificationOfNewTrack classification = fUrgent;
  
   G4String pName=aTrack->GetDefinition()->GetParticleName();
 
 
-  if(DEBUG)
+  if(DEBUG) {
     G4cout<<"StackingAction: ClassifyNewtrack "<<aTrack->GetTrackID()<<
       " "<<aTrack->GetDefinition()->GetParticleName()<<G4endl;
+
+    G4StackManager* SM = G4EventManager::GetEventManager()->GetStackManager();
+
+    G4cout<<"N total tracks : "<<SM->GetNTotalTrack() << G4endl;
+    G4cout<<"N waiting tracks : "<<SM->GetNWaitingTrack() << G4endl;
+    G4cout<<"N urgent tracks : "<<SM->GetNUrgentTrack() << G4endl;
+    G4cout<<"N postponed tracks : "<<SM->GetNPostponedTrack() << G4endl;
+    G4cout<<"Events to process : "<<
+      G4RunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEventToBeProcessed()<<G4endl;
+     G4cout<<"Number of event : "<<
+       G4RunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEvent()<<G4endl;
+
+    
+  }
 
   if(BDSGlobals->DoTwiss())
     {
@@ -113,7 +129,27 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 	}
       
     }
+
+   if(BDSGlobals->getWaitingForDump()) // if waiting for placet synchronization
+     {
+       // when waiting to synchronize with placet - put on postponed stack
+       if( aTrack->GetTrackStatus()==fPostponeToNextEvent )
+       classification = fPostpone;
+       //BDSGlobals->setWaitingForDump(false); // next event ok
+     }
   
+    if(BDSGlobals->getDumping()) // in the process of dumping
+     {
+       G4cout<<"reclassifying track "<<aTrack->GetTrackID()<<G4endl;
+
+       G4cout<<"r= "<<aTrack->GetPosition()<<G4endl;
+
+       // TODO : dump the file
+
+       classification = fPostpone;
+     }
+
+
   return classification;
 }
 
@@ -122,10 +158,10 @@ void BDSStackingAction::NewStage()
 {
   // urgent stack empty, looking into the waiting stack
  
-  //G4cout<<"StackingAction: New stage"<<G4endl;
+  if(DEBUG) G4cout<<"StackingAction: New stage"<<G4endl;
 
-
-  //  stackManager->ReClassify();
+  //stackManager->ReClassify();
+  
   return;
  
 }

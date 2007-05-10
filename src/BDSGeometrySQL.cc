@@ -189,17 +189,17 @@ void BDSGeometrySQL::BuildEllipticalCone(BDSMySQLTable* aSQLTable)
 {
   G4int NVariables = aSQLTable->GetVariable("LENGTHZ")->GetNVariables();
 
-  G4double lengthZ;
-  G4double pxSemiAxis;
-  G4double pySemiAxis;
-  G4double pzTopCut;
+  G4double lengthZ = 0;
+  G4double pxSemiAxis = 0;
+  G4double pySemiAxis = 0;
+  G4double pzTopCut = 0;
   G4double VisRed; 
   G4double VisGreen;
   G4double VisBlue;
   G4String VisType;
   G4String Material;
   G4String TableName = aSQLTable->GetName();
-  G4String Name;
+  G4String Name = "";
 
   for(G4int k=0; k<NVariables; k++)
     {
@@ -465,11 +465,11 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
 {
   G4int NVariables = aSQLTable->GetVariable("LENGTHXPLUS")->GetNVariables();
 
-  G4double lengthXPlus;
-  G4double lengthXMinus;
-  G4double lengthYPlus;
-  G4double lengthYMinus;
-  G4double lengthZ;
+  G4double lengthXPlus = 0;
+  G4double lengthXMinus = 0;
+  G4double lengthYPlus = 0;
+  G4double lengthYMinus = 0;
+  G4double lengthZ = 0;
   G4double VisRed;
   G4double VisGreen;
   G4double VisBlue;
@@ -477,7 +477,7 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
   G4String Material;
   G4String TableName = aSQLTable->GetName();
 
-  G4String Name;
+  G4String Name = "";
 
   for(G4int k=0; k<NVariables; k++)
     {

@@ -26,7 +26,7 @@
 // ********************************************************************
 //
 //
-// $Id: BDSConvParticleChange.cc,v 1.2 2005/01/19 18:10:44 agapov Exp $
+// $Id: BDSConvParticleChange.cc,v 1.1 2005/01/22 16:42:30 agapov Exp $
 // GEANT4 tag $Name:  $
 //
 // 
@@ -444,7 +444,7 @@ G4bool BDSConvParticleChange::CheckIt(const G4Track& aTrack)
   // MomentumDirection should be unit vector
   G4bool itsOKforMomentum = true;  
   if ( theEnergyChange >0.) {
-    accuracy = abs(theMomentumDirectionChange.mag2()-1.0);
+    accuracy = fabs(theMomentumDirectionChange.mag2()-1.0);
     if (accuracy > accuracyForWarning) {
       G4cout << "  BDSConvParticleChange::CheckIt  : ";
       G4cout << "the Momentum Change is not unit vector !!" << G4endl;

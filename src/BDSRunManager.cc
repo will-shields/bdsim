@@ -28,7 +28,7 @@ BDSRunManager::~BDSRunManager(){}
 
 void BDSRunManager::DoEventLoop(G4int n_event,const char* macroFile,G4int n_select)
 {
-  G4StateManager* stateManager = G4StateManager::GetStateManager();
+  //G4StateManager* stateManager = G4StateManager::GetStateManager();
 
   if(verboseLevel>0) 
   { timer->Start(); }
@@ -47,7 +47,7 @@ void BDSRunManager::DoEventLoop(G4int n_event,const char* macroFile,G4int n_sele
   for( i_event=0; i_event<n_event; i_event++ )
   {
 
-
+    // remember to uncomment definition of statemanager if using this
     //    stateManager->SetNewState(EventProc);
 
     currentEvent = GenerateEvent(i_event);

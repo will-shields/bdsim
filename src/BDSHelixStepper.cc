@@ -36,9 +36,9 @@ void BDSHelixStepper::AdvanceHelix( const G4double  yIn[],
 
   G4ThreeVector LocalR,LocalRp ;
 
-  G4Navigator* HelixNavigator=
-    G4TransportationManager::GetTransportationManager()->
-    GetNavigatorForTracking();
+  //G4Navigator* HelixNavigator=
+  //  G4TransportationManager::GetTransportationManager()->
+  //  GetNavigatorForTracking();
 
 
   LocalR=GlobalPosition;

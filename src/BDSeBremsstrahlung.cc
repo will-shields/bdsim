@@ -21,7 +21,7 @@
 // ********************************************************************
 //
 //
-// $Id: BDSeBremsstrahlung.cc,v 1.2 2005/01/27 11:35:32 agapov Exp $
+// $Id: BDSeBremsstrahlung.cc,v 1.3 2005/08/18 16:49:41 agapov Exp $
 // GEANT4 tag $Name:  $
 //
 //
@@ -382,7 +382,7 @@ G4double BDSeBremsstrahlung::ComputeBremLoss(G4double Z,G4double,
   G4double delz = 1.e6;
   for (G4int ii=0; ii<NZ; ii++)
     {
-      if(abs(Z-ZZ[ii]) < delz)  { iz = ii; delz = abs(Z-ZZ[ii]);}
+      if(fabs(Z-ZZ[ii]) < delz)  { iz = ii; delz = fabs(Z-ZZ[ii]);}
     }
 
   G4double xx = log10(T);
@@ -623,10 +623,10 @@ G4double BDSeBremsstrahlung::ComputeCrossSectionPerAtom(
   G4double delz = 1.e6 ;
   for (G4int ii=0; ii<NZ; ii++)
   {
-    if(abs(AtomicNumber-ZZ[ii]) < delz)
+    if(fabs(AtomicNumber-ZZ[ii]) < delz)
     {
       iz = ii ;
-      delz = abs(AtomicNumber-ZZ[ii]) ;
+      delz = fabs(AtomicNumber-ZZ[ii]) ;
     }
   }
 
@@ -1055,7 +1055,7 @@ G4double BDSeBremsstrahlung::SupressionFunction(const G4Material* aMaterial,
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4bool BDSeBremsstrahlung::StorePhysicsTable(G4ParticleDefinition* particle,
+G4bool BDSeBremsstrahlung::StorePhysicsTable(const G4ParticleDefinition* particle,
 				              const G4String& directory,
 				              G4bool          ascii)
 {
@@ -1093,7 +1093,7 @@ G4bool BDSeBremsstrahlung::StorePhysicsTable(G4ParticleDefinition* particle,
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4bool BDSeBremsstrahlung::RetrievePhysicsTable(G4ParticleDefinition* particle,
+G4bool BDSeBremsstrahlung::RetrievePhysicsTable(const G4ParticleDefinition* particle,
 					         const G4String& directory,
 				                 G4bool          ascii)
 {

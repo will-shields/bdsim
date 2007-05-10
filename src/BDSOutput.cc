@@ -116,7 +116,7 @@ void BDSOutput::Init(G4int FileNum)
 #endif
 }
 
-G4int BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
+void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
 {
   if( format == _ASCII) {
     
@@ -201,15 +201,12 @@ G4int BDSOutput::WriteTrajectory(TrajectoryVector* TrajVec)
 
 #ifdef USE_ROOT
   TTree* TrajTree;
-  if( format == _ROOT) 
-    {
-      G4String name = "Trajectories";
+    
+  G4String name = "Trajectories";
       
-      TrajTree=(TTree*)gDirectory->Get(name);
+  TrajTree=(TTree*)gDirectory->Get(name);
 
-      if(TrajTree == NULL) { G4cerr<<"TrajTree=NULL"<<G4endl; return -1;}
-
-    }
+  if(TrajTree == NULL) { G4cerr<<"TrajTree=NULL"<<G4endl; return -1;}
 #endif
 
 
@@ -248,7 +245,7 @@ G4int BDSOutput::WriteTrajectory(TrajectoryVector* TrajVec)
 
 // make energy loss histo
 
-G4int BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
+void BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
 {
 
   if( format == _ROOT) {

@@ -19,6 +19,9 @@ const int DEBUG = 0;
 #include "BDSEventAction.hh"
 #include "G4Event.hh"
 #include "G4EventManager.hh"
+#include "G4Run.hh"
+#include "G4RunManager.hh"
+#include "G4StackManager.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4VHitsCollection.hh"
 #include "G4TrajectoryContainer.hh"
@@ -87,7 +90,8 @@ extern int nptwiss;
 //======================================================
 
 BDSEventAction::BDSEventAction()
-:SamplerCollID_plane(-1),SamplerCollID_cylin(-1),drawFlag("all"), LWCalorimeterCollID(-1)
+:SamplerCollID_plane(-1),SamplerCollID_cylin(-1),
+LWCalorimeterCollID(-1),drawFlag("all")
 { 
   if(isBatch) printModulo=1000;
   else printModulo=1;
@@ -177,6 +181,39 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
 	  G4EventManager::GetEventManager()->GetStackManager()->clear();
 	}
     }
+
+
+  if(BDSGlobals->getWaitingForDump()) // synchronization with placet
+    {
+      G4cout<<"end of event : "<<event_number<<G4endl;
+
+     
+      G4int nevent = G4RunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEventToBeProcessed();
+
+      if(event_number == nevent - 1) {
+	G4cout<<"last event reached!!! dumping"<<G4endl;
+	
+	G4StackManager* SM = G4EventManager::GetEventManager()->GetStackManager();
+	
+	BDSGlobals->setDumping(true);
+	BDSGlobals->setWaitingForDump(false);
+	SM->TransferStackedTracks(fPostpone, fUrgent);// so that they can be reclassified
+	SM->ReClassify();
+
+	//
+
+	// TODO: read in the stuff from placet
+
+	//
+
+	SM->TransferStackedTracks(fPostpone, fUrgent);// resume tracking
+
+
+      }
+      
+    }
+
+
   if(DEBUG) G4cout<<"BDSEventAction : end of event action"<<G4endl;
  
   if(verboseEvent || verboseEventNumber == event_number)
@@ -187,7 +224,7 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
   G4HCofThisEvent* HCE = evt->GetHCofThisEvent();
   
   BDSSamplerHitsCollection*  SampHC=NULL;
-  BDSLWCalorimeterHitsCollection* LWCalHC=NULL;
+  //BDSLWCalorimeterHitsCollection* LWCalHC=NULL;
   BDSEnergyCounterHitsCollection* BDSEnergyCounter_HC=NULL;
 
   
@@ -215,8 +252,9 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
   if (SampHC) bdsOutput.WriteHits(SampHC);
   
 
-  // are there any Laser wire clorimeters?
+  // are there any Laser wire calorimeters?
   // TODO : check it !!! at present not writing LW stuff
+  // remember to uncomment LWCalHC above if using this
 
 //   if(LWCalorimeterCollID>=0) 
 //     LWCalHC=(BDSLWCalorimeterHitsCollection*)(HCE->GetHC(LWCalorimeterCollID));

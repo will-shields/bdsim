@@ -43,8 +43,7 @@ BDSSampler::BDSSampler (G4String aName,G4double aLength):
 {
   SamplerLogicalVolume();
 
-  G4int nSamplers=(*LogVolCount)[itsName];
-
+  //G4int nSamplers=(*LogVolCount)[itsName];
   //BDSRoot->SetSamplerNumber(nSamplers);
 
  

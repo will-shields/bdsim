@@ -338,12 +338,14 @@ void BuildBeampipe2(BDSSectorBend *sb,G4double length, G4double angle)
 				 0, // starting phi
 				 twopi * rad ); // delta phi
 
+  /* uncomment if using intersection solids below
   G4Trd *markerBox = new G4Trd(sb->itsName+"_marker_box" ,             
 			       xHalfLengthPlus,      // x hlf lgth at +z
 			       xHalfLengthMinus,     // x hlf lgth at -z
 			       LCComponentBoxSize/2, // y hlf lgth at +z
 			       LCComponentBoxSize/2, // y hlf lgth at -z
 			       fabs(cos(sb->itsAngle/2))*LCComponentBoxSize/2);
+  */
 
   G4RotationMatrix* InvRot= new G4RotationMatrix;
   G4RotationMatrix* Rot= new G4RotationMatrix;
@@ -354,6 +356,7 @@ void BuildBeampipe2(BDSSectorBend *sb,G4double length, G4double angle)
 
   //G4Transform3D transform(*InvRot,G4ThreeVector(0,0,0) );  
 
+  // remember to uncomment markerBox above if using these
   // G4IntersectionSolid *pTubsIntersMarker = 
     // new G4IntersectionSolid("_inner_tubs_intersects_marker", pipeTubs, 
 // 			    markerBox, transform ); 
@@ -385,8 +388,8 @@ void BuildBeampipe2(BDSSectorBend *sb,G4double length, G4double angle)
 			material,
 			sb->itsName+"_bmp_Inner_log");
 
-  G4VPhysicalVolume* PhysiInner = 
-    new G4PVPlacement(
+  G4VPhysicalVolume* PhysiInner;
+  PhysiInner = new G4PVPlacement(
 		      Rot,		       // rotation
 		      0,	               // at (0,0,0)
 		      sb->itsInnerBPLogicalVolume, // its logical volume
@@ -395,8 +398,8 @@ void BuildBeampipe2(BDSSectorBend *sb,G4double length, G4double angle)
 		      false,		       // no boolean operation
 		      0);		       // copy number
   
-  G4VPhysicalVolume* PhysiComp = 
-    new G4PVPlacement(
+  G4VPhysicalVolume* PhysiComp;
+  PhysiComp = new G4PVPlacement(
 		      Rot,			     // rotation
 		      0,	                     // at (0,0,0)
 		      sb->itsBeampipeLogicalVolume,  // its logical volume

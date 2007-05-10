@@ -31,7 +31,7 @@ void BDSMuSpoilerMagField::GetFieldValue(const G4double Point[4],
 
   G4double BFactor=itsBField/LocalR.mag();
 
-  G4double phi = LocalR.phi();
+  //G4double phi = LocalR.phi();
 
   Bfield[0]= LocalR.y()*BFactor;
   Bfield[1]= -LocalR.x()*BFactor;

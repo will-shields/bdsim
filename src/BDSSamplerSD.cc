@@ -66,7 +66,8 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
       G4int TrackID = theTrack->GetTrackID();
       G4int ParentID = theTrack->GetParentID();
 
-      G4double time=theTrack->GetGlobalTime();
+      // not used TODO: modify to include time of flight as well as sampler z pos?
+      //G4double time=theTrack->GetGlobalTime();
 
       G4double energy=theTrack->GetKineticEnergy()+
 	theTrack->GetDefinition()->GetPDGMass();

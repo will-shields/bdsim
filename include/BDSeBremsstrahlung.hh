@@ -21,7 +21,7 @@
 // ********************************************************************
 //
 //
-// $Id: BDSeBremsstrahlung.hh,v 1.1.1.1 2004/12/14 18:57:41 agapov Exp $
+// $Id: BDSeBremsstrahlung.hh,v 1.1 2005/01/22 17:05:31 agapov Exp $
 // GEANT4 tag $Name:  $
 //
 // 
@@ -97,12 +97,12 @@ class BDSeBremsstrahlung : public G4VeEnergyLoss
 
      G4double GetLambda(G4double KineticEnergy, const G4MaterialCutsCouple* couple);
 
-     G4bool StorePhysicsTable(G4ParticleDefinition* ,
+     G4bool StorePhysicsTable(const G4ParticleDefinition* ,
   		              const G4String& directory, G4bool);
       // store eLoss and MeanFreePath tables into an external file
       // specified by 'directory' (must exist before invokation)
 
-     G4bool RetrievePhysicsTable(G4ParticleDefinition* ,
+     G4bool RetrievePhysicsTable(const G4ParticleDefinition* ,
 			         const G4String& directory, G4bool);
       // retrieve eLoss and MeanFreePath tables from an external file
       // specified by 'directory'

@@ -108,7 +108,7 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 
   G4Track* ThisTrack=ThisStep->GetTrack();
   
-  G4int TrackID=ThisTrack->GetTrackID();
+  //G4int TrackID=ThisTrack->GetTrackID();
   
   G4String pName=ThisTrack->GetDefinition()->GetParticleName();
 
@@ -347,8 +347,8 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 
   // this cuts apply to default region
 
-  G4LogicalVolume* LogVol=ThisTrack->GetVolume()->GetLogicalVolume();
-  G4Region* reg = LogVol->GetRegion();
+  //G4LogicalVolume* LogVol=ThisTrack->GetVolume()->GetLogicalVolume();
+  //G4Region* reg = LogVol->GetRegion();
 
   //G4cout<<"I am in "<<reg->GetName()<<G4endl;
 

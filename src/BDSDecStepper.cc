@@ -34,7 +34,7 @@ void BDSDecStepper::AdvanceHelix( const G4double  yIn[],
 
   // relevant momentum scale is p_z, not P_tot:
   // check that the approximations are valid, else do a linear step:
-  if(abs(kappa)<1.e-20)
+  if(fabs(kappa)<1.e-20)
     {
       G4ThreeVector positionMove  = (h/InitMag) * v0;
       

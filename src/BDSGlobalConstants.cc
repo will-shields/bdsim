@@ -154,6 +154,9 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
   itsLaserwireTrackElectrons = 1;
 
 
+  isWaitingForDump = false;
+  isDumping = false;
+
  //  else if(name=="INCLUDE_IRON_MAG_FIELDS")
 //     {
 //       _READ(itsIncludeIronMagFields);

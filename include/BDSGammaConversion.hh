@@ -26,7 +26,7 @@
 // ********************************************************************
 //
 //
-// $Id: BDSGammaConversion.hh,v 1.1.1.1 2004/12/14 18:57:41 agapov Exp $
+// $Id: BDSGammaConversion.hh,v 1.1 2005/01/22 17:05:30 agapov Exp $
 // GEANT4 tag $Name:  $
 //
 //------------------ BDSGammaConversion physics process -------------------------
@@ -98,12 +98,12 @@ public:  // with description
   // It builds the MeanFreePath table, for Gamma,
   // and for every material contained in the materialTable.       
   
-  G4bool StorePhysicsTable(G4ParticleDefinition* ,
+  virtual G4bool StorePhysicsTable(const G4ParticleDefinition* ,
 			   const G4String& directory, G4bool);
   // store CrossSection and MeanFreePath tables into an external file
   // specified by 'directory' (must exist before invokation)
   
-  G4bool RetrievePhysicsTable(G4ParticleDefinition* ,
+  G4bool RetrievePhysicsTable(const G4ParticleDefinition* ,
 			      const G4String& directory, G4bool);
   // retrieve CrossSection and MeanFreePath tables from an external file
   // specified by 'directory' 

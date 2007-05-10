@@ -43,7 +43,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
   G4Box *aBox;
   G4Tubs *aTubs;
   G4Cons *aCons;
-  G4Trap *aTrap;
+  //G4Trap *aTrap;
   G4Trd *aTrd;
 
   G4LogicalVolume *lvol;

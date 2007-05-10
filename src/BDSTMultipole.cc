@@ -94,7 +94,7 @@ void BDSTMultipole::BuildBPFieldAndStepper()
 {
   G4cout<<"Building Multipole Field and stepper"<<G4endl;
 
-  G4int nvar = 6;
+  //G4int nvar = 6;
 
   itsMagField = new BDSMultipoleMagField(bnl,bsl);
 

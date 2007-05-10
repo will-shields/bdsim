@@ -10,7 +10,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSOctStepper.cc,v 1.4 2006/04/19 02:38:09 carter Exp $
+// $Id: BDSOctStepper.cc,v 1.5 2006/04/19 21:52:20 carter Exp $
 // GEANT4 tag $Name:  $
 //
 #include "BDSOctStepper.hh"
@@ -83,7 +83,7 @@ void BDSOctStepper::AdvanceHelix( const G4double  yIn[],
       G4double y0=LocalR.y();
       G4double z0=LocalR.z();
 
-      G4double x02My02=(x0*x0-y0*y0);
+      //G4double x02My02=(x0*x0-y0*y0);
 
       G4double xp=LocalRp.x();
       G4double yp=LocalRp.y();
@@ -132,9 +132,9 @@ void BDSOctStepper::AdvanceHelix( const G4double  yIn[],
 	      dz/=ScaleFac;
 	    }
 
-	  LocalR.setX(LocalR.x()+dx);
-	  LocalR.setY(LocalR.y()+dy);
-	  LocalR.setZ(LocalR.z()+dz);
+	  LocalR.setX(x0+dx);
+	  LocalR.setY(y0+dy);
+	  LocalR.setZ(z0+dz);
 
 	  LocalRp = LocalRp+ h*LocalRpp;
 	}
@@ -163,10 +163,10 @@ void BDSOctStepper::Stepper( const G4double yInput[],
   G4int i;
   const G4int nvar = 6 ;
   
-  const G4double *pIn = yInput+3;
-  G4ThreeVector v0= G4ThreeVector( pIn[0], pIn[1], pIn[2]);  
-  G4double InitMag=v0.mag();
-  G4double kappa=  -fPtrMagEqOfMot->FCof()*itsBTrpPrime/InitMag;
+  //const G4double *pIn = yInput+3;
+  //G4ThreeVector v0= G4ThreeVector( pIn[0], pIn[1], pIn[2]);  
+  //G4double InitMag=v0.mag();
+  //G4double kappa=  -fPtrMagEqOfMot->FCof()*itsBTrpPrime/InitMag;
   
   G4double yTemp[7], yIn[7];
   

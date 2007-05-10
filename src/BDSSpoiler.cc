@@ -33,10 +33,10 @@ extern BDSMaterials* theMaterials;
 BDSSpoiler::BDSSpoiler (G4String& aName,G4double aLength,G4double bpRad,
 			  G4double xAper,G4double yAper,
 			  G4Material* SpoilerMaterial):
-  itsSpoilerMaterial(SpoilerMaterial),
   BDSAcceleratorComponent(aName,
 			 aLength,bpRad,xAper,yAper,
-			 SetVisAttributes())
+			 SetVisAttributes()),
+  itsSpoilerMaterial(SpoilerMaterial)
 {
   
   if ( (*LogVolCount)[itsName]==0)

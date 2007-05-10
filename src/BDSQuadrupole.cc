@@ -283,8 +283,8 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   G4double yPole = (poleR + itsBpRadius) / sqrt(2.0);
 
 
-  G4VPhysicalVolume* itsPhysiQPole1 = 
-    new G4PVPlacement(
+  G4VPhysicalVolume* itsPhysiQPole1;
+  itsPhysiQPole1 = new G4PVPlacement(
 		      rotPole,			  // rotation
 		      G4ThreeVector(xPole,yPole,0),                      // its position
 		      lPole,   // its logical volume
@@ -331,8 +331,8 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
       G4double yYoke = (poleR - poleR * cos(dPhi / 2) + itsBpRadius + rYoke/2) / sqrt(2.0);
 
 
-      G4VPhysicalVolume* itsPhysiQYoke1 = 
-	new G4PVPlacement(
+      G4VPhysicalVolume* itsPhysiQYoke1;
+      itsPhysiQYoke1 = new G4PVPlacement(
 			  rotYoke,			  // rotation
 			  G4ThreeVector(xYoke,yYoke,0),                      // its position
 			  lYoke1,   // its logical volume
@@ -354,8 +354,8 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 
       G4LogicalVolume* lYoke2 = 
 	new G4LogicalVolume(new G4Box(itsName+"_yoke1",
-				      rYoke1 / 2,
-				      rYoke2 / 2,
+				      xYoke2 / 2,
+				      yYoke2 / 2,
 				      itsLength/2),
 			    theMaterials->LCIron,
 			    itsName+"yoke_outer1");
@@ -386,8 +386,8 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   // put all quadrants in the outer volume
 
  
-  G4VPhysicalVolume* itsPhysiQuadrant1 = 
-    new G4PVPlacement(
+  G4VPhysicalVolume* itsPhysiQuadrant1;
+  itsPhysiQuadrant1 = new G4PVPlacement(
 		      NULL,			  // rotation
 		      0,                      // its position
 		      lQuadrant,   // its logical volume
@@ -399,8 +399,8 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   G4RotationMatrix* rotQ2= new  G4RotationMatrix;
   rotQ2->rotateZ( pi / 2.);
 
-  G4VPhysicalVolume* itsPhysiQuadrant2 = 
-    new G4PVPlacement(
+  G4VPhysicalVolume* itsPhysiQuadrant2;
+  itsPhysiQuadrant2 = new G4PVPlacement(
 		      rotQ2,			  // rotation
 		      0,                      // its position
 		      lQuadrant,   // its logical volume
@@ -412,8 +412,8 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   G4RotationMatrix* rotQ3= new  G4RotationMatrix;
   rotQ3->rotateZ( pi );
   
-  G4VPhysicalVolume* itsPhysiQuadrant3 = 
-    new G4PVPlacement(
+  G4VPhysicalVolume* itsPhysiQuadrant3;
+  itsPhysiQuadrant3 = new G4PVPlacement(
 		      rotQ3,			  // rotation
 		      0,                      // its position
 		      lQuadrant,   // its logical volume
@@ -426,8 +426,8 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   G4RotationMatrix* rotQ4= new  G4RotationMatrix;
   rotQ4->rotateZ( 3. * pi / 2.);
   
-  G4VPhysicalVolume* itsPhysiQuadrant4 = 
-    new G4PVPlacement(
+  G4VPhysicalVolume* itsPhysiQuadrant4;
+  itsPhysiQuadrant4 = new G4PVPlacement(
 		      rotQ4,			  // rotation
 		      0,                      // its position
 		      lQuadrant,   // its logical volume
@@ -445,8 +445,8 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   G4RotationMatrix* Rot=NULL;
   if(itsAngle!=0) Rot=RotY90;
   
-  G4VPhysicalVolume* itsPhysiComp = 
-    new G4PVPlacement(
+  G4VPhysicalVolume* itsPhysiComp;
+  itsPhysiComp = new G4PVPlacement(
 		      Rot,			  // rotation
 		      0,                      // its position
 		      itsOuterLogicalVolume,   // its logical volume

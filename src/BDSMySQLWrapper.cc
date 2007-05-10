@@ -183,7 +183,7 @@ G4int BDSMySQLWrapper::ReadComponent()
 	  if(input==CMD_VALUES)
 	    {
 	      
-	      for(G4int j=0; j<table.size(); j++)
+	      for(G4int j=0; j<(G4int)table.size(); j++)
 		{
 		  if(table[j]->GetName()==InsertTableName)
 		    {
@@ -199,7 +199,7 @@ G4int BDSMySQLWrapper::ReadComponent()
 			    {
 			      vector<G4String> vctInput = StripComma(input);
 			      if(vctInput.size()==0) k--;
-			      for(int i=0; i<vctInput.size(); i++)
+			      for(G4int i=0; i<(G4int)vctInput.size(); i++)
 				{
 				  //G4cout << "Res: " << vctInput[i] << G4endl;
 				  if(table[j]->GetVariable(k)->GetVarType()=="DOUBLE")
@@ -208,7 +208,7 @@ G4int BDSMySQLWrapper::ReadComponent()
 				    table[j]->GetVariable(k)->AddValue(StripQuotes(vctInput[i]));
 				  else if(table[j]->GetVariable(k)->GetVarType()=="INTEGER")
 				    table[j]->GetVariable(k)->AddValue(atoi(vctInput[i]));
-				  if(i!=vctInput.size()-1) k++;
+				  if(i!=(G4int)vctInput.size()-1) k++;
 				}
 			    }
 			  else

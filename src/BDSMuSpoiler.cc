@@ -29,10 +29,13 @@ extern BDSMaterials* theMaterials;
 
 BDSMuSpoiler::BDSMuSpoiler (G4String& aName,G4double aLength,G4double bpRad,
 			    G4double rOuter,G4double aBField):
-  itsInnerRadius(bpRad),itsOuterRadius(rOuter),itsBField(aBField),
   BDSAcceleratorComponent(aName,
 			 aLength,bpRad,bpRad,bpRad,
-			 SetVisAttributes())
+			 SetVisAttributes()),
+  itsInnerRadius(bpRad),
+  itsOuterRadius(rOuter),
+  itsBField(aBField)
+
 {
   
   if ( (*LogVolCount)[itsName]==0)

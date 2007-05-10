@@ -28,11 +28,11 @@ BDSMagFieldSQL::BDSMagFieldSQL(const G4String& aFieldFile,
 			       vector<G4String> Octvol, vector<G4double> OctBgrad,
 			       vector<G4String> Fieldvol, vector<G4ThreeVector> UniformField)
 
-  :ifs(aFieldFile.c_str()),FieldFile(aFieldFile),itsMarkerLength(aMarkerLength),
-   itsQuadVol(Quadvol), itsQuadBgrad(QuadBgrad),
-   itsSextVol(Sextvol), itsSextBgrad(SextBgrad),
-   itsOctVol(Octvol), itsOctBgrad(OctBgrad),
-   itsFieldVol(Fieldvol), itsUniformField(UniformField)
+  :ifs(aFieldFile.c_str()),itsMarkerLength(aMarkerLength),FieldFile(aFieldFile),
+   itsQuadBgrad(QuadBgrad), itsQuadVol(Quadvol),
+   itsSextBgrad(SextBgrad), itsSextVol(Sextvol),
+   itsOctBgrad(OctBgrad), itsOctVol(Octvol),
+   itsUniformField(UniformField), itsFieldVol(Fieldvol)
 {
 }
 

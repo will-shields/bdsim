@@ -14,7 +14,7 @@
 G4Allocator<BDSLWCalorimeterHit> BDSLWCalorimeterHitAllocator;
 
 BDSLWCalorimeterHit::BDSLWCalorimeterHit(G4int nCopy, G4double anEnergy,G4int nEvent)
-  :itsCopyNumber(nCopy),itsEnergy(anEnergy),itsEventNo(nEvent)
+  :itsEnergy(anEnergy),itsCopyNumber(nCopy),itsEventNo(nEvent)
 {;}
 
 

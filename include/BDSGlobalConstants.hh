@@ -221,6 +221,15 @@ public:
   G4bool GetPreviousWasWedge();
   void SetPreviousWasWedge(G4bool PreviousWasWedge);
 
+  // AI : for placet synchronization
+  void setWaitingForDump(G4bool flag) { isWaitingForDump = flag; } // waiting before all tracks arrive at a dump element
+  G4bool getWaitingForDump() { return isWaitingForDump; }
+
+  void setDumping(G4bool flag) { isDumping = flag; } // all tracks are pending - for stacking manager 
+  G4bool getDumping() { return isDumping; }
+
+
+
   
   G4String tmpParticleName; // particle name as given in options
                             // since the particle definition is looked up in 
@@ -379,6 +388,10 @@ private:
 
   G4double itsWedgeDisplacement;
   G4bool itsPreviousWasWedge;
+
+  bool isWaitingForDump;
+  bool isDumping;
+
 };
 
 inline G4double BDSGlobalConstants::GetMinimumEpsilonStep()
