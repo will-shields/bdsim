@@ -48,7 +48,7 @@
 %token SOLENOID COLLIMATOR RCOL ECOL LINE SEQUENCE SPOILER ABSORBER LASER TRANSFORM3D
 %token VKICK HKICK KICK
 %token PERIOD APERTURE FILENAME GAS PIPE TUNNEL MATERIAL
-%token BEAM OPTION PRINT RANGE STOP USE VALUE ECHO PRINTF SAMPLE CSAMPLE BETA0 TWISS
+%token BEAM OPTION PRINT RANGE STOP USE VALUE ECHO PRINTF SAMPLE CSAMPLE BETA0 TWISS DUMP
 %token IF ELSE BEGN END LE GE NE FOR
 %token CUT
 
@@ -699,7 +699,7 @@ rev_element_seq :
 		    {
 		      struct Element e;
 		      e.name = $3->name;
-		      e.type = _LINE;
+		      e.type = _REV_LINE;
 		      e.lst = NULL;
 		      tmp_list.push_front(e);
 		    }
@@ -714,7 +714,7 @@ rev_element_seq :
 		    {
 		      struct Element e;
 		      e.name = $3->name;
-		      e.type = _LINE;
+		      e.type = _REV_LINE;
 		      e.lst = NULL;
 		      for(int i=0;i<(int)$5;i++)
 			tmp_list.push_front(e);
@@ -730,7 +730,7 @@ rev_element_seq :
 		    {
 		      struct Element e;
 		      e.name = $5->name;
-		      e.type = _LINE;
+		      e.type = _REV_LINE;
 		      e.lst = NULL;
 		      for(int i=0;i<(int)$3;i++)
 			tmp_list.push_front(e);
@@ -746,7 +746,7 @@ rev_element_seq :
 		    {
 		      struct Element e;
 		      e.name = $1->name;
-		      e.type = _LINE;
+		      e.type = _REV_LINE;
 		      e.lst = NULL;
 		      tmp_list.push_front(e);
 		    }
@@ -761,7 +761,7 @@ rev_element_seq :
 		    {
 		      struct Element e;
 		      e.name = $1->name;
-		      e.type = _LINE;
+		      e.type = _REV_LINE;
 		      e.lst = NULL;
 		      for(int i=0;i<(int)$3;i++)
 			tmp_list.push_front(e);
@@ -777,7 +777,7 @@ rev_element_seq :
 		    {
 		      struct Element e;
 		      e.name = $3->name;
-		      e.type = _LINE;
+		      e.type = _REV_LINE;
 		      e.lst = NULL;
 		      for(int i=0;i<(int)$1;i++)
 			tmp_list.push_front(e);
@@ -1240,6 +1240,16 @@ command : STOP             { if(execute) quit(); }
 		if(ECHO_GRAMMAR) printf("command -> TWISS\n");
 	      }
           }
+        | DUMP ',' sample_options   //  options for beam dump 
+          {                                                   
+            if(execute)                                       
+              {                                               
+                if(ECHO_GRAMMAR) printf("command -> DUMP\n"); 
+                add_dump("dump",$3->name, element_count);     
+                element_count = 1;                            
+                params.flush();                               
+              }                                               
+          }                                                   
 
 //| PRINTF '(' fmt ')' { if(execute) printf($3,$5); }
 ;

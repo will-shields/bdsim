@@ -106,6 +106,7 @@ sample { return SAMPLE; }
 csample { return CSAMPLE; }
 beta0 { return BETA0; } 
 twiss { return TWISS; }
+dump  { return DUMP; }
 
 \"[^"]*\" {
   //strip quotes

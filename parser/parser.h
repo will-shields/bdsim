@@ -766,7 +766,43 @@ void add_csampler(char *name, char *before, int before_count, double length, dou
 
 }
 
-// insert 
+// insert a beam dumper into beamline_list
+void add_dump(char *name, char *before, int before_count)
+{
+  if(DEBUG) cout<<"inserting dump before "<<before<<"["<<before_count<<"]"<<endl;
+
+  list<struct Element>::iterator it;
+
+  int element_count = 1;  // count from 1 like in goddam FORTRAN -- for range parsing
+  struct Element e;
+  e.type = _DUMP;
+  e.name = name;
+  e.lst = NULL;
+
+  for(it = beamline_list.begin();it != beamline_list.end(); ++it)
+    {
+      if(DEBUG) cout<<"-->"<<(*it).name<<endl;
+
+      if( !strcmp((*it).name, before))
+        {
+
+          if( before_count == element_count)
+            {
+              beamline_list.insert(it,e);
+              return;
+            }
+
+
+          element_count++;
+        }
+
+    }
+
+  cout<<"current beamline doesn't contain element "<<before<<" with number "<<before_count<<endl;
+
+}
+
+// insert beam gas                                             
 void add_gas(char *name, const char *before, int before_count, const char *material)
 {
   printf("gas %s will be inserted into %s number %d\n",material,before,before_count);
