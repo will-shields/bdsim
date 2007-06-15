@@ -43,6 +43,8 @@ public:
   G4Material*  LCNbTi;
   G4Material*  LCInvar;
   G4Material*  LCCarbonSteel;
+	G4Material*  LCVanadium;
+	G4Material*  LCTitaniumAlloy;
   G4Material*  SmCo;
   G4Material*  LiquidHelium;
 
@@ -74,9 +76,10 @@ inline G4Material* BDSMaterials::GetMaterial(G4String aMaterial)
   else if(aMaterial.compareTo("NbTi",cmpmode)==0) return LCNbTi;  
   else if(aMaterial.compareTo("Invar",cmpmode)==0) return LCInvar; 
   else if(aMaterial.compareTo("CarbonSteel", cmpmode)==0) return LCCarbonSteel;
+  else if(aMaterial.compareTo("Vanadium", cmpmode)==0) return LCVanadium;
+  else if(aMaterial.compareTo("TitaniumAlloy", cmpmode)==0) return LCTitaniumAl
   else if(aMaterial.compareTo("SmCo", cmpmode)==0) return SmCo;
   else if(aMaterial.compareTo("LHe", cmpmode)==0) return LiquidHelium;
-  
   else
     {
       G4cout <<aMaterial<<" not known. Using Vacuum instead!!" <<G4endl;

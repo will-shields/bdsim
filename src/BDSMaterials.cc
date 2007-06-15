@@ -34,6 +34,10 @@ BDSMaterials::BDSMaterials()
   a = 26.98*g/mole;
   LCAluminium = new G4Material(name="LCAluminium", z=13., a, density);
 
+  density = 5.800*g/cm3;
+  a = 50.9415*g/mole;
+  LCVanadium = new G4Material(name="LCVanadium", z=23., a, density);
+
   density = 19.3*g/cm3;
   a = 183.84*g/mole;
   LCTungsten=new G4Material(name="LCTungsten", z=74., a, density);
@@ -114,7 +118,10 @@ BDSMaterials::BDSMaterials()
   // aluminium
   G4Element* Al = new G4Element
     (name="Aluminium"  ,symbol="Al" , z= 13., a=26.98*g/mole);  
-  
+    
+G4Element* V = new G4Element
+    (name="Vanadium"  ,symbol="V" , z= 23., a=50.9415*g/mole);  
+
   G4Element* Si = new G4Element
     (name="Silicon",symbol="Si" , z= 14., a=28.09*g/mole);
 
@@ -155,6 +162,17 @@ BDSMaterials::BDSMaterials()
 			   1*atmosphere);
   LCNiobium->AddElement(Nb,1);
 
+	//Titanium alloy (BDS collimator material SLAC-TN-03-069 p25) deacon 15 Jun 2007
+	density = 4.48*g/cm3;
+	LCTitaniumAlloy=new G4Material(name="LCTitaniumAlloy",
+																 density,
+																 ncomponents=3,
+																 kStateSolid,
+																 300*kelvin,
+																 1*atmosphere);
+	LCTitaniumAlloy->AddElement(V,  fractionmass=0.025);
+	LCTitaniumAlloy->AddElement(Al, fractionmass=0.03 );
+	LCTitaniumAlloy->AddElement(Ti, fractionmass=0.945);
 
   //Carbon Steel (shell of cryomodule). LDeacon 21 Feb 2006
   density = 7.87*g/cm3;
@@ -162,8 +180,8 @@ BDSMaterials::BDSMaterials()
 			       density,
 			       ncomponents=5,
 			       kStateSolid,
-			       100*kelvin, 
-			       1*atmosphere);
+			       100*kelvin,
+						 1*atmosphere);
   
   LCCarbonSteel->AddElement(C, fractionmass=0.0017);
   LCCarbonSteel->AddElement(Mn, fractionmass=0.0045);
