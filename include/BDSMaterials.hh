@@ -82,8 +82,8 @@ inline G4Material* BDSMaterials::GetMaterial(G4String aMaterial)
   else if(aMaterial.compareTo("LHe", cmpmode)==0) return LiquidHelium;
   else
     {
-      G4cout <<aMaterial<<" not known. Using Vacuum instead!!" <<G4endl;
-      return LCVacuum; //default if not recognized
+      G4cerr <<aMaterial<<" not known. Aborting." <<G4endl;
+      exit(1); //default if not recognized
     }
 
 }

@@ -15,17 +15,17 @@
 #include <string>
 #include <vector>
 
-using namespace std;
+//using namespace std;
 
 class BDSMagFieldSQL : public BDSField
 {
 public:  // with description
 
   BDSMagFieldSQL(const G4String& FieldFile, G4double aMarkerLength,
-		 vector<G4String> Quadvol, vector<G4double> QuadBgrad,
-		 vector<G4String> Sextvol, vector<G4double> SextBgrad,
-		 vector<G4String> Octvol, vector<G4double> OctBgrad,
-		 vector<G4String> Fieldvol, vector<G4ThreeVector> UniformField);
+		 std::vector<G4String> Quadvol, std::vector<G4double> QuadBgrad,
+		 std::vector<G4String> Sextvol, std::vector<G4double> SextBgrad,
+		 std::vector<G4String> Octvol, std::vector<G4double> OctBgrad,
+		 std::vector<G4String> Fieldvol, std::vector<G4ThreeVector> UniformField);
   virtual ~BDSMagFieldSQL();
   // Constructor and destructor. No actions.
 
@@ -42,22 +42,22 @@ private:
   G4String FieldFile;
 
   // For Quad/Sext/Oct Fields
-  vector<G4double> itsQuadBgrad;
-  vector<G4String> itsQuadVol; 
-  vector<G4double> itsSextBgrad;
-  vector<G4String> itsSextVol; 
-  vector<G4double> itsOctBgrad;
-  vector<G4String> itsOctVol; 
+  std::vector<G4double> itsQuadBgrad;
+  std::vector<G4String> itsQuadVol; 
+  std::vector<G4double> itsSextBgrad;
+  std::vector<G4String> itsSextVol; 
+  std::vector<G4double> itsOctBgrad;
+  std::vector<G4String> itsOctVol; 
 
   // For Uniform Fields
-  vector<G4ThreeVector> itsUniformField;
-  vector<G4String> itsFieldVol; 
+  std::vector<G4ThreeVector> itsUniformField;
+  std::vector<G4String> itsFieldVol; 
 
   // For Solenoid FieldMaps
-  vector<G4double> itsBz;
-  vector<G4double> itsZ;
-  vector<G4double> itsBr_over_r;
-  vector<G4double> itsdBz_by_dz;
+  std::vector<G4double> itsBz;
+  std::vector<G4double> itsZ;
+  std::vector<G4double> itsBr_over_r;
+  std::vector<G4double> itsdBz_by_dz;
   double itsdz;
 };
 

@@ -4,7 +4,7 @@
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
 
-// $Id: BDSRunManager.hh,v 1.1.1.1 2004/12/14 18:57:41 agapov Exp $
+// $Id: BDSRunManager.hh,v 1.1 2005/01/22 17:05:31 agapov Exp $
 // GEANT4 tag $Name:  $
 #ifndef BDSRunManager_h
 #define BDSRunManager_h 1
@@ -35,9 +35,9 @@ class BDSRunManager:public G4RunManager
     // bottom of the main().
 
   public: // with description
-  virtual void DoEventLoop(G4int n_event,const char* macroFile=0,
-			   G4int n_select=-1);
-
+//SPM
+  virtual void DoEventLoop(G4int n_event,const char* macroFile,G4int n_select);
+  virtual void BeamOn(G4int n_event,const char* macroFile=0,G4int n_select=-1);
 };
 #endif
 

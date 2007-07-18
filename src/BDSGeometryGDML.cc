@@ -24,7 +24,6 @@
 #include "G4ClassicalRK4.hh"
 #include <string>
 
-
 using namespace std;
 
 extern BDSMaterials* theMaterials;

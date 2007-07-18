@@ -11,9 +11,13 @@
 #include "G4ios.hh"
 #include "G4UnitsTable.hh"
 
-
+#if G4VERSION > 8
+BDSLaserCompton::BDSLaserCompton(const G4String& processName)
+  :  G4VEnergyLossProcess(processName),isInitialised(false)
+#else
 BDSLaserCompton::BDSLaserCompton(const G4String& processName)
   :  G4VeEnergyLoss(processName)
+#endif
 {
   itsLaserWavelength=BDSGlobals->GetLaserwireWavelength();
   itsLaserDirection=BDSGlobals->GetLaserwireDir();
@@ -158,4 +162,47 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
  
 }
 
+#if G4VERSION > 8
+#include "G4LossTableManager.hh"
+#include "G4eBremsstrahlungModel.hh"
+#include "G4UniversalFluctuation.hh"
 
+void BDSLaserCompton::InitialiseEnergyLossProcess(const G4ParticleDefinition* p, const G4ParticleDefinition*)
+{
+  if(!isInitialised) {
+    particle = p;
+    SetSecondaryParticle(G4Gamma::Gamma());
+    SetIonisation(false);
+    if (!EmModel()) SetEmModel(new G4eBremsstrahlungModel());
+    EmModel()->SetLowEnergyLimit (100*eV);
+    EmModel()->SetHighEnergyLimit(100*TeV);
+    if (!FluctModel()) SetFluctModel(new G4UniversalFluctuation());
+
+    AddEmModel(1, EmModel(), FluctModel());
+    isInitialised = true;
+  }
+  G4LossTableManager* man = G4LossTableManager::Instance();
+  dynamic_cast<G4eBremsstrahlungModel*>(EmModel())
+    ->SetEnergyThreshold(man->BremsstrahlungTh());
+  dynamic_cast<G4eBremsstrahlungModel*>(EmModel())
+    ->SetLPMflag(man->LPMFlag());
+}
+
+void BDSLaserCompton::PrintInfo()
+{
+  if(EmModel()) {
+    G4cout << "      Total cross sections and sampling from "
+           << EmModel()->GetName() << " model"
+           << " (based on the EEDL data library) "
+           << "\n      Good description from 1 KeV to 100 GeV, "
+           << "log scale extrapolation above 100 GeV."
+           << " LPM flag "
+           << dynamic_cast<G4eBremsstrahlungModel*>(EmModel())->LPMflag()
+           << G4endl;
+    G4double eth = dynamic_cast<G4eBremsstrahlungModel*>(EmModel())->EnergyThreshold();
+    if(eth < DBL_MIN)
+      G4cout << "      HighEnergyThreshold(GeV)= " << eth/GeV
+             << G4endl;
+  }
+}
+#endif

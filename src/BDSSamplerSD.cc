@@ -25,7 +25,7 @@
 #include "G4AffineTransform.hh"
 
 #include "G4RunManager.hh"
-#include <vector.h>
+#include <vector>
 
 #include "G4SDManager.hh"
 

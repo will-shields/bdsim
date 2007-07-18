@@ -6,6 +6,7 @@
 #include "BDSXYMagField.hh"
 #include <fstream>
 
+using namespace std;
 
 G4double GetNearestValue(vector<struct XYFieldRecord> fieldValues, G4double x, G4double y,
 			 G4double &bx,G4double &by, G4double &bz);

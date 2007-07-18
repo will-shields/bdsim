@@ -101,7 +101,7 @@ void BDSBunch::SetOptions(struct Options& opt)
     //  else if(opt.distribType == "ring")
   case _RING:
     {
-      distribType = _RING; 
+      distribType = _RING;
       X0 = opt.X0;
       Y0 = opt.Y0;
       rMin = opt.Rmin;
@@ -499,6 +499,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       yp*=radian;
       return;
     }
+
   switch(distribType){
   case _GAUSSIAN:
     {

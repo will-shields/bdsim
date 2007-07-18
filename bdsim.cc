@@ -1,22 +1,25 @@
 //  
-//   BDSIM, (C) 2001-2006 
-//    
-//   version 0.2 
-//   last modified : 28 Mar 2006 by agapov@pp.rhul.ac.uk
+//   BDSIM, (C) 2001-2007 
+//   
+//   version 0.4
 //  
-
-
-
 //
-//    Main code
+//
+//   Main code
+//
+//
+//   History
+//     17 Jul 2007 by Malton v.0.4
+//     26 Jan 2007 by Agapov v.0.3
+//     28 Mar 2006 by Agapov v.0.2
+//     
 //
 
 
 
-const int DEBUG = 1;
+const int DEBUG = 0;
 
 #include "BDSGlobalConstants.hh" // global parameters
-
 
 #include "G4UImanager.hh"        // G4 session managers
 #include "G4UIterminal.hh"
@@ -34,14 +37,6 @@ const int DEBUG = 1;
 #include <unistd.h>
 #include <getopt.h>
 
-// tmp
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleWithCuts.hh"
-#include "G4ParticleTypes.hh"
-#include "G4ParticleTable.hh"
-
-#include "G4HadronInelasticProcess.hh"  // processes
-
 
 #include "BDSDetectorConstruction.hh"   // Geant4 includes
 #include "BDSPhysicsList.hh"
@@ -53,10 +48,12 @@ const int DEBUG = 1;
 #include "BDSUserTrackingAction.hh"
 #include "BDSSteppingVerbose.hh"
 #include "BDSRunManager.hh"
+
+
 #include "BDSGeometryInterface.hh"
 
-#include "BDSOutput.hh"  // interface to result output
-#include "BDSSamplerSD.hh"
+#include "BDSOutput.hh" 
+//#include "BDSSamplerSD.hh"
 #include "BDSBunch.hh"
 
 #include "parser/gmad.h"  // GMAD parser
@@ -69,9 +66,9 @@ const int DEBUG = 1;
 // Print program usage
 static void usage()
 {
-  G4cout<<"bdsim : version 0.1 build _UNKNOWN_BUILD_DATE_"<<G4endl;
+  G4cout<<"bdsim : version 0.3 build _UNKNOWN_BUILD_DATE_"<<G4endl;
   G4cout<<"        (C) 2001-2006 Royal Holloway University London"<<G4endl;
-  G4cout<<"        http://flc.pp.rhul.ac.uk/bdsim.html"<<G4endl;
+  G4cout<<"        http://ilc.pp.rhul.ac.uk/bdsim.html"<<G4endl;
   G4cout<<G4endl;
 
   G4cout<<"Usage: bdsim [options]"<<G4endl;
@@ -118,9 +115,6 @@ G4int nptwiss = 200; // number of particles for twiss parameters matching (by tr
 
 
 int main(int argc,char** argv) {
-
-  // NOTE: Visualization crashes when the argument parsing is added 
-
 
   // Parse the command line options 
   
@@ -242,22 +236,19 @@ int main(int argc,char** argv) {
   
   
   G4cout<<"Using input file: "<<inputFilename<<G4endl;
-    
+
   if( gmad_parser(inputFilename) == -1)   // parse lattice file
     {
       G4cout<<"can't open input file "<<inputFilename<<G4endl;
       exit(1);
     }
 
-
   // we shouldn't have verbose steps without verbose events etc.
   if(verboseStep) verboseEvent = true;
-
 
   BDSGlobals = new BDSGlobalConstants(options);
 
   theBunch.SetOptions(options);
- 
 
   bdsOutput.SetFormat(outputFormat);
 
@@ -273,7 +264,7 @@ int main(int argc,char** argv) {
   // get the seed from options if positive, else
   // user time as a seed
 
-#include <time.h>
+#include <ctime>
 
   if(BDSGlobals->GetRandomSeed()>=0)
     seed = BDSGlobals->GetRandomSeed();
@@ -287,6 +278,7 @@ int main(int argc,char** argv) {
 
  
   BDSRunManager * runManager = new BDSRunManager;
+  runManager->SetNumberOfAdditionalWaitingStacks(1);
 
   // set mandatory initialization classes
  
@@ -370,7 +362,10 @@ int main(int argc,char** argv) {
     }
 
 
-  // Track nptwiss particles for beta functions (and SR Rescaling)
+  // Track nptwiss particles for beta functions 
+  // and SR Rescaling. SR rescaling is adjusting the magnet fields according to
+  // k-values considering the beam energy loss due to SR
+
   if(BDSGlobals->DoTwiss())
     {
 

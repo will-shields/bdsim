@@ -1,6 +1,6 @@
 #include "BDSOutput.hh"
 #include "BDSSamplerSD.hh"
-#include <time.h>
+#include <ctime>
 
 extern G4String outputFilename;
 BDSOutput::BDSOutput()
@@ -21,7 +21,8 @@ BDSOutput::BDSOutput(int fmt)
 
 BDSOutput::~BDSOutput()
 {
-  of.close();
+  if(of != NULL)
+    of.close();
 
 
 #ifdef USE_ROOT

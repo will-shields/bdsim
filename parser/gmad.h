@@ -12,11 +12,11 @@
 #define _RESERVED 1
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <list>
 #include <string>
 
-using namespace std;
+//using namespace std;
 
 // types of elements
 
@@ -39,6 +39,7 @@ enum {
   _LASER=15,
   _MATERIAL=16,
   _REV_LINE=17,
+  _RBEND=18,
 
   _VKICK=31,
   _HKICK=32,
@@ -79,13 +80,13 @@ enum {
 
 struct Options {
 
-  string physicsList;
+  std::string physicsList;
 
 
   // beam parameters
-  string particleName;
-  string distribType;
-  string distribFile;
+  std::string particleName;
+  std::string distribType;
+  std::string distribFile;
 
   int numberOfParticles;
 
@@ -125,7 +126,7 @@ struct Options {
   double beampipeRadius;
   double beampipeThickness;
 
-  string pipeMaterial;
+  std::string pipeMaterial;
 
   double thresholdCutCharged;
   double thresholdCutPhotons;
@@ -174,6 +175,7 @@ struct Options {
   int useMuonShowers;
   double muonLowestGeneratedEnergy;
 
+  std::string fifo; // fifo for BDSIM-placet
 
 };
 
@@ -184,15 +186,15 @@ struct Element {
   char * name;
 
   
-  double l,k0,k1,k2,k3,angle,aper,tilt,xsize,ysize,r, outR;
+  double l,k0,k1,k2,k3,angle,aper,tilt,xsize,ysize,r, outR, hgap, B;
   double xdir, ydir, zdir, waveLength; // for laser wire and 3d transforms
 
   double gradient; // for rf cavities
 
   double phi, theta, psi; // for 3d transforms
 
-  list<double> knl;
-  list<double> ksl;
+  std::list<double> knl;
+  std::list<double> ksl;
 
    // material properties
 
@@ -201,14 +203,14 @@ struct Element {
   double density; 
   double temper; 
 
-  string geometryFile;
-  string bmapFile;
-  string material;
+  std::string geometryFile;
+  std::string bmapFile;
+  std::string material;
 
-  string spec;  // arbitrary specification to pass to beamline builder
+  std::string spec;  // arbitrary specification to pass to beamline builder
   
   // in case the element is a list itself (line)
-  list <Element> *lst;
+  std::list <Element> *lst;
 
   
 };
@@ -220,14 +222,15 @@ struct Parameters {
 
   // length, multipole coefficients
 
+  double B;  int Bset;    // magnetic field
   double l;  int lset;    // length
   double k0; int k0set;   // dipole 
   double k1; int k1set;   // quadrupole
   double k2; int k2set;   // sextupole
   double k3; int k3set;   // octupole
 
-  list<double> knl;           // multipole expansion coefficients
-  list<double> ksl;           // skew multipole expansion
+  std::list<double> knl;           // multipole expansion coefficients
+  std::list<double> ksl;           // skew multipole expansion
   
   int knlset; int kslset;
 
@@ -244,7 +247,7 @@ struct Parameters {
   double gradient; int gradientset;
 
   double outR; int outRset; // outer radius of magnets
-
+  double hgap, hgapset;
   double xsize, ysize; int xsizeset, ysizeset; // aperture (or laser spotsize for laser)
   double xdir, ydir, zdir, waveLength; int xdirset, ydirset, zdirset, waveLengthset;
 
@@ -284,7 +287,7 @@ struct Parameters {
     angle = 0; angleset = 0;
     xsize = 0; xsizeset = 0;
     ysize = 0; ysizeset = 0;
-    
+    hgap = 0; hgapset = 0;    
     xdir = 0; xdirset = 0;
     ydir = 0; ydirset = 0;
     zdir = 0; zdirset = 0; 
@@ -298,6 +301,7 @@ struct Parameters {
     outR = 0; outRset = 0;
     tilt = 0; tiltset = 0;
 
+    B  = 0; Bset  = 0;
     k0 = 0; k0set = 0;
     k1 = 0; k1set = 0;
     k2 = 0; k2set = 0;
@@ -325,13 +329,13 @@ struct Parameters {
 };
 
 
-extern list<Element> beamline_list;
+extern std::list<Element> beamline_list;
 extern Options options;
 
 // parse the input file and construct beamline_list and options 
 int gmad_parser(FILE *f);
 
-int gmad_parser(string name);
+int gmad_parser(std::string name);
 
 
 #endif

@@ -12,7 +12,11 @@ Last modified 15.11.2005 by Ilya Agapov
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
  
 // constructor
- 
+
+#if CLHEP_VERSION < 1
+  using namespace CLHEP;
+#endif
+
 BDSGammaConversion::BDSGammaConversion(const G4String& processName)
   : G4VDiscreteProcess (processName),            // initialization
     theCrossSectionTable(NULL),
@@ -468,7 +472,7 @@ G4VParticleChange* BDSGammaConversion::PostStepDoIt(const G4Track& aTrack,
 	       thetaPlus =GammaMuonInv*(u+xiHalf)/xPlus;
 	       thetaMinus=GammaMuonInv*(u-xiHalf)/xMinus;
 
-	     } while ( abs(thetaPlus)>pi | abs(thetaMinus) >pi);
+	     } while ( fabs(thetaPlus)>pi | fabs(thetaMinus) >pi);
 
 	   // now construct the vectors
 	   // azimuthal symmetry, take phi0 at random between 0 and 2 pi

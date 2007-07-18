@@ -30,7 +30,7 @@
 #include <vector>
 #include "BDSMagFieldSQL.hh"
 
-using namespace std;
+//using namespace std;
 
 class BDSClassicalRK4;
 
@@ -43,21 +43,21 @@ public:
   void Construct(G4LogicalVolume *marker);
 
   // For List of uniform fields for volumes
-  vector<G4ThreeVector> UniformField;
-  vector<G4String> Fieldvol; 
+  std::vector<G4ThreeVector> UniformField;
+  std::vector<G4String> Fieldvol; 
 
   // For List of Quad/Sext/Oct Fields
-  vector<G4double> QuadBgrad;
-  vector<G4String> Quadvol; 
-  vector<G4double> SextBgrad;
-  vector<G4String> Sextvol;
-  vector<G4double> OctBgrad;
-  vector<G4String> Octvol;
+  std::vector<G4double> QuadBgrad;
+  std::vector<G4String> Quadvol; 
+  std::vector<G4double> SextBgrad;
+  std::vector<G4String> Sextvol;
+  std::vector<G4double> OctBgrad;
+  std::vector<G4String> Octvol;
   G4VPhysicalVolume* align_in_volume;
   G4VPhysicalVolume* align_out_volume;
-  vector<G4LogicalVolume*> SensitiveComponents;
+  std::vector<G4LogicalVolume*> SensitiveComponents;
 
-  vector<G4LogicalVolume*> VOL_LIST;
+  std::vector<G4LogicalVolume*> VOL_LIST;
   G4bool HasFields;
 
 private:
@@ -73,12 +73,12 @@ private:
   G4RotationMatrix* RotateComponent(G4double psi,
 				    G4double phi,
 				    G4double theta);
-  void PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalVolume*> VOL_LIST);
+  void PlaceComponents(BDSMySQLTable* aSQLTable, std::vector<G4LogicalVolume*> VOL_LIST);
 
   G4double itsMarkerLength;
   ifstream ifs;
   G4LogicalVolume* itsMarkerVol;
-  vector<BDSMySQLTable*> itsSQLTable;
+  std::vector<BDSMySQLTable*> itsSQLTable;
   BDSMagFieldSQL* itsMagField;
   BDSSamplerSD* SensDet;
 

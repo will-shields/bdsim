@@ -23,6 +23,7 @@ Last modified 01.02.2006 by Ilya Agapov
 #include "globals.hh"
 #include "G4FieldManager.hh"
 #include "G4String.hh"
+//#include "G4Track.hh"
 
 #include "parser/gmad.h"
 
@@ -36,6 +37,24 @@ struct strCmp {
   G4bool operator()( const G4String s1, const G4String s2 ) {
     return  strcmp(s1,s2) < 0;}
 };
+
+struct tmpParticle {
+  G4double E;
+  G4double x;
+  G4double y;
+  G4double z;
+  G4double t;
+  G4double xp;
+  G4double yp;
+  G4double zp;
+};
+
+/*
+struct trackSort : public binary_function<G4Track*, G4Track*, G4bool>{
+  G4bool operator()(G4Track* a, G4Track* b){
+  return a->GetPosition().z() < b->GetPosition().z();}
+};
+*/
 
 class BDSGlobalConstants 
 {
@@ -222,26 +241,36 @@ public:
   void SetPreviousWasWedge(G4bool PreviousWasWedge);
 
   // AI : for placet synchronization
-  void setWaitingForDump(G4bool flag) { isWaitingForDump = flag; } // waiting before all tracks arrive at a dump element
-  G4bool getWaitingForDump() { return isWaitingForDump; }
+  void setWaitingForDump(G4bool flag);
+  G4bool getWaitingForDump();
 
-  void setDumping(G4bool flag) { isDumping = flag; } // all tracks are pending - for stacking manager 
-  G4bool getDumping() { return isDumping; }
+  void setDumping(G4bool flag);
+  G4bool getDumping();
 
+  void setReading(G4bool flag);
+  G4bool getReading();
 
+  void setReadFromStack(G4bool flag);
+  G4bool getReadFromStack();
 
-  
+  G4String GetFifo();
+  void SetFifo(G4String fileName);
+
+  // SPM : temp filestream for placet to read and write
+  ofstream fileDump;
+  ifstream fileRead;
+
   G4String tmpParticleName; // particle name as given in options
                             // since the particle definition is looked up in 
                             // PhysicsList we need to store the name first
 
+  std::vector<tmpParticle> holdingVector;
 
 protected:
 private:
   // Data Members for Class Attributes
   ifstream ifs;
   ostream* log;
-
 
   // initial bunch parameters
 
@@ -306,8 +335,8 @@ private:
   G4bool itsBDSeBremOn;
 
   // test map container for laserwire parameters - Steve
-  map<const G4String, G4double, strCmp> lwWavelength;
-  map<const G4String, G4ThreeVector, strCmp> lwDirection;
+  std::map<const G4String, G4double, strCmp> lwWavelength;
+  std::map<const G4String, G4ThreeVector, strCmp> lwDirection;
 
   G4double itsLaserwireWavelength;
   G4ThreeVector itsLaserwireDir;
@@ -389,8 +418,13 @@ private:
   G4double itsWedgeDisplacement;
   G4bool itsPreviousWasWedge;
 
-  bool isWaitingForDump;
-  bool isDumping;
+  G4bool isWaitingForDump;
+  G4bool isDumping;
+  G4bool isReading;
+  G4bool isReadFromStack;
+
+  G4String itsFifo; // fifo for BDSIM-placet
+
 
 };
 
@@ -771,6 +805,21 @@ inline void BDSGlobalConstants::SetLaserwireWavelength(G4String aName, G4double 
 
 inline void BDSGlobalConstants::SetLaserwireDir(G4String aName, G4ThreeVector aDirection)
 {lwDirection[aName]=aDirection;}
+
+inline void BDSGlobalConstants::setWaitingForDump(G4bool flag) { isWaitingForDump = flag; } // waiting before all tracks arrive at a dump element
+inline G4bool BDSGlobalConstants::getWaitingForDump() { return isWaitingForDump; }
+
+inline void BDSGlobalConstants::setDumping(G4bool flag) { isDumping = flag; } // all tracks are pending - for stacking manager 
+inline G4bool BDSGlobalConstants::getDumping() { return isDumping; }
+
+inline void BDSGlobalConstants::setReading(G4bool flag) { isReading = flag; }
+inline G4bool BDSGlobalConstants::getReading() { return isReading; }
+
+inline void BDSGlobalConstants::setReadFromStack(G4bool flag) { isReadFromStack = flag; }
+inline G4bool BDSGlobalConstants::getReadFromStack() { return isReadFromStack; }
+
+inline G4String BDSGlobalConstants::GetFifo() {return itsFifo;}
+inline void BDSGlobalConstants::SetFifo(G4String aFileName) {itsFifo = aFileName;}
 
 extern BDSGlobalConstants* BDSGlobals;
 #endif

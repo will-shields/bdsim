@@ -62,7 +62,7 @@ BDSRfCavity::BDSRfCavity (G4String aName,G4double aLength, G4double bpRad,
       itsBeampipeLogicalVolume->SetVisAttributes(VisAtt1);
       
       G4VisAttributes* VisAtt2 = 
-	new G4VisAttributes(G4Colour(1.0, 1.0, 0.));
+	new G4VisAttributes(G4Colour(1.0, 0., 1.0));
       VisAtt2->SetForceSolid(true);
       itsOuterLogicalVolume->SetVisAttributes(VisAtt2);
 

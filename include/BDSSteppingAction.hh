@@ -11,7 +11,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSSteppingAction.hh,v 1.1 2005/01/22 17:05:31 agapov Exp $
+// $Id: BDSSteppingAction.hh,v 1.2 2006/05/05 00:40:08 agapov Exp $
 // GEANT4 tag $Name:  $
 //
 // 
@@ -46,8 +46,8 @@ private:
   G4double itsPosKick;
   G4double postponedEnergy;
 
-  vector<G4ThreeVector> r;
-  vector<G4ThreeVector> rp;
+  std::vector<G4ThreeVector> r;
+  std::vector<G4ThreeVector> rp;
   
 
  };

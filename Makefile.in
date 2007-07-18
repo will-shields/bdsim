@@ -2,7 +2,7 @@ name=bdsim
 G4TARGET=$(name)
 G4EXLIB=true
 
-G4BINDIR=@BINDIR@
+G4WORKDIR=@BINDIR@
 G4INSTALL=@G4INSTALL@
 ROOTSYS=@ROOTSYS@
 
@@ -54,7 +54,7 @@ include $(G4INSTALL)/config/binmake.gmk
 CPPFLAGS += -DG4VERSION=@G4VERSION@ @USE_ROOT@ -DCLHEP_VERSION=@CLHEP_VERSION@
 CPPFLAGS += -I./parser
 CPPFLAGS += $(ROOTCFLAGS) 
-CPPFLAGS += -g -Wall -I.
+CPPFLAGS += -g -Wall -Wno-non-virtual-dtor -I.
 
 LDFLAGS += -L$(G4LIBDIR) -L./parser -lgmad
 
@@ -63,7 +63,7 @@ install:
 
 distrib:
 	tar --ignore-failed-read -C .. -czvf BDSIM.tar.gz BDSIM/src BDSIM/include \
-	BDSIM/bdsim.cc BDSIM/bdsimrun BDSIM/Makefile.in \
+	BDSIM/bdsim.cc BDSIM/bdsimrun BDSIM/Makefile.in BDSIM/vis.mac \
 	BDSIM/configure BDSIM/README \
 	BDSIM/parser/*.h BDSIM/examples \
         BDSIM/docs BDSIM/parser \
@@ -74,5 +74,11 @@ docs:
 
 gmad: parser/parser.h parser/parser.y parser/parser.l parser/gmad.h \
         parser/gmad.cc parser/sym_table.h
-	echo "Making gmad parser..."
-	$(MAKE) -C parser
+	@echo "Making gmad parser..."
+	@$(MAKE) -C parser
+
+clean:: cleanparser
+
+cleanparser:
+	@$(MAKE) -C parser clean
+

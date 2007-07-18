@@ -156,6 +156,10 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
 
   isWaitingForDump = false;
   isDumping = false;
+  isReading = false;
+  isReadFromStack = false;
+
+  itsFifo = opt.fifo;
 
  //  else if(name=="INCLUDE_IRON_MAG_FIELDS")
 //     {

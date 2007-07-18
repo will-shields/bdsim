@@ -53,7 +53,7 @@ public:
 
   void DefineMaterials();
 
-  G4VPhysicalVolume* ConstructBDS(list<struct Element>& beamline_list);
+  G4VPhysicalVolume* ConstructBDS(std::list<struct Element>& beamline_list);
   G4UniformMagField* magField;      //pointer to the magnetic field
   G4UserLimits* BDSUserLimits;
 

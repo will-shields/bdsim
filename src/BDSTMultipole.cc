@@ -35,10 +35,12 @@ extern BDSMaterials* theMaterials;
 //============================================================
 
 BDSTMultipole::BDSTMultipole(G4String aName,G4double aLength, 
-			     G4double bpRad,G4double FeRad,
+			     G4double bpRad,G4double FeRad,G4double outR,
 			     list<G4double> knl, list<G4double> ksl):
   BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes())
 {
+
+  SetOuterRadius(outR);
 
   G4cout<<"Building Multipole of order "<<knl.size()<<G4endl;
 
@@ -71,6 +73,21 @@ BDSTMultipole::BDSTMultipole(G4String aName,G4double aLength,
 
       BuildBPFieldAndStepper();
       
+      G4VisAttributes* VisAtt =
+        new G4VisAttributes(G4Colour(0., 0., 0.));
+      VisAtt->SetForceSolid(true);
+      itsInnerBPLogicalVolume->SetVisAttributes(VisAtt);
+
+      G4VisAttributes* VisAtt1 =
+        new G4VisAttributes(G4Colour(0.4, 0.4, 0.4));
+      VisAtt1->SetForceSolid(true);
+      itsBeampipeLogicalVolume->SetVisAttributes(VisAtt1);
+
+      G4VisAttributes* VisAtt2 =
+        new G4VisAttributes(G4Colour(0.1, 0.5, 0.9));
+      VisAtt2->SetForceSolid(true);
+      itsOuterLogicalVolume->SetVisAttributes(VisAtt2);
+
       SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
       SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
     }

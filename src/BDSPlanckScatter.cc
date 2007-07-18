@@ -11,7 +11,11 @@
 #include "G4ios.hh"
 #include "G4UnitsTable.hh"
 
+#if G4VERSION > 8
+BDSPlanckScatter::BDSPlanckScatter():G4VEnergyLossProcess("PlanckScatt")
+#else
 BDSPlanckScatter::BDSPlanckScatter():G4VeEnergyLoss("PlanckScatt")
+#endif
 {
 
   // TODO: change to appropriate definition!!!
@@ -118,4 +122,13 @@ G4VParticleChange* BDSPlanckScatter::PostStepDoIt(const G4Track& trackData,
   return G4VContinuousDiscreteProcess::PostStepDoIt(trackData,stepData);
 }
 
+#if G4VERSION > 8
+void BDSPlanckScatter::InitialiseEnergyLossProcess(const G4ParticleDefinition* p, const G4ParticleDefinition*)
+{
+}
+
+void BDSPlanckScatter::PrintInfo()
+{
+}
+#endif
 

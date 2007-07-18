@@ -1,22 +1,22 @@
 \input texinfo @c -*-texinfo-*-
 @c %**start of header
 @setfilename bdsim.info
-@settitle BDSIM User's Manual v0.3
-@c This date is automagically updated when you save this file:
-@set lastupdate Jan 26, 2007
-@set revision 0.3.1
+@settitle BDSIM User's Manual v0.4
+@c This date is automatically updated when you save this file:
+@set lastupdate Jul 5, 2007
+@set revision 0.4
 @c %**end of header
 
 @setchapternewpage off
 
 @c @copying
-@c Copyright @copyright{} 2004-2006 Royal Holloway University London.
+@c Copyright @copyright{} 2004-2007 Royal Holloway University London.
 @c @end copying
 
 
 @titlepage
-@title BDSIM User's Manual v0.3
-@author I. Agapov
+@title BDSIM User's Manual v0.4
+@author I. Agapov, S.Malton
 @author revision @value{revision}, last updated @value{lastupdate}
 @end titlepage
 @setcontentsaftertitlepage
@@ -26,7 +26,7 @@
 
 
 @node Top, Intro, (dir), (dir)
-@top BDSIM v0.3 User's Manual
+@top BDSIM v0.4 User's Manual
 
 
 This file is updated automatically from @file{manual.texi} last updated on @value{lastupdate}.
@@ -70,7 +70,7 @@ construction  and interfacing to ROOT analysis.
 @chapter Obtaining, Installing and Running
 
 
-@code{BDSIM} can be downloaded from @uref{http://flc.pp.rhul.ac.uk/bdsim.html}. This site also contains
+@code{BDSIM} can be downloaded from @uref{http://ilc.pp.rhul.ac.uk/bdsim.html}. This site also contains
 some information on planned releases and other issues.
 Alternatively, a development version is accessible under @uref{http://cvs.pp.rhul.ac.uk}. 
 Download the tarball and extract the source code. Make sure Geant4 is installed and appropriate environment
@@ -85,8 +85,8 @@ It will create a Makefile from template defined in Makefile.in. You may want to 
 
 @code{./make}
 
-If the compilation is successful @code{bdsim} executable should be created in the current directory of in the
-@code{$G4WORKDIR} directory in case this variable is defined. Next, set up the LD_LIBRARY_PATH variable to
+If the compilation is successful @code{bdsim} executable should be created in the current directory or in the
+@code{$G4WORKDIR} directory in case this variable is defined. Next, set up the (DY)LD_LIBRARY_PATH variable to
 point to the ./parser directory and to the directory where libbdsim.so is.
 
 
@@ -141,7 +141,7 @@ The next section describes how to do it in more detail.
 
 The beamline, beam properties and physics processes are specified in the input file written in the 
 GMAD language which is a variation of MAD language extended to handle sophisticated geometry and parameters 
-relevant to radiation transport. GMAD is described in this section. Examples of imput files can be found in the
+relevant to radiation transport. GMAD is described in this section. Examples of input files can be found in the
 @code{BDSIM} distribution in the @code{examples} directory.
 
 
@@ -161,7 +161,7 @@ for example
 @code{d: drift, l=0.5*m};
 @code{fodo : line=(qf,d,qd,d)};
 @code{use,period=fodo};
-@code{beam, particle=electron,energy=1*GeV};
+@code{beam, particle="e-",energy=1*GeV};
 
 @end example
 
@@ -215,7 +215,7 @@ y=15;
 
 GMAD implements almost all the standard MAD elements, but also allows to define arbitrary geometric entities and 
 magnetic field configurations. The geometry description capabilities are extended by using ``drivers'' 
-to other geometry description formats which makes interfacing and standardization easier.
+to other geometry description formats which makes interfacing and standardisation easier.
 The syntax of a physical element declaration is
 
 @code{element_name : element_type, attributes;}
@@ -235,8 +235,8 @@ for example
 @item sextupole
 @item octupole
 @item multipole
-@item vkicker
-@item hkicker
+@item vkick
+@item hkick
 @item rf
 @item rcol
 @item ecol
@@ -246,10 +246,10 @@ for example
 @end itemize
 
 
-All elements except @code{element} are by default modeled by an iron box (given by the @code{boxSize} option)
+All elements except @code{element} are by default modeled by an iron cylinder (given by the @code{boxSize} option)
 with the vacuum beampipe (defined by @code{beampipeRadius} option). 
 An already defined element can be used as a new element type. The child element will have the 
-attributes of the . 
+attributes of the parent. 
 
 @example
 q:quadrupole, l=1*m, k1=0.1;
@@ -330,7 +330,7 @@ There are some predefined numerical values
 
 @end multitable
 
-for example, instead of one can write either 100 or 0.1 * KeV when energy constants are concerned.
+for example, one can write either 100 or 0.1 * KeV when energy constants are concerned.
 
 @node marker
 @subsection marker
@@ -359,14 +359,14 @@ Example :
 
 @subsection rbend
 
-@code{rbend} defines a rectangulat bending magnet.
+@code{rbend} defines a rectangular bending magnet.
 Attributes:
 @itemize 
 @item @code{l} - length [m] (default 0)
 @item @code{angle} - bending angle [rad] (default 0)
 @item @code{B} - magnetic field [T] 
 @item @code{aper} - aperture [m] (default same as beampipe radius)
-@item @code{outR} - external radius [m] of magnet (default set to @code{componentBoxSize} option)
+@item @code{outR} - external radius [m] of magnet (default set to @code{aper}+1cm)
 @end itemize
 
 when @code{B} is set, this defines a magnet with appropriate field strength and @code{angle}
@@ -386,7 +386,7 @@ Attributes:
 @item @code{angle} - bending angle [rad] (default 0)
 @item @code{B} - magnetic field [T] 
 @item @code{aper} - aperture [m] (default same as beampipe radius)
-@item @code{outR} - external radius [m] of magnet (default set to @code{componentBoxSize} option)
+@item @code{outR} - external radius [m] of magnet (default set to @code{aper}+1cm)
 @end itemize
 
 Example :
@@ -403,13 +403,13 @@ Attributes:
 @item @code{l} - length [m] (default 0)
 @item @code{k1} - normal quadrupole coefficient
 k1 = (1/B rho ) (dBy  / dx) [m^-2]
-Positive @code{k1} means horisontal focusing of positively charged particles. (default 0)
+Positive @code{k1} means horizontal focusing of positively charged particles. (default 0)
 @item ks1 - skew quadrupole coefficient
 ks1 =  (1/B rho ) (dBy  / dx) [m^-2]
 where (x,y) is now a coordinate system rotated by 45 degrees around s with respect to the normal one.(default 0). 
 @item @code{tilt} [rad] - roll angle about the longitudinal axis, clockwise.
 @item @code{aper} - aperture [m] (default same as beampipe radius)@
-@item @code{outR} - external radius [m] of magnet (default set to @code{componentBoxSize} option)
+@item @code{outR} - external radius [m] of magnet (default set to @code{aper}+1cm)
 @end itemize
 
 Example :
@@ -429,7 +429,7 @@ ks2 =  (1/B rho ) (d^2 By  / dx^2) [m^-3]
 where (x,y) is now a coordinate system rotated by 30 degrees around s with respect to the normal one.(default 0). 
 @item @code{tilt} [rad] - roll angle about the longitudinal axis, clockwise.
 @item @code{aper} - aperture [m] (default same as beampipe radius)
-@item @code{outR} - external radius [m] of magnet (default set to @code{componentBoxSize} option)
+@item @code{outR} - external radius [m] of magnet (default set to @code{aper}+1cm)
 @end itemize
 
 Example :
@@ -449,7 +449,7 @@ Positive @code{k1} means horisontal focusing of positively charged particles. (d
 ks3 =  (1/B rho ) (d^3 By  / dx^3) [m^-3]
 where (x,y) is now a coordinate system rotated by 30 degrees around s with respect to the normal one.(default 0). 
 @item @code{tilt} [rad] - roll angle about the longitudinal axis, clockwise.
-@item @code{outR} - external radius [m] of magnet (default set to @code{componentBoxSize} option)
+@item @code{outR} - external radius [m] of magnet (default set to @code{aper}+1cm)
 @end itemize
 
 Example :
@@ -469,7 +469,7 @@ Positive @code{k1} means horisontal focusing of positively charged particles. (d
 ksl_n =  (1/B rho ) (d^n By  / dx^n) [m^-n]
 where (x,y) is now a coordinate system rotated by 30 degrees around s with respect to the normal one.(default 0). 
 @item @code{tilt} [rad] - roll angle about the longitudinal axis, clockwise.
-@item @code{outR} - external radius [m] of magnet (default set to @code{componentBoxSize} option)
+@item @code{outR} - external radius [m] of magnet (default set to @code{aper}+1cm)
 @end itemize
 
 Example :
@@ -501,9 +501,9 @@ Attributes:
 @itemize 
 @item @code{l} - length [m] (default 0)
 @item @code{xsize} - horizontal aperture [m]
-@item @code{xsize} - vertical aperture [m]
+@item @code{ysize} - vertical aperture [m]
 @item @code{material} - material 
-@item @code{outR} - limits external extent [m] of collimator (default set to @code{componentBoxSize} option)
+@item @code{outR} - limits external extent [m] of collimator (default set to @code{aper}+1cm)
 @end itemize
 
 Example : 
@@ -515,15 +515,15 @@ with the generic type @code{element}
 
 @subsection ecol
 
-@code{rcol} defines an elliptical collimator
+@code{ecol} defines an elliptical collimator
 
 Attributes:
 @itemize 
 @item @code{l} - length [m] (default 0)
 @item @code{xsize} - horizontal aperture [m]
-@item @code{xsize} - vertical aperture [m]
+@item @code{ysize} - vertical aperture [m]
 @item @code{material} - material 
-@item @code{outR} - limits external extent [m] of collimator (default set to @code{componentBoxSize} option)
+@item @code{outR} - limits external extent [m] of collimator (default set to @code{aper}+1cm)
 @end itemize
 
 
@@ -535,11 +535,11 @@ Here the longitudinal collimator structure is also not taken into account.
 
 
 @subsection solenoid
- will be implemented starting from v0.2
+Not yet implemented
 
-@subsection hkicker and vkicker
+@subsection hkick and vkick
 
-@code{hkicker} and @code{vkicker} are equivalens to a @code{rbend} and an @code{rbend}
+@code{hkick} and @code{vkick} are equivalent to a @code{rbend} and an @code{rbend}
 rotated by 90 degrees respectively.
 
 @subsection transform3d
@@ -565,14 +565,14 @@ Example:
 
 All the elements are in principle examples of a general type @code{element} 
 which can represent an arbitrary geometric 
-entity with arbitrary B field maps @footnote{E fields will be implemented starting from release v0.2}.
- Its attributes are
+entity with arbitrary B field maps 
+Its attributes are
 
 @itemize
 @item @code{geometry} = @code{<geometry_description>}
 @item @code{bmap} = @code{<bmap_description> }
 @c @item @code{emap} = @code{<emap_description>}
-@item @code{outR} - limits external extent component box size (default set to @code{componentBoxSize} option)
+@item @code{outR} - limits external extent component box size (default set to @code{aper}+1cm)
 @end itemize
 
 
@@ -589,10 +589,10 @@ Example :
 
 @code{qq : element, geometry ="mokka:qq.sql", bmap ="mokka:qq.bmap";}
 
-@float Figure, fig1
-@caption{ An example a cryomodule described as @code{element} }
-@image{cryomodule,,4in}
-@end float
+@c @float Figure, fig1
+@c @caption{ An example a cryomodule described as @code{element} }
+@c @image{cryomodule,,4in}
+@c @end float
 
 @subsection line
 
@@ -663,21 +663,16 @@ A sequence of FODO cells can be defines as
 
 @code{laser} defines a drift section with a laser beam inside.
 
-@code{<laser_name>: laser, position = @{<x>,<y>,<z>@},direction=@{ <dx>, <dy>, <dz>  @}
-wavelen=<val>, spotsize=<val>, intensity=<val>;}
+@code{<laser_name>: laser, l=<val>, x=<xdir>, y=<ydir>, z=<zdir>, waveLength=<val>;}
 
 Attributes
 @itemize
-@item @code{l} - length of the drift section
-@item @code{position} - position of an arbitrary point on the beam axis relative to the center of the
-                        drift section
-@item @code{direction} - vector pointing in the beam direction
-@item @code{wavelen} - laser wave length [m]
-@item @code{spotsize} - spot size (sigma)[m]
-@item @code{intensity} -[W]
+@item @code{l} - length of the drift section [m]
+@item @code{x,y,z} - components of the laser direction vector
+@item @code{waveLength} - laser wave length [m]
 @end itemize
 
-the laser is considered to be the intersection of the laser beaam with the volume of the drift section.
+The laser is considered to be the intersection of the laser beaam with the volume of the drift section.
 
 @c @subsection gas
 
@@ -695,7 +690,7 @@ the laser is considered to be the intersection of the laser beaam with the volum
 @c @item @code{p1,p2,...} - parts (100%=1). They need not sum up to 1.
 @c @end itemize 
 
-@c the gas componens are defined by
+@c the gas components are defined by
 
 @c @code{c1 : gas, name=<name>, A=<A>, Z=<Z>, profile=<profile_name>};
 
@@ -748,18 +743,18 @@ Starting from v0.3 it is possible to add the @code{spec} keyword to all element 
 
 @code{spec="keyword1=value1&keyword2=value2&.."}
 
-By this means any set of keyword/value pairs can be passed to the acelerator component construction classes.
+By this means any set of keyword/value pairs can be passed to the accelerator component construction classes.
 
 @example
 
-@code{qd : mquad,l=0.5 * m, k1 = qdk1, spec="type=cylinder&outR=20";}
+@code{qd : mquad,l=0.5 * m, k1 = qdk1, spec="type=cylinder";}
 
 @end example
 
 
 @subsection Element number
 
-when several elements with the same name are present in the beamline they can be accessed by their 
+When several elements with the same name are present in the beamline they can be accessed by their 
 number in the sequence. In the next example the sampler is put before the second drift 
 
 @example
@@ -772,8 +767,8 @@ number in the sequence. In the next example the sampler is put before the second
 
 @subsection Element attributes
 
-Element attributes such as length, multipole coefficiens etc. can be accessed by putting square brackets
-after the element name, f.e.
+Element attributes such as length, multipole coefficients etc, can be accessed by putting square brackets
+after the element name, e.g.
 
 @example
 
@@ -784,7 +779,7 @@ after the element name, f.e.
 
 @subsection Material table
 
-There is a set of predefined materials for use in elements such as collimators, f.e. 
+There is a set of predefined materials for use in elements such as collimators, e.g. 
 
 ``Al''
 ``W''
@@ -981,10 +976,10 @@ To display help menu
 
 For more details see @ref{Geant}.
 
-@float Figure, fig1
-@caption{ An screenshot with an example BDSIM visualization }
-@image{Screenshot,,4in}
-@end float
+@c float Figure, fig1
+@c caption{ An screenshot with an example BDSIM visualization }
+@c image{Screenshot,,4in}
+@c end float
 
 @c @include visualization.texi
 
@@ -1002,7 +997,7 @@ magnets is provided. More detailed description of the physics is given below.
 
 Depending on for what sort of problem @code{BDSIM} is used, different sorts of physics processes should be turned on. 
 This processes are groupes into so called ``physics lists''. The physics list is specified by the `@code{physicsList} 
-option in the input file, f.e.
+option in the input file, e.g.
 
 @example
 
@@ -1037,7 +1032,7 @@ By default the @code{standard} physics List is used
 @section Transportation 
 
 The transportation follows the scheme: the step length is selected which is defined either by the distance of the particle
-to the boundary of the ``logical volume'' it is currently in (which could be, f.e. field boundary, material boundary or
+to the boundary of the ``logical volume'' it is currently in (which could be, e.g. field boundary, material boundary or
 boundary between two adjacent elements) or by the mean free path of the activated processes. Then the particle is pushed
 to the new position and secondaries are generated if necessary. Each volume has an associated transporatation algorithm.
 For an on-energy particle travelling close to the optical axis of a quadrupole, dipole or a drift, standard matrix transportation 
@@ -1099,10 +1094,10 @@ if @code{ROOT} output is used then the @code{root} files @code{output_0.root},
 given by @code{nperfile} option.
 
 
-@float Figure, fig1
-@caption{ An example ROOT Analysis}
-@image{Screenshot_root,,4in}
-@end float
+@c @float Figure, fig2
+@c @caption{ An example ROOT Analysis}
+@c @image{Screenshot_root,,4in}
+@c @end float
 
 The file contains the energy loss histogram and a tree for every sampler in the line
 with self-explanatory branch names.
@@ -1125,10 +1120,10 @@ In this section the architecture of @code{BDSIM} is briefly described for someon
 as a class library.
 
 
-@float Figure, fig1
-@caption{ An example a cryomodule described as @code{element} }
-@image{bdsim-chart,,4in}
-@end float
+@c @float Figure, fig3
+@c @caption{ An example a cryomodule described as @code{element} }
+@c @image{bdsim-chart,,4in}
+@c @end float
 
 
 - BDSMultipole
@@ -1297,7 +1292,7 @@ The following distributoion types can be generated
 
 @code{Gaussian}
 
-@code{beam,distrType="gauss",sigmaX=...,soigmaXp=...,sigmaY=...,sigmaYp=...,sigmaE=...,}
+@code{beam,distrType="gauss",sigmaX=...,sigmaXp=...,sigmaY=...,sigmaYp=...,sigmaE=...,}
 
 @code{Elliptic shell}
 

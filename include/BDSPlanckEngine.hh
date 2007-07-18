@@ -9,7 +9,11 @@
 #include "G4ios.hh" 
 #include "globals.hh"
 #include "Randomize.hh" 
+#if G4VERSION > 8
+#include "G4VeLowEnergyLoss.hh"
+#else
 #include "G4VeEnergyLoss.hh"
+#endif
 #include "G4Track.hh"
 #include "G4Step.hh"
 #include "G4Gamma.hh"

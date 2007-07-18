@@ -334,7 +334,7 @@ G4String GGmadDriver::getWord()
 {
 
   G4String str="";
-  char c;
+  char c = 'a';
 
   while (inputf.good())     // loop while extraction from file is possible
   {

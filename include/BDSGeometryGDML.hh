@@ -45,7 +45,7 @@
 
 extern BDSMaterials* theMaterials;
 
-using namespace std;
+//using namespace std;
 
 class BDSClassicalRK4;
 
@@ -89,7 +89,7 @@ public:
   G4RotationMatrix* RotateComponent(G4ThreeVector rotvalues);
 
   void Construct(G4LogicalVolume *marker);
-  vector<G4LogicalVolume*> VOL_LIST;
+  std::vector<G4LogicalVolume*> VOL_LIST;
   G4String parseStrChar(xmlChar* value);
   G4double parseDblChar(xmlChar* value);
   G4bool parseBoolChar(xmlChar* value);
@@ -124,12 +124,12 @@ private:
 
   G4String itsGDMLfile;
   G4LogicalVolume* itsMarkerVol;
-  vector <struct CONST_REF> CONST_LIST;
-  vector <struct POS_REF> POS_LIST;
-  vector <struct ROT_REF> ROT_LIST;
-  vector <struct VIS_REF> VIS_LIST;
-  vector <G4VSolid*> SOLID_LIST;
-  vector <G4LogicalVolume*> LOGVOL_LIST;
+  std::vector <struct CONST_REF> CONST_LIST;
+  std::vector <struct POS_REF> POS_LIST;
+  std::vector <struct ROT_REF> ROT_LIST;
+  std::vector <struct VIS_REF> VIS_LIST;
+  std::vector <G4VSolid*> SOLID_LIST;
+  std::vector <G4LogicalVolume*> LOGVOL_LIST;
 
   G4double visRed, visGreen, visBlue;
 

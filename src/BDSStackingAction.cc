@@ -28,7 +28,7 @@
 
 
 
-const int DEBUG = 1;
+const int DEBUG = 0;
 
 
 BDSStackingAction::BDSStackingAction()
@@ -140,15 +140,24 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
   
     if(BDSGlobals->getDumping()) // in the process of dumping
      {
-       G4cout<<"reclassifying track "<<aTrack->GetTrackID()<<G4endl;
+	if(DEBUG){
+          G4cout<<"reclassifying track "<<aTrack->GetTrackID()<<G4endl;
 
-       G4cout<<"r= "<<aTrack->GetPosition()<<G4endl;
-
+          G4cout<<"r= "<<aTrack->GetPosition()<<G4endl;
+	}
        // TODO : dump the file
-
+       BDSGlobals->fileDump << aTrack->GetTotalEnergy() << "\t"
+	<< aTrack->GetPosition().x() << "\t"
+	<< aTrack->GetPosition().y() << "\t"
+	<< aTrack->GetPosition().z() << "\t"
+	<< aTrack->GetMomentumDirection().x() << "\t"
+	<< aTrack->GetMomentumDirection().y() << "\n"; // SPM
        classification = fPostpone;
      }
 
+     if(BDSGlobals->getReading()){
+       classification = fWaiting_1;
+     }
 
   return classification;
 }

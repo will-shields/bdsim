@@ -31,7 +31,7 @@
 #include "G4AffineTransform.hh"
 
 #include "G4RunManager.hh"
-#include <vector.h>
+#include <vector>
 
 #include "G4SDManager.hh"
 
@@ -60,10 +60,11 @@ G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
 
  
   // postpone the track
-  G4cout<<"Dump: postponing track..."<<G4endl;
-  BDSGlobals->setWaitingForDump(true);
-  theTrack->SetTrackStatus(fPostponeToNextEvent);
-
+  if(theTrack->GetParentID() == 0){
+    G4cout<<"Dump: postponing track..."<<G4endl;
+    BDSGlobals->setWaitingForDump(true);
+    theTrack->SetTrackStatus(fPostponeToNextEvent);
+  }
     
   return true;
   

@@ -53,10 +53,38 @@ BDSRBend::BDSRBend(G4String aName,G4double aLength,
 
       BuildBPFieldMgr(itsStepper,itsMagField);
 
-      //BuildDefaultOuterLogicalVolume(itsLength);
+      BuildDefaultOuterLogicalVolume(itsLength);
       
       //SetSensitiveVolume(itsBeampipeLogicalVolume);// for synchrotron
       SetSensitiveVolume(itsOuterLogicalVolume);// otherwise
+
+
+
+
+
+      if(BDSGlobals->GetIncludeIronMagFields())
+        {
+          G4double polePos[4];
+          G4double Bfield[3];
+
+          polePos[0]=0.;
+          polePos[1]=BDSGlobals->GetMagnetPoleRadius();
+          polePos[2]=0.;
+          polePos[0]=-999.;//flag to use polePos rather than local track
+          //coordinate in GetFieldValue
+
+          itsMagField->GetFieldValue(polePos,Bfield);
+          G4double BFldIron=
+          sqrt(Bfield[0]*Bfield[0]+Bfield[1]*Bfield[1])*
+          BDSGlobals->GetMagnetPoleSize()/
+          (BDSGlobals->GetComponentBoxSize()/2-
+          BDSGlobals->GetMagnetPoleRadius());
+
+          // Magnetic flux from a pole is divided in two directions
+          BFldIron/=2.;
+
+          //BuildOuterFieldManager(2, BFldIron,0);
+        }
 
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
@@ -67,10 +95,10 @@ BDSRBend::BDSRBend(G4String aName,G4double aLength,
       VisAtt1->SetForceSolid(true);
       itsBeampipeLogicalVolume->SetVisAttributes(VisAtt1);
       
-  //     G4VisAttributes* VisAtt2 = 
-// 	new G4VisAttributes(G4Colour(0., 0., 1.));
-//       VisAtt2->SetForceSolid(true);
-//       itsOuterLogicalVolume->SetVisAttributes(VisAtt2);
+      G4VisAttributes* VisAtt2 = 
+	new G4VisAttributes(G4Colour(0., 0., 1.));
+      VisAtt2->SetForceSolid(true);
+      itsOuterLogicalVolume->SetVisAttributes(VisAtt2);
       
 
     }

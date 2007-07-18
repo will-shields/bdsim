@@ -15,7 +15,7 @@
 %{
   
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include "parser.tab.h"
 #include "sym_table.h"
   
@@ -25,6 +25,11 @@ int match_var(char *name);
 struct symtab * symlook(char *s);
 extern struct symtab *symtab;
 extern int yyerror(char *s);
+
+#ifdef _WIN32
+#include <io.h>
+#define YY_NO_UNISTD_H 1
+#endif
 
 #define MAX_INCLUDE_DEPTH 10
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
@@ -59,8 +64,9 @@ drift { return DRIFT; }
 rfcavity { return RF; }
 dipole { return DIPOLE; }
 sbend { return SBEND; } 
-hkicker { return HKICK; }
-vkicker { return VKICK; }
+rbend {return RBEND; }
+hkick { return HKICK; }
+vkick { return VKICK; }
 kicker { return KICK; } 
 quadrupole { return QUADRUPOLE; }
 sextupole { return SEXTUPOLE; }

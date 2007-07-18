@@ -15,7 +15,7 @@ option, beampipeRadius = 3.8 * cm,
 ! beamline definiton
 
 laser1 : laser, l=10*cm, position={0.,0.,0.}, direction={1.,0.,0.}, 
-				wavelen=532e-9*m, spotsize=1e-6*m, intensity=10e6;
+				waveLength=532e-9*m, spotsize=1e-6*m, intensity=10e6;
 
 d1: drift,l=0.00000000000001*mm;
 segmentation: drift, l=12478.4*mm;

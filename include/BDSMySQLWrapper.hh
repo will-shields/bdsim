@@ -17,7 +17,7 @@
 #include <fstream>
 #include <vector>
 
-using namespace std;
+//using namespace std;
 
 class BDSMySQLWrapper 
 {
@@ -25,11 +25,11 @@ public:
   BDSMySQLWrapper (const G4String& SQLFileName);
   ~BDSMySQLWrapper();
   
-  vector<BDSMySQLTable*> ConstructTable();
+  std::vector<BDSMySQLTable*> ConstructTable();
 
   G4int GetComponentN() {return ComponentN;}
  
-  vector<BDSMySQLTable*> table;
+  std::vector<BDSMySQLTable*> table;
 
 protected:
   

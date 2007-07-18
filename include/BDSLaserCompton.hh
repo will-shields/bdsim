@@ -9,7 +9,11 @@
 #include "G4ios.hh" 
 #include "globals.hh"
 #include "Randomize.hh" 
+#if G4VERSION > 8
+#include "G4VEnergyLossProcess.hh"
+#else
 #include "G4VeEnergyLoss.hh"
+#endif
 #include "G4VPhysicsConstructor.hh"
 #include "G4Track.hh"
 #include "G4Step.hh"
@@ -27,14 +31,22 @@ extern BDSMaterials* theMaterials;
 // flag initiated in BDSEventAction
 extern G4bool FireLaserCompton;
 
+#if G4VERSION > 8
+class BDSLaserCompton : public G4VEnergyLossProcess
+#else
 class BDSLaserCompton : public G4VeEnergyLoss
+#endif
 { 
   public:
    
   BDSLaserCompton(const G4String& processName = "eLaser");
   
   ~BDSLaserCompton();
-  
+
+#if G4VERSION > 8  
+  virtual void PrintInfo();
+#endif
+
   G4bool IsApplicable(const G4ParticleDefinition&);
   
   G4double GetMeanFreePath(const G4Track& track,
@@ -56,9 +68,15 @@ protected:
 				G4double KineticEnergy, 
 				const G4Material* aMaterial);
 
-  protected:
+  virtual G4double SecondaryEnergyThreshold(size_t index);
 
-     virtual G4double SecondaryEnergyThreshold(size_t index);
+protected:
+#if G4VERSION > 8
+  G4bool isInitialised;  
+  const G4ParticleDefinition* particle;
+
+  virtual void InitialiseEnergyLossProcess(const G4ParticleDefinition*, const G4ParticleDefinition*);
+#endif
   
 private:
   
@@ -66,7 +84,7 @@ private:
   
   BDSLaserCompton(const BDSLaserCompton&);
 
-     const std::vector<G4double>* secondaryEnergyCuts;
+  const std::vector<G4double>* secondaryEnergyCuts;
   
 private:
   G4double itsLaserWavelength;
@@ -74,7 +92,7 @@ private:
   G4double itsLaserEnergy;
   BDSComptonEngine* itsComptonEngine;
   G4Material* itsLastMaterial;
-  
+
 };
 inline G4bool BDSLaserCompton::IsApplicable(
 					    const G4ParticleDefinition& particle)

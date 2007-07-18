@@ -11,7 +11,7 @@
 #ifndef BDSXYMagField_h
 #define BDSXYMagField_h
 
-using namespace std;
+//using namespace std;
 
 struct XYFieldRecord {
   G4double x;
@@ -57,7 +57,7 @@ private:
   
   G4double **Bx, **By, **Bz;
 
-  vector<struct XYFieldRecord> itsFieldValues;
+  std::vector<struct XYFieldRecord> itsFieldValues;
 
 public:
   G4double xHalf, yHalf; // field mesh dimensions

@@ -242,7 +242,7 @@ Variable type: @code{DOUBLE(10,3)}
 Variable type: @code{VARCHAR(32)}
 
 
-      This is an optional parameter. This is the visual state setting for the object. Setting this to ``W'' results in a wireframe displayment of the object. ``S'' produces a shaded solid and ``I'' leaves the object invisible. The default is set to be wireframe.
+      This is an optional parameter. This is the visual state setting for the object. Setting this to ``W'' results in a wireframe displayment of the object. ``S'' produces a shaded solid and ``I'' leaves the object invisible. The default is set to be solid.
 
 
 @item @code{FIELDX, FIELDY, FIELDZ} 

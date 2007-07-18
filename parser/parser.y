@@ -4,7 +4,7 @@
    bdsim v.0.3
 */
 
-
+%expect 3
 
 %{
 
@@ -22,6 +22,9 @@
 
   int execute = 1;
   int element_count = 1; // for samplers , ranges etc.
+#ifdef __cplusplus
+  using namespace std;
+#endif
 
 %}
 
@@ -44,7 +47,7 @@
 %token <dval> NUMBER
 %token <symp> VARIABLE VECVAR FUNC 
 %token <str> STR
-%token MARKER ELEMENT DRIFT RF DIPOLE SBEND QUADRUPOLE SEXTUPOLE OCTUPOLE MULTIPOLE 
+%token MARKER ELEMENT DRIFT RF DIPOLE RBEND SBEND QUADRUPOLE SEXTUPOLE OCTUPOLE MULTIPOLE 
 %token SOLENOID COLLIMATOR RCOL ECOL LINE SEQUENCE SPOILER ABSORBER LASER TRANSFORM3D
 %token VKICK HKICK KICK
 %token PERIOD APERTURE FILENAME GAS PIPE TUNNEL MATERIAL
@@ -136,6 +139,16 @@ decl : VARIABLE ':' marker
 	   params.flush();
 	 }
        }
+     | VARIABLE ':' rbend
+       {
+         if(execute) {
+           if(ECHO_GRAMMAR) printf("decl -> VARIABLE (%s) : rbend\n",$1->name);
+           // check parameters and write into element table
+           write_table(params,$1->name,_RBEND);
+           params.flush();
+         }
+       }
+
     | VARIABLE ':' vkick
        {  
 	 if(execute) {
@@ -294,6 +307,9 @@ rf : RF parameters
 sbend : SBEND parameters
 ;
 
+rbend : RBEND parameters
+;
+
 vkick : VKICK parameters
 ;
 
@@ -363,6 +379,8 @@ parameters:
 		  if(DEBUG) printf("parameters, VARIABLE(%s) = aexpr(%.10g)\n",$3->name,$5);
 		  if(!strcmp($3->name,"l")) { params.l = $5; params.lset = 1;} 
 		    else
+		  if(!strcmp($3->name,"B")) { params.B = $5; params.Bset = 1;}
+		    else 
 		  if(!strcmp($3->name,"k0")) { params.k0 = $5; params.k0set = 1;}
 		    else 
 		  if(!strcmp($3->name,"k1")) { params.k1 = $5; params.k1set = 1;} 
@@ -407,7 +425,7 @@ parameters:
                     else
 		  if(!strcmp($3->name,"e2")) {;}  //
                     else
-		  if(!strcmp($3->name,"hgap")) {;}  //
+		  if(!strcmp($3->name,"hgap")) {params.hgap = $5; params.hgapset=1;}  //
 		    else
 		  if(!strcmp($3->name,"density")) {;}  //
 		    else
@@ -919,7 +937,7 @@ vecexpr :  VECVAR
 	      $$->data = new double[$1->array.size()];
 	      $$->size = $1->array.size();
 	      //array_list.push_back($$);
-	      list<double>::iterator it = 0;
+	      list<double>::iterator it;
 	      int i = 0;
 	      for(it=$1->array.begin();it!=$1->array.end();it++)
 		{
@@ -1240,7 +1258,7 @@ command : STOP             { if(execute) quit(); }
 		if(ECHO_GRAMMAR) printf("command -> TWISS\n");
 	      }
           }
-        | DUMP ',' sample_options   //  options for beam dump 
+        | DUMP ',' sample_options //  options for beam dump 
           {                                                   
             if(execute)                                       
               {                                               
@@ -1475,10 +1493,16 @@ int yyerror(char *s)
   exit(1);
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 int yywrap()
 {
 	return 1;
 }
+#ifdef __cplusplus
+}
+#endif
 
 
 

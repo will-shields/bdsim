@@ -10,17 +10,20 @@
 #define __PARSER_H
 
 #include "sym_table.h"
+#ifndef _WIN32
 #include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+#endif
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
+#include <list>
 
 #include <iostream>
 
 #include "gmad.h"
 
-using namespace std;
+//using namespace std;
 
 //double pow(double x, double y) {return exp( y * log(x));}
 
@@ -35,7 +38,7 @@ const int MAX_MULTIPOLE_ORDER = 5;
 
 const int _undefined = 0;
 
-list<double> _tmparray;  // for reading of arrays
+std::list<double> _tmparray;  // for reading of arrays
 
 // representation of arrays used in tokens
 struct Array {
@@ -54,6 +57,8 @@ const char *typestr(int type) {
    return "rf";
   case _SBEND : 
     return "sbend";
+  case _RBEND :
+    return "rbend";
   case _QUAD :
     return "quadrupole";
   case _SEXTUPOLE:
@@ -101,7 +106,7 @@ struct Element element;
 void print(struct Parameters params)
 {
   printf("printing parameters:\n");
-  list<double>::iterator it;
+  std::list<double>::iterator it;
   for(it = params.knl.begin();it!=params.knl.end();it++)
     printf(" %f ", (*it));
   printf("\n");
@@ -110,6 +115,7 @@ void print(struct Parameters params)
 void flush(struct Element& e )
 {
   e.l = 0;
+  e.B = 0;
   e.k0 = 0;
   e.k1 = 0;
   e.k2 = 0;
@@ -122,6 +128,7 @@ void flush(struct Element& e )
 
   e.gradient = 0;
 
+  e.hgap = 0;
   e.aper = 0;
   e.outR = 0;
   e.waveLength = 0;
@@ -139,8 +146,8 @@ void flush(struct Element& e )
   e.temper = 300;
 
   /*  
-      e.knl = list<double>(0);
-      e.ksl = list<double>(0);
+      e.knl = std::list<double>(0);
+      e.ksl = std::list<double>(0);
       
       geometryFile
       bmapFile
@@ -151,7 +158,7 @@ void flush(struct Element& e )
   e.spec = "";
 };
 
-void copy_properties(list<struct Element>::iterator dest, list<struct Element>::iterator src)
+void copy_properties(std::list<struct Element>::iterator dest, std::list<struct Element>::iterator src)
 {
 
   if(DEBUG) printf("%s %s \n",typestr((*dest).type),typestr((*src).type));
@@ -175,12 +182,14 @@ void copy_properties(list<struct Element>::iterator dest, list<struct Element>::
   (*dest).aper = (*src).aper; 
   (*dest).outR = (*src).outR; 
   (*dest).tilt = (*src).tilt; 
+  (*dest).B = (*src).B; 
   (*dest).k0 = (*src).k0; 
   (*dest).k1 = (*src).k1;  
   (*dest).k2 = (*src).k2; 
   (*dest).k3 = (*src).k3; 
   (*dest).knl = (*src).knl;
   (*dest).ksl = (*src).ksl;
+  (*dest).hgap = (*src).hgap;
 
   (*dest).gradient = (*src).gradient; 
 
@@ -206,6 +215,7 @@ void inherit_properties(struct Element e)
   // parameters already set in params have priority and are not overridden
   
   if(!params.lset) { params.l = e.l; params.lset = 1; }
+  if(!params.Bset) { params.B = e.B; params.Bset = 1; }
   if(!params.k0set) { params.k0 = e.k0; params.k0set = 1; }
   if(!params.k1set) { params.k1 = e.k1; params.k1set = 1; }
   if(!params.k2set) { params.k2 = e.k2; params.k2set = 1; }
@@ -221,6 +231,7 @@ void inherit_properties(struct Element e)
   if(!params.phiset) { params.phi = e.phi; params.phiset = 1; }
   if(!params.psiset) { params.psi = e.psi; params.psiset = 1; }
   if(!params.thetaset) { params.theta = e.theta; params.thetaset = 1; }
+  if(!params.hgapset) { params.hgap = e.hgap; params.hgapset = 1; }
 
   if(!params.A) { params.A = e.A; params.A = 1; }
   if(!params.Z) { params.Z = e.Z; params.Z = 1; }
@@ -244,19 +255,19 @@ void inherit_properties(struct Element e)
 
 };
 
-void set_vector(list<double>& dst, struct Array *src)
+void set_vector(std::list<double>& dst, struct Array *src)
 {
   for(int i=0; i< src->size;i++)
     dst.push_back(src->data[i]);
 };
 
 // list of all encountered elements
-list<struct Element> element_list;
+std::list<struct Element> element_list;
 
 // temporary list
-list<struct Element> tmp_list;
+std::list<struct Element> tmp_list;
 
-list<struct Element> beamline_list;
+std::list<struct Element> beamline_list;
 
 
 char* current_line = "";
@@ -267,11 +278,11 @@ struct symtab *symtab;
 
 extern struct symtab * symlook(char *s);
 
-list<struct Element>::iterator element_lookup(char *name);
-list<struct Element>::iterator element_lookup(char *name, list<struct Element>& el);
-int write_table(struct Parameters params,char* name, int type, list<struct Element> *lst=NULL);
+std::list<struct Element>::iterator element_lookup(char *name);
+std::list<struct Element>::iterator element_lookup(char *name, std::list<struct Element>& el);
+int write_table(struct Parameters params,char* name, int type, std::list<struct Element> *lst=NULL);
 int expand_line(char *name, char *start, char *end);
-void print(list<struct Element> l, int ident=0);
+void print(std::list<struct Element> l, int ident=0);
 
 // *********************
 // functions
@@ -289,7 +300,7 @@ void quit()
   exit(0);
 }
 
-int write_table(struct Parameters params,char* name, int type, list<struct Element> *lst)
+int write_table(struct Parameters params,char* name, int type, std::list<struct Element> *lst)
 {
   if(DEBUG) printf("k1=%.10g ,k2=%.10g, type=%d, lset = %d\n",params.k1, params.k2, type,params.lset);
   
@@ -323,22 +334,38 @@ int write_table(struct Parameters params,char* name, int type, list<struct Eleme
   case _SBEND:
     e.type = _SBEND;
     e.l = params.l;
+    e.B = params.B;
     e.angle = params.angle;
+    e.hgap = params.hgap;
+    e.k1 = params.k1;
     if(params.tiltset) e.tilt = params.tilt;
     break;
+
+  case _RBEND:
+    e.type = _RBEND;
+    e.l = params.l;
+    e.B = params.B;
+    e.angle = params.angle;
+    e.hgap = params.hgap;
+    e.k1 = params.k1;
+    if(params.tiltset) e.tilt = params.tilt;
+    break;
+
   case _VKICK:
     e.type = _VKICK;
     e.l = params.l;
-    e.angle = params.angle;
-    if(params.tiltset) e.tilt = params.tilt;
-    break;
-  case _HKICK:
-    e.type = _HKICK;
-    e.l = params.l;
+    e.B = params.B;
     e.angle = params.angle;
     if(params.tiltset) e.tilt = params.tilt;
     break;
 
+  case _HKICK:
+    e.type = _HKICK;
+    e.l = params.l;
+    e.B = params.B;
+    e.angle = params.angle;
+    if(params.tiltset) e.tilt = params.tilt;
+    break;
 
   case _QUAD:
 
@@ -363,7 +390,7 @@ int write_table(struct Parameters params,char* name, int type, list<struct Eleme
       e.tilt = params.tilt;
     }
 
-    e.spec = string(params.spec); 
+    e.spec = std::string(params.spec); 
     
     break;
 
@@ -376,7 +403,7 @@ int write_table(struct Parameters params,char* name, int type, list<struct Eleme
     }
     if(params.k0set) {
       if(VERBOSE)
-	printf("Warning: k2 will not be set for element %s of type SEXTUPOLE\n",name);
+	printf("Warning: k0 will not be set for element %s of type SEXTUPOLE\n",name);
     }
     if(params.k2set) {
       e.k2 = params.k2;
@@ -433,12 +460,12 @@ int write_table(struct Parameters params,char* name, int type, list<struct Eleme
   case _ECOL:
     e.type = _ECOL;
     e.l = params.l;
-    e.material = string(params.material);
+    e.material = std::string(params.material);
     break;
   case _RCOL:
     e.type = _RCOL;
     e.l = params.l;
-    e.material = string(params.material);
+    e.material = std::string(params.material);
     break;
 
   case _LASER:
@@ -453,9 +480,9 @@ int write_table(struct Parameters params,char* name, int type, list<struct Eleme
   case _ELEMENT:
     e.type = _ELEMENT;
     e.l = params.l;
-    e.geometryFile = string(params.geometry);
+    e.geometryFile = std::string(params.geometry);
     //strcpy(e.geometryFile,params.geometry);
-    e.bmapFile = string(params.bmap);
+    e.bmapFile = std::string(params.bmap);
     break;
 
   case _LINE:
@@ -495,7 +522,7 @@ int write_table(struct Parameters params,char* name, int type, list<struct Eleme
   case _TUNNEL:
     e.type = _TUNNEL;
     e.l = -1;
-    e.geometryFile = string(params.geometry);
+    e.geometryFile = std::string(params.geometry);
     break;
 
   default:
@@ -510,13 +537,15 @@ int write_table(struct Parameters params,char* name, int type, list<struct Eleme
 
 int expand_line(char *name, char *start, char* end)
 {
-  list<struct Element>::iterator it;
+  std::list<struct Element>::iterator it;
   
   struct Element e;
   
   it = element_lookup(name);
   
-  if( (it!=NULL) && ((*it).type == _LINE || (*it).type == _REV_LINE) ) 
+//  if( (it!=NULL) && ((*it).type == _LINE || (*it).type == _REV_LINE) ) 
+  if((*it).type == _LINE || (*it).type == _REV_LINE ) 
+
     {
       
       // delete the previous beamline
@@ -538,8 +567,8 @@ int expand_line(char *name, char *start, char* end)
 
       
       // first expand the whole range 
-      list<struct Element>::iterator sit = (*it).lst->begin();
-      list<struct Element>::iterator eit = (*it).lst->end();
+      std::list<struct Element>::iterator sit = (*it).lst->begin();
+      std::list<struct Element>::iterator eit = (*it).lst->end();
 
       // copy the list into the resulting list
       switch((*it).type){
@@ -571,7 +600,7 @@ int expand_line(char *name, char *start, char* end)
 		{
 		  is_expanded = false;
 		  // lookup the line in main list
-		  list<struct Element>::iterator tmpit = element_lookup((*it).name);
+		  std::list<struct Element>::iterator tmpit = element_lookup((*it).name);
 		  
 		  if( (tmpit != NULL) && ( (*tmpit).lst != NULL) ) { // sublist found and not empty
 		    
@@ -669,9 +698,9 @@ int expand_line(char *name, char *start, char* end)
   
 }
 
-list<struct Element>::iterator element_lookup(char *name)
+std::list<struct Element>::iterator element_lookup(char *name)
 {
-   list<struct Element>::iterator it;
+   std::list<struct Element>::iterator it;
 
    for(it=element_list.begin();it!=element_list.end();it++)
      {
@@ -681,9 +710,9 @@ list<struct Element>::iterator element_lookup(char *name)
    return NULL;
 }
 
-list<struct Element>::iterator element_lookup(char *name,list<struct Element>& el)
+std::list<struct Element>::iterator element_lookup(char *name,std::list<struct Element>& el)
 {
-   list<struct Element>::iterator it;
+   std::list<struct Element>::iterator it;
 
    for(it=el.begin();it!=el.end();it++)
      {
@@ -697,9 +726,9 @@ list<struct Element>::iterator element_lookup(char *name,list<struct Element>& e
 // insert a sampler into beamline_list
 void add_sampler(char *name, char *before, int before_count)
 {
-  if(DEBUG) cout<<"inserting sampler before "<<before<<"["<<before_count<<"]"<<endl;
+  if(DEBUG) std::cout<<"inserting sampler before "<<before<<"["<<before_count<<"]"<<std::endl;
 
-  list<struct Element>::iterator it;
+  std::list<struct Element>::iterator it;
 
   int element_count = 1;  // count from 1 like in goddam FORTRAN -- for range parsing
   struct Element e;
@@ -709,7 +738,7 @@ void add_sampler(char *name, char *before, int before_count)
 
   for(it = beamline_list.begin();it != beamline_list.end(); ++it)
     {
-      if(DEBUG) cout<<"-->"<<(*it).name<<endl;
+      if(DEBUG) std::cout<<"-->"<<(*it).name<<std::endl;
 
       if( !strcmp((*it).name, before)) 
 	{
@@ -725,16 +754,16 @@ void add_sampler(char *name, char *before, int before_count)
 
     }
 
-  cout<<"current beamline doesn't contain element "<<before<<" with number "<<before_count<<endl;
+  std::cout<<"current beamline doesn't contain element "<<before<<" with number "<<before_count<<std::endl;
 
 }
 
 // insert a cylindrical sampler into beamline_list
 void add_csampler(char *name, char *before, int before_count, double length, double rad)
 {
-  if(DEBUG) cout<<"inserting sampler before "<<before<<"["<<before_count<<"]"<<endl;
+  if(DEBUG) std::cout<<"inserting sampler before "<<before<<"["<<before_count<<"]"<<std::endl;
 
-  list<struct Element>::iterator it;
+  std::list<struct Element>::iterator it;
 
   int element_count = 1;  // count from 1 like in goddam FORTRAN -- for range parsing
   struct Element e;
@@ -746,7 +775,7 @@ void add_csampler(char *name, char *before, int before_count, double length, dou
 
   for(it = beamline_list.begin();it != beamline_list.end(); ++it)
     {
-      if(DEBUG) cout<<"-->"<<(*it).name<<endl;
+      if(DEBUG) std::cout<<"-->"<<(*it).name<<std::endl;
 
       if( !strcmp((*it).name, before)) 
 	{
@@ -762,16 +791,16 @@ void add_csampler(char *name, char *before, int before_count, double length, dou
 
     }
 
-  cout<<"current beamline doesn't contain element "<<before<<" with number "<<before_count<<endl;
+  std::cout<<"current beamline doesn't contain element "<<before<<" with number "<<before_count<<std::endl;
 
 }
 
 // insert a beam dumper into beamline_list
 void add_dump(char *name, char *before, int before_count)
 {
-  if(DEBUG) cout<<"inserting dump before "<<before<<"["<<before_count<<"]"<<endl;
+  if(DEBUG) std::cout<<"inserting dump before "<<before<<"["<<before_count<<"]"<<std::endl;
 
-  list<struct Element>::iterator it;
+  std::list<struct Element>::iterator it;
 
   int element_count = 1;  // count from 1 like in goddam FORTRAN -- for range parsing
   struct Element e;
@@ -781,7 +810,7 @@ void add_dump(char *name, char *before, int before_count)
 
   for(it = beamline_list.begin();it != beamline_list.end(); ++it)
     {
-      if(DEBUG) cout<<"-->"<<(*it).name<<endl;
+      if(DEBUG) std::cout<<"-->"<<(*it).name<<std::endl;
 
       if( !strcmp((*it).name, before))
         {
@@ -798,7 +827,7 @@ void add_dump(char *name, char *before, int before_count)
 
     }
 
-  cout<<"current beamline doesn't contain element "<<before<<" with number "<<before_count<<endl;
+  std::cout<<"current beamline doesn't contain element "<<before<<" with number "<<before_count<<std::endl;
 
 }
 
@@ -815,13 +844,13 @@ void add_gas(char *name, const char *before, int before_count, const char *mater
 }
 
 
-void print(list<struct Element> l, int ident)
+void print(std::list<struct Element> l, int ident)
 {
 
   if(VERBOSE) if(ident == 0) printf("using line %s\n",current_line);
 
-  list<struct Element>::iterator it;
-  list<double>::iterator it2;
+  std::list<struct Element>::iterator it;
+  std::list<double>::iterator it2;
 
   for(it=l.begin();it!=l.end();it++)
     {
@@ -832,7 +861,8 @@ void print(list<struct Element> l, int ident)
 
       switch((*it).type) {
       case _DRIFT:
-      case _SBEND :
+      case _SBEND:
+      case _RBEND:
       case _QUAD:
       case _SEXTUPOLE:
 	printf(", l=%.10g, k0=%.10g, k1=%.10g, k2=%.10g,angle=%.10g,tilt=%.10g ",
@@ -884,17 +914,17 @@ void print(list<struct Element> l, int ident)
 
 void print(struct Options opt)
 {
-  cout<<"Options : "<<endl;
-  cout<<"particle : "<<opt.particleName<<endl;
-  cout<<"energy : "<<opt.beamEnergy<<endl;
-  cout<<"n particles : "<<opt.numberOfParticles<<endl;
-  cout<<"n macroparticles : "<<opt.numberToGenerate<<endl;
-  cout<<"sigmaX           : "<<opt.sigmaX<<endl;
-  cout<<"interactions on           : "<<opt.turnOnInteractions<<endl;
+  std::cout<<"Options : "<<std::endl;
+  std::cout<<"particle : "<<opt.particleName<<std::endl;
+  std::cout<<"energy : "<<opt.beamEnergy<<std::endl;
+  std::cout<<"n particles : "<<opt.numberOfParticles<<std::endl;
+  std::cout<<"n macroparticles : "<<opt.numberToGenerate<<std::endl;
+  std::cout<<"sigmaX           : "<<opt.sigmaX<<std::endl;
+  std::cout<<"interactions on           : "<<opt.turnOnInteractions<<std::endl;
 }
 
 
-void set_value(string name, double value )
+void set_value(std::string name, double value )
 {
   if(name == "energy" ) options.beamEnergy = value;
   if(name == "nparticles" ) options.numberOfParticles = (int)value;
@@ -987,8 +1017,9 @@ void set_value(string name, double value )
 }
 
 
-void set_value(string name, string value )
+void set_value(std::string name, std::string value )
 {
+  if(name == "fifo") options.fifo = value;
   if(name == "particle") options.particleName = value;
   if(name == "distrType" ) options.distribType = value;
   if(name == "distrFile" ) options.distribFile = value;  
@@ -998,13 +1029,16 @@ void set_value(string name, string value )
 
 double property_lookup(char *element_name, char *property_name)
 {
-   list<struct Element>::iterator it = element_lookup(element_name);
+   std::list<struct Element>::iterator it = element_lookup(element_name);
 
    if(it == NULL) return 0;
    
    if(!strcmp(property_name,"l")) return (*it).l;
+   if(!strcmp(property_name,"B")) return (*it).B;
    if(!strcmp(property_name,"k0")) return (*it).k0;
    if(!strcmp(property_name,"k1")) return (*it).k1;
+   if(!strcmp(property_name,"k2")) return (*it).k2;
+   if(!strcmp(property_name,"k3")) return (*it).k3;
    if(!strcmp(property_name,"aper")) return (*it).aper;
    if(!strcmp(property_name,"outR")) return (*it).outR;
    if(!strcmp(property_name,"xsize")) return (*it).xsize;
@@ -1018,6 +1052,7 @@ double property_lookup(char *element_name, char *property_name)
    if(!strcmp(property_name,"waveLength")) return (*it).waveLength;
    if(!strcmp(property_name,"tilt")) return (*it).tilt;
    if(!strcmp(property_name,"gradient")) return (*it).gradient;
+   if(!strcmp(property_name,"hgap")) return (*it).hgap;
 
    if(!strcmp(property_name,"A")) return (*it).A;
    if(!strcmp(property_name,"Z")) return (*it).Z;

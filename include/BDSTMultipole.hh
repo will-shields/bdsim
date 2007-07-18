@@ -31,7 +31,7 @@ class BDSTMultipole :public BDSMultipole
 {
   public:
     BDSTMultipole(G4String aName, G4double aLength,
-		  G4double bpRad,G4double FeRad,
+		  G4double bpRad,G4double FeRad,G4double outR,
 		  list<G4double> aknl, list<double> aksl);
     ~BDSTMultipole();
 

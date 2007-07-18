@@ -71,7 +71,7 @@ void BDSHelixStepper::AdvanceHelix( const G4double  yIn[],
   else if (its_EqRhs->FCof()==0) R=DBL_MAX;
 
   // check that the approximations are valid, else do a linear step:
-  if(abs(R)<DBL_MAX) 
+  if(fabs(R)<DBL_MAX) 
     { 
   
       G4double Theta   = h/R;
@@ -85,7 +85,7 @@ void BDSHelixStepper::AdvanceHelix( const G4double  yIn[],
 
       BDSLocalRadiusOfCurvature=R;
 
-      itsDist=abs(R)*(1.-CosT_ov_2);
+      itsDist=fabs(R)*(1.-CosT_ov_2);
 
       G4ThreeVector dPos=R*(SinT*vhat + (1-CosT)*vnorm);
  	

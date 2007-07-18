@@ -76,4 +76,5 @@ private:
 
 };
 
+extern BDSOutput bdsOutput;
 #endif

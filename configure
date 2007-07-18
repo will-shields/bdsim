@@ -91,15 +91,15 @@ printf " change the G4VERSION variables \n in the Makefile if I'm  wrong \n"
 
 
 # Determine for CLHEP version
-CLHEP_version=$(find $CLHEP_BASE_DIR/ -name \*CLHEP\* | grep -o '[1].[0-9]\(.[0-9]\)*'| sed "s/1.//; s/.[0-9]//; s/.[0-9]//" | head -n 1)
+CLHEP_version=$(find $CLHEP_BASE_DIR/ -name \*CLHEP\* | grep -o '[12].[0-9]\(.[0-9]\)*'| sed "s/[12].//; s/.[0-9]//; s/.[0-9]//" | head -n 1)
 printf " Your CLHEP  version is $CLHEP_version ???\n"
 
 read -p "[y/n]" value
 
 if test "$value" == "n"; then
    printf "\n \n Enter the CLHEP version \n"
-   read -p "[1.x.x.x]" value
-   CLHEP_version=$(echo $value | grep -o '[1].[0-9]\(.[0-9]\)*' | sed "s/1.//; s/.[0-9]//; s/.[0-9]//")
+   read -p "[x.x.x.x]" value
+   CLHEP_version=$(echo $value | grep -o '[12].[0-9]\(.[0-9]\)*' | sed "s/[12].//; s/.[0-9]//; s/.[0-9]//")
 printf " Your CLHEP  version is $CLHEP_version ???\n"
 fi
 		

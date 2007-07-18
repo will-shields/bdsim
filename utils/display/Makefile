@@ -4,7 +4,9 @@
 #
 ARCH         := $(shell root-config --arch)
 ifeq ($(ARCH),macosx)
+ifndef ROOTSYS
 ROOTSYS       = /sw/
+endif
 endif
 CXX           = g++
 LD            = g++

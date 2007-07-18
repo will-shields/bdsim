@@ -30,8 +30,8 @@ const int DEBUG = 0;
 #include "G4ios.hh"
 #include <iomanip>   
 
-#include "GeneralPhysics.hh"
-#include "MuonPhysics.hh"
+//#include "GeneralPhysics.hh"
+//#include "MuonPhysics.hh"
 
 
 #include "HadronPhysicsLHEP.hh"
@@ -89,8 +89,8 @@ const int DEBUG = 0;
 
 
 //#include "BDSeBremPhysics.hh"
-#include "BDSGammaConversionPhysics.hh"
-#include "BDSLowEMPhysics.hh"
+//#include "BDSGammaConversionPhysics.hh"
+//#include "BDSLowEMPhysics.hh"
 
 #include "G4StepLimiter.hh"
 
@@ -681,5 +681,5 @@ void BDSPhysicsList::ConstructSR()
     }
     
   }
-  
+  return; 
 }

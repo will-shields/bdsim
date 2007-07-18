@@ -10,11 +10,11 @@
 #include "globals.hh"
 #include <fstream>
 
-#if CLHEP_VERSION > 9
+#if CLHEP_VERSION > 8 || CLHEP_VERSION < 1
 using namespace CLHEP;
 #endif
 
-// for CLHEP < 1.9
+// CLHEP < 1.9
 //class RandGauss;
 //class RandFlat;
 
@@ -85,6 +85,7 @@ public:
   void SetBetaX(double);
   void SetBetaY(double);
 
+  std::ifstream fifoReader;
 
 private:
   // parameters for Gaussian distribution

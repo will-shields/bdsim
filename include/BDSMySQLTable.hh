@@ -12,7 +12,7 @@
 #ifndef BDSMySQLTable_h
 #define BDSMySQLTable_h 1
 
-using namespace std;
+//using namespace std;
 #include <vector>
 
 class BDSMySQLVariable
@@ -48,9 +48,9 @@ private:
   G4int itsNVariables;
   G4String itsVarName;
   G4String itsVarType;
-  vector<G4double> itsDblVar;
-  vector<G4String> itsStrVar;
-  vector<G4int> itsIntVar;
+  std::vector<G4double> itsDblVar;
+  std::vector<G4String> itsStrVar;
+  std::vector<G4int> itsIntVar;
 
 };
 
@@ -131,7 +131,7 @@ private:
 
   G4int itsNVariables;
   G4String itsTableName;
-  vector<BDSMySQLVariable*> itsVar;
+  std::vector<BDSMySQLVariable*> itsVar;
   
 };
 

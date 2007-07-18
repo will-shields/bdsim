@@ -113,7 +113,7 @@ void BDSGeometrySQL::BuildCone(BDSMySQLTable* aSQLTable)
       length = rOuterStart = rOuterEnd = 10.*mm;
       rInnerStart = rInnerEnd = 0.0;
       VisRed = VisGreen = VisBlue = 0.;
-      VisType = "W";
+      VisType = "S";
       Material = "VACUUM";
 
       if(aSQLTable->GetVariable("RED")!=NULL)
@@ -206,7 +206,7 @@ void BDSGeometrySQL::BuildEllipticalCone(BDSMySQLTable* aSQLTable)
       //Defaults
       lengthZ = 10.*mm;
       VisRed = VisGreen = VisBlue = 0.;
-      VisType = "W";
+      VisType = "S";
       Material = "VACUUM";
 
       if(aSQLTable->GetVariable("RED")!=NULL)
@@ -294,7 +294,7 @@ void BDSGeometrySQL::BuildPolyCone(BDSMySQLTable* aSQLTable)
       dphi = twopi*radian;
       numZplanes = 0;
       VisRed = VisGreen = VisBlue = 0.;
-      VisType = "W";
+      VisType = "S";
       Material = "VACUUM";
 
       if(aSQLTable->GetVariable("NZPLANES")!=NULL)
@@ -403,7 +403,7 @@ void BDSGeometrySQL::BuildBox(BDSMySQLTable* aSQLTable)
     {
       lengthX = lengthY = lengthZ = 10.*mm;
       VisRed = VisGreen = VisBlue = 0.;
-      VisType = "W";
+      VisType = "S";
       Material = "VACUUM";
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
@@ -482,7 +482,7 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
   for(G4int k=0; k<NVariables; k++)
     {
       VisRed = VisGreen = VisBlue = 0.;
-      VisType = "W";
+      VisType = "S";
       Material = "VACUUM";
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
@@ -572,7 +572,7 @@ void BDSGeometrySQL::BuildTorus(BDSMySQLTable* aSQLTable)
       sphi = 0.0;
       dphi=2*pi*radian;
       VisRed = VisGreen = VisBlue = 0.;
-      VisType = "W";
+      VisType = "S";
       Material = "VACUUM";
 
       if(aSQLTable->GetVariable("RED")!=NULL)
@@ -661,7 +661,7 @@ void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
       length = rOuterStart = rOuterEnd = 10.*mm;
       rInnerStart = rInnerEnd = 0.0;
       VisRed = VisGreen = VisBlue = 0.;
-      VisType = "W";
+      VisType = "S";
       Material = "VACUUM";
 
       if(aSQLTable->GetVariable("RED")!=NULL)

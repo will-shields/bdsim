@@ -6,7 +6,9 @@
 #include "gmad.h"
 #include "sym_table.h"
 
-#include "math.h"
+#include <cmath>
+
+using namespace std;
 
 extern struct Parameters params;
 extern struct symtab *symtab;
@@ -106,7 +108,7 @@ int gmad_parser(string name)
   yyin=f; 
   yyfilename = new char[32];
   strncpy(yyfilename,name.c_str(),32);
- 
+
   while(!feof(yyin))
     {
       yyparse();
@@ -116,7 +118,6 @@ int gmad_parser(string name)
 
   element_list.clear();
   tmp_list.clear();
-  
   return 0;
 };
 

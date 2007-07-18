@@ -4,11 +4,15 @@
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
 // G.A.Blair, Royal Holloway Univ of London. 1.07.02
-// This class just alters one part of the default G4RunManager to
+// This class alters one part of the default G4RunManager to
 // avoid closing the geometry after each event - this was a significant
 // time overhead. 
 // >>>Whether there are other effects of this needs to be checked <<<
+//
+// SPM: Altered BeamOn function to account for Placet synchronisation
+//
 
+#include "BDSGlobalConstants.hh"
 #include "G4Timer.hh"
 
 #include "BDSRunManager.hh"
@@ -25,6 +29,27 @@ BDSRunManager::BDSRunManager(){ fRunManager = this;}
 
 BDSRunManager::~BDSRunManager(){}
 
+void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
+{
+  G4bool cond = ConfirmBeamOnCondition();
+  G4StackManager* SM;
+  SM = G4EventManager::GetEventManager()->GetStackManager();
+  if(cond)
+  {
+    numberOfEventToBeProcessed = n_event;
+    RunInitialization();
+    if(n_event>0) DoEventLoop(n_event,macroFile,n_select);
+    RunTermination();
+    while(!BDSGlobals->holdingVector.empty()){
+      BDSGlobals->setReadFromStack(true);
+      SM->ClearPostponeStack();
+
+      RunInitialization();
+      DoEventLoop(n_event,macroFile,n_select);
+      RunTermination();
+    }
+  }
+}
 
 void BDSRunManager::DoEventLoop(G4int n_event,const char* macroFile,G4int n_select)
 {
@@ -47,7 +72,7 @@ void BDSRunManager::DoEventLoop(G4int n_event,const char* macroFile,G4int n_sele
   for( i_event=0; i_event<n_event; i_event++ )
   {
 
-    // remember to uncomment definition of statemanager if using this
+
     //    stateManager->SetNewState(EventProc);
 
     currentEvent = GenerateEvent(i_event);

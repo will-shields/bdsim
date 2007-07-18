@@ -17,6 +17,11 @@ const int DEBUG = 0;
 #include "BDSGlobalConstants.hh" // must be first in include list
 
 #include "BDSEventAction.hh"
+
+#include <ctime> 
+#include <vector>
+#include <algorithm>
+
 #include "G4Event.hh"
 #include "G4EventManager.hh"
 #include "G4Run.hh"
@@ -48,6 +53,8 @@ const int DEBUG = 0;
 #include "BDSAcceleratorComponent.hh"
 
 #include "BDSOutput.hh"
+
+#include "BDSRunManager.hh"
 
 typedef list<BDSAcceleratorComponent*>  BDSBeamline;
 BDSBeamline theBeamline;
@@ -182,37 +189,76 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
 	}
     }
 
-
+/*
   if(BDSGlobals->getWaitingForDump()) // synchronization with placet
     {
       G4cout<<"end of event : "<<event_number<<G4endl;
 
      
-      G4int nevent = G4RunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEventToBeProcessed();
+      G4int nevent = BDSRunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEventToBeProcessed();
 
       if(event_number == nevent - 1) {
-	G4cout<<"last event reached!!! dumping"<<G4endl;
+	G4cout<<"last event reached! dumping"<<G4endl;
 	
 	G4StackManager* SM = G4EventManager::GetEventManager()->GetStackManager();
 	
-	BDSGlobals->setDumping(true);
 	BDSGlobals->setWaitingForDump(false);
+	BDSGlobals->setDumping(true);
+
+	BDSGlobals->fileDump.open(BDSGlobals->GetFifo()); //SPM
+	if(!BDSGlobals->fileDump.good()){
+	  G4cerr << "BDSGlobals->GetFifo(): " << BDSGlobals->GetFifo() << 
+		" not found. Quitting." << G4endl;
+	  exit(1);
+	} 
+	BDSGlobals->fileDump << "# nparticles = " << SM->GetNPostponedTrack() << "\n";
 	SM->TransferStackedTracks(fPostpone, fUrgent);// so that they can be reclassified
 	SM->ReClassify();
-
+	BDSGlobals->fileDump.close(); // SPM
+	BDSGlobals->setDumping(false);
+	BDSGlobals->setReading(true);
 	//
 
 	// TODO: read in the stuff from placet
 
 	//
+	BDSGlobals->fileRead.open(BDSGlobals->GetFifo());
+	if(!BDSGlobals->fileDump.good()){
+	  G4cerr << "BDSGlobals->GetFifo(): " << BDSGlobals->GetFifo() << 
+		" not found. Quitting." << G4endl;
+	  exit(1);
+	} 
+	char token[255];
+	BDSGlobals->fileRead.getline(token,255);
+	G4cout << token << G4endl;
 
-	SM->TransferStackedTracks(fPostpone, fUrgent);// resume tracking
-
-
+	G4Track* newTrack;
+//	G4VTrajectory* newTrajectory;
+	G4DynamicParticle* newParticle;
+	double x,y,z,t,xp,yp,zp,E;
+	x = y = z = xp = yp = zp = t = E = 0;
+	for(int i=0; i< SM->GetNPostponedTrack();i++){
+	  BDSGlobals->fileRead >> E >> x >> y >> z >> xp >> yp;	  
+	  zp = sqrt(1-xp*xp-yp*yp);
+	  t==0 ? t = -z/c_light : z = -t*c_light;
+	  newParticle = new G4DynamicParticle(BDSGlobals->GetParticleDefinition(),
+		G4ThreeVector(xp,yp,zp),
+		E-BDSGlobals->GetParticleDefinition()->GetPDGMass());
+	  newParticle->SetProperTime(t);
+	  newTrack = new G4Track(newParticle,t,G4ThreeVector(x,y,z));
+//	  newTrajectory = new G4Trajectory(newTrack);
+	  SM->PushOneTrack(newTrack);
+	  G4cout << "Read particle number " << i << G4endl;
+	}
+	sleep(1);
+	//SM->ReClassify();
+	BDSGlobals->fileRead.close();
+	BDSGlobals->setReading(false);
+	BDSGlobals->setReadFromStack(false);
       }
       
     }
-
+*/
 
   if(DEBUG) G4cout<<"BDSEventAction : end of event action"<<G4endl;
  
