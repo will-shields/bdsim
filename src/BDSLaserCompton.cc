@@ -13,7 +13,7 @@
 
 #if G4VERSION > 8
 BDSLaserCompton::BDSLaserCompton(const G4String& processName)
-  :  G4VEnergyLossProcess(processName),isInitialised(false)
+  :  G4VDiscreteProcess(processName),isInitialised(false)
 #else
 BDSLaserCompton::BDSLaserCompton(const G4String& processName)
   :  G4VeEnergyLoss(processName)
@@ -45,7 +45,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
  
  // ensure that Laserwire can only occur once in an event
  if(!FireLaserCompton)
-   return G4VContinuousDiscreteProcess::PostStepDoIt(trackData,stepData);
+   return G4VDiscreteProcess::PostStepDoIt(trackData,stepData);
  
  G4Material* aMaterial=trackData.GetMaterial() ;
  
@@ -158,11 +158,12 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
  //commented to allow multiple laserwires in beamline - Steve
  // FireLaserCompton=false;
  
- return G4VContinuousDiscreteProcess::PostStepDoIt(trackData,stepData);
+ return G4VDiscreteProcess::PostStepDoIt(trackData,stepData);
  
 }
 
 #if G4VERSION > 8
+/*
 #include "G4LossTableManager.hh"
 #include "G4eBremsstrahlungModel.hh"
 #include "G4UniversalFluctuation.hh"
@@ -190,6 +191,7 @@ void BDSLaserCompton::InitialiseEnergyLossProcess(const G4ParticleDefinition* p,
 
 void BDSLaserCompton::PrintInfo()
 {
+
   if(EmModel()) {
     G4cout << "      Total cross sections and sampling from "
            << EmModel()->GetName() << " model"
@@ -204,5 +206,7 @@ void BDSLaserCompton::PrintInfo()
       G4cout << "      HighEnergyThreshold(GeV)= " << eth/GeV
              << G4endl;
   }
+
 }
+*/
 #endif

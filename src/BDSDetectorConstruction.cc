@@ -737,7 +737,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
       (*iBeam)->SetSPos(s_tot+(*iBeam)->GetLength()/2);
       // advance coordinates , but not for cylindrical sampler
-      if(( (*iBeam)->GetName() != "sampler") || ( (*iBeam)->GetLength() <= samplerLength ) )
+      if(( (*iBeam)->GetType() != _SAMPLER) || ( (*iBeam)->GetLength() <= samplerLength ) )
 	{
 	  s_tot+= (*iBeam)->GetLength();
 
@@ -957,7 +957,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       if(DEBUG) G4cout<<"TargetPos="<<TargetPos<<G4endl;
 
       // advance the coordinates, but not for cylindrical samplers 
-      if( ( ( (*iBeam)->GetName() != "sampler") || ( (*iBeam)->GetLength() <= samplerLength ) )  && ( (*iBeam)->GetType()!=_ELEMENT ))
+      if( ( ( (*iBeam)->GetType() != _SAMPLER) || ( (*iBeam)->GetLength() <= samplerLength ) )  && ( (*iBeam)->GetType()!=_ELEMENT ))
 	{
 	  if(DEBUG) G4cout << (*iBeam)->GetType() << " " << (*iBeam)->GetName() << G4endl;
 	  rtot = rlast + zHalfAngle * ( (*iBeam)->GetLength()/2 + BDSGlobals->GetLengthSafety()/2 );
@@ -1029,7 +1029,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	  }
 
 	vector<G4LogicalVolume*> MultipleSensVols = (*iBeam)->GetMultipleSensitiveVolumes();
-	if(LogVolName!="sampler"&&MultipleSensVols.size()>0)
+	if((*iBeam)->GetType()!=_SAMPLER && MultipleSensVols.size()>0)
 	   {
 	     for(G4int i=0; i<(G4int)MultipleSensVols.size(); i++)
 	       {
@@ -1042,10 +1042,11 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	       }
 	   }
 	
-	LocalName=(*iBeam)->GetName()+"_phys";
-	if(LogVolName=="sampler") 
+//	if(LogVolName=="sampler") {
+	if((*iBeam)->GetType()==_SAMPLER) {
+	  LocalName=(*iBeam)->GetName()+"_phys";
 	  bdsOutput.SampName.push_back(LocalName + "_" + BDSGlobals->StringFromInt(nCopy+1));
-
+	}
 
 	// Align Component - most cases does nothing. 
 	// Currently only used for BDSElement	

@@ -10,7 +10,7 @@
 #include "globals.hh"
 #include "Randomize.hh" 
 #if G4VERSION > 8
-#include "G4VEnergyLossProcess.hh"
+#include "G4VDiscreteProcess.hh"
 #else
 #include "G4VeEnergyLoss.hh"
 #endif
@@ -32,7 +32,7 @@ extern BDSMaterials* theMaterials;
 extern G4bool FireLaserCompton;
 
 #if G4VERSION > 8
-class BDSLaserCompton : public G4VEnergyLossProcess
+class BDSLaserCompton : public G4VDiscreteProcess
 #else
 class BDSLaserCompton : public G4VeEnergyLoss
 #endif
@@ -44,7 +44,7 @@ class BDSLaserCompton : public G4VeEnergyLoss
   ~BDSLaserCompton();
 
 #if G4VERSION > 8  
-  virtual void PrintInfo();
+//  virtual void PrintInfo();
 #endif
 
   G4bool IsApplicable(const G4ParticleDefinition&);
@@ -75,7 +75,7 @@ protected:
   G4bool isInitialised;  
   const G4ParticleDefinition* particle;
 
-  virtual void InitialiseEnergyLossProcess(const G4ParticleDefinition*, const G4ParticleDefinition*);
+//  virtual void InitialiseEnergyLossProcess(const G4ParticleDefinition*, const G4ParticleDefinition*);
 #endif
   
 private:
