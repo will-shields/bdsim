@@ -94,12 +94,12 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   G4double x0, y0, z0, xp, yp, zp, t, E;
 
-    G4cout << BDSGlobals->holdingVector.size() << " particles waiting to fire\n";
-
   if(!BDSGlobals->getReadFromStack()){
     theBunch.GetNextParticle(x0,y0,z0,xp,yp,zp,t,E); // get next starting point
   }
   else if(BDSGlobals->holdingVector.size()!=0){
+    if(DEBUG)
+      G4cout << BDSGlobals->holdingVector.size() << " particles waiting to fire\n";
 
     tmpParticle holdingParticle = (BDSGlobals->holdingVector)[BDSGlobals->holdingVector.size()-1];
     x0 = holdingParticle.x;
@@ -110,7 +110,7 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     zp = holdingParticle.zp;
     t = holdingParticle.t;
     E = holdingParticle.E;
-    printf("TrackID %i: %f %f %f %f %f %f %f %f\n",
+    if(DEBUG) printf("Track number %i: %f %f %f %f %f %f %f %f\n",
 	(int)BDSGlobals->holdingVector.size(),x0,y0,z0,xp,yp,zp,t,E);
     BDSGlobals->holdingVector.pop_back();
   }

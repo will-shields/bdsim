@@ -6,6 +6,7 @@
 
 //==========================================================
 //==========================================================
+
 #include "BDSGlobalConstants.hh" // must be first in include list
 
 #include "BDSRunAction.hh"
@@ -24,6 +25,8 @@
 
 typedef list<BDSAcceleratorComponent*>  myBeamline;
 extern myBeamline theBeamline;
+
+const int DEBUG = 0;
 
 //==========================================================
 
@@ -83,90 +86,71 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	  synch_output<<(*iBeam)->GetSynchEnergyLoss()/ 
 	    G4double(aRun->GetNumberOfEvent())/GeV<<G4endl;
 	}
-    }
+	}
   */
   if(BDSGlobals->getWaitingForDump()) // synchronization with placet
     {
-//      G4cout<<"end of event : "<<event_number<<G4endl;
-
-
-//      G4int nevent = BDSRunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEventToBeProcessed();
-
-  //    if(event_number == nevent - 1) {
-        G4cout<<"last event reached! dumping"<<G4endl;
-
-        G4StackManager* SM = G4EventManager::GetEventManager()->GetStackManager();
-
-        BDSGlobals->setWaitingForDump(false);
-        BDSGlobals->setDumping(true);
-
-        BDSGlobals->fileDump.open(BDSGlobals->GetFifo()); //SPM
-        if(!BDSGlobals->fileDump.good()){
-          G4cerr << "BDSGlobals->GetFifo(): " << BDSGlobals->GetFifo() <<
-                " not found. Quitting." << G4endl;
-          exit(1);
-        }
-        BDSGlobals->fileDump << "# nparticles = " << SM->GetNPostponedTrack() << "\n";
-        SM->TransferStackedTracks(fPostpone, fUrgent);// so that they can be reclassified
-        SM->ReClassify();
-        BDSGlobals->fileDump.close(); // SPM
-        BDSGlobals->setDumping(false);
-        BDSGlobals->setReading(true);
-        //
-
-        // TODO: read in the stuff from placet
-
-        //
-        BDSGlobals->fileRead.open(BDSGlobals->GetFifo());
-        if(!BDSGlobals->fileDump.good()){
-          G4cerr << "BDSGlobals->GetFifo(): " << BDSGlobals->GetFifo() <<
-                " not found. Quitting." << G4endl;
-          exit(1);
-        }
-        char token[255];
-        BDSGlobals->fileRead.getline(token,255);
-        G4cout << token << G4endl;
-
-//        G4Track* newTrack;
-//      G4VTrajectory* newTrajectory;
-//        G4DynamicParticle* newParticle;
-        double x,y,z,t,xp,yp,zp,E;
-        x = y = z = xp = yp = zp = t = E = 0;
-	BDSGlobals->holdingVector.clear();
-        for(int i=0; i< SM->GetNPostponedTrack();i++){
-          BDSGlobals->fileRead >> E >> x >> y >> z >> xp >> yp;
-          zp = sqrt(1-xp*xp-yp*yp);
-          t==0 ? t = -z/c_light : z = -t*c_light;
-/*          newParticle = new G4DynamicParticle(BDSGlobals->GetParticleDefinition(),
-                G4ThreeVector(xp,yp,zp),
-                E-BDSGlobals->GetParticleDefinition()->GetPDGMass());
-          newParticle->SetProperTime(t);
-          newTrack = new G4Track(newParticle,t,G4ThreeVector(x,y,z));
-//        newTrajectory = new G4Trajectory(newTrack);
-          SM->PushOneTrack(newTrack);
-*/
-	  tmpParticle holdingParticle;
-	  holdingParticle.E = E;
-	  holdingParticle.x = x;
-	  holdingParticle.y = y;
-	  holdingParticle.z = z;
-	  holdingParticle.t = t;
-	  holdingParticle.xp = xp;
-	  holdingParticle.yp = yp;
-	  holdingParticle.zp = zp;
-	  BDSGlobals->holdingVector.push_back(holdingParticle);
-          G4cout << "Read particle number " << i << G4endl;
-        }
-        sleep(1);
-        //SM->ReClassify();
-        BDSGlobals->fileRead.close();
-
-        BDSGlobals->setReading(false);
-        BDSGlobals->setReadFromStack(false);
+      //G4cout<<"end of event : "<<event_number<<G4endl;
+      G4cout<<"last event reached! dumping"<<G4endl;
+      
+      G4StackManager* SM = G4EventManager::GetEventManager()->GetStackManager();
+      
+      BDSGlobals->setWaitingForDump(false);
+      BDSGlobals->setDumping(true);
+      
+      BDSGlobals->fileDump.open(BDSGlobals->GetFifo()); //SPM
+      if(!BDSGlobals->fileDump.good()){
+	G4cerr << "BDSGlobals->GetFifo(): " << BDSGlobals->GetFifo() <<
+	  " not found. Quitting." << G4endl;
+	exit(1);
       }
-
-//    }
-
+      BDSGlobals->fileDump << "# nparticles = " << SM->GetNPostponedTrack() << "\n";
+      SM->TransferStackedTracks(fPostpone, fUrgent);// so that they can be reclassified
+      SM->ReClassify();
+      BDSGlobals->fileDump.close(); // SPM
+      BDSGlobals->setDumping(false);
+      BDSGlobals->setReading(true);
+      //
+      
+      // read in the stuff from placet
+      
+      //
+      BDSGlobals->fileRead.open(BDSGlobals->GetFifo());
+      if(!BDSGlobals->fileDump.good()){
+	G4cerr << "BDSGlobals->GetFifo(): " << BDSGlobals->GetFifo() <<
+	  " not found. Quitting." << G4endl;
+	exit(1);
+      }
+      char token[255];
+      BDSGlobals->fileRead.getline(token,255);
+      G4cout << token << G4endl;
+      
+      double x,y,z,t,xp,yp,zp,E;
+      x = y = z = xp = yp = zp = t = E = 0;
+      BDSGlobals->holdingVector.clear();
+      for(int i=0; i< SM->GetNPostponedTrack();i++){
+	BDSGlobals->fileRead >> E >> x >> y >> z >> xp >> yp;
+	zp = sqrt(1-xp*xp-yp*yp);
+	t==0 ? t = -z/c_light : z = -t*c_light;
+	
+	tmpParticle holdingParticle;
+	holdingParticle.E = E;
+	holdingParticle.x = x;
+	holdingParticle.y = y;
+	holdingParticle.z = z;
+	holdingParticle.t = t;
+	holdingParticle.xp = xp;
+	holdingParticle.yp = yp;
+	holdingParticle.zp = zp;
+	BDSGlobals->holdingVector.push_back(holdingParticle);
+	if(DEBUG) G4cout << "Read particle number " << i << G4endl;
+      }
+      sleep(1);
+      BDSGlobals->fileRead.close();
+      
+      BDSGlobals->setReading(false);
+      BDSGlobals->setReadFromStack(false);
+    }
 }
 
 //==========================================================
