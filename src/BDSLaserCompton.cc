@@ -21,17 +21,17 @@ BDSLaserCompton::BDSLaserCompton(const G4String& processName)
 {
   itsLaserWavelength=BDSGlobals->GetLaserwireWavelength();
   itsLaserDirection=BDSGlobals->GetLaserwireDir();
- 
 
-  // if(itsLaserWavelength<=0.)
-  // {G4Exception("BDSLaserCompton: Invalid Wavelength");}
+
+  //	if(itsLaserWavelength<=0.)
+  //	 {G4Exception("BDSLaserCompton: Invalid Wavelength");}
   // itsLaserEnergy=twopi*hbarc/itsLaserWavelength;
  // point laserwire in x:     P_x        Py Pz   E
  //G4LorentzVector Laser4mom(itsLaserEnergy,0,0,itsLaserEnergy);
  //itsComptonEngine=new BDSComptonEngine(Laser4mom);
   itsComptonEngine=new BDSComptonEngine();
 } 
- 
+
  
 BDSLaserCompton::~BDSLaserCompton(){}
 
@@ -44,9 +44,13 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
  aParticleChange.Initialize(trackData);
  
  // ensure that Laserwire can only occur once in an event
- if(!FireLaserCompton)
+ if(!FireLaserCompton){
+	 #if G4VERSION > 8
    return G4VDiscreteProcess::PostStepDoIt(trackData,stepData);
- 
+   #else
+	 return G4VContinuousDiscreteProcess::PostStepDoIt(trackData,stepData);
+	 #endif
+ }
  G4Material* aMaterial=trackData.GetMaterial() ;
  
  if(aMaterial==theMaterials->LaserVac)
@@ -55,8 +59,8 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
      
      //     itsLaserWavelength=BDSGlobals->GetLaserwireWavelength();
      //     itsLaserDirection=BDSGlobals->GetLaserwireDir();
-     itsLaserWavelength=BDSGlobals->GetLaserwireWavelength(lVolume->GetName());
-     itsLaserDirection=BDSGlobals->GetLaserwireDir(lVolume->GetName());
+		      itsLaserWavelength=BDSGlobals->GetLaserwireWavelength(lVolume->GetName());
+		      itsLaserDirection=BDSGlobals->GetLaserwireDir(lVolume->GetName());
      
      //G4cout << "&&&&&" << itsLaserDirection << "&&&&&\n";
      if(itsLaserWavelength<=0.)
@@ -158,8 +162,11 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
  //commented to allow multiple laserwires in beamline - Steve
  // FireLaserCompton=false;
  
+ #if G4VERSION > 8
  return G4VDiscreteProcess::PostStepDoIt(trackData,stepData);
- 
+ #else
+ return G4VContinuousDiscreteProcess::PostStepDoIt(trackData,stepData);
+ #endif
 }
 
 #if G4VERSION > 8
