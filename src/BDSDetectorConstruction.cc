@@ -91,6 +91,8 @@ const int DEBUG = 0;
 #include "parser/gmad.h"
 #include "ggmad.hh"
 
+using namespace std;
+
 extern void GetMaterial(G4Material *&theMaterial, G4String material); //from ggmad
 
 //====================================

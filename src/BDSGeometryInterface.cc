@@ -8,6 +8,8 @@
 #include "BDSGeometryInterface.hh"
 #include "BDSAcceleratorComponent.hh"
 
+using namespace std;
+
 typedef list<BDSAcceleratorComponent*> BDSBeamline;
 extern BDSBeamline theBeamline;
 

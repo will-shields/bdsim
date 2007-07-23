@@ -15,6 +15,8 @@
 #include "BDSAcceleratorComponent.hh"
 #include "ggmad.hh"
 
+using namespace std;
+
 extern BDSMaterials* theMaterials;
 void GetMaterial(G4Material*& theMaterial, G4String material);
 

@@ -31,6 +31,8 @@ const int DEBUG = 0;
 
 #include <map>
 
+using namespace std;
+
 //============================================================
 
 typedef std::map<G4String,int> LogVolCountMap;

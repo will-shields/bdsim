@@ -23,7 +23,7 @@
 #ifndef __BDSACCELERATORCOMPONENT_H
 #define __BDSACCELERATORCOMPONENT_H
 
-#include <string>
+#include <cstring>
 #include "G4LogicalVolume.hh"
 #include "G4VisAttributes.hh"
 #include "G4LogicalVolume.hh"
@@ -39,7 +39,7 @@
 
 #include <vector> 
 
-using namespace std;
+//using namespace std;
 
 class BDSAcceleratorComponent 
 {
@@ -127,7 +127,7 @@ public:
 
   void SetMultipleSensitiveVolumes(G4LogicalVolume* aLogVol);
 
-  vector<G4LogicalVolume*> GetMultipleSensitiveVolumes();
+  std::vector<G4LogicalVolume*> GetMultipleSensitiveVolumes();
 
   void SetInnerMostLogicalVolume(G4LogicalVolume* aLogVol);
   
@@ -225,7 +225,7 @@ private:
   BDSEnergyCounterSD* itsBDSEnergyCounter;
   G4int itsCollectionID;
   G4LogicalVolume* itsSensitiveVolume;
-  vector<G4LogicalVolume*> itsMultipleSensitiveVolumes;
+  std::vector<G4LogicalVolume*> itsMultipleSensitiveVolumes;
   G4double itsZLower;
   G4double itsZUpper;
   G4double itsSynchEnergyLoss;
@@ -380,7 +380,7 @@ inline  G4LogicalVolume* BDSAcceleratorComponent::GetSensitiveVolume()
 inline void BDSAcceleratorComponent::SetMultipleSensitiveVolumes(G4LogicalVolume* aLogVol)
 { itsMultipleSensitiveVolumes.push_back(aLogVol);}
 
-inline  vector<G4LogicalVolume*> BDSAcceleratorComponent::GetMultipleSensitiveVolumes()
+inline  std::vector<G4LogicalVolume*> BDSAcceleratorComponent::GetMultipleSensitiveVolumes()
 {return itsMultipleSensitiveVolumes;}
 
 inline  G4double BDSAcceleratorComponent::GetZLower()
@@ -422,8 +422,8 @@ inline  G4double BDSAcceleratorComponent::getParameterValue(G4String spec, G4Str
 {
   G4double value = 0;
 
-  string delimiters = "&";
-  string param = name + "=";
+  std::string delimiters = "&";
+  std::string param = name + "=";
 
   int pos = spec.find(param);
   if( pos >= 0 )
@@ -434,7 +434,7 @@ inline  G4double BDSAcceleratorComponent::getParameterValue(G4String spec, G4Str
       int tend = pos2 < 0 ? pos3 : pos2; 
       int llen = tend - pos - param.length();
       
-      string val = spec.substr(pos + param.length(), llen);
+      std::string val = spec.substr(pos + param.length(), llen);
       
       value = atof(val.c_str());
 
@@ -448,8 +448,8 @@ inline  G4String BDSAcceleratorComponent::getParameterValueString(G4String spec,
 {
   G4String value = "";
 
-  string delimiters = "&";
-  string param = name + "=";
+  std::string delimiters = "&";
+  std::string param = name + "=";
 
   int pos = spec.find(param);
   if( pos >= 0 )
