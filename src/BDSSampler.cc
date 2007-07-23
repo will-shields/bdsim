@@ -76,11 +76,15 @@ void BDSSampler::SamplerLogicalVolume()
 
      // Sensitive Detector:
       G4cout << "Sampler.cc Nsamplers " << bdsOutput.nSamplers << G4endl;
+
       if(bdsOutput.nSamplers==0)
 	{
 	  G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-	  BDSSamplerSensDet=new BDSSamplerSD(itsName,"plane");
-	  SDMan->AddNewDetector(BDSSamplerSensDet);
+//	  if(!SDMan->FindSensitiveDetector(itsName))
+	  {
+	    BDSSamplerSensDet=new BDSSamplerSD(itsName,"plane");
+	    SDMan->AddNewDetector(BDSSamplerSensDet);
+	  }
 	  itsMarkerLogicalVolume->SetSensitiveDetector(BDSSamplerSensDet);
 	}
     }

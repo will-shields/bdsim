@@ -1209,7 +1209,7 @@ command : STOP             { if(execute) quit(); }
 	    if(execute)
 	      {  
 		if(ECHO_GRAMMAR) printf("command -> SAMPLE\n");
-		add_sampler($3->name,$3->name, element_count);
+		add_sampler("sampler",$3->name, element_count);
 		element_count = 1;
 		params.flush();
 	      }
