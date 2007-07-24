@@ -36,7 +36,7 @@ CREATE TABLE plate_box (
 #103.0, 3.0, "Lead", "lead_plate");
 
 
-INSERT INTO plate_box VALUES ("",65.0, 0.0, 1.5, 0.0, 1.0, 0.0, "s", 100.0, 
-100.0, 20.0, "Lead", "lead_plate");
+INSERT INTO plate_box VALUES ("",65.0, 0.0, 35.0, 0.0, 1.0, 0.0, "s", 100.0, 
+100.0, 70.0, "Lead", "lead_plate");
 
 

@@ -27,17 +27,16 @@ CREATE TABLE plate_box (
     LengthY       DOUBLE(10,3), #
     LengthZ       DOUBLE(10,3), #
     Material      VARCHAR(32),  # material, CGA literal name
-    Name          VARCHAR(32),   # name of solid, logical, and physical volume
-		SETSENSITIVE  INTEGER(11)
+    Name          VARCHAR(32)   # name of solid, logical, and physical volume
 );
 
                          
 
 #INSERT INTO plate_box VALUES ("",-346.1, 0.0, 1, 1.0, 0.0, 0.0, "s", 103.0, 
-#103.0, 3.0, "Lead", "lead_plate,1");
+#103.0, 3.0, "Lead", "lead_plate");
 
 
-INSERT INTO plate_box VALUES ("",65.0, 0.0, 0.5, 0.0, 1.0, 0.0, "s", 100.0, 
-100.0, 1.0, "Lead", "lead_plate,1");
+INSERT INTO plate_box VALUES ("",65.0, 0.0, 40.0, 0.0, 1.0, 0.0, "s", 100.0, 
+100.0, 80.0, "Lead", "lead_plate");
 
 
