@@ -1,0 +1,41 @@
+! ============================================================================== ;
+! 06-sep-2006, m. woodley [slac] ;
+!    add qbds0 definition ;
+! 14-apr-2006, m. woodley [slac] ;
+!    common parameters and definitions for ilc bds system (2006b) ;
+! ------------------------------------------------------------------------------
+! prerequisite files ($ilc = ilc lattice root directory): ;
+!   $ilc/configurations/let_250gev_sigznominal.xsif ;
+!   $ilc/parameters/ilc000.ilc_common.xsif ;
+! ------------------------------------------------------------------------------
+!outer Radius
+magOutR=0.65;
+
+
+! derived parameters ;
+
+  brho_bds := cb*e0_bds ;!magnetic rigidity in kg.m ;
+
+! magnet class parameters ;
+
+  qbds0  : quadrupole, outR=magOutR, type="qbds0", l=l25cm/2, aper=l12mm/2 ;
+  qfact0 := 1/(qbds0[aper]*brho_bds) ;
+  qbds1  : quadrupole, outR=magOutR, type="qbds1", l=l50cm/2, aper=l12mm/2 ;
+  qfact1 := 1/(qbds1[aper]*brho_bds) ;
+  qbds2  : quadrupole, outR=magOutR, type="qbds2", l=l1m/2, aper=l12mm/2 ;
+  qfact2 := 1/(qbds2[aper]*brho_bds) ;
+  qbds3  : quadrupole, outR=magOutR, type="qbds3", l=l2m/2, aper=l12mm/2 ;
+  qfact3 := 1/(qbds3[aper]*brho_bds) ;
+  qbds4  : quadrupole, outR=magOutR, type="qbds4", l=l3m/2, aper=l80mm/2 ;
+  qfact4 := 1/(qbds4[aper]*brho_bds) ;
+
+! special narrow markerile quadrupole ;
+! - overall width < 180 mm ;
+! - half-aperture r=10 mm ;
+! - maximum pole-tip field 7.9 kg ;
+
+  qtypeb : quadrupole, outR=magOutR, type="tesla type b", l=1.5/2, aper=0.01 ;
+  qfactb := 1/(qtypeb[aper]*brho_bds) ;
+
+! ------------------------------------------------------------------------------
+

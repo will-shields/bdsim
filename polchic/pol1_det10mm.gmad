@@ -1,0 +1,171 @@
+laser4 : laser, l=0.00001*mm, position={0.,0.,0.}, direction={1.,0.,0.}, 
+				wavelen=532e-9*m, spotsize=1e-6*m, intensity=100e6;
+llead:=10*mm;
+leadplate: element, l=llead, geometry="mokka:detector/lead_plate10mm_geomlist.sql";
+
+pol: marker;
+pre_pol: marker;
+post_pol: marker;
+lwdet: marker;
+! ============================================================================== ;
+! common parameters, definitions, and configurations ;
+! ------------------------------------------------------------------------------
+
+  e0_bds := 250 ;
+	
+
+  include  /home/deacon/BDSIM/polchic/gmad/ILC_common.gxsif;
+  include  /home/deacon/BDSIM/polchic/gmad/BDS_common.gxsif;
+	efact := e0_bds/500; !for scaling 500 gev b-values ;
+  bsign := -1 ;
+
+! ============================================================================== ;
+! beamline definitions ;
+! ------------------------------------------------------------------------------
+
+  include /home/deacon/BDSIM/polchic/gmad/ebsy1_0W.gxsif;
+	include /home/deacon/BDSIM/polchic/gmad/pol1_options.gmad;
+
+! ============================================================================== ;
+! input beam definitions ;
+! ------------------------------------------------------------------------------
+
+! beam ;
+
+!Emitxn := exn_dr  ;!damping ring extracted ;
+!Emityn := eyn_dr  ;!damping ring extracted ;
+  Emitxn := exn_bds ;!bsy budgeted ;
+  Emityn := eyn_bds ;!bsy budgeted ;
+!Emitxn := exn_ip  ;!parameter table ;
+!Emityn := eyn_ip  ;!parameter table ;
+  bleng  := 0.3e-3  ;!bunch length (m) ;
+  esprd  := 0.6e-3  ;!energy spread (1) ... 250 gev beam ;
+
+  Emitx := Emitxn*emass/e0_bds ;
+  Emity := Emityn*emass/e0_bds ;
+
+  tbetx := 71.48299672 ; !Twiss parameters at start of beam delivery system
+  talfx := -1.562625068;
+  tbety := 39.60396396;
+  talfy := 1.283201238;
+
+  lbetx := 316.1892691; !Twiss parameters at drift after fourth qd45
+  lalfx := -3.813248779;
+  lbety :=   72.78006366;
+  lalfy := -1.605359089;
+
+	beam, particle="e-", energy=e0_bds, sigmaE=esprd,
+	nparticle=2e+10,	distrType="gauss",	
+	betx=lbetx, alfx=lalfx, bety=lbety, alfy=lalfy,
+  emitx=Emitx, emity=Emity;			       
+
+!sigmaT=bleng,
+
+
+! sigma ;
+
+  tgamx := (1+talfx*talfx)/tbetx ;
+  tgamy := (1+talfy*talfy)/tbety ;
+  sig11 := emitx*tbetx ;
+  sig21 := -emitx*talfx ;
+  sig22 := emitx*tgamx ;
+  sig33 := emity*tbety ;
+  sig43 := -emity*talfy ;
+  sig44 := emity*tgamy ;
+  c21   := sig21/sqrt(sig11*sig22) ;
+  c43   := sig43/sqrt(sig33*sig44) ;
+  sig0  : sigma0, sigx=sqrt(sig11), sigpx=sqrt(sig22), r21=c21,
+                  sigy=sqrt(sig33), sigpy=sqrt(sig44), r43=c43,
+                  sigt=bleng, sigpt=esprd ;
+
+!use, period=coll_line;
+!use, period=ebsy1;
+!use, period=ebsy1_short;
+
+dtest:drift,l=1;
+test: line=(s1,dtest,s2);
+
+!use,period=lw_chicane;
+use,period=lw_chicane_bps;
+!use, period=test;
+
+sample, range = beg_lw_chicane;
+sample, range =  beg_ebsy1  ;   !no
+sample, range =	 wsebsy1_1  ;   !no
+sample, range =  wsebsy1_2  ;   !no
+sample, range =  wsebsy1_3  ;   !no
+sample, range =  wsebsy1_4_prelw  ;
+sample, range =  wsebsy1_4_postlw  ;
+
+!samplers is the polarimeter chicane
+sample, range = s1; !beginning
+sample, range = s2; !
+sample, range = s3;
+sample, range = s4;
+sample, range = s5;
+sample, range = s6;
+sample, range = s7; !pre-converter sampler_phys_10
+sample, range = s8; !post-converter
+sample, range = s9; !post-lwdet
+sample, range = s10;
+sample, range = s11;
+sample, range = s12;
+sample, range = s13;
+sample, range = s14;
+sample, range = s15;
+sample, range = s16;
+sample, range = s17;
+sample, range = s18;
+sample, range = s19; !pre-pol
+sample, range = s20; !post-pol
+sample, range = s21;
+sample, range = s22;
+sample, range = s23;
+sample, range = s24;
+sample, range = s25;
+sample, range = s26;
+sample, range = s27;
+sample, range = s28;
+sample, range = s29;
+sample, range = s30;
+sample, range = s31;
+sample, range = s32;
+sample, range = s33; !pol-det
+sample, range = s34;
+sample, range = s35; !end polarimeter chicane
+
+!sample, range =  begpol     ;
+!sample, range =  pre_lwdet;
+!sample, range =  lwdet;
+!sample, range =  pre_pol ;
+!sample, range =  post_pol;
+!sample, range =  poldet;
+!sample, range =  endpol     ;
+!sample, range =  end_ebsy1  ;
+
+sample, range = mbps1;
+sample, range = mbps2;
+sample, range = mbps3;
+sample, range = mbps4;
+sample, range = mbps5;
+sample, range = mbps6;
+sample, range = mbps7;
+sample, range = mbps8;
+sample, range = mbps9;
+sample, range = mbps10;
+sample, range = mbps11;
+sample, range = mbps12;
+sample, range = mbps13;
+sample, range = mbps14;
+sample, range = mbps15;
+sample, range = mbps16;
+sample, range = mbps17;
+sample, range = mbps18A;
+sample, range = mbps18B;
+sample, range = mbps19;
+sample, range = mbps20;
+sample, range = mbps21;
+sample, range = mbps22;
+sample, range = mbps23;
+sample, range = mbps24;
+sample, range = mbps25;
