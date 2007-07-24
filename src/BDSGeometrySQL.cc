@@ -15,7 +15,6 @@
 #include "G4UserLimits.hh"
 #include "BDSMySQLWrapper.hh"
 #include "BDSMaterials.hh"
-#include "BDSSamplerSD.hh"
 #include "G4SDManager.hh"
 #include "BDSSamplerSD.hh"
 #include "BDSOutput.hh"
@@ -23,14 +22,15 @@
 #include <map>
 #include <cstdlib>
 #include "G4ClassicalRK4.hh"
-#include <string>
+#include <cstring>
 
 using namespace std;
+
+extern BDSSamplerSD* BDSSamplerSensDet;
 
 extern BDSMaterials* theMaterials;
 extern G4RotationMatrix* RotY90;
 extern BDSOutput bdsOutput;
-extern BDSSamplerSD* BDSSamplerSensDet;
 extern BDSGlobalConstants* BDSGlobals;
 
 BDSGeometrySQL::BDSGeometrySQL(G4String DBfile, G4double markerlength)

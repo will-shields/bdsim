@@ -63,7 +63,7 @@ public:
 
   G4int nSamplers;
   G4double zMax;
-  BDSSamplerSD* BDSSamplerSensDet;
+  //BDSSamplerSD* BDSSamplerSensDet;
   std::vector <G4String> SampName;
 private:
   G4int format;

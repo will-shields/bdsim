@@ -30,8 +30,10 @@ extern LogVolCountMap* LogVolCount;
 
 typedef std::map<G4String,G4LogicalVolume*> LogVolMap;
 extern LogVolMap* LogVol;
-extern BDSOutput bdsOutput;
+
 extern BDSSamplerSD* BDSSamplerSensDet;
+
+extern BDSOutput bdsOutput;
 extern BDSMaterials* theMaterials;
 //============================================================
 
@@ -80,13 +82,10 @@ void BDSSampler::SamplerLogicalVolume()
       if(bdsOutput.nSamplers==0)
 	{
 	  G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-//	  if(!SDMan->FindSensitiveDetector(itsName))
-	  {
-	    BDSSamplerSensDet=new BDSSamplerSD(itsName,"plane");
-	    SDMan->AddNewDetector(BDSSamplerSensDet);
-	  }
-	  itsMarkerLogicalVolume->SetSensitiveDetector(BDSSamplerSensDet);
+	  BDSSamplerSensDet=new BDSSamplerSD(itsName,"plane");
+	  SDMan->AddNewDetector(BDSSamplerSensDet);
 	}
+      itsMarkerLogicalVolume->SetSensitiveDetector(BDSSamplerSensDet);
     }
   else
     {

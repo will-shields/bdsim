@@ -159,7 +159,7 @@ void BDSEventAction::BeginOfEventAction(const G4Event* evt)
   //if( bdsOutput.GetPlaneSamplerNumber() > 0)
   {   
     //if (SamplerCollID_plane==-1)
-      SamplerCollID_plane = SDman->GetCollectionID("Sampler_plane");
+    SamplerCollID_plane = SDman->GetCollectionID("Sampler_plane");
   }
   
 //if( bdsOutput.GetCylinderSamplerNumber() > 0 )
@@ -205,13 +205,13 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
   
   if(DEBUG) G4cout<<"processing planar hits collection"<<G4endl;
   // are there any planar samplers?
+
   if(SamplerCollID_plane>=0)
     SampHC = (BDSSamplerHitsCollection*)(HCE->GetHC(SamplerCollID_plane));
   
   // if so, record the hits for each sampler 
 
   if(SampHC)  bdsOutput.WriteHits(SampHC);
-
 	
   // are there any cylindrical samplers?
   // if so, record the hits

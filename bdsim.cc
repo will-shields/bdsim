@@ -32,8 +32,8 @@ const int DEBUG = 0;
 #endif
 
 
-#include "stdlib.h"      // standard headers 
-#include <stdio.h>
+#include <cstdlib>      // standard headers 
+#include <cstdio>
 #include <unistd.h>
 #include <getopt.h>
 
@@ -53,7 +53,6 @@ const int DEBUG = 0;
 #include "BDSGeometryInterface.hh"
 
 #include "BDSOutput.hh" 
-//#include "BDSSamplerSD.hh"
 #include "BDSBunch.hh"
 
 #include "parser/gmad.h"  // GMAD parser
@@ -107,6 +106,7 @@ G4bool verboseStep = false;
 G4bool verboseEvent = false;
 G4int verboseEventNumber = -1;
 G4bool isBatch = false;
+
 BDSSamplerSD* BDSSamplerSensDet;
 
 G4int nptwiss = 200; // number of particles for twiss parameters matching (by tracking)

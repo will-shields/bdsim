@@ -22,14 +22,15 @@
 #include <map>
 #include <cstdlib>
 #include "G4ClassicalRK4.hh"
-#include <string>
+#include <cstring>
 
 using namespace std;
+
+extern BDSSamplerSD* BDSSamplerSensDet;
 
 extern BDSMaterials* theMaterials;
 extern G4RotationMatrix* RotY90;
 extern BDSOutput bdsOutput;
-extern BDSSamplerSD* BDSSamplerSensDet;
 extern BDSGlobalConstants* BDSGlobals;
 
 BDSGeometryGDML::BDSGeometryGDML(G4String GDMLfile)
