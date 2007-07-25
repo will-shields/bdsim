@@ -1209,7 +1209,6 @@ command : STOP             { if(execute) quit(); }
 	    if(execute)
 	      {  
 		if(ECHO_GRAMMAR) printf("command -> SAMPLE\n");
-//SPM		add_sampler("sampler",$3->name, element_count);
 		add_sampler($3->name,$3->name, element_count);
 		element_count = 1;
 		params.flush();
@@ -1220,7 +1219,8 @@ command : STOP             { if(execute) quit(); }
 	    if(execute)
 	      {  
 		if(ECHO_GRAMMAR) printf("command -> CSAMPLE\n");
-		add_csampler("sampler",$3->name, element_count,params.l, params.r);
+//SPM		add_csampler("sampler",$3->name, element_count,params.l, params.r);
+		add_csampler($3->name,$3->name, element_count,params.l, params.r);
 		element_count = 1;
 		params.flush();
 	      }

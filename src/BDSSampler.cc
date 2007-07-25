@@ -43,7 +43,7 @@ BDSSampler::BDSSampler (G4String aName,G4double aLength):
 			 aLength,0,0,0,
 			 SetVisAttributes())
 {
-  SetType(_SAMPLER);
+  SetType("sampler");
   SamplerLogicalVolume();
   //G4int nSamplers=(*LogVolCount)[itsName];
   //BDSRoot->SetSamplerNumber(nSamplers);
@@ -84,8 +84,9 @@ void BDSSampler::SamplerLogicalVolume()
 	  G4SDManager* SDMan = G4SDManager::GetSDMpointer();
 	  BDSSamplerSensDet=new BDSSamplerSD(itsName,"plane");
 	  SDMan->AddNewDetector(BDSSamplerSensDet);
+    itsMarkerLogicalVolume->SetSensitiveDetector(BDSSamplerSensDet);
 	}
-      itsMarkerLogicalVolume->SetSensitiveDetector(BDSSamplerSensDet);
+//SPM      itsMarkerLogicalVolume->SetSensitiveDetector(BDSSamplerSensDet);
     }
   else
     {
