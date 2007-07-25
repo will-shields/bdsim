@@ -92,7 +92,8 @@ void BDSMultipole::BuildBeampipe(G4double aLength, G4String materialName,  G4int
   if(DEBUG) G4cout<<"Outer pipe : r="<<itsBpRadius/m<<"m,  l="<< aLength/(2.*dSegments)/m<<" m"<<G4endl;
 
   itsBPTube=new G4Tubs(itsName+"_tube",
-		       0.,
+//			0.,
+		       itsBpRadius-BDSGlobals->GetBeampipeThickness(),
 		       itsBpRadius,
 		       aLength/(2.*dSegments),
 		       0,twopi*radian);
@@ -121,8 +122,9 @@ void BDSMultipole::BuildBeampipe(G4double aLength, G4String materialName,  G4int
 
   itsBeampipeLogicalVolume=	
     new G4LogicalVolume(itsBPTube,
-			//			theMaterials->LCIron,
-			theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName()),
+			theMaterials->LCIron,
+//SPM			theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName()),
+//SPM			material,
 			itsName+"_bmp_logical");
 
   itsInnerBPLogicalVolume=	
@@ -136,7 +138,8 @@ void BDSMultipole::BuildBeampipe(G4double aLength, G4String materialName,  G4int
 		      0,	               // at (0,0,0)
 		      itsInnerBPLogicalVolume, // its logical volume
 		      itsName+"_InnerBmp",     // its name
-		      itsBeampipeLogicalVolume, // its mother  volume
+		      itsMarkerLogicalVolume, // its mother  volume
+//SPM		      itsBeampipeLogicalVolume, // its mother  volume
 		      false,		       // no boolean operation
 		      0);		       // copy number
     

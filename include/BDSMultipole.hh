@@ -41,11 +41,11 @@ public:
 
   virtual ~BDSMultipole();
 
-  void BuildBeampipe(G4double aLength,G4String material = "", G4int nSegments=1);
+  void BuildBeampipe(G4double aLength,G4String materialName = "", G4int nSegments=1);
 
   void BuildDefaultMarkerLogicalVolume();
 
-  void BuildDefaultOuterLogicalVolume();
+//  void BuildDefaultOuterLogicalVolume();
   void BuildDefaultOuterLogicalVolume(G4double aLength,G4bool OuterMaterialIsVacuum=false);
 
   void BuildBPFieldMgr(G4MagIntegratorStepper* aStepper,
