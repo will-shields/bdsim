@@ -1,5 +1,4 @@
-laser4 : laser, l=0.00001*mm, position={0.,0.,0.}, direction={1.,0.,0.}, 
-				wavelen=532e-9*m, spotsize=1e-6*m, intensity=100e6;
+laser4 : laser, l=0.00001*mm,x=1,y=0,z=0,waveLength=532*nm;
 llead:=45*mm;
 leadplate: element, l=llead, geometry="mokka:/scratch0/deacon/BDSIM/detector/lead_plate45mm_geomlist.sql";
 
@@ -14,8 +13,8 @@ lwdet: marker;
   e0_bds := 250 ;
 	
 
-  include  /scratch0/deacon/BDSIM/polchic/gmad/ILC_common.gxsif;
-  include  /scratch0/deacon/BDSIM/polchic/gmad/BDS_common.gxsif;
+  include  /home/deacon/BDSIM/examples/polchic/ILC_common.gxsif;
+  include  /home/deacon/BDSIM/examples/polchic/BDS_common.gxsif;
 	efact := e0_bds/500; !for scaling 500 gev b-values ;
   bsign := -1 ;
 
@@ -23,8 +22,8 @@ lwdet: marker;
 ! beamline definitions ;
 ! ------------------------------------------------------------------------------
 
-  include /scratch0/deacon/BDSIM/polchic/gmad/ebsy1_0W.gxsif;
-	include /scratch0/deacon/BDSIM/polchic/gmad/pol1_options.gmad;
+  include /home/deacon/BDSIM/examples/polchic/ebsy1_0W.gxsif;
+	include /home/deacon/BDSIM/examples/polchic/pol1_options.gmad;
 
 ! ============================================================================== ;
 ! input beam definitions ;
@@ -78,16 +77,7 @@ lwdet: marker;
                   sigy=sqrt(sig33), sigpy=sqrt(sig44), r43=c43,
                   sigt=bleng, sigpt=esprd ;
 
-!use, period=coll_line;
-!use, period=ebsy1;
-!use, period=ebsy1_short;
-
-dtest:drift,l=1;
-test: line=(s1,dtest,s2);
-
-!use,period=lw_chicane;
-use,period=lw_chicane_bps;
-!use, period=test;
+use,period=lw_chicane;
 
 sample, range = beg_lw_chicane;
 sample, range =  beg_ebsy1  ;   !no

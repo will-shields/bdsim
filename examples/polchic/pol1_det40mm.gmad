@@ -1,7 +1,6 @@
-laser4 : laser, l=0.00001*mm, position={0.,0.,0.}, direction={1.,0.,0.}, 
-				wavelen=532e-9*m, spotsize=1e-6*m, intensity=100e6;
+laser4 : laser, l=0.00001*mm,x=1,y=0,z=0,waveLength=532*nm;
 llead:=40*mm;
-leadplate: element, l=llead, geometry="mokka:detector/lead_plate40mm_geomlist.sql";
+leadplate: element, l=llead, geometry="mokka:/scratch0/deacon/BDSIM/detector/lead_plate40mm_geomlist.sql";
 
 pol: marker;
 pre_pol: marker;
@@ -78,16 +77,7 @@ lwdet: marker;
                   sigy=sqrt(sig33), sigpy=sqrt(sig44), r43=c43,
                   sigt=bleng, sigpt=esprd ;
 
-!use, period=coll_line;
-!use, period=ebsy1;
-!use, period=ebsy1_short;
-
-dtest:drift,l=1;
-test: line=(s1,dtest,s2);
-
 use,period=lw_chicane;
-!use,period=lw_chicane_bps;
-!use, period=test;
 
 sample, range = beg_lw_chicane;
 sample, range =  beg_ebsy1  ;   !no

@@ -22,8 +22,9 @@ CREATE TABLE cebsye_box (
 		SETSENSITIVE  INTEGER(11)      
 );
 
-INSERT INTO cebsye_box VALUES ("",0.0, 0.0, 1500, 0.7, 0.5, 0.0, "w", 120.0, 
+INSERT INTO cebsye_box VALUES ("",0.0, 0.0, 1500, 0.7, 0.5, 0.0, "w", 1200.0, 
 1200.0, 3000.0, "TitaniumAlloy","cebsye_outer",1);
+
 
 INSERT INTO cebsye_box VALUES ("cebsye_outer",0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "w", 120.0,120.0, 3000.0, "Vacuum","cebsye_inner",0);
 

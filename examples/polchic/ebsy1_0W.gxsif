@@ -72,22 +72,16 @@ magOutR=0.65; !magnets' outer radius
   dpcbbo : drift, l=lpcbbo ;
 !  dpcbboA : drift, l=lpcbbo - llead - lcher; !deacon, shortened drift to include lw detector
 
- dpcbbo_bps_A : drift, l=lpcbbo - llead - lcher-4.56*m; !deacon, shortened drift to study beam pipe showering
-dpcbbo_bps_B : drift, l=llead+lcher+1.56*m-2*m; !drift in place of lw detector
-dbps2: drift,l=0.7*m;
-	!dbps: drift, l=16*cm; !deacon- 25 16cm drifts will be placed with samplers in bewteen in order to study beam pipe showering
-dbpsLead: drift, l=16*cm-llead; !deacon- 25 16cm drifts will be placed with samplers in bewteen in order to study beam pipe showering
+ dpcbbo_bps_A : drift, l=lpcbbo - 4*m; !LD, shortened drift to study beam pipe showering
+dbps: drift, l=16*cm; !deacon- 25 16cm drifts will be placed with samplers in bewteen in order to study beam pipe showering
 
 !============================================================================
  !Removed beam pipe in this section to create a window for laser wire photons
 !----------------------------------------------------------------------------
 dpcbboA_WINDOW : drift, l=lpcbbo - llead - lcher; !deacon, shortened drift to include lw detector
 	 cher_WINDOW : drift, l=lcher; !deacon, cherenkov detector
-  dpcbbo_bps_A_WINDOW : drift, l=lpcbbo - llead - lcher-4.56*m;
-	dpcbbo_bps_B_WINDOW : drift, l=llead+lcher+1.56*m-2*m; 
-dbps2_WINDOW: drift,l=0.7*m;
+  dpcbbo_bps_A_WINDOW : drift, l=dpcbbo-4*m;
 dbps_WINDOW: drift, l=16*cm;
-dbpsLead_WINDOW: drift, l=16*cm-llead; 
 !-----------------------------------------------------------------------------
 
 
@@ -188,7 +182,7 @@ dbpsLead_WINDOW: drift, l=16*cm-llead;
 
   xcebsye := 0.1*pcdx ;!defines extraction line bandpass (+-10%) ;
 
-  cebsye : element, l=lcebsy, geometry="mokka:/scratch0/deacon/BDSIM/collimators/cebsye_filelist.sql";
+  cebsye : element, l=lcebsy, geometry="mokka:/scratch0/deacon/BDSIM/examples/collimators/cebsye_filelist.sql";
 !  cebsye : rcol, l=lcebsy, xsize=xcebsye, ysize=30e-3, material="TitaniumAlloy" ,outR=6*cm; !deacon 15_6_07 assigned material, ysize and outR to collimators.
 
 	coll_line: line=(cebsye);
@@ -305,7 +299,7 @@ dbpsLead_WINDOW: drift, l=16*cm-llead;
 	s13 :marker; s14 :marker; s15 :marker; s16 :marker; s17 :marker; s18 :marker;
 	s19 :marker; s20 :marker; s21 :marker; s22 :marker; s23 :marker; s24 :marker;
 	s25 :marker; s26 :marker; s27 :marker; s28 :marker; s29 :marker; s30 :marker;
-  s31 :marker;
+  s31 :marker; s32 :marker; s33 :marker; s34 :marker; s35 :marker;
 
 mbps1: marker;
 mbps2: marker;
@@ -334,12 +328,19 @@ mbps23: marker;
 mbps24: marker;
 mbps25: marker;
 
-bps_sampling_section: line =
+bps_sampling_section_WINDOW: line =
  (mbps1, dbps_WINDOW, mbps2, dbps_WINDOW, mbps3, dbps_WINDOW, mbps4, dbps_WINDOW, mbps5, dbps_WINDOW, mbps6, dbps_WINDOW,
  mbps7, dbps_WINDOW, mbps8, dbps_WINDOW, mbps9, dbps_WINDOW, mbps10, dbps_WINDOW, mbps11, dbps_WINDOW,
  mbps12, dbps_WINDOW, mbps13, dbps_WINDOW, mbps14, dbps_WINDOW, mbps15, dbps_WINDOW, mbps16, dbps_WINDOW,
- mbps17, dbps_WINDOW, mbps18A,leadplate,mpbs18_B, dbps_WINDOWLead, mbps19, dbps_WINDOW, mbps20, dbps_WINDOW, mbps21, dbps_WINDOW,
+ mbps17, dbps_WINDOW, mbps18,dbps_WINDOW, mbps19, dbps_WINDOW, mbps20, dbps_WINDOW, mbps21, dbps_WINDOW,
  mbps22, dbps_WINDOW, mbps23, dbps_WINDOW, mbps24, dbps_WINDOW, mbps25, dbps_WINDOW);
+
+bps_sampling_section: line =
+ (mbps1, dbps, mbps2, dbps, mbps3, dbps, mbps4, dbps, mbps5, dbps, mbps6, dbps,
+ mbps7, dbps, mbps8, dbps, mbps9, dbps, mbps10, dbps, mbps11, dbps,
+ mbps12, dbps, mbps13, dbps, mbps14, dbps, mbps15, dbps, mbps16, dbps,
+ mbps17, dbps, mbps18, mbps19, dbps, mbps20, dbps, mbps21, dbps,
+ mbps22, dbps, mbps23, dbps, mbps24, dbps, mbps25, dbps);
 
 
 ! ============================================================================== ;
@@ -471,18 +472,51 @@ lw_chicane : line=(beg_lw_chicane,
     qf45cho,bpmq047,mmover,qf45cho,d45chk, 
     end_ebsy1) ; 
 
+lw_chicane_no_window : line=(beg_lw_chicane,
+	d45chaa,wsebsy1_4_prelw, 
+  laser4,wsebsy1_4_postlw,bpmw047,d45chab, !replaced laser4 with marker for pol sim deacon 11_6_07 
+    qf45chi,bpmq047,mmover,qf45chi,d45chb, 
+    qd45chi,bpmq047,mmover,qd45chi,d45chc, 
+    begpol,s1, 
+    bpcp,s2,dpcbb,s3,bpcp,s4,dpcbb,s5,bpcp,s6, 
+    dpcbboA,s7,leadplate,s8,cher,s9,bpcm,s10,dpcbb,s11,bpcm,s12,dpcbb,s13,bpcm,s14, 
+    dpcbc,s15,cebsye,s16,bpme047,s17, 
+    dpcbbi,s18,pre_pol,pol,s19,post_pol,dpcbbi,s21, !pol->laser4 
+    bpcm,s22,dpcbb,s23,bpcm,s24,dpcbb,s25,bpcm,s26,dpcbbo,s27, 
+    bpcp,s28,dpcbb,s29,bpcp,s30,dpcbb,s31,bpcp,s32,dpcdet_half,s33,poldet,s34,dpcdet_half,s35, !deacon 
+    endpol, 
+    qd45cho,bpmq047,mmover,qd45cho,d45chb, 
+    qf45cho,bpmq047,mmover,qf45cho,d45chk, 
+    end_ebsy1) ; 
+
 !========================================
 !For studying beam pipe showering
 !----------------------------------------
-
-lw_chicane_bps : line=(beg_lw_chicane,
+lw_chicane_bps: line=(beg_lw_chicane,
 	d45chaa,wsebsy1_4_prelw,laser4, 
   wsebsy1_4_postlw,bpmw047,d45chab, 
     qf45chi,bpmq047,mmover,qf45chi,d45chb, 
     qd45chi,bpmq047,mmover,qd45chi,d45chc, 
     begpol,s1, 
     bpcp,s2,dpcbb,s3,bpcp,s4,dpcbb,s5,bpcp,s6, 
-    dpcbbo_bps_A,bps_sampling_section,dpcbbo_bps_B,dbps2,s9,bpcm,s10,dpcbb,s11,bpcm,s12,dpcbb,s13,bpcm,s14, 
+    dpcbbo_bps_A_WINDOW,bps_sampling_section_WINDOW,s9,bpcm,s10,dpcbb,s11,bpcm,s12,dpcbb,s13,bpcm,s14, 
+    dpcbc,s15,cebsye,s16,bpme047,s17, 
+    dpcbbi,s18,pre_pol,pol,s19,post_pol,dpcbbi,s21,  
+    bpcm,s22,dpcbb,s23,bpcm,s24,dpcbb,s25,bpcm,s26,dpcbbo,s27, 
+    bpcp,s28,dpcbb,s29,bpcp,s30,dpcbb,s31,bpcp,s32,dpcdet_half,s33,poldet,s34,dpcdet_half,s35, !deacon 
+    endpol, 
+    qd45cho,bpmq047,mmover,qd45cho,d45chb, 
+    qf45cho,bpmq047,mmover,qf45cho,d45chk, 
+    end_ebsy1) ; 
+
+lw_chicane_bps_no_window : line=(beg_lw_chicane,
+	d45chaa,wsebsy1_4_prelw,laser4, 
+  wsebsy1_4_postlw,bpmw047,d45chab, 
+    qf45chi,bpmq047,mmover,qf45chi,d45chb, 
+    qd45chi,bpmq047,mmover,qd45chi,d45chc, 
+    begpol,s1, 
+    bpcp,s2,dpcbb,s3,bpcp,s4,dpcbb,s5,bpcp,s6, 
+    dpcbbo_bps_A,bps_sampling_section,s9,bpcm,s10,dpcbb,s11,bpcm,s12,dpcbb,s13,bpcm,s14, 
     dpcbc,s15,cebsye,s16,bpme047,s17, 
     dpcbbi,s18,pre_pol,pol,s19,post_pol,dpcbbi,s21,  
     bpcm,s22,dpcbb,s23,bpcm,s24,dpcbb,s25,bpcm,s26,dpcbbo,s27, 
