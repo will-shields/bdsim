@@ -1,24 +1,26 @@
 General Information
 ===================
 
-BDSIM version 0.3, Geant4 toolkit for radiation transport in accelerators
+BDSIM version 0.4_beta, Geant4 toolkit for radiation transport in accelerators
 
 The official web site is:
-	http://flc.pp.rhul.ac.uk/bdsim.html
+	http://ilc.pp.rhul.ac.uk/bdsim.html
 
 The official Geant4 web site is:
 	http://geant4.web.cern.ch/geant4/
 
 
-Maintained by Ilya Agapov (agapov@pp.rhul.ac.uk) and G.A.Blair (blair@pp.rhul.ac.uk)
+Maintained by Steve Malton (malton@pp.rhul.ac.uk),
+Ilya Agapov (agapov@pp.rhul.ac.uk) and G.A.Blair (blair@pp.rhul.ac.uk)
 
-This release 20.11.2006
+This release x.x.2007
 
 
 
 History
 ===================
 
+v0.4_beta : 25.07.07
 v0.3 : 26.01.07
 v0.2 : 18.05.06
 v0.1 : 15.11.05 

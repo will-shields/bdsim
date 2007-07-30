@@ -40,6 +40,7 @@ enum {
   _MATERIAL=16,
   _REV_LINE=17,
   _RBEND=18,
+  _ATOM = 19,
 
   _VKICK=31,
   _HKICK=32,
@@ -202,6 +203,10 @@ struct Element {
   double Z; 
   double density; 
   double temper; 
+  std::string symbol;
+  std::list<char*> components;
+  std::list<double> componentsFractions;
+  std::list<int> componentsWeights;
 
   std::string geometryFile;
   std::string bmapFile;
@@ -273,6 +278,11 @@ struct Parameters {
   double density; int densityset;
   double temper; int temperset;
   
+  char symbol[64]; int symbolset;
+  std::list<char*> components; int componentsset;
+  std::list<double> componentsFractions; int componentsFractionsset;
+  std::list<int> componentsWeights; int componentsWeightsset;
+
   // reset the parameters to defaults
   void flush() {
 
@@ -307,29 +317,35 @@ struct Parameters {
     k2 = 0; k2set = 0;
     k3 = 0; k3set = 0;
     
+    gradient = 0; gradientset = 0;
+    
     knlset = 0; kslset=0;
-
 
     knl.erase(knl.begin(),knl.end());
     ksl.erase(ksl.begin(),ksl.end());
 
-    gradient = 0; gradientset = 0;
-    
+    componentsset = 0; componentsFractionsset = 0; componentsWeightsset = 0;
+    components.erase(components.begin(),components.end());
+    componentsFractions.erase(componentsFractions.begin(),componentsFractions.end());
+    componentsWeights.erase(componentsWeights.begin(),componentsWeights.end());
   
+    strcpy(symbol,""); symbolset = 0;
+
     strcpy(geometry,"");  geomset = 0;
 
     strcpy(bmap,""); bmapset = 0;
 
-
     strcpy(material,""); materialset = 0;
     strcpy(spec,""); specset = 0;
   }
-
   
 };
 
 
 extern std::list<Element> beamline_list;
+extern std::list<Element> material_list;
+extern std::list<Element> atom_list;
+
 extern Options options;
 
 // parse the input file and construct beamline_list and options 

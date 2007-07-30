@@ -30,6 +30,6 @@ private:
   void error() {G4cout<<"ggmad parser: error in file format"<<G4endl;}
 };
 
-void GetMaterial(G4Material *&theMaterial, G4String material);
+//void GetMaterial(G4Material *&theMaterial, G4String material);
 
 #endif

@@ -232,8 +232,9 @@ G4VParticleChange* BDSGammaConversionToMuons::PostStepDoIt(
     G4double xxp=1.-4./3.*xPM; // the main xPlus dependence
     result=xxp*log(W)*LogWmaxInv;
     if(result>1.)
-    { G4cout << "error in dSigxPlusGen, result=" << result << " is >1" << '\n';
-      exit(10);
+    { 
+      G4Exception("BDSGammaConversionToMuons::PostStepDoIt: Error in dSigxPlusGen, result > 1");
+      exit(1);
     }
   }
   while (G4UniformRand() > result);
@@ -255,7 +256,8 @@ G4VParticleChange* BDSGammaConversionToMuons::PostStepDoIt(
     { t=G4UniformRand();
       f1=(1.-2.*xPM+4.*xPM*t*(1.-t)) / (1.+C1/(t*t));
       if(f1<0 || f1> f1_max) // should never happend
-      { G4cout << "outside allowed range f1=" << f1 << G4endl;
+      {
+        G4Exception("BDSGammaConversionToMuons::PostStepDoIt: f1 outside allowed range");
         exit(1);
       }
     }
@@ -269,7 +271,8 @@ G4VParticleChange* BDSGammaConversionToMuons::PostStepDoIt(
     { psi=2.*pi*G4UniformRand();
       f2=1.-2.*xPM+4.*xPM*t*(1.-t)*(1.+cos(2.*psi));
       if(f2<0 || f2> f2_max) // should never happend
-      { G4cout << "outside allowed range f2=" << f2 << G4endl;
+      { 
+	G4Exception("BDSGammaConversionToMuons::PostStepDoIt: f2 outside allowed range");
         exit(1);
       }
     }

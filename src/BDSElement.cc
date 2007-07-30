@@ -101,7 +101,7 @@ void BDSElement::BuildGeometry()
 				  elementSizeX,
 				  elementSizeY,
 				  itsLength/2),
-			theMaterials->LCVacuum,
+			theMaterials->GetMaterial("Vacuum"),
 			itsName);
   
   (*LogVolCount)[itsName] = 1;

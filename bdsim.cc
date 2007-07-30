@@ -278,7 +278,7 @@ int main(int argc,char** argv) {
 
  
   BDSRunManager * runManager = new BDSRunManager;
-  runManager->SetNumberOfAdditionalWaitingStacks(1);
+//  runManager->SetNumberOfAdditionalWaitingStacks(1);
 
   // set mandatory initialization classes
  

@@ -82,6 +82,7 @@ pipe { return PIPE; }
 gas { return GAS; }
 tunnel { return TUNNEL; }
 matdef { return MATERIAL; }
+atomdef { return ATOM; }
 laser { return LASER; }
 
 line       { return LINE; } 

@@ -44,5 +44,3 @@
 # for BDS:
 #/vis/viewer/zoom 300
 #/vis/viewer/set/viewpointThetaPhi 3 45
-
-/vis/viewer/refresh

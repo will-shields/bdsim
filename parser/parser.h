@@ -18,6 +18,7 @@
 #include <cstring>
 #include <cmath>
 #include <list>
+#include <vector>
 
 #include <iostream>
 
@@ -39,13 +40,14 @@ const int MAX_MULTIPOLE_ORDER = 5;
 const int _undefined = 0;
 
 std::list<double> _tmparray;  // for reading of arrays
+std::list<char*> _tmpstring;
 
 // representation of arrays used in tokens
 struct Array {
+  std::vector<char*> symbols;
   double *data;
   int size;
 };
-
 
 const char *typestr(int type) {
   switch(type){
@@ -89,6 +91,8 @@ const char *typestr(int type) {
     return "tunnel";
   case _MATERIAL:
     return "material";
+  case _ATOM:
+    return "atom";
   case _LASER:
     return "laser";
   case _ELEMENT :
@@ -197,6 +201,10 @@ void copy_properties(std::list<struct Element>::iterator dest, std::list<struct 
   (*dest).Z = (*src).Z;
   (*dest).density = (*src).density;
   (*dest).temper = (*src).temper; 
+  (*dest).components = (*src).components;
+  (*dest).componentsWeights = (*src).componentsWeights;
+  (*dest).componentsFractions = (*src).componentsFractions;
+  (*dest).symbol = (*src).symbol;
 
   (*dest).geometryFile = (*src).geometryFile;
 
@@ -233,11 +241,16 @@ void inherit_properties(struct Element e)
   if(!params.thetaset) { params.theta = e.theta; params.thetaset = 1; }
   if(!params.hgapset) { params.hgap = e.hgap; params.hgapset = 1; }
 
-  if(!params.A) { params.A = e.A; params.A = 1; }
-  if(!params.Z) { params.Z = e.Z; params.Z = 1; }
-  if(!params.density) { params.density = e.density; params.density = 1; }
-  if(!params.temper) { params.temper = e.temper; params.temper = 1; }
-
+  if(!params.Aset) { params.A = e.A; params.Aset = 1; }
+  if(!params.Zset) { params.Z = e.Z; params.Zset = 1; }
+  if(!params.densityset) { params.density = e.density; params.densityset = 1; }
+  if(!params.componentsset) 
+    { params.components = e.components; params.componentsset = 1; }
+  if(!params.componentsWeightsset) 
+    { params.componentsWeights = e.componentsWeights; params.componentsWeightsset = 1; }
+  if(!params.componentsFractionsset) 
+    { params.componentsFractions = e.componentsFractions; params.componentsFractionsset = 1; }
+  if(!params.symbolset) { strncpy(params.symbol, e.symbol.c_str(),64); params.symbolset = 1; }
 
   if(!params.aperset) { params.aper = e.aper; params.aperset = 1; }
   if(!params.outRset) { params.outR = e.outR; params.outRset = 1; }
@@ -261,6 +274,20 @@ void set_vector(std::list<double>& dst, struct Array *src)
     dst.push_back(src->data[i]);
 };
 
+
+void set_vector(std::list<char*>& dst, struct Array *src)
+{
+  for(int i=0; i< src->size;i++)
+    dst.push_back(src->symbols[i]);
+};
+
+void set_vector(std::list<int>& dst, struct Array *src)
+{
+  for(int i=0; i< src->size;i++)
+    dst.push_back((int)(src->data[i]));
+};
+
+
 // list of all encountered elements
 std::list<struct Element> element_list;
 
@@ -268,7 +295,8 @@ std::list<struct Element> element_list;
 std::list<struct Element> tmp_list;
 
 std::list<struct Element> beamline_list;
-
+std::list<struct Element> material_list;
+std::list<struct Element> atom_list;
 
 char* current_line = "";
 char* current_start = "";
@@ -517,7 +545,16 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     e.Z = params.Z;
     e.density = params.density;
     e.temper = params.temper;
-    break;
+    material_list.push_back(e);
+    return 0;
+
+  case _ATOM:
+    e.type = _ATOM;
+    e.A = params.A;
+    e.Z = params.Z;
+    e.symbol = params.symbol;
+    atom_list.push_back(e);
+    return 0;
 
   case _TUNNEL:
     e.type = _TUNNEL;
@@ -1024,7 +1061,7 @@ void set_value(std::string name, std::string value )
   if(name == "distrType" ) options.distribType = value;
   if(name == "distrFile" ) options.distribFile = value;  
   if(name == "physicsList" ) options.physicsList = value; 
-  if(name == "pipeMaterial" ) options.pipeMaterial == value;
+  if(name == "pipeMaterial" ) options.pipeMaterial = value;
 }
 
 double property_lookup(char *element_name, char *property_name)

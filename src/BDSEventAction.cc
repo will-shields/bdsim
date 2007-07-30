@@ -56,8 +56,8 @@ const int DEBUG = 0;
 
 #include "BDSRunManager.hh"
 
-typedef list<BDSAcceleratorComponent*>  BDSBeamline;
-BDSBeamline theBeamline;
+//typedef list<BDSAcceleratorComponent*>  BDSBeamline;
+//BDSBeamline theBeamline;
 
 typedef std::vector<G4int> MuonTrackVector;
 MuonTrackVector* theMuonTrackVector;
@@ -259,7 +259,8 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
   int evntsPerNtuple = BDSGlobals->GetNumberOfEventsPerNtuple();
 
   if(evntsPerNtuple>0)
-    if ((event_number+1)% evntsPerNtuple == 0)
+    if ((event_number+1)% evntsPerNtuple == 0 && 
+		event_number+1 != BDSGlobals->GetNumberToGenerate())
       {
 	if(DEBUG) G4cout<<"writing to file "<<G4endl;
 	// notify the output about the event end

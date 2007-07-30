@@ -224,7 +224,7 @@ void BDSSectorBend::BuildSBMarkerLogicalVolume()
 				  LCComponentBoxSize/2, // y hlf lgth at +z
 				  LCComponentBoxSize/2, // y hlf lgth at -z
 				  fabs(cos(itsAngle/2))*LCComponentBoxSize/2),// z hlf lgth
-			theMaterials->LCVacuum,
+			theMaterials->GetMaterial("Vacuum"),
 			LocalLogicalName+"_marker");
 
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX);
@@ -276,12 +276,12 @@ void BuildBeampipe2(BDSSectorBend *sb,G4double length, G4double angle)
   
   sb->itsBeampipeLogicalVolume=	
     new G4LogicalVolume(pipeTube,
-			theMaterials->LCAluminium,
+			theMaterials->GetMaterial("Aluminium"),
 			sb->itsName+"_bmp_logical");
   
   sb->itsInnerBPLogicalVolume=	
     new G4LogicalVolume(pipeInner,
-			theMaterials->LCVacuum,
+			theMaterials->GetMaterial("Vacuum"),
 			sb->itsName+"_bmp_Inner_log");
   
   G4RotationMatrix* Rot= new G4RotationMatrix;
@@ -368,12 +368,12 @@ void BuildBeampipe2(BDSSectorBend *sb,G4double length, G4double angle)
 
  //  sb->itsBeampipeLogicalVolume=	
 //     new G4LogicalVolume(pTubsIntersMarker,
-// 			theMaterials->LCAluminium,
+// 			theMaterials->GetMaterial("Aluminium"),
 // 			sb->itsName+"_bmp_logical");
   
 //   sb->itsInnerBPLogicalVolume=	
 //     new G4LogicalVolume(pInnerIntersMarker,
-// 			theMaterials->LCVacuum,
+// 			theMaterials->GetMaterial("Vacuum"),
 // 			sb->itsName+"_bmp_Inner_log");
 
 
@@ -467,17 +467,17 @@ void BuildBeampipe2(BDSSectorBend *sb,G4double length, G4double angle)
 
   sb->itsBeampipeLogicalVolume=	
     new G4LogicalVolume(pipeOuter,
-			theMaterials->LCAluminium,
+			theMaterials->GetMaterial("Aluminium"),
 			sb->itsName+"_bmp_logical");
   
   sb->itsInnerBPLogicalVolume=	
     new G4LogicalVolume(pipeInner,
-			theMaterials->LCVacuum,
+			theMaterials->GetMaterial("Vacuum"),
 			sb->itsName+"_bmp_Inner_log");
 
   sb->itsOuterLogicalVolume=	
     new G4LogicalVolume(OuterSolid,
-			theMaterials->LCIron,
+			theMaterials->GetMaterial("Iron"),
 			sb->itsName+"_outer");
 
   G4RotationMatrix* InvRot= new G4RotationMatrix;
@@ -587,7 +587,7 @@ void BuildDefaultOuterLogicalVolume2(BDSSectorBend* sb,G4double aLength, G4doubl
                                      outerRadius,
                                      rSwept,
 				      0,fabs(angle)),
-                          theMaterials->LCVacuum,
+                          theMaterials->GetMaterial("Vacuum"),
                           sb->itsName+"_outer");
     }
   if(!OuterMaterialIsVacuum)
@@ -598,7 +598,7 @@ void BuildDefaultOuterLogicalVolume2(BDSSectorBend* sb,G4double aLength, G4doubl
                                      outerRadius,
                                      rSwept,
                                      0,fabs(angle)),
-                          theMaterials->LCIron,
+                          theMaterials->GetMaterial("Iron"),
                           sb->itsName+"_outer");
     }
 

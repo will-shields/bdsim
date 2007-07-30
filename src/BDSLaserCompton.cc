@@ -53,7 +53,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
  }
  G4Material* aMaterial=trackData.GetMaterial() ;
  
- if(aMaterial==theMaterials->LaserVac)
+ if(aMaterial==theMaterials->GetMaterial("LaserVac"))
    {
      G4LogicalVolume* lVolume = (trackData.GetVolume())->GetLogicalVolume();
      

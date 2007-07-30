@@ -85,9 +85,11 @@ else
    G4_version="0"
    printf " can't determine\n"
    success="0"
+   read -p "Choose version 4.[0-9]" value
+   G4_version=$value
 fi
 
-printf " change the G4VERSION variables \n in the Makefile if I'm  wrong \n"
+#printf " change the G4VERSION variables \n in the Makefile if I'm  wrong \n"
 
 
 # Determine for CLHEP version

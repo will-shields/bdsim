@@ -620,7 +620,7 @@ A sequence of FODO cells can be defines as
 
 @c @subsection material
 
-@c @code{<material> : material,Z=,A=,density=,temperature= }
+@c @code{<material> : material,Z=,A=,density=,temperature=,components=\{\},componentsWeights\{\},componentsFractions\{\} }
 
 @c Attributes
 @c @itemize

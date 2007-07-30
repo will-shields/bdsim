@@ -122,14 +122,14 @@ void BDSMultipole::BuildBeampipe(G4double aLength, G4String materialName,  G4int
 
   itsBeampipeLogicalVolume=	
     new G4LogicalVolume(itsBPTube,
-			theMaterials->LCIron,
+//SPM			theMaterials->GetMaterial("Iron"),
 //SPM			theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName()),
-//SPM			material,
+			material,
 			itsName+"_bmp_logical");
 
   itsInnerBPLogicalVolume=	
     new G4LogicalVolume(itsInnerBPTube,
-			theMaterials->LCVacuum,
+			theMaterials->GetMaterial("Vacuum"),
 			itsName+"_bmp_Inner_log");
   
   G4VPhysicalVolume* PhysiInner;
@@ -281,7 +281,7 @@ void BDSMultipole::BuildDefaultMarkerLogicalVolume()
 		BDSGlobals->GetComponentBoxSize()/2,//x length
 		BDSGlobals->GetComponentBoxSize()/2, // y half length
 		(itsLength+BDSGlobals->GetLengthSafety())/2), //z hlf ln 
-     theMaterials->LCVacuum,
+     theMaterials->GetMaterial("Vacuum"),
      itsName+"_marker");
 
   //itsMarkerUserLimits =
@@ -317,7 +317,7 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
 				     outerRadius,
 				     aLength/2,
 				     0,twopi*radian),
-			  theMaterials->LCVacuum,
+			  theMaterials->GetMaterial("Vacuum"),
 			  itsName+"_outer");
     }
 
@@ -329,7 +329,7 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
 				     outerRadius,
 				     aLength/2,
 				     0,twopi*radian),
-			  theMaterials->LCIron,
+			  theMaterials->GetMaterial("Iron"),
 			  itsName+"_outer");
     }
 

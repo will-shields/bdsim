@@ -50,7 +50,7 @@
 %token MARKER ELEMENT DRIFT RF DIPOLE RBEND SBEND QUADRUPOLE SEXTUPOLE OCTUPOLE MULTIPOLE 
 %token SOLENOID COLLIMATOR RCOL ECOL LINE SEQUENCE SPOILER ABSORBER LASER TRANSFORM3D
 %token VKICK HKICK KICK
-%token PERIOD APERTURE FILENAME GAS PIPE TUNNEL MATERIAL
+%token PERIOD APERTURE FILENAME GAS PIPE TUNNEL MATERIAL ATOM
 %token BEAM OPTION PRINT RANGE STOP USE VALUE ECHO PRINTF SAMPLE CSAMPLE BETA0 TWISS DUMP
 %token IF ELSE BEGN END LE GE NE FOR
 %token CUT
@@ -294,6 +294,15 @@ decl : VARIABLE ':' marker
 	     params.flush();
 	   }
        }
+     | VARIABLE ':' atom
+       {
+         if(execute)
+           {
+             if(ECHO_GRAMMAR) printf("decl -> VARIABLE : Atom, %s \n",$1->name);
+             write_table(params,$1->name,_ATOM);
+             params.flush();
+           }
+       }
 ;
 
 marker : MARKER ;
@@ -347,6 +356,9 @@ element : ELEMENT parameters
 ;
 
 material : MATERIAL parameters
+;
+
+atom : ATOM parameters
 ;
 
 extension : VARIABLE parameters
@@ -427,8 +439,6 @@ parameters:
                     else
 		  if(!strcmp($3->name,"hgap")) {params.hgap = $5; params.hgapset=1;}  //
 		    else
-		  if(!strcmp($3->name,"density")) {;}  //
-		    else
 		  if(!strcmp($3->name,"A")) {params.A = $5; params.Aset = 1;}  //
 		    else
 		  if(!strcmp($3->name,"Z")) {params.Z = $5; params.Zset = 1;}  //
@@ -461,6 +471,28 @@ parameters:
 			 set_vector(params.ksl,$5);
 			 delete[] $5->data;
 		       }
+
+                   else
+                     if(!strcmp($3->name,"components"))
+                       {
+                         params.componentsset = 1;
+                         set_vector(params.components,$5);
+                         delete[] $5->data;
+                       } 
+                   else
+                     if(!strcmp($3->name,"componentsWeights"))
+                       {
+                         params.componentsWeightsset = 1;
+                         set_vector(params.componentsWeights,$5);
+                         delete[] $5->data;
+                       }
+                   else
+                     if(!strcmp($3->name,"componentsFractions"))
+                       {
+                         params.componentsFractionsset = 1;
+                         set_vector(params.componentsFractions,$5);
+                         delete[] $5->data;
+                       }
 		     else 	  
 		       if(VERBOSE) printf("unknown parameter %s\n",$3->name);
 		 }
@@ -483,8 +515,29 @@ parameters:
 			 set_vector(params.ksl,$3);
 			 delete[] $3->data;
 		       }
-		     else 	  
-		       if(VERBOSE) printf("unknown parameter %s\n",$1->name);
+                   else
+                     if(!strcmp($1->name,"components"))
+                       {
+                         params.componentsset = 1;
+                         set_vector(params.components,$3);
+                         delete[] $3->data;
+                       }
+                   else
+                     if(!strcmp($1->name,"componentsWeights"))
+                       {
+                         params.componentsWeightsset = 1;
+                         set_vector(params.componentsWeights,$3);
+                         delete[] $3->data;
+                       }
+                   else
+                     if(!strcmp($1->name,"componentsFractions"))
+                       {
+                         params.componentsFractionsset = 1;
+                         set_vector(params.componentsFractions,$3);
+                         delete[] $3->data;
+                       }
+		   else 	  
+		     if(VERBOSE) printf("unknown parameter %s\n",$1->name);
 		 }         
 	     }
           | VARIABLE '=' aexpr
@@ -528,6 +581,12 @@ parameters:
 			 params.specset = 1;
 			 strcpy(params.spec, $5);
 		       }
+                   else 
+                   if(!strcmp($3->name,"symbol"))
+                       {
+                         params.symbolset = 1;
+                         strcpy(params.symbol, $5);
+                       }
 		   else 
 		     	  
 		     if(VERBOSE) printf("unknown parameter %s\n",$3->name);
@@ -1136,28 +1195,33 @@ vecexpr :  VECVAR
 
 ;
 
-vect : '{' numbers '}' 
-{
-  if(execute)
-    {
-      //printf("matched vector of size %d\n",_tmparray.size());
-      $$ = new struct Array;
-      $$->data = new double[_tmparray.size()];
-      $$->size = _tmparray.size();
+vect :  '{' numbers '}' 
+	  {
+	    if(execute)
+	      {
+	        //printf("matched vector of size %d\n",_tmparray.size());
+	        $$ = new struct Array;
+	        $$->data = new double[_tmparray.size()];
+	        $$->size = _tmparray.size();
       
-      //array_list.push_back(a);
+	        //array_list.push_back(a);
       
-      list<double>::iterator it;
+	        list<double>::iterator it;
+	        list<char*>::iterator itChar;
       
-      int i=0;
-      for(it=_tmparray.begin();it!=_tmparray.end();it++)
-	{
-	  $$->data[i++] = (*it);
+	        int i=0;
+	        for(it=_tmparray.begin();it!=_tmparray.end();it++)
+	  	{
+	 	 $$->data[i++] = (*it);
+		}
+		for(itChar=_tmpstring.begin();itChar!=_tmpstring.end();it++)
+                {
+                 $$->symbols.push_back(*itChar);
+                }
+    	        _tmparray.erase(_tmparray.begin(),_tmparray.end());
+     	        _tmpstring.erase(_tmpstring.begin(),_tmpstring.end());
+	      }
 	}
-      
-      _tmparray.erase(_tmparray.begin(),_tmparray.end());
-    }
-}
 ;
 
 numbers : 
@@ -1171,6 +1235,19 @@ numbers :
 	   if(execute)
 	     _tmparray.push_back($1);
         }
+       | numbers ',' STR
+          {
+            if(execute)
+              _tmpstring.push_back($3);
+	     _tmparray.push_back(1);
+          }
+       | STR
+         {
+           if(execute)
+             _tmpstring.push_back($1);
+	     _tmparray.push_back(1);
+        }
+
 ;
 
 command : STOP             { if(execute) quit(); }
@@ -1342,7 +1419,6 @@ csample_options : VARIABLE '=' aexpr
 		      {
 			if( !strcmp($3->name,"r") ) params.r = $5;
 			else if (!strcmp($3->name,"l") ) params.l = $5;
-			else if (!strcmp($3->name,"l") ) params.l = $5;
 			else if(VERBOSE) 
 			  printf("Warning : CSAMPLER: unknown parameter %s at line\n",$3->name);
 		      }
@@ -1452,12 +1528,12 @@ option_parameters :
                   | option_parameters ',' VARIABLE '=' STR
                     {
 		      if(execute)
-			set_value($3->name,string($5));
+			set_value($3->name,std::string($5));
 		    }   
                   | VARIABLE '=' STR
                     {
 		      if(execute)
-			set_value($1->name,string($3));
+			set_value($1->name,std::string($3));
 		    }   
 ;
 

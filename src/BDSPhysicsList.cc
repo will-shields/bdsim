@@ -281,7 +281,7 @@ void BDSPhysicsList::ConstructParticle()
   
   if(!BDSGlobals->GetParticleDefinition()) 
     {
-      G4cerr<<"particle  "<<BDSGlobals->tmpParticleName<<" not found, quitting!"<<G4endl;
+      G4Exception("Particle not found, quitting!");
       exit(1);
     }
 

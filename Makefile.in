@@ -5,12 +5,14 @@ G4EXLIB=true
 G4WORKDIR=@BINDIR@
 G4INSTALL=@G4INSTALL@
 ROOTSYS=@ROOTSYS@
+G4VERSION=@G4VERSION@
 
 .PHONY: all
 all: gmad lib bin
 
 # stuff required for hadronic lists
 
+#if G4VERSION < 9
 ifndef G4LISTS_BASE
   EXTRALIBS += -L$(G4LIB)/plists/$(G4SYSTEM)
   G4LISTS_BASE = $(G4INSTALL)/physics_lists
@@ -19,6 +21,8 @@ else
 endif
 
 CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/Packaging/include
+CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/LHEP_LEAD/include
+CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/LHEP/include
 #CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/QGSP_BERT/include
 #CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/QGSP_BIC/include
 #CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/QGSP_HP/include
@@ -26,8 +30,6 @@ CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/Packaging/include
 #CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/LHEP_BERT_HP/include
 #CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/LHEP_BIC/include
 #CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/LHEP_BIC_HP/include
-CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/LHEP_LEAD/include
-CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/LHEP/include
 
 #EXTRALIBS += -lQGSP_BERT
 #EXTRALIBS += -lQGSP_BIC
@@ -39,8 +41,7 @@ CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/LHEP/include
 EXTRALIBS += -lLHEP_LEAD
 EXTRALIBS += -lLHEP
 EXTRALIBS += -lPackaging
-
-
+#endif
 
 ROOTLIBS=`$(ROOTSYS)/bin/root-config --libs`
 ROOTCFLAGS=`$(ROOTSYS)/bin/root-config --cflags`
@@ -51,7 +52,7 @@ LDLIBS3 += $(ROOTLIBS)
 include $(G4INSTALL)/config/binmake.gmk
 
 
-CPPFLAGS += -DG4VERSION=@G4VERSION@ @USE_ROOT@ -DCLHEP_VERSION=@CLHEP_VERSION@
+CPPFLAGS += -DG4VERSION=$(G4VERSION) @USE_ROOT@ -DCLHEP_VERSION=@CLHEP_VERSION@
 CPPFLAGS += -I./parser
 CPPFLAGS += $(ROOTCFLAGS) 
 CPPFLAGS += -g -Wall -Wno-non-virtual-dtor -I.

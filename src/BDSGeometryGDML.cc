@@ -484,7 +484,7 @@ void BDSGeometryGDML::parseVOLUME(xmlNodePtr cur)
   if(materialref!="" && solidref!="")
     {
       // TEMP 
-      materialref="iron";
+      materialref="Iron";
       G4LogicalVolume* alogvol = new G4LogicalVolume(GetSolidByName(solidref),
 						     theMaterials->GetMaterial(materialref),
 						     volume_name);

@@ -100,8 +100,7 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
       
       BDSGlobals->fileDump.open(BDSGlobals->GetFifo()); //SPM
       if(!BDSGlobals->fileDump.good()){
-	G4cerr << "BDSGlobals->GetFifo(): " << BDSGlobals->GetFifo() <<
-	  " not found. Quitting." << G4endl;
+	G4Exception("BDSGlobals->GetFifo(): fifo not found. Quitting.");
 	exit(1);
       }
       BDSGlobals->fileDump << "# nparticles = " << SM->GetNPostponedTrack() << "\n";
@@ -117,8 +116,7 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
       //
       BDSGlobals->fileRead.open(BDSGlobals->GetFifo());
       if(!BDSGlobals->fileDump.good()){
-	G4cerr << "BDSGlobals->GetFifo(): " << BDSGlobals->GetFifo() <<
-	  " not found. Quitting." << G4endl;
+	G4Exception("BDSGlobals->GetFifo(): fifo not found. Quitting.");
 	exit(1);
       }
       char token[255];

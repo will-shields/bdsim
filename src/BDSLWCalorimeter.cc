@@ -67,7 +67,7 @@ void BDSLWCalorimeter::LWCalorimeterLogicalVolume()
 				      SampTransSize,
 				      SampTransSize,
 				      itsLength/2),
-			    theMaterials->LCVacuum,
+			    theMaterials->GetMaterial("Vacuum"),
 			    itsName);
 
       (*LogVolCount)[itsName]=1;
@@ -94,7 +94,7 @@ void BDSLWCalorimeter::BuildCal(G4double aLength)
 		     BDSGlobals->GetLWCalWidth()/2,
 		     aLength/2);
   itsLWCalLogicalVolume=new G4LogicalVolume(itsLWCal,
-					    theMaterials->LCLeadTungstate,
+					    theMaterials->GetMaterial("LeadTungstate"),
 					    itsName+"_cal_logical");
   G4RotationMatrix* Rot=NULL;
   if(itsAngle!=0)Rot=RotY90;
@@ -133,13 +133,13 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
 			    0,twopi*radian);
   itsBeampipeLogicalVolume=	
     new G4LogicalVolume(itsBPTube,
-			//			theMaterials->LCIron,
-			theMaterials->LCAluminium,
+			//			theMaterials->("Iron"),
+			theMaterials->GetMaterial("Aluminium"),
 			itsName+"_bmp_logical");
   
   itsInnerBPLogicalVolume=	
     new G4LogicalVolume(itsInnerBPTube,
-			theMaterials->LCVacuum,
+			theMaterials->GetMaterial("Vacuum"),
 			itsName+"_bmp_Inner_log");
   
   G4VPhysicalVolume* PhysiInner;

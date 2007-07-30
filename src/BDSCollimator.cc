@@ -47,7 +47,7 @@ BDSCollimator::BDSCollimator (G4String aName,G4double aLength,G4double bpRad,
 				      BDSGlobals->GetComponentBoxSize()/2,
 				      BDSGlobals->GetComponentBoxSize()/2,
 				      itsLength/2),
-			    theMaterials->LCVacuum,
+			    theMaterials->GetMaterial("Vacuum"),
 			    itsName);
       BuildInnerCollimator();
 
@@ -95,7 +95,7 @@ void BDSCollimator::BuildInnerCollimator()
 				      itsXAper,
 				      itsYAper,
 				      itsLength/2),
-			    theMaterials->LCVacuum,
+			    theMaterials->GetMaterial("Vacuum"),
 			    itsName+"_inner");
     }
   
@@ -106,7 +106,7 @@ void BDSCollimator::BuildInnerCollimator()
 				      itsXAper,
 				      itsYAper,
 				      itsLength/2),
-			    theMaterials->LCVacuum,
+			    theMaterials->GetMaterial("Vacuum"),
 			    itsName+"_inner");
     }
   

@@ -46,7 +46,7 @@ BDSMuSpoiler::BDSMuSpoiler (G4String& aName,G4double aLength,G4double bpRad,
 				      itsOuterRadius,
 				      itsOuterRadius,
 				      itsLength/2),
-			    theMaterials->LCVacuum,
+			    theMaterials->GetMaterial("Vacuum"),
 			    itsName);
 
   // now protect the fields inside the marker volume by giving the
@@ -79,7 +79,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
 				   itsOuterRadius,
 				   itsLength/2,
 				   0,twopi*radian),
-			theMaterials->LCIron,
+			theMaterials->GetMaterial("Iron"),
 			itsName+"_solid");
 
   itsInnerLogVol=
@@ -88,7 +88,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
 				   itsInnerRadius,
 				   itsLength/2,
 				   0,twopi*radian),
-			theMaterials->LCVacuum,
+			theMaterials->GetMaterial("Vacuum"),
 			itsName+"_inner");
 
   G4UserLimits* AbsUserLimits =

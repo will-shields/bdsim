@@ -245,7 +245,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 				   outerRadius * sqrt(2.0),
 				   itsLength/2,
 				   0,twopi*radian),
-			theMaterials->LCVacuum,
+			theMaterials->GetMaterial("Vacuum"),
 			itsName+"_outer");
   
   // create one quadrant of the qoadrupole
@@ -256,7 +256,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 				   outerRadius * sqrt(2.0),
 				   itsLength/2,
 				   0,pi/ 2 *radian),
-			theMaterials->LCVacuum,
+			theMaterials->GetMaterial("Vacuum"),
 			itsName+"_outer");
   
   // pole 
@@ -272,7 +272,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 				   itsLength/2,
 				   phiStart,
 				   dPhi),
-			theMaterials->LCIron,
+			theMaterials->GetMaterial("Iron"),
 			itsName+"pole_outer");
 
   G4RotationMatrix* rotPole = new G4RotationMatrix;
@@ -319,7 +319,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 				      itsLength/2,
 				      itsLength/2,
 				      rYoke/2),
-			    theMaterials->LCIron,
+			    theMaterials->GetMaterial("Iron"),
 			    itsName+"yoke_outer1");
 
       G4RotationMatrix* rotYoke = new G4RotationMatrix;
@@ -357,7 +357,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 				      xYoke2 / 2,
 				      yYoke2 / 2,
 				      itsLength/2),
-			    theMaterials->LCIron,
+			    theMaterials->GetMaterial("Iron"),
 			    itsName+"yoke_outer1");
 
      //  G4VPhysicalVolume* itsPhysiQYoke2 = 

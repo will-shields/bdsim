@@ -116,7 +116,7 @@ BDSContinuousSR::GetMeanFreePath(const G4Track& track,
 
       
  
-      if(track.GetMaterial()==theMaterials->LCVacuum&&Blocal !=0 )
+      if(track.GetMaterial()==theMaterials->GetMaterial("Vacuum")&&Blocal !=0 )
 	{
 	  G4ThreeVector InitMag=track.GetMomentum();
 

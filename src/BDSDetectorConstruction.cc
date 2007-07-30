@@ -93,12 +93,12 @@ const int DEBUG = 0;
 
 using namespace std;
 
-extern void GetMaterial(G4Material *&theMaterial, G4String material); //from ggmad
+//extern void GetMaterial(G4Material *&theMaterial, G4String material); //from ggmad
 
 //====================================
 
 typedef list<BDSAcceleratorComponent*>  BDSBeamline;
-extern BDSBeamline theBeamline;
+BDSBeamline theBeamline;
 
 typedef list<BDSEnergyCounterSD*>  ECList;
 ECList* theECList;
@@ -160,7 +160,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::Construct()
 
   theMaterials=new BDSMaterials();
 
-  aMaterial=theMaterials->LCGraphite; // default collimator material
+  aMaterial=theMaterials->GetMaterial("Graphite"); // default collimator material
 
   if(DEBUG) G4cout<<"-->starting BDS construction \n"<<G4endl;
 
@@ -180,6 +180,29 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   
   list<struct Element>::iterator it;
   
+  for(it = atom_list.begin();it!=atom_list.end();it++)
+  {
+    theMaterials->AddElement((*it).name,(*it).symbol,(*it).Z,(*it).A);
+  }
+
+  for(it = material_list.begin();it!=material_list.end();it++)
+  {
+    if((*it).Z != 0)
+      theMaterials->AddMaterial((*it).name,(*it).Z,(*it).A,(*it).density);
+
+    if((*it).components.size() != 0){
+
+      if((*it).componentsWeights.size()!=0)
+	theMaterials->AddMaterial((*it).name,(*it).density,kStateSolid,(*it).temper,
+		1*atmosphere,(*it).components,(*it).componentsWeights);
+
+      else if((*it).componentsWeights.size()!=0) 
+        theMaterials->AddMaterial((*it).name,(*it).density,kStateSolid,(*it).temper,
+                1*atmosphere,(*it).components,(*it).componentsFractions);
+    }
+    else {G4Exception("Badly defined material - need more information!"); exit(1);}
+  }
+
   //BDSBeamline theBeamline;
   
   // set global magnetic field first
@@ -209,6 +232,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   // stuff for rescaling due to synchrotron radiation, IGNORING
   G4double synch_factor = 1;
   G4double samplerLength = 1.E-11 * m;
+
+  G4Material* theMaterial;
 
   if(DEBUG) G4cout<<"bpRad , m : "<<bpRad / m <<G4endl;
   G4bool added_comp = false;
@@ -251,7 +276,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       }
 
       if((*it).type==_DRIFT ) {
-	G4double aper = BDSGlobals->GetBeampipeRadius();
+	G4double aper = bpRad;
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 
 	if(DEBUG) G4cout<<"---->adding Drift "<<G4String( (*it).name )<<" l="<<(*it).l/m<<
@@ -263,7 +288,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       }
 
        if((*it).type==_RF ) {
-	G4double aper = BDSGlobals->GetBeampipeRadius();
+	G4double aper = bpRad;
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 
 	if(DEBUG) G4cout<<"---->adding RF "<<G4String( (*it).name )<<" l="<<(*it).l/m<<
@@ -276,7 +301,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       
       if((*it).type==_SBEND ) {
 
-	G4double aper = BDSGlobals->GetBeampipeRadius();
+	G4double aper = bpRad;
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 	FeRad = aper;
 
@@ -319,7 +344,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
       if((*it).type==_RBEND ) {
 
-        G4double aper = BDSGlobals->GetBeampipeRadius();
+        G4double aper = bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
         FeRad = aper;
 
@@ -404,7 +429,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
       if((*it).type==_VKICK ) {
 
-        G4double aper = BDSGlobals->GetBeampipeRadius();;
+        G4double aper = bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 	FeRad = aper;
 
@@ -453,7 +478,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	//bPrime = brho * (*it).k1 / (*it).l * tesla  * synch_factor;
 	bPrime = -charge * brho * (*it).k1 * tesla / m;
 
-	G4double aper = BDSGlobals->GetBeampipeRadius();
+	G4double aper = bpRad;
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 	FeRad = aper;
 	
@@ -486,7 +511,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	//bDoublePrime = brho * (*it).k2 / (*it).l * tesla / (m*m) * synch_factor;
 	bDoublePrime = -charge * brho * (*it).k2 * tesla / (m*m) * synch_factor;
 
-	G4double aper = BDSGlobals->GetBeampipeRadius();
+	G4double aper = bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 	FeRad = aper;
 
@@ -514,7 +539,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	bDoublePrime = -charge * brho * (*it).k2 * tesla / (m*m) * synch_factor;
 	bTriplePrime = -charge * brho * (*it).k3 * tesla / (m*m*m) * synch_factor;
 
-	G4double aper = BDSGlobals->GetBeampipeRadius();;
+	G4double aper = bpRad;
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 	FeRad = aper;
 
@@ -534,7 +559,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       }
       if((*it).type==_MULT ) {
 	
-	G4double aper = BDSGlobals->GetBeampipeRadius();;
+	G4double aper = bpRad;
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 	FeRad = aper;
 
@@ -576,7 +601,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	if(DEBUG) { G4cout<<"---->adding Element, "<<G4String( (*it).name )<<
 	    " l ="<<(*it).l<<G4endl;}
 	
-        G4double aper = BDSGlobals->GetBeampipeRadius();
+        G4double aper = bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 
 	if( (*it).outR < aper/m)
@@ -598,7 +623,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	if(DEBUG) { G4cout<<"---->adding Solenoid, "<<G4String( (*it).name )<<
 		      " l ="<<(*it).l<<G4endl;}
 	
-        G4double aper = BDSGlobals->GetBeampipeRadius();
+        G4double aper = bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 	
 	//theBeamline.push_back(new BDSElement( G4String((*it).name) , G4String((*it).geometryFile), 
@@ -608,10 +633,11 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       }
       
       if((*it).type==_ECOL ) {
-	
-	GetMaterial(aMaterial, (*it).material );
+	theMaterial = aMaterial;
+	if((*it).material != "")
+	  theMaterial = theMaterials->GetMaterial( (*it).material );
 
-        G4double aper = BDSGlobals->GetBeampipeRadius();
+        G4double aper = bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 	if( (*it).outR < aper/m)
 	  {
@@ -629,15 +655,16 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	if(DEBUG) G4cout<<"retrieved material :"<<aMaterial->GetName()<<G4endl;
 
 	theBeamline.push_back(new BDSCollimator(G4String((*it).name),(*it).l * m,bpRad,
-						(*it).xsize * m,(*it).ysize * m,_ECOL,aMaterial, (*it).outR*m) );
+						(*it).xsize * m,(*it).ysize * m,_ECOL,theMaterial, (*it).outR*m) );
       
       added_comp=true;
       }
       if((*it).type==_RCOL ) {
-	
-	GetMaterial(aMaterial, (*it).material );
+	theMaterial = aMaterial;
+	if((*it).material != "")
+	  theMaterial = theMaterials->GetMaterial( (*it).material );
 
-        G4double aper = BDSGlobals->GetBeampipeRadius();
+        G4double aper = bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 	if( (*it).outR < aper/m)
 	  {
@@ -655,7 +682,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	if(DEBUG) G4cout<<"retrieved material :"<<aMaterial->GetName()<<G4endl;
 
 	theBeamline.push_back(new BDSCollimator(G4String((*it).name),(*it).l * m,bpRad,
-						(*it).xsize * m,(*it).ysize * m,_RCOL,aMaterial, (*it).outR*m) );
+						(*it).xsize * m,(*it).ysize * m,_RCOL,theMaterial, (*it).outR*m) );
       
       added_comp=true;
       }
@@ -693,7 +720,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       
       added_comp=true;
       }
-     
+
       if(added_comp)      //for BDSOutline
 	{
 	  list<BDSAcceleratorComponent*>::iterator curr = theBeamline.end();
@@ -801,8 +828,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 			   WorldSizeZ);
     
   logicWorld = new G4LogicalVolume(solidWorld,	       //its solid
-				   // theMaterials->LCAir, //its material
-				   theMaterials->LCVacuum, //its material
+				   // theMaterials->GetMaterial("Air"), //its material
+				   theMaterials->GetMaterial("Vacuum"), //its material
 				   "World");	       //its name
   
   logicWorld->SetVisAttributes (G4VisAttributes::Invisible);

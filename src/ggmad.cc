@@ -18,7 +18,7 @@
 using namespace std;
 
 extern BDSMaterials* theMaterials;
-void GetMaterial(G4Material*& theMaterial, G4String material);
+//void GetMaterial(G4Material*& theMaterial, G4String material);
 
 
 GGmadDriver::GGmadDriver(G4String file)
@@ -40,7 +40,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
   G4double phi=0, theta=0, psi=0; // Euler angles - for rotation of components
   G4String material;
 
-  G4Material *theMaterial = theMaterials->LCVacuum;
+  G4Material *theMaterial = theMaterials->GetMaterial("Vacuum");
 
   G4Box *aBox;
   G4Tubs *aTubs;
@@ -83,7 +83,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 
 	    //create Box
 
-	    GetMaterial(theMaterial,material);
+	    theMaterial = theMaterials->GetMaterial(material);
 	    
 	  
 	    G4cout<<"creating box : "<<x0<<"  "<<y0<<" "<<z0<<endl;
@@ -146,7 +146,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 	    
 	    //create Box
 	    
-	    GetMaterial(theMaterial,material);
+	    theMaterial = theMaterials->GetMaterial(material);
 	    
 	    
 	    G4cout<<"creating tubs : "<<x0<<"  "<<y0<<" "<<z0<<endl;
@@ -216,7 +216,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 	    
 	    //create Box
 	    
-	    GetMaterial(theMaterial,material);
+	    theMaterial = theMaterials->GetMaterial(material);
 	    
 	    
 	    G4cout<<"creating cons : "<<x0<<"  "<<y0<<" "<<z0<<endl;
@@ -287,7 +287,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 	    
 	    //create Box
 	    
-	    GetMaterial(theMaterial,material);
+	    theMaterial = theMaterials->GetMaterial(material);
 	    
 	    
 	    G4cout<<"creating trd : "<<x0<<"  "<<y0<<" "<<z0<<
@@ -394,6 +394,7 @@ void GGmadDriver::getParameter(G4String& lval, G4String name, G4String lastToken
     }
 }
 
+/*
 void GetMaterial(G4Material *&theMaterial, G4String material)
 {
   if(material=="\"Al\"" || material=="Al") 
@@ -449,3 +450,4 @@ void GetMaterial(G4Material *&theMaterial, G4String material)
 
   theMaterial = theMaterials->LCVacuum; // default is vacuum
 }
+*/

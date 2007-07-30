@@ -57,7 +57,7 @@ void BDSSamplerCylinder::SamplerCylinderLogicalVolume()
 				       itsRadius,
 				       itsLength/2,
 				       0,twopi*radian),
-			    theMaterials->LCVacuum,
+			    theMaterials->GetMaterial("Vacuum"),
 			    itsName);
       
       (*LogVolCount)[itsName]=1;

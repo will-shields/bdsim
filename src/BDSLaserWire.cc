@@ -55,7 +55,7 @@ void BDSLaserWire::LaserWireLogicalVolume()
 							   BDSGlobals->
 							   GetBeampipeRadius(),
 							   itsLength/2),
-						 theMaterials->LaserVac,
+						 theMaterials->GetMaterial("LaserVac"),
 						 itsName);
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
