@@ -17,7 +17,7 @@ BDSComponentOffset::BDSComponentOffset (G4String& aName,
 					G4double aYoffset):
   BDSAcceleratorComponent(aName,
 			  0,0,0,0,
-			  NULL,0,
+			  NULL,"",0,
 			  aXoffset,
 			  aYoffset)
 {}

@@ -173,6 +173,7 @@ public:
 			  G4double aXAper,
 			  G4double aYAper,
 			  G4VisAttributes* aVisAtt,
+			  G4String aMaterial = "",
 			  G4double phi=0.,  // polar angle (used in hor. bends)
 			  //G4double theta=0.,
 			  G4double XOffset=0.,
@@ -193,6 +194,7 @@ protected:
   G4double itsYAper;
   G4double itsAngle;
   G4double itsTilt;
+  G4String itsMaterial;
   
   G4double itsMagScaleFactor;
   G4double itsPhi;
@@ -238,11 +240,11 @@ inline BDSAcceleratorComponent::
 BDSAcceleratorComponent (
 			G4String& aName,G4double aLength, 
 			G4double aBpRadius,G4double aXAper,G4double aYAper, 
-			G4VisAttributes* aVisAtt,G4double angle,
+			G4VisAttributes* aVisAtt,G4String aMaterial,G4double angle,
 			G4double XOffset, G4double YOffset,G4double ZOffset):
   itsName(aName),itsLength(aLength),itsBpRadius(aBpRadius),
   itsXAper(aXAper),itsYAper(aYAper),itsAngle(angle),
-  itsVisAttributes(aVisAtt),
+  itsMaterial(aMaterial),itsVisAttributes(aVisAtt),
   itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset)
 {
   itsSensitiveVolume=NULL;

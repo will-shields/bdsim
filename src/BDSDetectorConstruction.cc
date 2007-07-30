@@ -294,7 +294,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	if(DEBUG) G4cout<<"---->adding RF "<<G4String( (*it).name )<<" l="<<(*it).l/m<<
 	  " aper="<<aper/m<<"grad="<<(*it).gradient / megavolt<<G4endl;
 	if((*it).l > 0) // skip zero-length elements
-	  theBeamline.push_back(new BDSRfCavity(G4String((*it).name),(*it).l * m,aper,(*it).gradient));
+	  theBeamline.push_back(new BDSRfCavity(G4String((*it).name),(*it).l * m,aper,
+						(*it).gradient,(*it).material));
       
       added_comp=true;
       }
@@ -336,7 +337,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	} 
 	else {
 	  theBeamline.push_back(new BDSSectorBend((*it).name,(*it).l * m,aper,FeRad,bField,
-						  (*it).angle,(*it).outR*m,(*it).tilt,bPrime));
+			(*it).angle,(*it).outR*m,(*it).tilt,bPrime,(*it).material));
 	}
       
       added_comp=true;
@@ -379,7 +380,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
         }
         else {
           theBeamline.push_back(new BDSRBend((*it).name,(*it).l * m,aper,FeRad,bField,
-                                                  (*it).angle,(*it).outR*m,(*it).tilt,bPrime));
+                         (*it).angle,(*it).outR*m,(*it).tilt,bPrime,(*it).material));
         }
 
       added_comp=true;
@@ -421,7 +422,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	} 
 	else {
 	  theBeamline.push_back(new BDSRBend( (*it).name,(*it).l * m,aper,FeRad,bField,
-					      (*it).angle,(*it).outR*m,(*it).tilt,bPrime));
+					      (*it).angle,(*it).outR*m,(*it).tilt,
+						bPrime, (*it).material));
 	}
       
       added_comp=true;
@@ -463,7 +465,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	} 
 	else {
 	  theBeamline.push_back(new BDSRBend( (*it).name,(*it).l * m,aper,FeRad,bField,
-					      (*it).angle,(*it).outR * m,pi/2,bPrime));
+					      (*it).angle,(*it).outR * m,pi/2,
+						bPrime,(*it).material));
 	}
       
       added_comp=true;
@@ -496,9 +499,9 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	
 	theBeamline.push_back(
 			      new BDSQuadrupole(G4String((*it).name),
-						(*it).l * m, aper,
-						FeRad, bPrime, (*it).tilt,
-						(*it).outR * m, (*it).spec));
+						(*it).l * m, aper,FeRad, bPrime, 
+						(*it).tilt,(*it).outR * m, 
+						(*it).material,(*it).spec));
 	
 	added_comp=true;
       }
@@ -525,7 +528,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	
 	if(DEBUG) { G4cout<<"---->adding Sextupole, "<<G4String( (*it).name )<<
 	    " k1 ="<<(*it).k2<<" b'' ="<<bDoublePrime<<" brho = "<<brho<<" aper="<<aper/m<<G4endl;}
-	theBeamline.push_back(new BDSSextupole(G4String((*it).name),(*it).l * m,aper,FeRad,bDoublePrime,(*it).tilt,(*it).outR * m));
+	theBeamline.push_back(new BDSSextupole(G4String((*it).name),(*it).l * m,aper,
+			FeRad,bDoublePrime,(*it).tilt,(*it).outR * m, (*it).material));
       
       added_comp=true;
       }
@@ -553,7 +557,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 	if(DEBUG) { G4cout<<"---->adding octupole, "<<G4String( (*it).name )<<
 		      " k3 ="<<(*it).k3<<" b''' ="<<bTriplePrime<<" brho = "<<brho<<" aper="<<aper/m<<G4endl;}
-	theBeamline.push_back(new BDSOctupole(G4String((*it).name),(*it).l * m,aper,FeRad,bTriplePrime,(*it).tilt,(*it).outR * m));
+	theBeamline.push_back(new BDSOctupole(G4String((*it).name),(*it).l * m,aper,
+			FeRad,bTriplePrime,(*it).tilt,(*it).outR * m,(*it).material));
       
       added_comp=true;
       }
@@ -592,7 +597,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	  }
 	if(DEBUG) G4cout<<G4endl;
 	
-	theBeamline.push_back(new BDSTMultipole(G4String((*it).name),(*it).l * m,aper,FeRad, (*it).outR*m, it->knl,it->ksl));
+	theBeamline.push_back(new BDSTMultipole(G4String((*it).name),(*it).l * m,aper,
+			FeRad, (*it).outR*m, it->knl,it->ksl,(*it).material));
       }
       
       

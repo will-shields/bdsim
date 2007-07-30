@@ -34,8 +34,9 @@ extern BDSMaterials* theMaterials;
 
 BDSOctupole::BDSOctupole(G4String aName,G4double aLength, 
 			 G4double bpRad,G4double FeRad,
-			 G4double BTrpPrime, G4double tilt, G4double outR):
-  BDSMultipole(aName,aLength, bpRad, FeRad, SetVisAttributes()),
+			 G4double BTrpPrime, G4double tilt, 
+			 G4double outR, G4String aMaterial):
+  BDSMultipole(aName,aLength, bpRad, FeRad, SetVisAttributes(),aMaterial),
   itsBTrpPrime(BTrpPrime)
 {
   SetOuterRadius(outR);

@@ -33,8 +33,9 @@ extern G4RotationMatrix* RotY90;
 BDSRBend::BDSRBend(G4String aName,G4double aLength, 
 		   G4double bpRad,G4double FeRad,
 		   G4double bField, G4double angle, G4double outR,
-		   G4double tilt,  G4double bGrad, G4int nSegments):
-  BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes(),0,0,angle)
+		   G4double tilt,  G4double bGrad, 
+		   G4String aMaterial, G4int nSegments):
+  BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes(),aMaterial,0,0,angle)
 {
   SetOuterRadius(outR);
   itsTilt = tilt;

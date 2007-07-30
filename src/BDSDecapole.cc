@@ -32,8 +32,8 @@ extern BDSMaterials* theMaterials;
 
 BDSDecapole::BDSDecapole(G4String& aName,G4double aLength, 
 			 G4double bpRad,G4double FeRad,
-			 G4double BQuadPrime):
-  BDSMultipole(aName,aLength, bpRad, FeRad, SetVisAttributes()),
+			 G4double BQuadPrime, G4String aMaterial):
+  BDSMultipole(aName,aLength, bpRad, FeRad, SetVisAttributes(),aMaterial),
   itsBQuadPrime(BQuadPrime)
 {
   if (!(*LogVolCount)[itsName])

@@ -35,6 +35,7 @@ public:
 		G4double aBpRadius,
 		G4double aInnerIronRadius,
 		G4VisAttributes* aVisAtt,
+		G4String aMaterial = "",
 		G4double aXAper=0.,
 		G4double aYAper=0.,
 		G4double angle=0.);

@@ -36,8 +36,9 @@ extern BDSMaterials* theMaterials;
 
 BDSTMultipole::BDSTMultipole(G4String aName,G4double aLength, 
 			     G4double bpRad,G4double FeRad,G4double outR,
-			     list<G4double> knl, list<G4double> ksl):
-  BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes())
+			     list<G4double> knl, list<G4double> ksl, 
+			     G4String aMaterial):
+  BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes(),aMaterial)
 {
 
   SetOuterRadius(outR);

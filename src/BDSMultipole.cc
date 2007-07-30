@@ -55,6 +55,7 @@ BDSMultipole::BDSMultipole( G4String aName,
 			    G4double aBpRadius,
 			    G4double aInnerIronRadius,
 			    G4VisAttributes* aVisAtt,
+			    G4String aMaterial,
 			    G4double aXAper,
 			    G4double aYAper,
 			    G4double angle):
@@ -65,6 +66,7 @@ BDSMultipole::BDSMultipole( G4String aName,
 			 aXAper,
 			 aYAper,
 			 aVisAtt,
+			 aMaterial,
 			 angle),
   itsInnerIronRadius(aInnerIronRadius)
 {}
@@ -302,6 +304,10 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
   // compute saggita:
   G4double sagitta=0.;
 
+  G4Material* material;
+  if(itsMaterial != "") material = theMaterials->GetMaterial(itsMaterial);
+  else material = theMaterials->GetMaterial("Iron");
+
   G4double outerRadius = itsOuterR;
   if(itsOuterR==0) outerRadius = BDSGlobals->GetComponentBoxSize()/2;
 
@@ -329,7 +335,8 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
 				     outerRadius,
 				     aLength/2,
 				     0,twopi*radian),
-			  theMaterials->GetMaterial("Iron"),
+				     material,
+//SPM			  theMaterials->GetMaterial("Iron"),
 			  itsName+"_outer");
     }
 

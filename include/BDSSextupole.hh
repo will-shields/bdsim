@@ -27,7 +27,8 @@ class BDSSextupole :public BDSMultipole
   public:
     BDSSextupole(G4String aName, G4double aLength,
 		 G4double bpRad,G4double FeRad,
-		 G4double BDblPrime, G4double tilt, G4double outR);
+		 G4double BDblPrime, G4double tilt, G4double outR, 
+		 G4String aMaterial = "");
     ~BDSSextupole();
 
   void SynchRescale(G4double factor);

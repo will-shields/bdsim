@@ -29,8 +29,8 @@ extern BDSMaterials* theMaterials;
 //============================================================
 
 BDSRfCavity::BDSRfCavity (G4String aName,G4double aLength, G4double bpRad, 
-			  G4double grad):
-  BDSMultipole(aName,aLength, bpRad, bpRad, SetVisAttributes())
+			  G4double grad, G4String aMaterial):
+  BDSMultipole(aName,aLength, bpRad, bpRad, SetVisAttributes(), aMaterial)
 {
 
   itsGrad = grad;

@@ -29,7 +29,8 @@
 class BDSElement :public BDSAcceleratorComponent
 {
 public:
-  BDSElement(G4String aName, G4String geometry, G4String bmap, G4double aLength, G4double bpRad, G4double outR);
+  BDSElement(G4String aName, G4String geometry, G4String bmap, G4double aLength, 
+						G4double bpRad, G4double outR);
   ~BDSElement();
 
   void BuildGeometry();

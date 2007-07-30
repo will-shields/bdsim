@@ -31,7 +31,8 @@
 class BDSRfCavity :public BDSMultipole
 {
   public:
-  BDSRfCavity(G4String aName, G4double aLength,G4double bpRad, G4double grad);
+  BDSRfCavity(G4String aName, G4double aLength,G4double bpRad, G4double grad, 
+							G4String aMaterial = "");
     ~BDSRfCavity();
 
   protected:

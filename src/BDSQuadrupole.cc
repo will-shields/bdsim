@@ -50,8 +50,8 @@ extern G4RotationMatrix* RotY90;
 BDSQuadrupole::BDSQuadrupole(G4String aName,G4double aLength, 
 			     G4double bpRad,G4double FeRad,
 			     G4double bGrad, G4double tilt, G4double outR,
-			     G4String spec):
-  BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes()),
+			     G4String aMaterial, G4String spec):
+  BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes(), aMaterial),
   itsBGrad(bGrad)
 {
  
