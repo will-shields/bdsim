@@ -40,7 +40,7 @@ BDSBunch::BDSBunch()
 
   ignoreLines = 0;
 
-  distribType = _GAUSSIAN;
+  distribType = -1;
   
   GaussGen=new RandGauss(*HepRandom::getTheEngine());
   FlatGen=new RandFlat(*HepRandom::getTheEngine());
@@ -82,9 +82,13 @@ void BDSBunch::SetOptions(struct Options& opt)
   SetEmitY(opt.emity);
 
   ignoreLines = opt.nlinesIgnore;
-  distribType = _GAUSSIAN; // default
+//  distribType = _GAUSSIAN; // default
 
-  switch(distType[opt.distribType]){
+  map<const G4String,int>::iterator iter;
+  iter = distType.find(opt.distribType);
+  if(iter!=distType.end()) 
+    distribType = (*iter).second;
+  switch(distribType){
     //  if(opt.distribType == "gauss")
   case _GAUSSIAN:
     {
@@ -143,7 +147,7 @@ void BDSBunch::SetOptions(struct Options& opt)
       distribType = _GUINEAPIG_SLAC;
       inputfile = opt.distribFile;
       InputBunchFile.open(inputfile);
-      if(!InputBunchFile.good()) 
+      if(!InputBunchFile.good())  
 	{ G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
       _skip(opt.nlinesIgnore * 6);
       //return;
@@ -152,14 +156,14 @@ void BDSBunch::SetOptions(struct Options& opt)
   case _GUINEAPIG_PAIRS:
     //else if(opt.distribType == "guineapig_pairs")
     {
-     distribType = _GUINEAPIG_PAIRS;
-     inputfile = opt.distribFile;
-     InputBunchFile.open(inputfile);
-     if(!InputBunchFile.good()) 
-       { G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
-     _skip(opt.nlinesIgnore * 7);
-     //return;
-     break;
+      distribType = _GUINEAPIG_PAIRS;
+      inputfile = opt.distribFile;
+      InputBunchFile.open(inputfile);
+      if(!InputBunchFile.good()) 
+	{ G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
+      _skip(opt.nlinesIgnore * 7);
+      //return;
+      break;
     }
   case _CAIN:
     //else if(opt.distribType == "cain")
