@@ -242,7 +242,7 @@ void BDSMaterials::Initialise()
   temperature = 300 * kelvin;
 
   density=1.205*g/(1.e-3*m3); // 1 litre= 1.e-3 m^3
-  tmpMaterial = new G4Material(name="Air"  , density, ncomponents=2);
+  tmpMaterial = new G4Material(name="Air"  , density, ncomponents=2,kStateGas,temperature,pressure);
   tmpMaterial->AddElement(elements["O"], fractionmass=0.2);
   tmpMaterial->AddElement(elements["N"], fractionmass=0.8);
   materials[name] = tmpMaterial;
@@ -250,7 +250,7 @@ void BDSMaterials::Initialise()
   density=(STP_Temperature/temperature)*(pressure/(1.*atmosphere))
     * (12.+16.)*g/(22.4*1.e-3*m3) ;
 
-  tmpMaterial =  new G4Material("CarbonMonoxide",density,ncomponents=2);
+  tmpMaterial =  new G4Material(name="CarbonMonoxide",density,ncomponents=2);
   tmpMaterial->AddElement(elements["C"], 1);
   tmpMaterial->AddElement(elements["O"], 1);
   materials[name] = tmpMaterial;
@@ -351,10 +351,10 @@ void BDSMaterials::Initialise()
 
   density=37.403/10.*g/cm3;  //Choose such that 1mm length gives ~ one interaction
   //  density=1*g/cm3;
-  tmpMaterial = new G4Material("BeamGasPlugMat",density,ncomponents=2);
+  tmpMaterial = new G4Material(name="BeamGasPlugMat",density,ncomponents=2);
   tmpMaterial->AddElement(elements["C"], 1);
   tmpMaterial->AddElement(elements["O"], 1);
-
+  materials[name] = tmpMaterial;
   //G4cout << *(G4Material::GetMaterialTable()) << G4endl;
 
 }

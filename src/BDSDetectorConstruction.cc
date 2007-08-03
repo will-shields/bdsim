@@ -192,13 +192,15 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
     if((*it).components.size() != 0){
 
-      if((*it).componentsWeights.size()!=0)
+      if((*it).componentsWeights.size()==(*it).components.size())
 	theMaterials->AddMaterial((*it).name,(*it).density,kStateSolid,(*it).temper,
 		1*atmosphere,(*it).components,(*it).componentsWeights);
 
-      else if((*it).componentsWeights.size()!=0) 
+      else if((*it).componentsWeights.size()==(*it).components.size()) 
         theMaterials->AddMaterial((*it).name,(*it).density,kStateSolid,(*it).temper,
                 1*atmosphere,(*it).components,(*it).componentsFractions);
+
+      else {G4Exception("Badly defined material - number of components is not equal to number of weights or mass fractions!"); exit(1);}
     }
     else {G4Exception("Badly defined material - need more information!"); exit(1);}
   }
@@ -1202,7 +1204,20 @@ void BDSDetectorConstruction::UpdateGeometry()
 //=================================================================
 BDSDetectorConstruction::~BDSDetectorConstruction()
 { 
-  if(BDSGlobals) delete BDSGlobals;
+  //if(BDSGlobals) delete BDSGlobals;
+
+  LogVolCount->clear();
+  delete LogVolCount;
+
+  LogVolMap::iterator iter;
+  for(iter=LogVol->begin();iter!=LogVol->end();iter++){
+    delete (*iter).second;
+  }
+  LogVol->clear();
+  delete LogVol;
+
+  delete theMaterials;
+
 }
 
 //=================================================================

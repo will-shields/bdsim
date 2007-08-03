@@ -459,9 +459,9 @@ int main(int argc,char** argv) {
 #endif
   
     
-  
   //delete BDSGlobals;
   delete runManager;
+  delete BDSGlobals;
      
   return 0;
 }

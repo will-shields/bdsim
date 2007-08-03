@@ -5,7 +5,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSVisManager.hh,v 1.1.1.1 2004/12/14 18:57:41 agapov Exp $
+// $Id: BDSVisManager.hh,v 1.1 2005/01/22 17:05:31 agapov Exp $
 // GEANT4 tag $Name:  $
 //
 // 
@@ -45,7 +45,8 @@ public:
 
 private:
 
-  void RegisterGraphicsSystems ();
+  void RegisterGraphicsSystems();
+  void RegisterModelFactories();
 
 };
 

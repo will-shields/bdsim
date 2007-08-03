@@ -5,7 +5,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSVisManager.cc,v 1.1.1.1 2004/12/14 18:57:39 agapov Exp $
+// $Id: BDSVisManager.cc,v 1.1 2005/01/22 16:42:31 agapov Exp $
 // GEANT4 tag $Name:  $
 //
 // 
@@ -134,14 +134,19 @@ void BDSVisManager::RegisterGraphicsSystems () {
   RegisterGraphicsSystem (new G4RayTracer);
 #endif
 
-  if (fVerbose > 0) {
-    G4cout <<
-      "\nYou have successfully chosen to use the following graphics systems."
-	 << G4endl;
-    PrintAvailableGraphicsSystems ();
-  }
+// Duplicate printout
+//  if (fVerbose > 0) {
+//    G4cout <<
+//      "\nYou have successfully chosen to use the following graphics systems."
+//	 << G4endl;
+//    PrintAvailableGraphicsSystems ();
+//  }
 }
 
 #endif
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
+void
+BDSVisManager::RegisterModelFactories() {}
+
