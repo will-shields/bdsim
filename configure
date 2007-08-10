@@ -84,7 +84,7 @@ if test "$G4_version" != ""; then
 else
    G4_version="0"
    printf " can't determine\n"
-   success="0"
+#   success="0"
    read -p "Choose version 4.[0-9]" value
    G4_version=$value
 fi

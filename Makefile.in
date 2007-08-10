@@ -12,7 +12,7 @@ all: gmad lib bin
 
 # stuff required for hadronic lists
 
-#if G4VERSION < 9
+ifneq ($(G4VERSION), 9)
 ifndef G4LISTS_BASE
   EXTRALIBS += -L$(G4LIB)/plists/$(G4SYSTEM)
   G4LISTS_BASE = $(G4INSTALL)/physics_lists
@@ -41,7 +41,7 @@ CPPFLAGS += -I$(G4LISTS_BASE)/hadronic/LHEP/include
 EXTRALIBS += -lLHEP_LEAD
 EXTRALIBS += -lLHEP
 EXTRALIBS += -lPackaging
-#endif
+endif
 
 ROOTLIBS=`$(ROOTSYS)/bin/root-config --libs`
 ROOTCFLAGS=`$(ROOTSYS)/bin/root-config --cflags`
