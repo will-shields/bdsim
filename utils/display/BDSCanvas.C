@@ -3,7 +3,7 @@ Author: Olivier Dadoun, Laboratoire de l'Accelerateur Lineaire (LAL-IN2P3), Orsa
 <mailto:> dadoun@lal.in2p3.fr, 2005
 Last modified 23.11.2005
 */
-#include <iostream.h>
+#include <iostream>
 
 #ifndef ROOT_TGaxis
 #include "TGaxis.h"

@@ -65,8 +65,8 @@ const int DEBUG = 0;
 // Print program usage
 static void usage()
 {
-  G4cout<<"bdsim : version 0.3 build _UNKNOWN_BUILD_DATE_"<<G4endl;
-  G4cout<<"        (C) 2001-2006 Royal Holloway University London"<<G4endl;
+  G4cout<<"bdsim : version 0.4 build _UNKNOWN_BUILD_DATE_"<<G4endl;
+  G4cout<<"        (C) 2001-2007 Royal Holloway University London"<<G4endl;
   G4cout<<"        http://ilc.pp.rhul.ac.uk/bdsim.html"<<G4endl;
   G4cout<<G4endl;
 

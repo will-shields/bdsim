@@ -6,6 +6,9 @@ Last modified 12.06.2005
 #include "BDSParser.h"
 #include "BDSPad.h"
 #include "BDSCanvas.h"
+
+using namespace std;
+
 BDSParser::BDSParser()
 {
 	//*-*-*-*-*-*-*-*-*-*-*Line default constructor*-*-*-*-*-*-*-*-*-*-*-*-*-*-*

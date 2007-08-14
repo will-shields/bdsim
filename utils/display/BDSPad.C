@@ -3,7 +3,7 @@ Author: Olivier Dadoun, Laboratoire de l'Accelerateur Lineaire (LAL-IN2P3), Orsa
 <mailto:> dadoun@lal.in2p3.fr, 2005
 Last modified 24.11.2005
 */
-#include <iostream.h>
+#include <iostream>
 #include "BDSPad.h"
 #include "BDSCanvas.h"
 #include "BDSAxis.h"
@@ -16,6 +16,7 @@ ClassImp(BDSPad)
 Double_t BDSPad::xmin_axis;
 Double_t BDSPad::xmax_axis;
 
+using namespace std;
 
 Double_t Bdsaxis2Bdspad(Double_t axis_position, Double_t min, Double_t max)
 {
