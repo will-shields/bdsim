@@ -1,1 +1,0 @@
-detector/lead_plate200mm.sql
