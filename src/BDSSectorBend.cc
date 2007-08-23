@@ -386,7 +386,7 @@ void BuildBeampipe2(BDSSectorBend *sb,G4double length, G4double angle)
   
   sb->itsInnerBPLogicalVolume=	
     new G4LogicalVolume(pipeInner,
-			material,
+												theMaterials->GetMaterial("Vacuum"),
 			sb->itsName+"_bmp_Inner_log");
 
   G4VPhysicalVolume* PhysiInner;
