@@ -47,6 +47,8 @@ void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
       RunInitialization();
       DoEventLoop(n_event,macroFile,n_select);
       RunTermination();
+
+      BDSGlobals->setReadFromStack(false);
     }
   }
 }
