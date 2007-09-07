@@ -404,14 +404,14 @@ list<char*> itsComponents, list<G4int> itsComponentsWeights)
   materials[aName] = tmpMaterial;
 }
 
-void BDSMaterials::AddElement(G4Element* aElement, G4String aName)
+void BDSMaterials::AddElement(G4Element* aElement, G4String aSymbol)
 {
-  elements[aName] = aElement;
+  elements[aSymbol] = aElement;
 }
 
 void BDSMaterials::AddElement(G4String aName, G4String aSymbol, G4double itsZ, G4double itsA)
 {
-  elements[aName] = new G4Element(aName, aSymbol, itsZ, itsA);
+  elements[aSymbol] = new G4Element(aName, aSymbol, itsZ, itsA);
 }
 
 G4Material* BDSMaterials::GetMaterial(G4String aMaterial)
