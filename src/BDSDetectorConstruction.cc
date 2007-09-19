@@ -9,7 +9,7 @@
 //
 //
 //   History
-//
+//     13 Sep 2007 by Malton v.0.4
 //     21 Nov 2006 by Agapov v.0.3
 //     28 Mar 2006 by Agapov v.0.2
 //     15 Dec 2005 by Agapov beta
@@ -187,16 +187,17 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
   for(it = material_list.begin();it!=material_list.end();it++)
   {
+    if(DEBUG) G4cout << (*it).name << " " << (*it).Z << " " << (*it).A << G4endl;
     if((*it).Z != 0)
       theMaterials->AddMaterial((*it).name,(*it).Z,(*it).A,(*it).density);
-
-    if((*it).components.size() != 0){
+    
+    else if((*it).components.size() != 0){
 
       if((*it).componentsWeights.size()==(*it).components.size())
 	theMaterials->AddMaterial((*it).name,(*it).density,kStateSolid,(*it).temper,
 		1*atmosphere,(*it).components,(*it).componentsWeights);
 
-      else if((*it).componentsWeights.size()==(*it).components.size()) 
+      else if((*it).componentsFractions.size()==(*it).components.size()) 
         theMaterials->AddMaterial((*it).name,(*it).density,kStateSolid,(*it).temper,
                 1*atmosphere,(*it).components,(*it).componentsFractions);
 
@@ -645,16 +646,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	if((*it).material != "")
 	  theMaterial = theMaterials->GetMaterial( (*it).material );
 
-        G4double aper = bpRad;
-        if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-	if( (*it).outR < aper/m)
-	  {
-	    G4cerr << (*it).name << " has outer radius smaller than aperture!"<<G4endl;
-	    G4cerr << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
-	    G4cerr << "Setting to default - 22*cm"<<G4endl;
-	    (*it).outR = aper/m + 0.22;
-	  }
-	
 	if(DEBUG) { G4cout<<"---->adding Ecol, "<<G4String( (*it).name )<<G4endl<<
 		      "xaper="<<(*it).xsize<<"m, yaper="<<(*it).ysize<<
 		      "m, material="<<(*it).material<<G4endl;}
@@ -671,17 +662,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	theMaterial = aMaterial;
 	if((*it).material != "")
 	  theMaterial = theMaterials->GetMaterial( (*it).material );
-
-        G4double aper = bpRad;
-        if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-	if( (*it).outR < aper/m)
-	  {
-	    G4cerr << (*it).name << " has outer radius smaller than aperture!"<<G4endl;
-	    G4cerr << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
-	    G4cerr << "Setting to default - 22*cm"<<G4endl;
-	    (*it).outR = aper/m + 0.22;
-	  }
-
 
 	if(DEBUG) { G4cout<<"---->adding Rcol, "<<G4String( (*it).name )<<G4endl<<
 		      "xaper="<<(*it).xsize<<"m, yaper="<<(*it).ysize<<

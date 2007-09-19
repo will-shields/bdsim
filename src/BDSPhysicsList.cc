@@ -1,8 +1,8 @@
 //  
-//   BDSIM, (C) 2001-2006 
+//   BDSIM, (C) 2001-2007 
 //    
-//   version 0.2 
-//   last modified : 28 Mar 2006 by agapov@pp.rhul.ac.uk
+//   version 0.4 
+//   last modified : 10 Sept 2007 by malton@pp.rhul.ac.uk
 //  
 
 
@@ -56,7 +56,7 @@ const int DEBUG = 0;
 #include "G4MuIonisation.hh"
 #include "G4MuBremsstrahlung.hh"
 #include "G4MuPairProduction.hh"
-
+#include "G4Cerenkov.hh"
 
 #include "BDSGammaConversionToMuons.hh"
 #include "G4MuonNucleusProcess.hh"
@@ -351,14 +351,16 @@ void BDSPhysicsList::ConstructEM()
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
       pmanager->AddProcess(new G4eIonisation,       -1, 2,2);
       pmanager->AddProcess(new G4eBremsstrahlung,   -1, 3,3);     
-      pmanager->AddProcess(new G4StepLimiter,   -1, -1,4);  
+      pmanager->AddProcess(new G4Cerenkov,          -1, 4,-1);
+      pmanager->AddProcess(new G4StepLimiter,       -1,-1,5);  
       
     } else if (particleName == "e+") {
       //positron
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
       pmanager->AddProcess(new G4eIonisation,       -1, 2,2);
       pmanager->AddProcess(new G4eBremsstrahlung,   -1, 3,3);
-      pmanager->AddProcess(new G4eplusAnnihilation,  0,-1,4);
+      pmanager->AddProcess(new G4Cerenkov,          -1, 4,-1);
+      pmanager->AddProcess(new G4eplusAnnihilation,  0,-1,5);
       
     } else if( particleName == "mu+" || 
                particleName == "mu-"    ) {
@@ -375,9 +377,10 @@ void BDSPhysicsList::ConstructEM()
       //all others charged particles except geantino
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
       pmanager->AddProcess(new G4hIonisation,       -1, 2,2);
+      pmanager->AddProcess(new G4Cerenkov,          -1, 3,-1);
       //step limit
-      //pmanager->AddProcess(new G4StepLimiter,       -1,-1,3);         
-      ///pmanager->AddProcess(new G4UserSpecialCuts,   -1,-1,4);  
+      //pmanager->AddProcess(new G4StepLimiter,       -1,-1,4);         
+      ///pmanager->AddProcess(new G4UserSpecialCuts,   -1,-1,5);  
     }
   }
 }
@@ -399,17 +402,20 @@ void BDSPhysicsList::ConstructMuon()
       
     } else if (particleName == "e-") {
       //electron
-      pmanager->AddProcess(new G4MultipleScattering,-1, 2,1);
-      pmanager->AddProcess(new G4eIonisation,       -1, 3,2);
-      pmanager->AddProcess(new G4eBremsstrahlung,   -1, 4,3);     
-      //pmanager->AddProcess(new G4StepLimiter,   -1, 1,4);  
+      pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
+      pmanager->AddProcess(new G4eIonisation,       -1, 2,2);
+      pmanager->AddProcess(new G4eBremsstrahlung,   -1, 3,3);     
+      pmanager->AddProcess(new G4Cerenkov,          -1, 4,-1);
+      //pmanager->AddProcess(new G4StepLimiter,   -1, 1,5);
+
       
     } else if (particleName == "e+") {
       //positron
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
       pmanager->AddProcess(new G4eIonisation,       -1, 2,2);
       pmanager->AddProcess(new G4eBremsstrahlung,   -1, 3,3);
-      pmanager->AddProcess(new G4eplusAnnihilation,  0,-1,4);
+      pmanager->AddProcess(new G4Cerenkov,          -1, 4,-1);
+      pmanager->AddProcess(new G4eplusAnnihilation,  0,-1,5);
       
     } else if( particleName == "mu+" || 
                particleName == "mu-"    ) {
@@ -417,7 +423,8 @@ void BDSPhysicsList::ConstructMuon()
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
       pmanager->AddProcess(new G4MuIonisation,      -1, 2,2);
       pmanager->AddProcess(new G4MuBremsstrahlung,  -1, 3,3);
-      pmanager->AddProcess(new G4MuPairProduction,  -1, 4,4);     
+      pmanager->AddProcess(new G4MuPairProduction,  -1, 4,4);
+      pmanager->AddProcess(new G4Cerenkov,          -1, 5,-1);
       pmanager->AddDiscreteProcess(new G4MuonNucleusProcess);     
       
     } else if ((!particle->IsShortLived()) &&
@@ -426,9 +433,10 @@ void BDSPhysicsList::ConstructMuon()
       //all others charged particles except geantino
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
       pmanager->AddProcess(new G4hIonisation,       -1, 2,2);
+      pmanager->AddProcess(new G4Cerenkov,          -1, 3,-1);
       //step limit
-      //pmanager->AddProcess(new G4StepLimiter,       -1,-1,3);         
-      ///pmanager->AddProcess(new G4UserSpecialCuts,   -1,-1,4);  
+      //pmanager->AddProcess(new G4StepLimiter,       -1,-1,4);         
+      ///pmanager->AddProcess(new G4UserSpecialCuts,   -1,-1,5);  
     }
   }
 }

@@ -32,10 +32,10 @@ PROGRAM       = display
 all:            $(PROGRAM) $(LIBFILES)
 
 libBDS.so :
-	@$(LD) -O -bundle -undefined dynamic_lookup $(OBJS) -o $@
+	@$(LD) -O -bundle -undefined dynamic_lookup $(LIBS) $(OBJS) -o $@
 
 libBDS.dylib : 
-	@$(LD) -O2 -dynamiclib -single_module -undefined dynamic_lookup	-install_name $@ -o $@ $(OBJS)
+	@$(LD) -O2 -dynamiclib -single_module -undefined dynamic_lookup	-install_name $@ $(LIBS) -o $@ $(OBJS)
 
 $(PROGRAM):     $(OBJS) main.o
 	@echo "Linking $(PROGRAM) ..."
@@ -45,7 +45,7 @@ $(PROGRAM):     $(OBJS) main.o
 	@echo "done"
 
 clean:
-	rm -f $(OBJS) $(PROGRAM) main.o mydict.*
+	rm -f $(OBJS) $(PROGRAM) libBDS.so libBDS.dylib main.o mydict.*
 
 ###
 BDSCanvas.o: BDSCanvas.h

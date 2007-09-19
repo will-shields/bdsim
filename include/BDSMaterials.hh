@@ -47,6 +47,8 @@ public:
   void AddElement(G4Element* aElement,G4String aName); //SPM
   void AddElement(G4String aName, G4String aSymbol, G4double itsZ, G4double itsA); //SPM
 
+  static void ListMaterials();
+
   G4Material* GetMaterial(G4String aMaterial); //SPM
   G4Element*  GetElement(G4String aSymbol); //SPM
 

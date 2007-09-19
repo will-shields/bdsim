@@ -50,7 +50,7 @@ BDSDrift::BDSDrift (G4String aName,G4double aLength, G4double bpRad):
       SetOuterRadius(outerR);
 
       // drift doesn't have an outer volume - but include it for laserwire
-      BuildDefaultOuterLogicalVolume(itsLength,true);
+//      BuildDefaultOuterLogicalVolume(itsLength,true);
       SetSensitiveVolume(itsBeampipeLogicalVolume);// for laserwire
       //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
 

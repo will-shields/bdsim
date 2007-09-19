@@ -6,7 +6,16 @@
    Modified 22.03.05 by J.C.Carter, Royal Holloway, Univ. of London.
    Added GABs LCBeamGasPlugMat Material
    Added LCLead
+
+   Modified 13.09.07 by S.P.Malton, Royal Holloway, Univ. of London.
+   Created maps of materials and elements
+   Added Initialise function
+   Added Add/GetElement/Material functions
+   Cleanup in destructor
+   Added ListMaterials function
 */
+const int DEBUG = 0;
+
 #include "BDSGlobalConstants.hh" // must be first in include list
 
 #include "BDSMaterials.hh"
@@ -361,12 +370,17 @@ void BDSMaterials::Initialise()
 
 void BDSMaterials::AddMaterial(G4Material* aMaterial, G4String aName)
 {
-  materials[aName] = aMaterial;
+  if(materials.insert(make_pair(aName,aMaterial)).second)
+    G4cout << "New material : " << aName << G4endl;
+  else G4Exception("Material "+aName+" already exists\n");
 }
 
 void BDSMaterials::AddMaterial(G4String aName, G4double itsZ, G4double itsA, G4double itsDensity)
 {
-  materials[aName] = new G4Material(aName, itsZ, itsA, itsDensity);
+  G4Material* tmpMaterial = new G4Material(aName, itsZ, itsA*g/mole, itsDensity);
+  if(materials.insert(make_pair(aName,tmpMaterial)).second)
+    G4cout << "New material : " << aName << G4endl;
+  else G4Exception("Material "+aName+" already exists\n");
 }
 
 void BDSMaterials::AddMaterial(G4String aName, G4double itsDensity, G4State itsState,
@@ -383,7 +397,9 @@ list<char*> itsComponents, list<G4double> itsComponentsFractions)
   {
     tmpMaterial->AddElement(GetElement(*sIter),(*dIter));
   }
-  materials[aName] = tmpMaterial;
+  if(materials.insert(make_pair(aName,tmpMaterial)).second)
+    G4cout << "New material : " << aName << G4endl;
+  else G4Exception("Material "+aName+" already exists\n");
 }
 
 void BDSMaterials::AddMaterial(G4String aName, G4double itsDensity, G4State itsState,
@@ -400,18 +416,24 @@ list<char*> itsComponents, list<G4int> itsComponentsWeights)
   {
     tmpMaterial->AddElement(GetElement(*sIter),(*iIter));
   }     
-
-  materials[aName] = tmpMaterial;
+  if(materials.insert(make_pair(aName,tmpMaterial)).second)
+    G4cout << "New material : " << aName << G4endl;
+  else G4Exception("Material "+aName+" already exists\n");
 }
 
 void BDSMaterials::AddElement(G4Element* aElement, G4String aSymbol)
 {
-  elements[aSymbol] = aElement;
+  if(elements.insert(make_pair(aSymbol,aElement)).second)
+    G4cout << "New atom : " << aSymbol << G4endl;
+  else G4Exception("Atom "+aSymbol+" already exists\n");
 }
 
 void BDSMaterials::AddElement(G4String aName, G4String aSymbol, G4double itsZ, G4double itsA)
 {
-  elements[aSymbol] = new G4Element(aName, aSymbol, itsZ, itsA);
+  G4Element* tmpElement = new G4Element(aName, aSymbol, itsZ, itsA*g/mole);
+  if(elements.insert(make_pair(aSymbol,tmpElement)).second)
+    G4cout << "New atom : " << aSymbol << G4endl;
+  else G4Exception("Atom "+aSymbol+" already exists\n");
 }
 
 G4Material* BDSMaterials::GetMaterial(G4String aMaterial)
@@ -434,6 +456,57 @@ G4Element* BDSMaterials::GetElement(G4String aSymbol)
   }
 }
 
+void BDSMaterials::ListMaterials(){
+  G4cout << "Available elements are:" << G4endl;
+  G4cout << "Aluminium  - Al" << G4endl;
+  G4cout << "Calcium    - Ca" << G4endl;
+  G4cout << "Carbon     - C" << G4endl;
+  G4cout << "Cobalt     - Co" << G4endl;
+  G4cout << "Helium     - He" << G4endl;
+  G4cout << "Hydrogen   - H" << G4endl;
+  G4cout << "Iron       - Fe" << G4endl;
+  G4cout << "Lead       - Pb" << G4endl;
+  G4cout << "Manganese  - Mn" << G4endl;
+  G4cout << "Niobium    - Nb" << G4endl;
+  G4cout << "Nitrogen   - N" << G4endl;
+  G4cout << "Oxygen     - O" << G4endl;
+  G4cout << "Phosphorus - P" << G4endl;
+  G4cout << "Samarium   - Sm" << G4endl;
+  G4cout << "Silicon    - Si" << G4endl;
+  G4cout << "Sulphur    - S" << G4endl;
+  G4cout << "Titanium   - Ti" << G4endl;
+  G4cout << "Tungsten   - W" << G4endl;
+  G4cout << "Vanadium   - V" << G4endl;
+  G4cout << "***************" << G4endl;
+  G4cout << "Available materials are:" << G4endl;
+  G4cout << "Air" << G4endl;
+  G4cout << "Aluminium" << G4endl;
+  G4cout << "Beryllium" << G4endl;
+  G4cout << "CarbonMonoxide" << G4endl;
+  G4cout << "CarbonSteel" << G4endl;
+  G4cout << "Concrete" << G4endl;
+  G4cout << "Copper" << G4endl;
+  G4cout << "Graphite" << G4endl;
+  G4cout << "Invar" << G4endl;
+  G4cout << "Iron" << G4endl;
+  G4cout << "LaserVac" << G4endl;
+  G4cout << "Lead" << G4endl;
+  G4cout << "LeadTungstate" << G4endl;
+  G4cout << "LiquidHelium" << G4endl;
+  G4cout << "NbTi" << G4endl;
+  G4cout << "Niobium" << G4endl;
+  G4cout << "Silicon" << G4endl;
+  G4cout << "SmCo" << G4endl;
+  G4cout << "Soil" << G4endl;
+  G4cout << "Titanium" << G4endl;
+  G4cout << "TitaniumAlloy" << G4endl;
+  G4cout << "Tungsten" << G4endl;
+  G4cout << "Vacuum" << G4endl;
+  G4cout << "Vanadium" << G4endl;
+  G4cout << "Water" << G4endl;
+  G4cout << "WeightIron" << G4endl;
+
+}
 
 BDSMaterials::~BDSMaterials(){
   map<G4String,G4Material*>::iterator mIter;

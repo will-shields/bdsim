@@ -54,6 +54,7 @@ const int DEBUG = 0;
 
 #include "BDSOutput.hh" 
 #include "BDSBunch.hh"
+#include "BDSMaterials.hh"
 
 #include "parser/gmad.h"  // GMAD parser
 
@@ -85,7 +86,8 @@ static void usage()
 	<<"--batch              : batch mode - no graphics"<<G4endl
 	<<"--outline=<file>     : print geometry info to <file>"<<G4endl
 	<<"--outline_type=<fmt> : type of outline format"<<G4endl
-	<<"                       where fmt = optics | survey"<<G4endl;
+	<<"                       where fmt = optics | survey"<<G4endl
+	<<"--materials		: list materials included in bdsim by default"<<G4endl;
 
 }
 
@@ -131,6 +133,7 @@ int main(int argc,char** argv) {
      { "output", 1, 0, 0},
      { "outfile", 1, 0, 0},
      { "batch", 0, 0, 0 },  
+     { "materials", 0, 0, 0 },
      { 0, 0, 0, 0 }
    };
   
@@ -223,8 +226,11 @@ int main(int argc,char** argv) {
 	      G4cout<<"please specify the visualization macro file"<<G4endl;
 	    }
 	  }
-	
-	
+	if( !strcmp(LongOptions[OptionIndex].name, "materials") )
+	  {
+	    BDSMaterials::ListMaterials();
+	    return 1;
+	  }
 	break;
       case -1:
 	break;

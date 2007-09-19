@@ -1,10 +1,8 @@
 /*
    bison grammar for the gmad parser
-   Ilya Agapov, 2005-2006
-   bdsim v.0.3
+   Ilya Agapov, Steve Malton 2005-2007
+   bdsim v.0.4
 */
-
-%expect 3
 
 %{
 
@@ -13,10 +11,10 @@
 
 
   const int DEBUG = 0; // print debug info like parsing output etc.
-  const int ECHO_GRAMMAR = 0; // print grammar rule expamsion (for debugging)
+  const int ECHO_GRAMMAR = 0; // print grammar rule expansion (for debugging)
   const int VERBOSE = 0; // print warnings and errors
   const int VERBOSE_EXPAND = 0; // print the process of line expansion 
-  const int INTERACTIVE =0; // print output of commands (like in interactive mode)
+  const int INTERACTIVE = 0; // print output of commands (like in interactive mode)
 
 #include "parser.h"
 
@@ -59,7 +57,7 @@
 %type <dval> expr
 %type <symp> assignment
 %type <array> vecexpr;
-%type <array> vect;
+%type <array> vectnum vectstr;
 %type <str> use_parameters;
 %type <ival> extension;
 %type <symp> sample_options
@@ -79,8 +77,8 @@ input :
 ;
 
 
-stmt :          if_clause stmt { if(ECHO_GRAMMAR) printf("stmt -> IF '(' aexpr ')' stmt\n" ); execute = 1;}
-              | if_clause stmt ELSE stmt  
+stmt :          if_clause '{' stmt '}' { if(ECHO_GRAMMAR) printf("stmt -> IF '(' aexpr ')' stmt\n" ); execute = 1;}
+              | if_clause '{' stmt '}' ELSE '{' stmt '}' 
                 { if(ECHO_GRAMMAR) printf("stmt -> IF '(' bool_expr ')' ELSE stmt \n" ); }
               | atomic_stmt  { if(ECHO_GRAMMAR) printf("stmt -> atomic_stmt \n"); }
               | BEGN input END { if(ECHO_GRAMMAR) printf("stmt -> '{' stmt ';' atomic_stmt '}' \n"); }
@@ -285,7 +283,7 @@ decl : VARIABLE ':' marker
 	     params.flush();
 	   }
        }
-     | VARIABLE ':' material
+     | VARIABLE ':' matdef
        {
 	 if(execute)
 	   {
@@ -307,61 +305,61 @@ decl : VARIABLE ':' marker
 
 marker : MARKER ;
 
-drift : DRIFT parameters
+drift : DRIFT ',' parameters
 ;
 
-rf : RF parameters
+rf : RF ',' parameters
 ;
 
-sbend : SBEND parameters
+sbend : SBEND ',' parameters
 ;
 
-rbend : RBEND parameters
+rbend : RBEND ',' parameters
 ;
 
-vkick : VKICK parameters
+vkick : VKICK ',' parameters
 ;
 
-hkick : HKICK parameters
+hkick : HKICK ',' parameters
 ;
 
-quad : QUADRUPOLE parameters
+quad : QUADRUPOLE ',' parameters
 ;
 
-sextupole : SEXTUPOLE parameters
+sextupole : SEXTUPOLE ',' parameters
 ;
 
-octupole : OCTUPOLE parameters
+octupole : OCTUPOLE ',' parameters
 ;
 
-multipole : MULTIPOLE parameters
+multipole : MULTIPOLE ',' parameters
 {
   if(DEBUG) print(params);
 }
 ;
 
-ecol : ECOL parameters
+ecol : ECOL ',' parameters
 ;
 
-rcol : RCOL parameters
+rcol : RCOL ',' parameters
 ;
 
-laser : LASER parameters
+laser : LASER ',' parameters
 ;
 
-transform3d : TRANSFORM3D parameters
+transform3d : TRANSFORM3D ',' parameters
 ;
 
-element : ELEMENT parameters
+element : ELEMENT ',' parameters
 ;
 
-material : MATERIAL parameters
+matdef : MATERIAL ',' parameters
 ;
 
-atom : ATOM parameters
+atom : ATOM ',' parameters
 ;
 
-extension : VARIABLE parameters
+extension : VARIABLE ',' parameters
             {
 	      if(execute)
 		{	 
@@ -384,117 +382,117 @@ extension : VARIABLE parameters
 ;
 
 parameters: 
-          | parameters ',' VARIABLE '=' aexpr
+          | VARIABLE '=' aexpr ',' parameters
             {
 	      if(execute)
 		{
-		  if(DEBUG) printf("parameters, VARIABLE(%s) = aexpr(%.10g)\n",$3->name,$5);
-		  if(!strcmp($3->name,"l")) { params.l = $5; params.lset = 1;} 
+		  if(DEBUG) printf("parameters, VARIABLE(%s) = aexpr(%.10g)\n",$1->name,$3);
+		  if(!strcmp($1->name,"l")) { params.l = $3; params.lset = 1;} 
 		    else
-		  if(!strcmp($3->name,"B")) { params.B = $5; params.Bset = 1;}
+		  if(!strcmp($1->name,"B")) { params.B = $3; params.Bset = 1;}
 		    else 
-		  if(!strcmp($3->name,"k0")) { params.k0 = $5; params.k0set = 1;}
+		  if(!strcmp($1->name,"k0")) { params.k0 = $3; params.k0set = 1;}
 		    else 
-		  if(!strcmp($3->name,"k1")) { params.k1 = $5; params.k1set = 1;} 
+		  if(!strcmp($1->name,"k1")) { params.k1 = $3; params.k1set = 1;} 
 		    else
-		  if(!strcmp($3->name,"k2")) { params.k2 = $5; params.k2set = 1;}
+		  if(!strcmp($1->name,"k2")) { params.k2 = $3; params.k2set = 1;}
 		    else 
-		  if(!strcmp($3->name,"k3")) { params.k3 = $5; params.k3set = 1;}
+		  if(!strcmp($1->name,"k3")) { params.k3 = $3; params.k3set = 1;}
 		    else 
-		  if(!strcmp($3->name,"angle")) { params.angle = $5; params.angleset = 1;}
+		  if(!strcmp($1->name,"angle")) { params.angle = $3; params.angleset = 1;}
 		    else
-		  if(!strcmp($3->name,"aper") ||!strcmp($3->name,"aperture") ) 
-			      { params.aper = $5; params.aperset = 1;}
+		  if(!strcmp($1->name,"aper") ||!strcmp($1->name,"aperture") ) 
+			      { params.aper = $3; params.aperset = 1;}
 		    else
-		  if(!strcmp($3->name,"outR") ) { params.outR = $5; params.outRset = 1;}
+		  if(!strcmp($1->name,"outR") ) { params.outR = $3; params.outRset = 1;}
 		    else
-		  if(!strcmp($3->name,"xsize") ) { params.xsize = $5; params.xsizeset = 1;}
+		  if(!strcmp($1->name,"xsize") ) { params.xsize = $3; params.xsizeset = 1;}
 		    else
-		  if(!strcmp($3->name,"ysize") ) { params.ysize = $5; params.ysizeset = 1;}
+		  if(!strcmp($1->name,"ysize") ) { params.ysize = $3; params.ysizeset = 1;}
 		    else
-		  if(!strcmp($3->name,"tilt")) { params.tilt = $5; params.tiltset = 1;}
+		  if(!strcmp($1->name,"tilt")) { params.tilt = $3; params.tiltset = 1;}
 		    else
-		  if(!strcmp($3->name,"x")) {params.xdir = $5; params.xdirset = 1;} // x direction
+		  if(!strcmp($1->name,"x")) {params.xdir = $3; params.xdirset = 1;} // x direction
 		    else
-		  if(!strcmp($3->name,"y")) {params.ydir = $5; params.ydirset = 1;} // y direction 
+		  if(!strcmp($1->name,"y")) {params.ydir = $3; params.ydirset = 1;} // y direction 
 		    else
-		  if(!strcmp($3->name,"z")) {params.zdir = $5; params.zdirset = 1;} // z direction 
+		  if(!strcmp($1->name,"z")) {params.zdir = $3; params.zdirset = 1;} // z direction 
 		    else
-		  if(!strcmp($3->name,"phi")) {params.phi = $5; params.phiset = 1;}  // polar angle
+		  if(!strcmp($1->name,"phi")) {params.phi = $3; params.phiset = 1;}  // polar angle
 		    else
-		  if(!strcmp($3->name,"theta"))  {params.theta = $5; params.thetaset = 1;} 
+		  if(!strcmp($1->name,"theta"))  {params.theta = $3; params.thetaset = 1;} 
 		  // azimuthal angle
 		    else
-		  if(!strcmp($3->name,"psi"))  {params.psi = $5; params.psiset = 1;} // 3rd  angle
+		  if(!strcmp($1->name,"psi"))  {params.psi = $3; params.psiset = 1;} // 3rd  angle
 		  else
-		  if(!strcmp($3->name,"gradient"))  {params.gradient = $5; params.gradientset = 1;} // rf voltage
+		  if(!strcmp($1->name,"gradient"))  {params.gradient = $3; params.gradientset = 1;} // rf voltage
 		    else
-		  if(!strcmp($3->name,"fint")) {;} // fringe field parameters
+		  if(!strcmp($1->name,"fint")) {;} // fringe field parameters
 		    else
-		  if(!strcmp($3->name,"fintx")) {;}  //
+		  if(!strcmp($1->name,"fintx")) {;}  //
                     else
-		  if(!strcmp($3->name,"e1")) {;}  //
+		  if(!strcmp($1->name,"e1")) {;}  //
                     else
-		  if(!strcmp($3->name,"e2")) {;}  //
+		  if(!strcmp($1->name,"e2")) {;}  //
                     else
-		  if(!strcmp($3->name,"hgap")) {params.hgap = $5; params.hgapset=1;}  //
+		  if(!strcmp($1->name,"hgap")) {params.hgap = $3; params.hgapset=1;}  //
 		    else
-		  if(!strcmp($3->name,"A")) {params.A = $5; params.Aset = 1;}  //
+		  if(!strcmp($1->name,"A")) {params.A = $3; params.Aset = 1;}  //
 		    else
-		  if(!strcmp($3->name,"Z")) {params.Z = $5; params.Zset = 1;}  //
+		  if(!strcmp($1->name,"Z")) {params.Z = $3; params.Zset = 1;}  //
 		    else
-		  if(!strcmp($3->name,"density")) {params.density = $5; params.densityset = 1;}  //
+		  if(!strcmp($1->name,"density")) {params.density = $3; params.densityset = 1;}  //
                     else
-		  if(!strcmp($3->name,"T")) {params.temper = $5; params.temperset = 1;}  //
+		  if(!strcmp($1->name,"T")) {params.temper = $3; params.temperset = 1;}  //
 		    else
-		  if(!strcmp($3->name,"waveLength")) {params.waveLength = $5; params.waveLengthset = 1;}
+		  if(!strcmp($1->name,"waveLength")) {params.waveLength = $3; params.waveLengthset = 1;}
 		    else
-		  if(VERBOSE) printf("Warning : unknown parameter %s\n",$3->name);
+		  if(VERBOSE) printf("Warning : unknown parameter %s\n",$1->name);
 		  
 		}
 	    }
-           | parameters ',' VARIABLE '=' vecexpr
+           | VARIABLE '=' vecexpr ',' parameters
              {
 	       if(execute) 
 		 {
-		   if(DEBUG) printf("params,VARIABLE (%s) = vecexpr (%d)\n",$3->name,$5->size);
-		   if(!strcmp($3->name,"knl")) 
+		   if(DEBUG) printf("params,VARIABLE (%s) = vecexpr (%d)\n",$1->name,$3->size);
+		   if(!strcmp($1->name,"knl")) 
 		     {
 		       params.knlset = 1;
-		       set_vector(params.knl,$5);
-		       delete[] $5->data;
+		       set_vector(params.knl,$3);
+		       delete[] $3->data;
 		     } 
 		   else
-		     if(!strcmp($3->name,"ksl")) 
+		     if(!strcmp($1->name,"ksl")) 
 		       {
 			 params.kslset = 1;
-			 set_vector(params.ksl,$5);
-			 delete[] $5->data;
+			 set_vector(params.ksl,$3);
+			 delete[] $3->data;
 		       }
 
                    else
-                     if(!strcmp($3->name,"components"))
+                     if(!strcmp($1->name,"components"))
                        {
                          params.componentsset = 1;
-                         set_vector(params.components,$5);
-                         delete[] $5->data;
+                         set_vector(params.components,$3);
+                         $3->symbols.clear();
                        } 
                    else
-                     if(!strcmp($3->name,"componentsWeights"))
+                     if(!strcmp($1->name,"componentsWeights"))
                        {
                          params.componentsWeightsset = 1;
-                         set_vector(params.componentsWeights,$5);
-                         delete[] $5->data;
+                         set_vector(params.componentsWeights,$3);
+                         delete[] $3->data;
                        }
                    else
-                     if(!strcmp($3->name,"componentsFractions"))
+                     if(!strcmp($1->name,"componentsFractions"))
                        {
                          params.componentsFractionsset = 1;
-                         set_vector(params.componentsFractions,$5);
-                         delete[] $5->data;
+                         set_vector(params.componentsFractions,$3);
+                         delete[] $3->data;
                        }
 		     else 	  
-		       if(VERBOSE) printf("unknown parameter %s\n",$3->name);
+		       if(VERBOSE) printf("unknown parameter %s\n",$1->name);
 		 }
 	     }         
            | VARIABLE '=' vecexpr
@@ -545,51 +543,113 @@ parameters:
 	      if(execute)
 		{
 		  if(DEBUG) printf("VARIABLE (%s) = aexpr(%.10g)\n",$1->name,$3);
+		  if(!strcmp($1->name,"l")) { params.l = $3; params.lset = 1;} 
+		    else
+		  if(!strcmp($1->name,"B")) { params.B = $3; params.Bset = 1;}
+		    else 
+		  if(!strcmp($1->name,"k0")) { params.k0 = $3; params.k0set = 1;}
+		    else 
+		  if(!strcmp($1->name,"k1")) { params.k1 = $3; params.k1set = 1;} 
+		    else
+		  if(!strcmp($1->name,"k2")) { params.k2 = $3; params.k2set = 1;}
+		    else 
+		  if(!strcmp($1->name,"k3")) { params.k3 = $3; params.k3set = 1;}
+		    else 
+		  if(!strcmp($1->name,"angle")) { params.angle = $3; params.angleset = 1;}
+		    else
+		  if(!strcmp($1->name,"aper") ||!strcmp($1->name,"aperture") ) 
+			      { params.aper = $3; params.aperset = 1;}
+		    else
+		  if(!strcmp($1->name,"outR") ) { params.outR = $3; params.outRset = 1;}
+		    else
+		  if(!strcmp($1->name,"xsize") ) { params.xsize = $3; params.xsizeset = 1;}
+		    else
+		  if(!strcmp($1->name,"ysize") ) { params.ysize = $3; params.ysizeset = 1;}
+		    else
+		  if(!strcmp($1->name,"tilt")) { params.tilt = $3; params.tiltset = 1;}
+		    else
+		  if(!strcmp($1->name,"x")) {params.xdir = $3; params.xdirset = 1;} // x direction
+		    else
+		  if(!strcmp($1->name,"y")) {params.ydir = $3; params.ydirset = 1;} // y direction 
+		    else
+		  if(!strcmp($1->name,"z")) {params.zdir = $3; params.zdirset = 1;} // z direction 
+		    else
+		  if(!strcmp($1->name,"phi")) {params.phi = $3; params.phiset = 1;}  // polar angle
+		    else
+		  if(!strcmp($1->name,"theta"))  {params.theta = $3; params.thetaset = 1;} 
+		  // azimuthal angle
+		    else
+		  if(!strcmp($1->name,"psi"))  {params.psi = $3; params.psiset = 1;} // 3rd  angle
+		  else
+		  if(!strcmp($1->name,"gradient"))  {params.gradient = $3; params.gradientset = 1;} // rf voltage
+		    else
+		  if(!strcmp($1->name,"fint")) {;} // fringe field parameters
+		    else
+		  if(!strcmp($1->name,"fintx")) {;}  //
+                    else
+		  if(!strcmp($1->name,"e1")) {;}  //
+                    else
+		  if(!strcmp($1->name,"e2")) {;}  //
+                    else
+		  if(!strcmp($1->name,"hgap")) {params.hgap = $3; params.hgapset=1;}  //
+		    else
+		  if(!strcmp($1->name,"A")) {params.A = $3; params.Aset = 1;}  //
+		    else
+		  if(!strcmp($1->name,"Z")) {params.Z = $3; params.Zset = 1;}  //
+		    else
+		  if(!strcmp($1->name,"density")) {params.density = $3; params.densityset = 1;}  //
+                    else
+		  if(!strcmp($1->name,"T")) {params.temper = $3; params.temperset = 1;}  //
+		    else
+		  if(!strcmp($1->name,"waveLength")) {params.waveLength = $3; params.waveLengthset = 1;}
+		    else
+		  if(VERBOSE) printf("Warning : unknown parameter %s\n",$1->name);
+		  
 		}
 	    }
-          | parameters ',' VARIABLE '=' STR
+          | VARIABLE '=' STR ',' parameters
              {
 	       if(execute) 
 		 {
-		   if(DEBUG) printf("params,VARIABLE (%s) = str (%s)\n",$3->name,$5);
-		   if(!strcmp($3->name,"geometry")) 
+		   if(DEBUG) printf("params,VARIABLE (%s) = str (%s)\n",$1->name,$3);
+		   if(!strcmp($1->name,"geometry")) 
 		     {
 		       params.geomset = 1;
-		       strcpy(params.geometry, $5);
+		       strcpy(params.geometry, $3);
 
 		     } 
 		   else
-		     if(!strcmp($3->name,"bmap")) 
+		     if(!strcmp($1->name,"bmap")) 
 		       {
 			 params.geomset = 1;
-			 strcpy(params.bmap, $5);
+			 strcpy(params.bmap, $3);
 		       }
 		   else 
-		     if(!strcmp($3->name,"type")) 
+		     if(!strcmp($1->name,"type")) 
 		       {
 			 //ignore the "type attribute for the moment"
 		       }
 		   else
-		   if(!strcmp($3->name,"material")) 
+		   if(!strcmp($1->name,"material")) 
 		       {
 			 params.materialset = 1;
-			 strcpy(params.material, $5);
+			 strcpy(params.material, $3);
 		       }
 		   else 
-		   if(!strcmp($3->name,"spec")) 
+		   if(!strcmp($1->name,"spec")) 
 		       {
 			 params.specset = 1;
-			 strcpy(params.spec, $5);
+			 strcpy(params.spec, $3);
 		       }
                    else 
-                   if(!strcmp($3->name,"symbol"))
+                   if(!strcmp($1->name,"symbol"))
                        {
                          params.symbolset = 1;
-                         strcpy(params.symbol, $5);
+                         strcpy(params.symbol, $3);
                        }
 		   else 
 		     	  
-		     if(VERBOSE) printf("unknown parameter %s\n",$3->name);
+		     if(VERBOSE) printf("unknown parameter %s\n",$1->name);
 		 }
 	     }         
            | VARIABLE '=' STR
@@ -630,60 +690,60 @@ parameters:
 		 }         
 	     }
 
-line : LINE '=' '(' element_seq ')'           
+line : LINE '=' '(' element_seq ')'
 ;
 
-line : LINE '=' '-' '(' rev_element_seq ')'           
+line : LINE '=' '-' '(' rev_element_seq ')'
 ;
 
 sequence : SEQUENCE;
 
 
 element_seq : 
-            | element_seq ',' VARIABLE 
+            | VARIABLE ',' element_seq
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched sequence element, %s\n",$3->name);
+		    if(DEBUG) printf("matched sequence element, %s\n",$1->name);
 		    // add to temporary element sequence
 		    {
 		      struct Element e;
-		      e.name = $3->name;
+		      e.name = $1->name;
 		      e.type = _LINE;
 		      e.lst = NULL;
-		      tmp_list.push_back(e);
+		      tmp_list.push_front(e);
 		    }
 		  }
 	      }
-            | element_seq ',' VARIABLE '*' NUMBER 
+            | VARIABLE '*' NUMBER ',' element_seq
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched sequence element, %s * %d \n",$3->name,(int)$5);
+		    if(DEBUG) printf("matched sequence element, %s * %d \n",$1->name,(int)$3);
 		    // add to temporary element sequence
 		    {
 		      struct Element e;
-		      e.name = $3->name;
-		      e.type = _LINE;
-		      e.lst = NULL;
-		      for(int i=0;i<(int)$5;i++)
-			tmp_list.push_back(e);
-		    }
-		  }
-	      }
-            | element_seq ',' NUMBER '*' VARIABLE 
-              {
-		if(execute)
-		  {
-		    if(DEBUG) printf("matched sequence element, %s * %d \n",$5->name,(int)$3);
-		    // add to temporary element sequence
-		    {
-		      struct Element e;
-		      e.name = $5->name;
+		      e.name = $1->name;
 		      e.type = _LINE;
 		      e.lst = NULL;
 		      for(int i=0;i<(int)$3;i++)
-			tmp_list.push_back(e);
+			tmp_list.push_front(e);
+		    }
+		  }
+	      }
+            | NUMBER '*' VARIABLE ',' element_seq
+              {
+		if(execute)
+		  {
+		    if(DEBUG) printf("matched sequence element, %s * %d \n",$3->name,(int)$1);
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $3->name;
+		      e.type = _LINE;
+		      e.lst = NULL;
+		      for(int i=0;i<(int)$1;i++)
+			tmp_list.push_front(e);
 		    }
 		  }
 	      }
@@ -698,7 +758,7 @@ element_seq :
 		      e.name = $1->name;
 		      e.type = _LINE;
 		      e.lst = NULL;
-		      tmp_list.push_back(e);
+		      tmp_list.push_front(e);
 		    }
 		  }
 	      }
@@ -714,7 +774,7 @@ element_seq :
 		      e.type = _LINE;
 		      e.lst = NULL;
 		      for(int i=0;i<(int)$3;i++)
-			tmp_list.push_back(e);
+			tmp_list.push_front(e);
 		    }
 		  }
 	      }
@@ -730,22 +790,22 @@ element_seq :
 		      e.type = _LINE;
 		      e.lst = NULL;
 		      for(int i=0;i<(int)$1;i++)
-			tmp_list.push_back(e);
+			tmp_list.push_front(e);
 		    }
 		  }
 	      }
-            | element_seq ',' '-' VARIABLE
+            | '-' VARIABLE ',' element_seq
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched last sequence element, %s\n",$4->name);
+		    if(DEBUG) printf("matched last sequence element, %s\n",$2->name);
 		    // add to temporary element sequence
 		    {
 		      struct Element e;
-		      e.name = $4->name;
+		      e.name = $2->name;
 		      e.type = _REV_LINE;
 		      e.lst = NULL;
-	    	      tmp_list.push_back(e);
+	    	      tmp_list.push_front(e);
 		    }
 		  }
 	      }
@@ -760,57 +820,57 @@ element_seq :
 		      e.name = $2->name;
 		      e.type = _REV_LINE;
 		      e.lst = NULL;
-	    	      tmp_list.push_back(e);
+	    	      tmp_list.push_front(e);
 		    }
 		  }
 	      }
 ;
 
 rev_element_seq : 
-            | rev_element_seq ',' VARIABLE 
+            | VARIABLE ',' rev_element_seq 
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched sequence element, %s\n",$3->name);
+		    if(DEBUG) printf("matched sequence element, %s\n",$1->name);
 		    // add to temporary element sequence
 		    {
 		      struct Element e;
-		      e.name = $3->name;
+		      e.name = $1->name;
 		      e.type = _REV_LINE;
 		      e.lst = NULL;
-		      tmp_list.push_front(e);
+		      tmp_list.push_back(e);
 		    }
 		  }
 	      }
-            | rev_element_seq ',' VARIABLE '*' NUMBER 
+            | VARIABLE '*' NUMBER ',' rev_element_seq
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched sequence element, %s * %d \n",$3->name,(int)$5);
+		    if(DEBUG) printf("matched sequence element, %s * %d \n",$1->name,(int)$3);
 		    // add to temporary element sequence
 		    {
 		      struct Element e;
-		      e.name = $3->name;
-		      e.type = _REV_LINE;
-		      e.lst = NULL;
-		      for(int i=0;i<(int)$5;i++)
-			tmp_list.push_front(e);
-		    }
-		  }
-	      }
-            | rev_element_seq ',' NUMBER '*' VARIABLE 
-              {
-		if(execute)
-		  {
-		    if(DEBUG) printf("matched sequence element, %s * %d \n",$5->name,(int)$3);
-		    // add to temporary element sequence
-		    {
-		      struct Element e;
-		      e.name = $5->name;
+		      e.name = $1->name;
 		      e.type = _REV_LINE;
 		      e.lst = NULL;
 		      for(int i=0;i<(int)$3;i++)
-			tmp_list.push_front(e);
+			tmp_list.push_back(e);
+		    }
+		  }
+	      }
+            | NUMBER '*' VARIABLE ',' rev_element_seq
+              {
+		if(execute)
+		  {
+		    if(DEBUG) printf("matched sequence element, %s * %d \n",$3->name,(int)$1);
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $3->name;
+		      e.type = _REV_LINE;
+		      e.lst = NULL;
+		      for(int i=0;i<(int)$1;i++)
+			tmp_list.push_back(e);
 		    }
 		  }
 	      }
@@ -825,7 +885,7 @@ rev_element_seq :
 		      e.name = $1->name;
 		      e.type = _REV_LINE;
 		      e.lst = NULL;
-		      tmp_list.push_front(e);
+		      tmp_list.push_back(e);
 		    }
 		  }
 	      }
@@ -841,7 +901,7 @@ rev_element_seq :
 		      e.type = _REV_LINE;
 		      e.lst = NULL;
 		      for(int i=0;i<(int)$3;i++)
-			tmp_list.push_front(e);
+			tmp_list.push_back(e);
 		    }
 		  }
 	      }
@@ -857,7 +917,37 @@ rev_element_seq :
 		      e.type = _REV_LINE;
 		      e.lst = NULL;
 		      for(int i=0;i<(int)$1;i++)
-			tmp_list.push_front(e);
+			tmp_list.push_back(e);
+		    }
+		  }
+	      }
+            | '-' VARIABLE ',' element_seq
+              {
+		if(execute)
+		  {
+		    if(DEBUG) printf("matched last sequence element, %s\n",$2->name);
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $2->name;
+		      e.type = _LINE;
+		      e.lst = NULL;
+	    	      tmp_list.push_back(e);
+		    }
+		  }
+	      }
+            | '-' VARIABLE
+              {
+		if(execute)
+		  {
+		    if(DEBUG) printf("matched last sequence element, %s\n",$2->name);
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $2->name;
+		      e.type = _LINE;
+		      e.lst = NULL;
+	    	      tmp_list.push_back(e);
 		    }
 		  }
 	      }
@@ -974,6 +1064,7 @@ assignment :  VARIABLE '=' aexpr
 		    $3->size = 0;
 		  }
               }
+
            |  VECVAR '=' vecexpr
               {
 		if(execute)
@@ -988,7 +1079,7 @@ assignment :  VARIABLE '=' aexpr
               }
 ;
 
-vecexpr :  VECVAR  
+vecexpr :   VECVAR  
         {
 	  if(execute)
 	    {
@@ -1004,7 +1095,7 @@ vecexpr :  VECVAR
 		}
 	    }
         } 
-        | vect
+        | vectnum
         {
 	  if(execute)
 	    {
@@ -1018,13 +1109,25 @@ vecexpr :  VECVAR
 		  $$->data[i] = $1->data[i];
 		}
 	      
-	      
 	      // erase data in vect
 	      
 	      delete[] $1->data;
 	      $1->size = 0;
 	    }
 	}
+       | vectstr
+	{
+	  if(execute)
+	  {
+	    $$ = new struct Array;
+	    $$->size = $1->size;
+	    $$->symbols = $1->symbols;
+
+	    $1->symbols.clear();
+	    $1->size = 0;
+	  }
+	}
+
        | vecexpr '+' vecexpr
         {
 	  if(execute)
@@ -1195,7 +1298,7 @@ vecexpr :  VECVAR
 
 ;
 
-vect :  '{' numbers '}' 
+vectnum : '{' numbers '}' 
 	  {
 	    if(execute)
 	      {
@@ -1207,47 +1310,62 @@ vect :  '{' numbers '}'
 	        //array_list.push_back(a);
       
 	        list<double>::iterator it;
-	        list<char*>::iterator itChar;
-      
-	        int i=0;
+		int i=0;      
 	        for(it=_tmparray.begin();it!=_tmparray.end();it++)
 	  	{
 	 	 $$->data[i++] = (*it);
 		}
-		for(itChar=_tmpstring.begin();itChar!=_tmpstring.end();it++)
-                {
-                 $$->symbols.push_back(*itChar);
-                }
     	        _tmparray.erase(_tmparray.begin(),_tmparray.end());
-     	        _tmpstring.erase(_tmpstring.begin(),_tmpstring.end());
+
+	        list<char*>::iterator lIter;
+	        for(lIter = _tmpstring.begin(); lIter != _tmpstring.end(); lIter++)
+	          $$->symbols.push_back(*lIter);
+
+	        _tmpstring.clear();
 	      }
 	}
 ;
 
+vectstr : '[' letters ']'
+	{
+	  if(execute)
+	  {
+	    $$ = new struct Array;
+	    $$->size = _tmpstring.size();
+
+	    list<char*>::iterator iter;
+	    for(iter = _tmpstring.begin(); iter != _tmpstring.end(); iter++)
+	      $$->symbols.push_back(*iter);
+
+	    _tmpstring.clear();
+	  }
+	}
+;
+
 numbers : 
-        | numbers ',' aexpr
+        | aexpr ',' numbers 
           {
 	    if(execute)
-	      _tmparray.push_back($3);
+	      _tmparray.push_back($1);
           } 
        | aexpr
          {
 	   if(execute)
 	     _tmparray.push_back($1);
         }
-       | numbers ',' STR
+;
+
+letters :
+	| STR ',' letters
           {
             if(execute)
-              _tmpstring.push_back($3);
-	     _tmparray.push_back(1);
+              _tmpstring.push_back($1);
           }
-       | STR
+	| STR
          {
            if(execute)
              _tmpstring.push_back($1);
-	     _tmparray.push_back(1);
-        }
-
+         }
 ;
 
 command : STOP             { if(execute) quit(); }
@@ -1350,7 +1468,17 @@ command : STOP             { if(execute) quit(); }
 //| PRINTF '(' fmt ')' { if(execute) printf($3,$5); }
 ;
 
-use_parameters :  PERIOD '=' VARIABLE
+use_parameters :  VARIABLE
+                  {
+		    if(execute)
+		      {
+			$$ = $1->name;
+			current_line = $1->name;
+			current_start = NULL;
+			current_end = NULL;
+		      }
+                  }
+		| PERIOD '=' VARIABLE
                   {
 		    if(execute)
 		      {
@@ -1411,22 +1539,22 @@ csample_options : VARIABLE '=' aexpr
 			;//set_value($1->name,string($3));
 		      }
 		  }   
-                | csample_options ',' VARIABLE '=' aexpr
+                | VARIABLE '=' aexpr ',' csample_options
                   {
-		    if(ECHO_GRAMMAR) printf("csample_opt ->csopt , %s =  %.10g \n",$3->name,$5);
+		    if(ECHO_GRAMMAR) printf("csample_opt ->csopt , %s =  %.10g \n",$1->name,$3);
 		    
 		    if(execute)
 		      {
-			if( !strcmp($3->name,"r") ) params.r = $5;
-			else if (!strcmp($3->name,"l") ) params.l = $5;
+			if( !strcmp($1->name,"r") ) params.r = $3;
+			else if (!strcmp($1->name,"l") ) params.l = $3;
 			else if(VERBOSE) 
-			  printf("Warning : CSAMPLER: unknown parameter %s at line\n",$3->name);
+			  printf("Warning : CSAMPLER: unknown parameter %s at line\n",$1->name);
 		      }
 
 		  }   
-                | csample_options ',' VARIABLE '=' STR
+                | VARIABLE '=' STR ',' csample_options
                   {
-		    if(ECHO_GRAMMAR) printf("csample_opt -> %s =  %s \n",$3->name,$5);
+		    if(ECHO_GRAMMAR) printf("csample_opt -> %s =  %s \n",$1->name,$3);
 		    if(execute)
 		      ;//set_value($1->name,string($3));
 		  }   
@@ -1467,32 +1595,32 @@ gas_options : VARIABLE '=' aexpr
 			//set_value($1->name,string($3));
 		      }
 		  }   
-                | gas_options ',' VARIABLE '=' aexpr
+                | VARIABLE '=' aexpr ',' gas_options
                   {
-		    if(ECHO_GRAMMAR) printf("gas_opt -> , %s =  %.10g \n",$3->name,$5);
+		    if(ECHO_GRAMMAR) printf("gas_opt -> , %s =  %.10g \n",$1->name,$3);
 		    
 		    if(execute)
 		      {
-			if( !strcmp($3->name,"r") ) params.r = $5;
-			else if (!strcmp($3->name,"l") ) params.l = $5;
+			if( !strcmp($1->name,"r") ) params.r = $3;
+			else if (!strcmp($1->name,"l") ) params.l = $3;
 			else if(VERBOSE) 
-			  printf("Warning : GAS: unknown parameter %s at line\n",$3->name);
+			  printf("Warning : GAS: unknown parameter %s at line\n",$1->name);
 		      }
 
 		  }   
-                | gas_options ',' VARIABLE '=' STR
+                | VARIABLE '=' STR ',' gas_options
                   {
-		    if(ECHO_GRAMMAR) printf("csample_opt -> %s =  %s \n",$3->name,$5);
+		    if(ECHO_GRAMMAR) printf("csample_opt -> %s =  %s \n",$1->name,$3);
 		    if(execute)
 		      {
-			  if( !strcmp($3->name,"material") ) 
+			  if( !strcmp($1->name,"material") ) 
 			    {
-			      strcpy(params.material ,$5);
+			      strcpy(params.material ,$3);
 			      params.materialset = 1;
 			    }
 		      }
 		  }   
-                | gas_options ',' RANGE '='  VARIABLE '/' VARIABLE
+                | RANGE '='  VARIABLE '/' VARIABLE ',' gas_options
                   {
 		    if(ECHO_GRAMMAR) printf("gas_opt -> range, csopt\n");
 
@@ -1502,10 +1630,10 @@ gas_options : VARIABLE '=' aexpr
 		    if(ECHO_GRAMMAR) printf("gas_opt -> range\n");
 
                   }
-                | gas_options ',' RANGE '='  VARIABLE
+                | RANGE '='  VARIABLE ',' gas_options
                   {
 		    if(ECHO_GRAMMAR) printf("gas_opt -> range\n");
-		    $$ = $5;
+		    $$ = $3;
 		  }
                 | RANGE '='  VARIABLE
                   {
@@ -1515,20 +1643,20 @@ gas_options : VARIABLE '=' aexpr
 ;
 
 option_parameters : 
-                  | option_parameters ',' VARIABLE '=' aexpr
+                  | VARIABLE '=' aexpr ',' option_parameters
                     {
 		      if(execute)
-			set_value($3->name,$5);
+			set_value($1->name,$3);
 		    }   
                   | VARIABLE '=' aexpr
                     {
 		      if(execute)
 			set_value($1->name,$3);
 		    } 
-                  | option_parameters ',' VARIABLE '=' STR
+                  | VARIABLE '=' STR ',' option_parameters
                     {
 		      if(execute)
-			set_value($3->name,std::string($5));
+			set_value($1->name,std::string($3));
 		    }   
                   | VARIABLE '=' STR
                     {
@@ -1538,20 +1666,20 @@ option_parameters :
 ;
 
 beam_parameters :
-                | beam_parameters ',' VARIABLE '=' aexpr
+                | VARIABLE '=' aexpr ',' beam_parameters
                   {
 		    if(execute)
-		      set_value($3->name,$5);
+		      set_value($1->name,$3);
 		  }   
                 | VARIABLE '=' aexpr
                   {
 		    if(execute)
 		      set_value($1->name,$3);
 		  }   
-                | beam_parameters ',' VARIABLE '=' STR
+                | VARIABLE '=' STR ',' beam_parameters
                   {
 		    if(execute)
-		      set_value($3->name,string($5));
+		      set_value($1->name,string($3));
 		  }   
                 | VARIABLE '=' STR
                   {
@@ -1580,6 +1708,3 @@ int yywrap()
 #ifdef __cplusplus
 }
 #endif
-
-
-

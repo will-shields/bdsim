@@ -270,21 +270,31 @@ void inherit_properties(struct Element e)
 
 void set_vector(std::list<double>& dst, struct Array *src)
 {
-  for(int i=0; i< src->size;i++)
+  for(int i=0; i< src->size;i++){
     dst.push_back(src->data[i]);
+    if(DEBUG) std::cout << src->data[i] << " ";
+  }
+  if(DEBUG) std::cout << std::endl;
+  
 };
 
 
 void set_vector(std::list<char*>& dst, struct Array *src)
 {
-  for(int i=0; i< src->size;i++)
+  for(int i=0; i< src->size;i++){
     dst.push_back(src->symbols[i]);
+    if(DEBUG) std::cout << src->symbols[i] << " ";
+  }
+  if(DEBUG) std::cout << std::endl;
 };
 
 void set_vector(std::list<int>& dst, struct Array *src)
 {
-  for(int i=0; i< src->size;i++)
+  for(int i=0; i< src->size;i++){
     dst.push_back((int)(src->data[i]));
+    if(DEBUG) std::cout << (int)(src->data[i]) << " ";
+  }
+  if(DEBUG) std::cout << std::endl;
 };
 
 
@@ -341,7 +351,7 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
   e.outR = params.outR;
   e.xsize = params.xsize;
   e.ysize = params.ysize;
-  
+  e.material = params.material;  
   
   //specific parameters
   switch(type) {
@@ -545,6 +555,9 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     e.Z = params.Z;
     e.density = params.density;
     e.temper = params.temper;
+    e.components = params.components;
+    e.componentsWeights = params.componentsWeights;
+    e.componentsFractions = params.componentsFractions;
     material_list.push_back(e);
     return 0;
 

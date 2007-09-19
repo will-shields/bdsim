@@ -51,6 +51,14 @@ BDSCollimator::BDSCollimator (G4String aName,G4double aLength,G4double bpRad,
 			    itsName);
       BuildInnerCollimator();
 
+      itsSolidLogVol->SetVisAttributes(SetVisAttributes());
+
+      // visual attributes
+      G4VisAttributes* VisAtt1 =
+        new G4VisAttributes(G4Colour(0., 0., 0.));
+      VisAtt1->SetForceSolid(true);
+      itsInnerLogVol->SetVisAttributes(VisAtt1);
+
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
     }
@@ -65,6 +73,7 @@ BDSCollimator::BDSCollimator (G4String aName,G4double aLength,G4double bpRad,
 G4VisAttributes* BDSCollimator::SetVisAttributes()
 {
   itsVisAttributes=new G4VisAttributes(G4Colour(0.3,0.4,0.2));
+  itsVisAttributes->SetForceSolid(true);
   return itsVisAttributes;
 }
 
