@@ -50,14 +50,15 @@ char* yyfilename;
 
 [\t ]+     //ignore whitespaces
 
-"!".*/\n { }    // commenst - ignore
-
 (([0-9]+)|([0-9]*\.[0-9]*))(e[+|-]?[0-9]+)? { yylval.dval=atof(yytext); return NUMBER; }
 
 
 "<=" { return LE; }
 ">=" { return GE; }
-"!=" { return NE; }
+"<>" { return NE; }
+"==" { return EQ; }
+
+"!".*/\n { }    // comments - ignore
 
 marker { return MARKER; } // reserved elements
 drift { return DRIFT; }

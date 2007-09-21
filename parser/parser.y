@@ -38,7 +38,7 @@
 
 %left '+' '-'
 %left '*' '/'
-%left '^' '<' '>' NE LE GE
+%left '^' '<' '>' NE LE GE EQ
 %nonassoc UMINUS
 %nonassoc UPLUS
 
@@ -50,7 +50,7 @@
 %token VKICK HKICK KICK
 %token PERIOD APERTURE FILENAME GAS PIPE TUNNEL MATERIAL ATOM
 %token BEAM OPTION PRINT RANGE STOP USE VALUE ECHO PRINTF SAMPLE CSAMPLE BETA0 TWISS DUMP
-%token IF ELSE BEGN END LE GE NE FOR
+%token IF ELSE BEGN END LE GE NE EQ FOR
 %token CUT
 
 %type <dval> aexpr
@@ -1031,6 +1031,7 @@ aexpr :  NUMBER               { $$ = $1;                         }
         | aexpr '>' aexpr { $$ = ($1 > $3 )? 1 : 0; } 
         | aexpr GE aexpr { $$ = ($1 >= $3 )? 1 : 0; } 
         | aexpr NE aexpr { $$ = ($1 != $3 )? 1 : 0; } 
+	| aexpr EQ aexpr { $$ = ($1 == $3 )? 1 : 0; }
         | VARIABLE '[' VARIABLE ']' 
           { 
 	    if(ECHO_GRAMMAR) printf("aexpr-> %s [ %s ]\n ",$1->name, $3->name); 
