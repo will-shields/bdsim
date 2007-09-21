@@ -441,7 +441,7 @@ G4Material* BDSMaterials::GetMaterial(G4String aMaterial)
   map<G4String,G4Material*>::iterator iter = materials.find(aMaterial);
   if(iter != materials.end()) return (*iter).second;
   else{
-    G4Exception("Material not known. Aborting.");
+    G4Exception("Material "+aMaterial+" not known. Aborting.");
     exit(1);
   }
 }
@@ -451,7 +451,7 @@ G4Element* BDSMaterials::GetElement(G4String aSymbol)
   map<G4String,G4Element*>::iterator iter = elements.find(aSymbol);
   if(iter != elements.end()) return (*iter).second;
   else{
-    G4Exception("Element not known. Aborting.");
+    G4Exception("Element "+aSymbol+" not known. Aborting.");
     exit(1);
   }
 }
