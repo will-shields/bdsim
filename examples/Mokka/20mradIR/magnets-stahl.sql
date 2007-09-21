@@ -30,16 +30,16 @@ CREATE TABLE QDEXQUADS_CONE (
 );
 
 # Beampipe of QDEX1A - 20mrad
-INSERT INTO QDEXQUADS_CONE VALUES ("", 46, 0.0, 4600, 1.0, 0.0, 0.0, "S", 2200, 0, 0, 15, 15, 0.,  0.00, 10e-3, 0.0, "QUAD", "ALUMINIUM", 1, "QDEX1A_BP"); 
-INSERT INTO QDEXQUADS_CONE VALUES ("QDEX1A_BP", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "I", 2200, 0, 0, 13.0, 13.0, 0.,  0.00, 0., -0.02308, "QUAD", "VACUUM", 0, "QDEX1A_INNER");
+INSERT INTO QDEXQUADS_CONE VALUES ("", 46, 0.0, 4600, 1.0, 0.0, 0.0, "S", 2200, 0, 0, 15, 15, 0.,  0.00, 10e-3, 0.0, "QUAD", "Aluminium", 1, "QDEX1A_BP"); 
+INSERT INTO QDEXQUADS_CONE VALUES ("QDEX1A_BP", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "I", 2200, 0, 0, 13.0, 13.0, 0.,  0.00, 0., -0.02308, "QUAD", "Vacuum", 0, "QDEX1A_INNER");
 
 # Outer NbTi of Magnet - 20mrad
 INSERT INTO QDEXQUADS_CONE VALUES ("", 46, 0.0, 4600, 1.0, 0.0, 0.0, "S", 2200, 15.0, 15.0, 20.0, 20.0, 0.,  0.00, 10e-3, 0.0, "QUAD", "NbTi", 1, "QDEX1A_OUTER"); 
 
 
 # Beampipe of QDEX1B - 20mrad
-INSERT INTO QDEXQUADS_CONE VALUES ("", 67.7, 0.0, 6770, 1.0, 0.0, 0.0, "S", 1540, 0, 0, 17, 17, 0.,  0.00, 10e-3, 0.0, "QUAD", "ALUMINIUM", 1, "QDEX1B_BP"); 
-INSERT INTO QDEXQUADS_CONE VALUES ("QDEX1B_BP", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "I", 1540, 0, 0, 15.0, 15.0, 0.,  0.00, 0., -0.04800, "QUAD", "VACUUM", 0, "QDEX1B_INNER");
+INSERT INTO QDEXQUADS_CONE VALUES ("", 67.7, 0.0, 6770, 1.0, 0.0, 0.0, "S", 1540, 0, 0, 17, 17, 0.,  0.00, 10e-3, 0.0, "QUAD", "Aluminium", 1, "QDEX1B_BP"); 
+INSERT INTO QDEXQUADS_CONE VALUES ("QDEX1B_BP", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "I", 1540, 0, 0, 15.0, 15.0, 0.,  0.00, 0., -0.04800, "QUAD", "Vacuum", 0, "QDEX1B_INNER");
 
 # Outer NbTi of Magnet - 20mrad
 INSERT INTO QDEXQUADS_CONE VALUES ("", 67.7, 0.0, 6770, 1.0, 0.0, 0.0, "S", 1540, 17.0, 17.0, 20.0, 20.0, 0.,  0.00, 10e-3, 0.0, "QUAD", "NbTi", 1, "QDEX1B_OUTER"); 
@@ -68,9 +68,9 @@ CREATE TABLE DRIFTS_CONE (
 );
   
 # Drift from QDEX1a to QDEX1b - 20mrad
-INSERT INTO DRIFTS_CONE VALUES (58.5, 0.0, 5850, 0.0, 1.0, 0.0, "S", 300, 13, 15, 15, 17, 0.,  0.00, 10e-3, "ALUMINIUM", 1, ""); 
+INSERT INTO DRIFTS_CONE VALUES (58.5, 0.0, 5850, 0.0, 1.0, 0.0, "S", 300, 13, 15, 15, 17, 0.,  0.00, 10e-3, "Aluminium", 1, ""); 
 
 # Drift from QDEX1b to end of mokka element - 20mrad
-INSERT INTO DRIFTS_CONE VALUES (77, 0.0, 7700, 0.0, 1.0, 0.0, "S", 300, 15, 15, 17, 17, 0.,  0.00, 10e-3, "ALUMINIUM", 1, ""); 
+INSERT INTO DRIFTS_CONE VALUES (77, 0.0, 7700, 0.0, 1.0, 0.0, "S", 300, 15, 15, 17, 17, 0.,  0.00, 10e-3, "Aluminium", 1, ""); 
 
 

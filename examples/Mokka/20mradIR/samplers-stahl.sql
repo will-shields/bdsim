@@ -23,7 +23,7 @@ CREATE TABLE IR_SAMPLER (
     NAME          VARCHAR(32)   # NAME OF SOLID, LOGICAL, AND PHYSICAL VOLUME
 );
                       
-INSERT INTO IR_SAMPLER VALUES (0.0, 0.0, 3000.25, 1.0, 1.0, 1.0, "S", 1e-8, 120, 120, 0., 0., 0.0, "VACUUM", ""); 
-INSERT INTO IR_SAMPLER VALUES (0.0, 0.0, 3499.75, 1.0, 1.0, 1.0, "S", 1e-8, 160, 160, 0., 0., 0.0, "VACUUM", ""); 
+INSERT INTO IR_SAMPLER VALUES (0.0, 0.0, 3000.25, 1.0, 1.0, 1.0, "S", 1e-8, 120, 120, 0., 0., 0.0, "Vacuum", ""); 
+INSERT INTO IR_SAMPLER VALUES (0.0, 0.0, 3499.75, 1.0, 1.0, 1.0, "S", 1e-8, 160, 160, 0., 0., 0.0, "Vacuum", ""); 
 
 

@@ -17,7 +17,6 @@ option, beampipeRadius = 15 * cm,
 col:element,l=0.5*m,geometry="gmad:colli.geo";
 
 test:line=(d,col,d);
-
 use,period=test;
 
 beam,  particle="e-",

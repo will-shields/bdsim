@@ -1,1 +1,1 @@
-examples/Mokka/General/polycone.sql
+polycone.sql

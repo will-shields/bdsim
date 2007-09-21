@@ -30,8 +30,8 @@ CREATE TABLE QD0_CONE (
 );
 
 # Beampipe of QD0 - 2mrad
-INSERT INTO QD0_CONE VALUES ("", 5.750, 0.0, 5750, 1.0, 0.0, 0.0, "S", 2500, 0, 0, 35, 35, 0.,  0.00, 1e-3, 0.0, "QUAD", "ALUMINIUM", 1, "QD0_BP"); 
-INSERT INTO QD0_CONE VALUES ("QD0_BP", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "I", 2500, 0, 0, 34.0, 34.0, 0.,  0.00, 0., -0.095803008082, "QUAD", "VACUUM", 0, "QD0_INNER");
+INSERT INTO QD0_CONE VALUES ("", 5.750, 0.0, 5750, 1.0, 0.0, 0.0, "S", 2500, 0, 0, 35, 35, 0.,  0.00, 1e-3, 0.0, "QUAD", "Aluminium", 1, "QD0_BP"); 
+INSERT INTO QD0_CONE VALUES ("QD0_BP", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "I", 2500, 0, 0, 34.0, 34.0, 0.,  0.00, 0., -0.095803008082, "QUAD", "Vacuum", 0, "QD0_INNER");
 
 # Outer Iron of Magnet - 2mrad
 INSERT INTO QD0_CONE VALUES ("", 5.750, 0.0, 5750, 1.0, 0.0, 0.0, "S", 2500, 35.0, 35.0, 250.0, 250.0, 0.,  0.00, 1e-3, 0.0, "QUAD", "Iron", 1, "QD0_OUTER"); 
@@ -59,7 +59,7 @@ CREATE TABLE D1A0_CONE (
 );
   
 # Drift from QD0 to SD0 - 2mrad
-INSERT INTO D1A0_CONE VALUES (7.5975, 0.0, 7597.5, 0.0, 1.0, 0.0, "S", 1195, 34, 87, 35, 88, 0.,  0.00, 1e-3, "ALUMINIUM", ""); 
+INSERT INTO D1A0_CONE VALUES (7.5975, 0.0, 7597.5, 0.0, 1.0, 0.0, "S", 1195, 34, 87, 35, 88, 0.,  0.00, 1e-3, "Aluminium", ""); 
 
 ####################################################
 
@@ -88,8 +88,8 @@ CREATE TABLE SD0_CONE (
 );
 
 # Beampipe of SD0 - 2mrad
-INSERT INTO SD0_CONE VALUES ("", 10.095, 0.0, 10095, 1.0, 1.0, 0.0, "S", 3800, 0, 0, 88, 88, 0.,  0.00, 1e-3, 0.0, "SEXT", "ALUMINIUM", 1, "SD0_BP"); 
-INSERT INTO SD0_CONE VALUES ("SD0_BP", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "I", 3800, 0, 0, 87.0, 87.0, 0.,  0.00, 0.0, 0.625408483406, "SEXT", "VACUUM", 0, "SD0_INNER");
+INSERT INTO SD0_CONE VALUES ("", 10.095, 0.0, 10095, 1.0, 1.0, 0.0, "S", 3800, 0, 0, 88, 88, 0.,  0.00, 1e-3, 0.0, "SEXT", "Aluminium", 1, "SD0_BP"); 
+INSERT INTO SD0_CONE VALUES ("SD0_BP", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "I", 3800, 0, 0, 87.0, 87.0, 0.,  0.00, 0.0, 0.625408483406, "SEXT", "Vacuum", 0, "SD0_INNER");
 
 # Outer Iron of Magnet - 2mrad
 INSERT INTO SD0_CONE VALUES ("", 10.095, 0.0, 10095, 1.0, 1.0, 0.0, "S", 3800, 88, 88, 250.0, 250.0, 0.,  0.00, 1e-3, 0.0, "SEXT", "Iron", 0, "SD0_OUTER"); 

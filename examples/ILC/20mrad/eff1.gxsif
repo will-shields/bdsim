@@ -401,7 +401,7 @@
   pdump : rcol, l=lpc,   type="x20y20",    xsize=xgappdump, ysize=ygappdump,material="Copper";
   pc7   : rcol, l=lpc,   type="x10y10",    xsize=xgappc7,  ysize=ygappc7,material="Copper";
 
-  spex  : rcol, l=lspe,  type="x6.4y0",    xsize=xgapspex, ysize=ygapspex, material="Ti";
+  spex  : rcol, l=lspe,  type="x6.4y0",    xsize=xgapspex, ysize=ygapspex, material="Titanium";
  
 
   !pc8   : ecol, l=lpc,   type="x10y10",    xsize=rpc8,     ysize=rpc8,material="Copper";
@@ -411,18 +411,18 @@
   pc9   : rcol, l=lpc,   type="x10y10",    xsize=xgappc9,   ysize=ygappc9,material="Copper";
   pc10  : rcol, l=lpc,   type="x10y10",    xsize=xgappc10,  ysize=ygappc10,material="Copper";
 
-  abe   : rcol, l=labff, type="x2y2",      xsize=xgapabe,  ysize=ygapabe,material="W";
+  abe   : rcol, l=labff, type="x2y2",      xsize=xgapabe,  ysize=ygapabe,material="Tungsten";
   
 
   !pc11  : ecol, l=lpc,   type="x10y10",    xsize=xgappc11,    ysize=ygappc11,material="Copper";
   pc11  : rcol, l=lpc,   type="x10y10",    xsize=xgappc11,    ysize=ygappc11,material="Copper";
 
-  ab10  : rcol, l=labff, type="x8.8y8.8",  xsize=xgapab10, ysize=ygapab10,material="W";
-  ab9   : rcol, l=labff, type="x13.2y6",   xsize=xgapab9,  ysize=ygapab9,material="W";
-  ab7   : rcol, l=labff, type="x9y6",      xsize=xgapab7,  ysize=ygapab7,material="W";
-  msk1  : rcol, l=lmsk,  type="x16.6y0",   xsize=xgapmsk1, ysize=ygapmsk1, material="W";
-  msk2  : rcol, l=lmsk,  type="x17y0",     xsize=xgapmsk2, ysize=ygapmsk2, material="W";
-  mskcrab : ecol, l=lmsk,  type="x10.5y10.5", xsize=rmskcrab, ysize=rmskcrab, material="W";
+  ab10  : rcol, l=labff, type="x8.8y8.8",  xsize=xgapab10, ysize=ygapab10,material="Tungsten";
+  ab9   : rcol, l=labff, type="x13.2y6",   xsize=xgapab9,  ysize=ygapab9,material="Tungsten";
+  ab7   : rcol, l=labff, type="x9y6",      xsize=xgapab7,  ysize=ygapab7,material="Tungsten";
+  msk1  : rcol, l=lmsk,  type="x16.6y0",   xsize=xgapmsk1, ysize=ygapmsk1, material="Tungsten";
+  msk2  : rcol, l=lmsk,  type="x17y0",     xsize=xgapmsk2, ysize=ygapmsk2, material="Tungsten";
+  mskcrab : ecol, l=lmsk,  type="x10.5y10.5", xsize=rmskcrab, ysize=rmskcrab, material="Tungsten";
 
 ! ==============================================================================;
 ! driftts;
@@ -539,7 +539,7 @@
 ! diagnostic/correction devices, etc.;
 ! ------------------------------------------------------------------------------;
 
-  phasemon : inst ;!beam arrival phase markertor;
+  phasemon : marker ;!beam arrival phase markertor;
   ws_div   : marker ;!divergence marker scanner;
   ws_esp   : marker ;!energy spread marker scanner;
 
@@ -556,13 +556,13 @@
 
 ! steering magnets;
 
-  xcorfb : driftk;
-  ycorfb : driftk;
+  xcorfb : marker;
+  ycorfb : marker;
 
 ! correctors for ip collision control;
 
-  xcorip : driftk;
-  ycorip : driftk;
+  xcorip : marker;
+  ycorip : marker;
 
 ! virtual ip diagnostics (for simulations only);
 

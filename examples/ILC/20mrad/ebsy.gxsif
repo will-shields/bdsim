@@ -146,10 +146,10 @@
 ! marker scanners;
 ! ------------------------------------------------------------------------------;
 
-  wsebsy1 : ws;
-  wsebsy2 : ws;
-  wsebsy3 : ws;
-  wsebsy4 : ws;
+  wsebsy1 : marker;
+  wsebsy2 : marker;
+  wsebsy3 : marker;
+  wsebsy4 : marker;
 
 ! ==============================================================================;
 ! beamlines;

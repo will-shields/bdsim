@@ -18,8 +18,7 @@ option, beampipeRadius = 10 * cm,
 ! Approximate geometry model
 
 
-ir:element,l=7.85*m,geometry="mokka:examples/Mokka/20mradIR/geomlist.sql",
-	bmap="mokka:examples/Mokka/FieldMaps/SiD_fields.txt";
+ir:element,l=7.85*m,geometry="mokka:geomlist.sql",bmap="mokka:../FieldMaps/SiD_fields.txt";
 
 IntRegion:line=(ir);
 
@@ -33,4 +32,4 @@ beam,  particle="e-",
        energy=250 * GeV,
        nparticles=1e+3,
        distrType="guineapig_slac",
-       distrFile="testbeam.dat";
+       distrFile="../../ILC/2mrad/bunches/beam.dat";

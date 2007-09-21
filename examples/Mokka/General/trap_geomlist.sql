@@ -1,1 +1,1 @@
-examples/Mokka/General/trap.sql
+trap.sql

@@ -35,4 +35,4 @@ beam,  particle="e-",
        energy=250 * GeV,
        nparticles=1e+3,
        distrType="guineapig_slac",
-       distrFile="testbeam.dat";
+       distrFile="../../ILC/2mrad/bunches/beam.dat";

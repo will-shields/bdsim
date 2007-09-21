@@ -180,7 +180,7 @@ INSERT INTO TUBE_CONE VALUES ("vessel_shell",0.0, -105., 0., 0.0, 0.0, 1.0, "S",
 
 INSERT INTO TUBE_CONE VALUES ("vessel_shell", 0.0, 105, 0.0, 100, 0.0, 1.0, "S", 12478.4, 150.0, 150.0, 156.0, 156.0, 0., 0., 0., "Aluminium", "2K_return_pipe"); 
 
-INSERT INTO TUBE_CONE VALUES ("2K_return_pipe", 0.0, 0.0, 0.0, 0.3, 0.12, 0.5, "S", 12478.4, 0.0, 0.0, 150.0, 150.0, 0., 0., 0., "LHe", "He_in_2K_ret_pipe.sql"); 
+INSERT INTO TUBE_CONE VALUES ("2K_return_pipe", 0.0, 0.0, 0.0, 0.3, 0.12, 0.5, "S", 12478.4, 0.0, 0.0, 150.0, 150.0, 0., 0., 0., "LiquidHelium", "He_in_2K_ret_pipe.sql"); 
 
 INSERT INTO TUBE_CONE VALUES ("vessel_shell", 0.0, -265.0, 0.0, 0.3, 0.12, 0.5, "w", 12478.4, 115.0, 115.0, 125.0, 125.0, 0.0, 0.0, 0.0, "Titanium", "pipe_around_cavity"); 
 

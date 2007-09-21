@@ -28,8 +28,8 @@ CREATE TABLE BEAMCAL_CONE (
     PARENTNAME    VARCHAR(32)   # NAME OF PARENT
 );
                       
-INSERT INTO BEAMCAL_CONE VALUES (0.0, 0.0, 3250, 0.8, 0.2, 0.2, "S", 499, 00.0, 00.0, 120.0, 160.0,3.14, 3.14, 0., 0., 0., "TUNGSTEN", "beamcal", ""); 
+INSERT INTO BEAMCAL_CONE VALUES (0.0, 0.0, 3250, 0.8, 0.2, 0.2, "S", 499, 00.0, 00.0, 120.0, 160.0,3.14, 3.14, 0., 0., 0., "Tungsten", "beamcal", ""); 
 
-INSERT INTO BEAMCAL_CONE VALUES (32.5, 0.0, 0.0, 0.0, 1.0, 0.0, "S", 499.03, 00.0, 00.0, 12.0, 16.0, 3.14, 3.14, 0., 0., 10.e-3, "VACUUM", "beamcal_inner", "beamcal"); 
+INSERT INTO BEAMCAL_CONE VALUES (32.5, 0.0, 0.0, 0.0, 1.0, 0.0, "S", 499.03, 00.0, 00.0, 12.0, 16.0, 3.14, 3.14, 0., 0., 10.e-3, "Vacuum", "beamcal_inner", "beamcal"); 
 
 

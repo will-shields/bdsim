@@ -40,8 +40,8 @@ include options.gmad;
 
   bpmq079  : marker;
   mmover   : marker;
-  fbcxy    : inst;
-  fbkxy    : inst;
+  fbcxy    : marker;
+  fbkxy    : marker;
   bpmmb079 : marker;
   ws       : marker;
   bpmws    : marker;
@@ -52,10 +52,10 @@ include options.gmad;
 ! load beamline definitions;
 ! ------------------------------------------------------------------------------;
 
-  include /home/ilia/work/ilc/ilc-collimation/gmad/ilc2006/ebsy.gxsif;
-  include /home/ilia/work/ilc/ilc-collimation/gmad/ilc2006/eirt1.gxsif;
-  include /home/ilia/work/ilc/ilc-collimation/gmad/ilc2006/eff1.gxsif;
-  !include /home/ilia/work/ilc/ilc-collimation/gmad/ilc2006/edl1.gxsif;
+  include ebsy.gxsif;
+  include eirt1.gxsif;
+  include eff1.gxsif;
+  !include edl1.gxsif;
 
 ! ==============================================================================;
 ! input beam definitions;

@@ -13,8 +13,8 @@ beam,  particle="e-",
 
 use ,period=ext;
 
-sample, range = startl;
-sample, range = endl;
+!sample, range = startl;
+!sample, range = endl;
 
 option,turnInteractions=1,ngenerate=2000;
 option,verboseStep=0;
