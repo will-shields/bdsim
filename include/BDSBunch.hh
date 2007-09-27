@@ -10,7 +10,7 @@
 #include "globals.hh"
 #include <fstream>
 
-#if CLHEP_VERSION > 8 || CLHEP_VERSION < 1
+#if CLHEP_VERSION > 8 
 using namespace CLHEP;
 #endif
 
