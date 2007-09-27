@@ -16,7 +16,7 @@
 //
 
 
-const int DEBUG = 0;
+const int DEBUG = 1;
 
 //=================================================================
 
@@ -761,9 +761,17 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	  rtot += localZ * (*iBeam)->GetLength()/2;
 
 	  G4double angle=(*iBeam)->GetAngle();
+	  if(!angle && (*iBeam)->GetType()=="transform3d")
+	    angle=(*iBeam)->GetPhi();
 	  G4double theta=(*iBeam)->GetTheta();
+	  G4double psi=(*iBeam)->GetPsi();
 
 	  // define new coordinate system local frame	  
+
+	  localX.rotate(psi,localZ);
+	  localY.rotate(psi,localZ);
+	  localZ.rotate(psi,localZ);
+
 	  localX.rotate(angle,localY);
 	  localY.rotate(angle,localY);
 	  localZ.rotate(angle,localY);
@@ -774,7 +782,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 	  // advance the coordinate system translation
 	  rtot+= localZ *  (*iBeam)->GetLength();
-
+	  if(DEBUG)
+	    G4cout << (*iBeam)->GetType() << " " << rtot << G4endl;
 	}
 
       if(rmax(0)>rtot(0)) rmax(0) = rtot(0);
