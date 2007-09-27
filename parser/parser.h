@@ -65,6 +65,8 @@ const char *typestr(int type) {
     return "quadrupole";
   case _SEXTUPOLE:
     return "sextupole";
+  case _OCTUPOLE :
+    return "octupole";
   case _MULT :
     return "multipole";
   case _SOLENOID : 
