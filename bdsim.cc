@@ -319,8 +319,8 @@ int main(int argc,char** argv) {
 
 
 #ifdef G4VIS_USE  // visualization manager
-  G4VisManager* visManager;
-  if(!isBatch);
+  G4VisManager* visManager = 0;
+  if(!isBatch)
   {
     visManager = new BDSVisManager;
     visManager->Initialize();

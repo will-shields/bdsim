@@ -59,4 +59,3 @@ beam,  particle="e-",
        sigmaY=0.01;
       
 option, ngenerate=100, physicsList="standard";
-        
