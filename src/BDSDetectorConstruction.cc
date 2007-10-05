@@ -1,7 +1,7 @@
 //  
-//   BDSIM, (C) 2001-2006 
+//   BDSIM, (C) 2001-2007
 //   
-//   version 0.3
+//   version 0.4
 //  
 //
 //
@@ -9,14 +9,14 @@
 //
 //
 //   History
-//     13 Sep 2007 by Malton v.0.4
+//      3 Oct 2007 by Malton v.0.4
 //     21 Nov 2006 by Agapov v.0.3
 //     28 Mar 2006 by Agapov v.0.2
 //     15 Dec 2005 by Agapov beta
 //
 
 
-const int DEBUG = 0;
+const int DEBUG = 1;
 
 //=================================================================
 
@@ -160,8 +160,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::Construct()
 
   theMaterials=new BDSMaterials();
 
-  aMaterial=theMaterials->GetMaterial("Graphite"); // default collimator material
-
   if(DEBUG) G4cout<<"-->starting BDS construction \n"<<G4endl;
 
   return ConstructBDS(beamline_list);
@@ -182,55 +180,98 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   
   for(it = atom_list.begin();it!=atom_list.end();it++)
   {
+    if (DEBUG) G4cout << "---->adding Atom, "
+		      << "name= " << (*it).name << " "
+		      << "symbol= " << (*it).symbol << " "
+		      << "Z= " << (*it).Z << " "
+		      << "A= " << (*it).A << "g/mole "
+		      << G4endl;
     theMaterials->AddElement((*it).name,(*it).symbol,(*it).Z,(*it).A);
   }
 
   for(it = material_list.begin();it!=material_list.end();it++)
   {
-    if(DEBUG) G4cout << (*it).name << " " << (*it).Z << " " << (*it).A << G4endl;
+    G4State itsState;
+    if ((*it).state=="solid") itsState = kStateSolid;
+      else
+    if ((*it).state=="liquid") itsState = kStateLiquid;
+      else
+    if ((*it).state=="gas") itsState = kStateGas;
+      else {
+	G4cout << "Unkwnown material state "<< (*it).state <<", setting it to default (solid)"<<G4endl;
+	(*it).state="solid";
+	itsState = kStateSolid;
+      }
+
+    if (DEBUG) G4cout << "---->adding Material "<< "name= "<< (*it).name << " "
+		      << "Z= " << (*it).Z << " "
+		      << "A= " << (*it).A << "g/mole "
+		      << "density= "<< (*it).density << "g/cm3 "
+		      << "state= " << (*it).state << " "
+		      << "T= " << (*it).temper << "K "
+		      << "P= " << (*it).pressure << "atm "
+		      << "ncomponents= " << (*it).components.size() << " "
+		      << G4endl;
+
     if((*it).Z != 0)
       theMaterials->AddMaterial((*it).name,(*it).Z,(*it).A,(*it).density);
-    
+
     else if((*it).components.size() != 0){
 
       if((*it).componentsWeights.size()==(*it).components.size())
-	theMaterials->AddMaterial((*it).name,(*it).density,kStateSolid,(*it).temper,
-		1*atmosphere,(*it).components,(*it).componentsWeights);
+	theMaterials->AddMaterial((*it).name,
+				  (*it).density,
+				  itsState,
+				  (*it).temper,
+				  (*it).pressure,
+				  (*it).components,
+				  (*it).componentsWeights);
 
       else if((*it).componentsFractions.size()==(*it).components.size()) 
-        theMaterials->AddMaterial((*it).name,(*it).density,kStateSolid,(*it).temper,
-                1*atmosphere,(*it).components,(*it).componentsFractions);
+        theMaterials->AddMaterial((*it).name,
+				  (*it).density,
+				  itsState,
+				  (*it).temper,
+				  (*it).pressure,
+				  (*it).components,
+				  (*it).componentsFractions);
 
       else {G4Exception("Badly defined material - number of components is not equal to number of weights or mass fractions!"); exit(1);}
     }
     else {G4Exception("Badly defined material - need more information!"); exit(1);}
   }
 
-  //BDSBeamline theBeamline;
   
   // set global magnetic field first
   SetMagField(0.0); // necessary to set a global field; so chose zero
   
   
-  // radius of curvature (!!!!! valid for electrons only???!!!!)
-  G4double P0 = BDSGlobals->GetBeamTotalEnergy();
-  
-  // magnetic rigidity
-  G4double brho=
-    sqrt(pow(P0,2)- pow(electron_mass_c2,2))/(0.299792458 * (GeV/(tesla*m)));
+  // compute magnetic rigidity brho
+  // formula: B(Tesla)*rho(m) = p(GeV)/(0.299792458 * |charge(e)|)
+  G4double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();
+  G4double momentum = BDSGlobals->GetBeamMomentum();
+  G4double brho = ( (momentum/GeV) / (0.299792458 * fabs(charge))) * (tesla*m);
+  if (DEBUG) G4cout << "Rigidity (Brho) : "<< brho << " T*m"<<G4endl;
+
 
   G4double bField;
 
-  // beampipe radius
+  // beampipe outer radius
   G4double bpRad=BDSGlobals->GetBeampipeRadius();
-  // ???
+
+  // I suspect FeRad is planned to be offered as an option for the inner radius
+  // of the iron in case it is different from the beampipe outer radius
+  // Not done yet.
   G4double FeRad = bpRad;
   
-  // quadrupole field gradient
+  // quadrupole field gradient (dBy/dx ?)
   G4double bPrime;
-  // sectupole field coef.
-  G4double bDoublePrime;  // for sextupole field
-  G4double bTriplePrime;  // for octupole field
+
+  // sextupole field coefficient (d^2 By/dx^2 ?)
+  G4double bDoublePrime;  
+
+  // octupole field coefficient (d^3 By/dy^3 ?)
+  G4double bTriplePrime; 
   
   // stuff for rescaling due to synchrotron radiation, IGNORING
   G4double synch_factor = 1;
@@ -311,9 +352,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 	(*it).angle*=-1;
 
-	// get the particle charge
-        double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();
-	
 	if((*it).B != 0){
 	  bField = (*it).B * tesla;
 	  (*it).angle  = -bField * (*it).l / ( brho * charge ) / tesla;
@@ -354,9 +392,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
         (*it).angle*=-1;
 
-        // get the particle charge
-        double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();
-        
         if((*it).B != 0){
           bField = (*it).B * tesla;
           (*it).angle  = -bField * (*it).l / ( brho * charge ) / tesla;
@@ -396,9 +431,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	FeRad = aper;
 
 	(*it).angle*=-1;
-
-	// get the particle charge
-        double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();		
 
         if((*it).B != 0){
           bField = (*it).B * tesla;
@@ -440,9 +472,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 	(*it).angle*=-1;
 
-	// get the particle charge
-        double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();		
-
         if((*it).B != 0){
           bField = (*it).B * tesla;
           (*it).angle  = -bField * (*it).l / ( brho * charge ) / tesla;
@@ -478,9 +507,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
       if((*it).type==_QUAD ) {
 
-	// get the particle charge
-        double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();	
-	
 	//bPrime = brho * (*it).k1 / (*it).l * tesla  * synch_factor;
 	bPrime = -charge * brho * (*it).k1 * tesla / m;
 
@@ -511,9 +537,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       
       if((*it).type==_SEXTUPOLE ) {
 
-	// get the particle charge
-        double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();	
-
 	//bDoublePrime = brho * (*it).k2 / (*it).l * tesla / (m*m) * synch_factor;
 	bDoublePrime = -charge * brho * (*it).k2 * tesla / (m*m) * synch_factor;
 
@@ -539,11 +562,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
       if((*it).type==_OCTUPOLE ) {
 
-	double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();	
-
-	//bDoublePrime = brho * (*it).k2 / (*it).l * tesla / (m*m) * synch_factor;
 	//bTriplePrime = brho * (*it).k3 / (*it).l * tesla / (m*m*m) * synch_factor;
-	bDoublePrime = -charge * brho * (*it).k2 * tesla / (m*m) * synch_factor;
 	bTriplePrime = -charge * brho * (*it).k3 * tesla / (m*m*m) * synch_factor;
 
 	G4double aper = bpRad;
@@ -642,16 +661,15 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       }
       
       if((*it).type==_ECOL ) {
-	theMaterial = aMaterial;
+
 	if((*it).material != "")
 	  theMaterial = theMaterials->GetMaterial( (*it).material );
+	else
+	  theMaterial = theMaterials->GetMaterial( "Graphite" );
 
 	if(DEBUG) { G4cout<<"---->adding Ecol, "<<G4String( (*it).name )<<G4endl<<
 		      "xaper="<<(*it).xsize<<"m, yaper="<<(*it).ysize<<
 		      "m, material="<<(*it).material<<G4endl;}
-
-	
-	if(DEBUG) G4cout<<"retrieved material :"<<aMaterial->GetName()<<G4endl;
 
 	theBeamline.push_back(new BDSCollimator(G4String((*it).name),(*it).l * m,bpRad,
 						(*it).xsize * m,(*it).ysize * m,_ECOL,theMaterial, (*it).outR*m) );
@@ -659,15 +677,15 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       added_comp=true;
       }
       if((*it).type==_RCOL ) {
-	theMaterial = aMaterial;
+
 	if((*it).material != "")
 	  theMaterial = theMaterials->GetMaterial( (*it).material );
+	else
+	  theMaterial = theMaterials->GetMaterial( "Graphite" );
 
 	if(DEBUG) { G4cout<<"---->adding Rcol, "<<G4String( (*it).name )<<G4endl<<
 		      "xaper="<<(*it).xsize<<"m, yaper="<<(*it).ysize<<
 		      "m, material="<<(*it).material<<G4endl;}
-
-	if(DEBUG) G4cout<<"retrieved material :"<<aMaterial->GetName()<<G4endl;
 
 	theBeamline.push_back(new BDSCollimator(G4String((*it).name),(*it).l * m,bpRad,
 						(*it).xsize * m,(*it).ysize * m,_RCOL,theMaterial, (*it).outR*m) );
@@ -877,7 +895,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
 
-   G4bool use_graphics=true;
+  G4bool use_graphics=true;
   G4double s_local=-s_tot/2.;
   G4ThreeVector TargetPos;
 
@@ -897,7 +915,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       }
   }
   
-  if(DEBUG) G4cout<<"staring placement procedure "<<G4endl;
+  if(DEBUG) G4cout<<"starting placement procedure "<<G4endl;
   
   rtot = G4ThreeVector(0.,0.,0.);
   localX = G4ThreeVector(1.,0.,0.); 
@@ -1150,18 +1168,18 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
     }
   
   // free the parser list
-  
   beamline_list.clear();
 
   // theProductionCuts->SetProductionCut(1.e-6*m,"gamma");
-//   theProductionCuts->SetProductionCut(1.e-6*m,"e+");
-//   theProductionCuts->SetProductionCut(1.e-6*m,"e-");
-  
-//   precisionRegion->SetProductionCuts(theProductionCuts);
+  // theProductionCuts->SetProductionCut(1.e-6*m,"e+");
+  // theProductionCuts->SetProductionCut(1.e-6*m,"e-");
+  // precisionRegion->SetProductionCuts(theProductionCuts);
   
   if(DEBUG) G4cout<<"end placement, size="<<theBeamline.size()<<G4endl;
   
   if(verbose) G4cout<<"Detector Construction done"<<G4endl; 
+
+  if(DEBUG) G4cout << *(G4Material::GetMaterialTable()) << G4endl;
 
   return physiWorld;
   
@@ -1193,22 +1211,17 @@ void BDSDetectorConstruction::UpdateGeometry()
 //=================================================================
 BDSDetectorConstruction::~BDSDetectorConstruction()
 { 
-  //if(BDSGlobals) delete BDSGlobals;
-
   LogVolCount->clear();
   delete LogVolCount;
-/*
+
   LogVolMap::iterator iter;
   for(iter=LogVol->begin();iter!=LogVol->end();iter++){
-    if((*iter).second!=NULL) G4cout << "***** Deleting " << ((*iter).second)->GetName() << " *****" << G4endl; 
     delete (*iter).second;
   }
-*/
   LogVol->clear();
   delete LogVol;
 
   delete theMaterials;
-
 }
 
 //=================================================================

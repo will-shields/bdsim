@@ -118,24 +118,26 @@ G4int nptwiss = 200; // number of particles for twiss parameters matching (by tr
 
 int main(int argc,char** argv) {
 
+  //
   // Parse the command line options 
+  //
   
-   static struct option LongOptions[] = {
-     { "help" , 0, 0, 0 },
-     { "outline", 1, 0, 0 },
-     { "outline_type", 1, 0, 0 },
-     { "verbose", 0, 0, 0 },
-     { "verbose_step", 0, 0, 0 },
-     { "verbose_event", 0, 0, 0 },
-     { "verbose_event_num", 1, 0, 0 },
-     { "file", 1, 0, 0 },
-     { "vis_mac", 1, 0, 0 },
-     { "output", 1, 0, 0},
-     { "outfile", 1, 0, 0},
-     { "batch", 0, 0, 0 },  
-     { "materials", 0, 0, 0 },
-     { 0, 0, 0, 0 }
-   };
+  static struct option LongOptions[] = {
+    { "help" , 0, 0, 0 },
+    { "outline", 1, 0, 0 },
+    { "outline_type", 1, 0, 0 },
+    { "verbose", 0, 0, 0 },
+    { "verbose_step", 0, 0, 0 },
+    { "verbose_event", 0, 0, 0 },
+    { "verbose_event_num", 1, 0, 0 },
+    { "file", 1, 0, 0 },
+    { "vis_mac", 1, 0, 0 },
+    { "output", 1, 0, 0 },
+    { "outfile", 1, 0, 0 },
+    { "batch", 0, 0, 0 },
+    { "materials", 0, 0, 0 },
+    { 0, 0, 0, 0 }
+  };
   
   int OptionIndex = 0;
   int c;
@@ -155,14 +157,11 @@ int main(int argc,char** argv) {
       
       switch (c) {
       case 0:
-	
 	if( !strcmp(LongOptions[OptionIndex].name , "help") )
 	  {
-
 	    usage();
 	    return 1;
 	  }
-	
 	if( !strcmp(LongOptions[OptionIndex].name , "batch") )
 	  {
 	    isBatch = true;
@@ -174,6 +173,8 @@ int main(int argc,char** argv) {
 	if( !strcmp(LongOptions[OptionIndex].name , "verbose_step") )
 	  {
 	    verboseStep = true; 
+	    // we shouldn't have verbose steps without verbose events etc.
+	    verboseEvent = true;
 	  }
 	if( !strcmp(LongOptions[OptionIndex].name , "verbose_event") )
 	  {
@@ -239,28 +240,42 @@ int main(int argc,char** argv) {
       }
       
     }
-  
-  
+
+
+  //
+  // parse lattice file
+  //
+
   G4cout<<"Using input file: "<<inputFilename<<G4endl;
 
-  if( gmad_parser(inputFilename) == -1)   // parse lattice file
+  if( gmad_parser(inputFilename) == -1)
     {
       G4cout<<"can't open input file "<<inputFilename<<G4endl;
       exit(1);
     }
 
-  // we shouldn't have verbose steps without verbose events etc.
-  if(verboseStep) verboseEvent = true;
+
+  //
+  // pass the run control and beam options read from the lattice
+  // file via the gmad parser to the BDSGlobalConstants and 
+  // to the BDSBunch instances
+  //
 
   BDSGlobals = new BDSGlobalConstants(options);
-
   theBunch.SetOptions(options);
 
-  bdsOutput.SetFormat(outputFormat);
 
-
+  //
   // set default output formats:
+  //
+
+  bdsOutput.SetFormat(outputFormat);
   G4cout.precision(10);
+
+
+  //
+  // initialize random number generator
+  //
 
   // choose the Random engine
   HepRandom::setTheEngine(new RanecuEngine);
@@ -269,74 +284,51 @@ int main(int argc,char** argv) {
 
   // get the seed from options if positive, else
   // user time as a seed
-
 #include <ctime>
-
   if(BDSGlobals->GetRandomSeed()>=0)
     seed = BDSGlobals->GetRandomSeed();
   else
     seed = time(NULL);
 
+  // set the seed
   HepRandom::setTheSeed(seed);
 
-  G4cout<<" seed from bdsglobals="<<BDSGlobals->GetRandomSeed()<<G4endl;
-  G4cout<<"Random Number SEED ="<<HepRandom::getTheSeed()<<G4endl;
+  if(DEBUG) G4cout<<"Seed from BDSGlobals="<<BDSGlobals->GetRandomSeed()<<G4endl;
+  G4cout<<"Random number generator's seed="<<HepRandom::getTheSeed()<<G4endl;
 
- 
-  BDSRunManager * runManager = new BDSRunManager;
-//  runManager->SetNumberOfAdditionalWaitingStacks(1);
 
+  //
+  // construct mandatory run manager (the G4 kernel) and
   // set mandatory initialization classes
- 
-  BDSDetectorConstruction* detector = new BDSDetectorConstruction;
+  //
 
-  if(DEBUG) G4cout<<"detector construction done"<<G4endl;
+  if(DEBUG) G4cout<<"constructing run manager"<<G4endl;
+  BDSRunManager * runManager = new BDSRunManager;
+  // runManager->SetNumberOfAdditionalWaitingStacks(1);
+
+  if(DEBUG) G4cout<<"constructing detector"<<G4endl;
+  BDSDetectorConstruction* detector = new BDSDetectorConstruction;
  
+  if(DEBUG) G4cout<<"user init detector"<<G4endl;
   runManager->SetUserInitialization(detector);
 
   if(DEBUG) G4cout<<"constructing phys list"<<G4endl;
- 
   BDSPhysicsList* PhysList=new BDSPhysicsList;
   
   if(DEBUG) G4cout<<"user init phys list"<<G4endl;
   runManager->SetUserInitialization(PhysList);
-  if(DEBUG) G4cout<<"user init phys list done"<<G4endl;
-
-  G4UIsession* session=0;
-
-   if(!isBatch)
-    {
-#ifdef G4UI_USE_TCSH
-      session = new G4UIterminal(new G4UItcsh);
-#else
-      session = new G4UIterminal();
-#endif    
-      
-    }  
 
 
-  if(DEBUG) G4cout<<"initializing visual manager"<<G4endl;
-
-
-#ifdef G4VIS_USE  // visualization manager
-  G4VisManager* visManager = 0;
-  if(!isBatch)
-  {
-    visManager = new BDSVisManager;
-    visManager->Initialize();
-  }
-#endif
-  
-  
+  //
   // set user action classes
+  //
+
   if(DEBUG) G4cout<<"user action - detector"<<G4endl;
   runManager->SetUserAction(new BDSPrimaryGeneratorAction(detector));
-  if(DEBUG) G4cout<<"user action - runaction"<<G4endl;
 
+  if(DEBUG) G4cout<<"user action - runaction"<<G4endl;
   runManager->SetUserAction(new BDSRunAction);
 
-  
-  //  BDSEventAction* theBDSEventAction = new BDSEventAction();
   if(DEBUG) G4cout<<"user action - eventaction"<<G4endl;
   runManager->SetUserAction(new BDSEventAction());
 
@@ -346,26 +338,37 @@ int main(int argc,char** argv) {
   if(DEBUG) G4cout<<"user action - trackingaction"<<G4endl;
   runManager->SetUserAction(new BDSUserTrackingAction);
 
-  if(DEBUG) G4cout<<"user action - stacking"<<G4endl;
+  if(DEBUG) G4cout<<"user action - stackingaction"<<G4endl;
   runManager->SetUserAction(new BDSStackingAction);
   
 
+  //
+  // initialize G4 kernel
+  //
+
   if(DEBUG) G4cout<<"init kernel"<<G4endl;
-  //Initialize G4 kernel
   runManager->Initialize();
-  if(DEBUG) G4cout<<"init kernel done"<<G4endl;
-  
-  //  PhysList->BDSAddTransportation();
-        
+
+
+
   bdsOutput.Init(0); // activate the output - setting the first filename to 
                      // be appended with _0
 
-  BDSGeometryInterface* BDSGI = new BDSGeometryInterface(outlinefile);
-  if(outline)
-    {
-      if(outlineType=="survey") BDSGI->Survey();
-      if(outlineType=="optics") BDSGI->Optics();
-    }
+  //
+  // write survey file
+  //
+
+  if(outline) {
+    if(DEBUG) G4cout<<"contructing geometry interface"<<G4endl;
+    BDSGeometryInterface* BDSGI = new BDSGeometryInterface(outlinefile);
+
+    if(DEBUG) G4cout<<"writing survey file"<<G4endl;
+    if(outlineType=="survey") BDSGI->Survey();
+    if(outlineType=="optics") BDSGI->Optics();
+
+    if(DEBUG) G4cout<<"deleting geometry interface"<<G4endl;
+    delete BDSGI;
+  }
 
 
   // Track nptwiss particles for beta functions 
@@ -442,32 +445,64 @@ int main(int argc,char** argv) {
   BDSGlobals->SetDoTwiss(false);
   BDSGlobals->SetSynchRescale(false);
 
-  if (!isBatch)   // Define UI session for interactive mode.
+
+  //
+  // Start the simulation
+  // If not running in batch:
+  //   1) start interactive session
+  //   2) if visualisation requested, initialise visual manager
+  //   3) execute visualisation macro (defined with option --vis_mac)
+  //   4) wait for user input
+  // else 
+  //   generate and track the particles of the bunch as 
+  //   defined by the user in the gmad input file
+  //
+
+  G4UIsession* session=0;
+  G4VisManager* visManager=0;
+
+  if(!isBatch)   // Interactive mode
     {
+#ifdef G4UI_USE_TCSH
+      session = new G4UIterminal(new G4UItcsh);
+#else
+      session = new G4UIterminal();
+#endif    
+
+#ifdef G4VIS_USE
+      if(DEBUG) G4cout<<"Initializing Visualisation Manager"<<G4endl;
+      visManager = new BDSVisManager;
+      visManager->Initialize();
+#endif
+  
       // get the pointer to the User Interface manager 
       G4UImanager* UI = G4UImanager::GetUIpointer();  
- 
+      
       UI->ApplyCommand("/control/execute " + visMacroFile);    
  
       session->SessionStart();
       delete session;
-      
+
+#ifdef G4VIS_USE
+      if(DEBUG) G4cout<<"Visualisation Manager deleting..."<<G4endl;
+      delete visManager;
     }
+#endif
   else           // Batch mode
     { 
       runManager->BeamOn(BDSGlobals->GetNumberToGenerate());
     }
 
-  
-  // job termination  
-#ifdef G4VIS_USE
-  if(!isBatch) delete visManager;
-#endif
-  
-    
-  //delete BDSGlobals;
-  delete BDSGlobals;
+
+  //
+  // job termination
+  //
+
+  if(DEBUG) G4cout<<"BDSRunManager deleting..."<<G4endl;
   delete runManager;
+
+  if(DEBUG) G4cout<<"BDSGlobals deleting..."<<G4endl;
+  delete BDSGlobals;
      
   return 0;
 }

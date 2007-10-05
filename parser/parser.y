@@ -437,13 +437,15 @@ parameters:
                     else
 		  if(!strcmp($1->name,"hgap")) {params.hgap = $3; params.hgapset=1;}  //
 		    else
-		  if(!strcmp($1->name,"A")) {params.A = $3; params.Aset = 1;}  //
+		  if(!strcmp($1->name,"A")) {params.A = $3; params.Aset = 1;}  // mass number
 		    else
-		  if(!strcmp($1->name,"Z")) {params.Z = $3; params.Zset = 1;}  //
+		  if(!strcmp($1->name,"Z")) {params.Z = $3; params.Zset = 1;}  // atomic number
 		    else
-		  if(!strcmp($1->name,"density")) {params.density = $3; params.densityset = 1;}  //
+		  if(!strcmp($1->name,"density")) {params.density = $3; params.densityset = 1;}  // density
                     else
-		  if(!strcmp($1->name,"T")) {params.temper = $3; params.temperset = 1;}  //
+		  if(!strcmp($1->name,"T")) {params.temper = $3; params.temperset = 1;}  // temperature
+		    else
+		  if(!strcmp($1->name,"P")) {params.pressure = $3; params.pressureset = 1;}  // pressure
 		    else
 		  if(!strcmp($1->name,"waveLength")) {params.waveLength = $3; params.waveLengthset = 1;}
 		    else
@@ -543,17 +545,17 @@ parameters:
 	      if(execute)
 		{
 		  if(DEBUG) printf("VARIABLE (%s) = aexpr(%.10g)\n",$1->name,$3);
-		  if(!strcmp($1->name,"l")) { params.l = $3; params.lset = 1;} 
+		  if(!strcmp($1->name,"l")) { params.l = $3; params.lset = 1;} // length
 		    else
-		  if(!strcmp($1->name,"B")) { params.B = $3; params.Bset = 1;}
+		  if(!strcmp($1->name,"B")) { params.B = $3; params.Bset = 1;} // 
 		    else 
-		  if(!strcmp($1->name,"k0")) { params.k0 = $3; params.k0set = 1;}
+		  if(!strcmp($1->name,"k0")) { params.k0 = $3; params.k0set = 1;} // dipole coef.
 		    else 
-		  if(!strcmp($1->name,"k1")) { params.k1 = $3; params.k1set = 1;} 
+		  if(!strcmp($1->name,"k1")) { params.k1 = $3; params.k1set = 1;} // quadrupole coef.
 		    else
-		  if(!strcmp($1->name,"k2")) { params.k2 = $3; params.k2set = 1;}
+		  if(!strcmp($1->name,"k2")) { params.k2 = $3; params.k2set = 1;} // sextupole coef.
 		    else 
-		  if(!strcmp($1->name,"k3")) { params.k3 = $3; params.k3set = 1;}
+		  if(!strcmp($1->name,"k3")) { params.k3 = $3; params.k3set = 1;} // octupole coef.
 		    else 
 		  if(!strcmp($1->name,"angle")) { params.angle = $3; params.angleset = 1;}
 		    else
@@ -576,11 +578,10 @@ parameters:
 		    else
 		  if(!strcmp($1->name,"phi")) {params.phi = $3; params.phiset = 1;}  // polar angle
 		    else
-		  if(!strcmp($1->name,"theta"))  {params.theta = $3; params.thetaset = 1;} 
-		  // azimuthal angle
+		  if(!strcmp($1->name,"theta"))  {params.theta = $3; params.thetaset = 1;} // azimuthal angle
 		    else
-		  if(!strcmp($1->name,"psi"))  {params.psi = $3; params.psiset = 1;} // 3rd  angle
-		  else
+		  if(!strcmp($1->name,"psi"))  {params.psi = $3; params.psiset = 1;} // 3rd angle
+		    else
 		  if(!strcmp($1->name,"gradient"))  {params.gradient = $3; params.gradientset = 1;} // rf voltage
 		    else
 		  if(!strcmp($1->name,"fint")) {;} // fringe field parameters
@@ -593,13 +594,17 @@ parameters:
                     else
 		  if(!strcmp($1->name,"hgap")) {params.hgap = $3; params.hgapset=1;}  //
 		    else
-		  if(!strcmp($1->name,"A")) {params.A = $3; params.Aset = 1;}  //
+		  if(!strcmp($1->name,"A")) {params.A = $3; params.Aset = 1;}  // mass number
 		    else
-		  if(!strcmp($1->name,"Z")) {params.Z = $3; params.Zset = 1;}  //
+		  if(!strcmp($1->name,"Z")) {params.Z = $3; params.Zset = 1;}  // atomic number
 		    else
-		  if(!strcmp($1->name,"density")) {params.density = $3; params.densityset = 1;}  //
+		  if(!strcmp($1->name,"density")) {params.density = $3; params.densityset = 1;}  // density
                     else
-		  if(!strcmp($1->name,"T")) {params.temper = $3; params.temperset = 1;}  //
+		  if(!strcmp($1->name,"T")) {params.temper = $3; params.temperset = 1;}  // temperature
+		    else
+		  if(!strcmp($1->name,"P")) {params.pressure = $3; params.pressureset = 1;}  // pressure
+		  //else
+		  //  if(!strcmp($1->name,"state")) {params.state = $3; params.stateset = 1;}  // state
 		    else
 		  if(!strcmp($1->name,"waveLength")) {params.waveLength = $3; params.waveLengthset = 1;}
 		    else
@@ -616,7 +621,6 @@ parameters:
 		     {
 		       params.geomset = 1;
 		       strcpy(params.geometry, $3);
-
 		     } 
 		   else
 		     if(!strcmp($1->name,"bmap")) 
@@ -648,8 +652,13 @@ parameters:
                          strcpy(params.symbol, $3);
                        }
 		   else 
-		     	  
-		     if(VERBOSE) printf("unknown parameter %s\n",$1->name);
+                   if(!strcmp($1->name,"state"))
+                       {
+                         params.stateset = 1;
+                         strcpy(params.state, $3);
+                       }
+		   else 
+		   if(VERBOSE) printf("unknown parameter %s\n",$1->name);
 		 }
 	     }         
            | VARIABLE '=' STR
@@ -661,7 +670,6 @@ parameters:
 		     {
 		       params.geomset = 1;
 		       strcpy(params.geometry, $3);
-		       
 		     } 
 		   else
 		     if(!strcmp($1->name,"bmap")) 
@@ -685,6 +693,18 @@ parameters:
 			 params.specset = 1;
 			 strcpy(params.spec, $3);
 		       }
+		   else 
+                   if(!strcmp($1->name,"symbol"))
+                       {
+                         params.symbolset = 1;
+                         strcpy(params.symbol, $3);
+                       }
+		   else 
+                   if(!strcmp($1->name,"state"))
+                       {
+                         params.stateset = 1;
+                         strcpy(params.state, $3);
+                       }
 		   else 
 		   if(VERBOSE) printf("unknown parameter %s\n",$1->name);
 		 }         

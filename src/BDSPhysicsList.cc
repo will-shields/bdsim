@@ -293,12 +293,13 @@ void BDSPhysicsList::ConstructParticle()
   BDSGlobals->SetBeamKineticEnergy(BDSGlobals->GetBeamTotalEnergy() - 
 				   BDSGlobals->GetParticleDefinition()->GetPDGMass() );
 
-  G4cout<<"Beam Energy : "<< BDSGlobals->GetBeamTotalEnergy()<<G4endl;
-  G4cout<<"Beam Kinetic  Energy : "<< BDSGlobals->GetBeamKineticEnergy()<<G4endl;
-  
-  
-  
-  
+  G4cout<<"Beam properties:"<<G4endl;
+  G4cout<<"     Particle : "<<BDSGlobals->tmpParticleName<<G4endl;
+  G4cout<<"     Mass : "<<BDSGlobals->GetParticleDefinition()->GetPDGMass()/GeV<< " GeV"<<G4endl;
+  G4cout<<"     Charge : "<<BDSGlobals->GetParticleDefinition()->GetPDGCharge()<< " e"<<G4endl;
+  G4cout<<"     Total Energy : "<< BDSGlobals->GetBeamTotalEnergy()/GeV<<" GeV"<<G4endl;
+  G4cout<<"     Kinetic Energy : "<< BDSGlobals->GetBeamKineticEnergy()/GeV<<" GeV"<<G4endl;
+  G4cout<<"     Momentum : "<< BDSGlobals->GetBeamMomentum()/GeV<<" GeV"<<G4endl;
 }
 
 

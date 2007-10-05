@@ -399,12 +399,14 @@ public:
   //G4String GetLWCalMaterial();
 
   G4String GetPipeMaterialName();
+  G4String GetVacMaterialName();
 
 private:
   G4double itsLWCalWidth;
   G4double itsLWCalOffset;
   //G4String itsLWCalMaterial;
-  G4String itsPipeMaterial;
+  G4String itsPipeMaterial; //beampipe material
+  G4String itsVacMaterial;  //vacuum inside beampipe
 
   G4bool itsUseBeamGasPlug;
   G4double itsBeamGasPlugZ;
@@ -758,9 +760,10 @@ inline  G4double BDSGlobalConstants::GetLWCalOffset()
 //{return itsLWCalMaterial;}
 
 inline G4String BDSGlobalConstants::GetPipeMaterialName()
-{
-  return itsPipeMaterial;
-}
+{return itsPipeMaterial;}
+
+inline G4String BDSGlobalConstants::GetVacMaterialName()
+{return itsVacMaterial;}
 
 inline G4bool BDSGlobalConstants::GetUseBeamGasPlug()
 {return itsUseBeamGasPlug;}

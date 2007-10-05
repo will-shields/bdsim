@@ -63,7 +63,7 @@ const char *typestr(int type) {
     return "rbend";
   case _QUAD :
     return "quadrupole";
-  case _SEXTUPOLE:
+  case _SEXTUPOLE :
     return "sextupole";
   case _OCTUPOLE :
     return "octupole";
@@ -148,8 +148,10 @@ void flush(struct Element& e )
 
   e.A = 0;
   e.Z = 0;
-  e.density = 0;
-  e.temper = 300;
+  e.density = 0;      //g*cm-3
+  e.temper = 300;     //kelvin
+  e.pressure = 0;     //atm
+  e.state = "";  //allowed values: "solid", "liquid", "gas"
 
   /*  
       e.knl = std::list<double>(0);
@@ -203,6 +205,8 @@ void copy_properties(std::list<struct Element>::iterator dest, std::list<struct 
   (*dest).Z = (*src).Z;
   (*dest).density = (*src).density;
   (*dest).temper = (*src).temper; 
+  (*dest).pressure = (*src).pressure; 
+  (*dest).state = (*src).state; 
   (*dest).components = (*src).components;
   (*dest).componentsWeights = (*src).componentsWeights;
   (*dest).componentsFractions = (*src).componentsFractions;
@@ -243,16 +247,20 @@ void inherit_properties(struct Element e)
   if(!params.thetaset) { params.theta = e.theta; params.thetaset = 1; }
   if(!params.hgapset) { params.hgap = e.hgap; params.hgapset = 1; }
 
+  //materials
   if(!params.Aset) { params.A = e.A; params.Aset = 1; }
   if(!params.Zset) { params.Z = e.Z; params.Zset = 1; }
   if(!params.densityset) { params.density = e.density; params.densityset = 1; }
+  if(!params.temperset) { params.temper = e.temper; params.temperset = 1; }
+  if(!params.pressureset) { params.pressure = e.pressure; params.pressureset = 1; }
+  if(!params.stateset) { strncpy(params.state, e.state.c_str(),64); params.stateset = 1; }
+  if(!params.symbolset) { strncpy(params.symbol, e.symbol.c_str(),64); params.symbolset = 1; }
   if(!params.componentsset) 
     { params.components = e.components; params.componentsset = 1; }
   if(!params.componentsWeightsset) 
     { params.componentsWeights = e.componentsWeights; params.componentsWeightsset = 1; }
   if(!params.componentsFractionsset) 
     { params.componentsFractions = e.componentsFractions; params.componentsFractionsset = 1; }
-  if(!params.symbolset) { strncpy(params.symbol, e.symbol.c_str(),64); params.symbolset = 1; }
 
   if(!params.aperset) { params.aper = e.aper; params.aperset = 1; }
   if(!params.outRset) { params.outR = e.outR; params.outRset = 1; }
@@ -342,7 +350,7 @@ void quit()
 
 int write_table(struct Parameters params,char* name, int type, std::list<struct Element> *lst)
 {
-  if(DEBUG) printf("k1=%.10g ,k2=%.10g, type=%d, lset = %d\n",params.k1, params.k2, type,params.lset);
+  if(DEBUG) printf("k1=%.10g, k2=%.10g, k3=%.10g, type=%d, lset = %d\n", params.k1, params.k2, params.k3, type, params.lset);
   
   struct Element e;
   flush(e);
@@ -424,7 +432,10 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     if(params.k2set) {
       if(VERBOSE)
 	printf("Warning: k2 will not be set for element %s of type QUADRUPOLE\n",name);
-      
+    }
+    if(params.k3set) {
+      if(VERBOSE)
+	printf("Warning: k3 will not be set for element %s of type QUADRUPOLE\n",name);
     }
     if(params.tiltset) {
       e.tilt = params.tilt;
@@ -445,12 +456,16 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
       if(VERBOSE)
 	printf("Warning: k0 will not be set for element %s of type SEXTUPOLE\n",name);
     }
-    if(params.k2set) {
-      e.k2 = params.k2;
-    }
     if(params.k1set) {
       if(VERBOSE)
 	printf("Warning: k1 will not be set for element %s of type SEXTUPOLE\n",name);
+    }
+    if(params.k2set) {
+      e.k2 = params.k2;
+    }
+    if(params.k3set) {
+      if(VERBOSE)
+	printf("Warning: k3 will not be set for element %s of type SEXTUPOLE\n",name);
     }
     
     break;
@@ -462,6 +477,18 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
       e.l = params.l;
     }
     
+    if(params.k0set) {
+      if(VERBOSE)
+	printf("Warning: k0 will not be set for element %s of type OCTUPOLE\n",name);
+    }
+    if(params.k1set) {
+      if(VERBOSE)
+	printf("Warning: k1 will not be set for element %s of type OCTUPOLE\n",name);
+    }
+    if(params.k2set) {
+      if(VERBOSE)
+	printf("Warning: k2 will not be set for element %s of type OCTUPOLE\n",name);
+    }
     if(params.k3set) {
       e.k3 = params.k3;
     }
@@ -482,17 +509,21 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     if(params.lset) {
       e.l = params.l;
     }
-    if(params.k1set) {
-      if(VERBOSE)
-	printf("Warning: k1 will not be set for element %s of type MULTIPOLE\n",name);
-    }
     if(params.k0set) {
       if(VERBOSE)
 	printf("Warning: k0 will not be set for element %s of type MULTIPOLE\n",name);
     }
+    if(params.k1set) {
+      if(VERBOSE)
+	printf("Warning: k1 will not be set for element %s of type MULTIPOLE\n",name);
+    }
     if(params.k2set) {
       if(VERBOSE)
 	printf("Warning: k2 will not be set for element %s of type MULTIPOLE\n",name);
+    }
+    if(params.k3set) {
+      if(VERBOSE)
+	printf("Warning: k3 will not be set for element %s of type MULTIPOLE\n",name);
     }
     
     break;
@@ -557,6 +588,8 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     e.Z = params.Z;
     e.density = params.density;
     e.temper = params.temper;
+    e.pressure = params.pressure;
+    e.state = params.state;
     e.components = params.components;
     e.componentsWeights = params.componentsWeights;
     e.componentsFractions = params.componentsFractions;
@@ -917,8 +950,9 @@ void print(std::list<struct Element> l, int ident)
       case _RBEND:
       case _QUAD:
       case _SEXTUPOLE:
-	printf(", l=%.10g, k0=%.10g, k1=%.10g, k2=%.10g,angle=%.10g,tilt=%.10g ",
-	       (*it).l,(*it).k0,(*it).k1,(*it).k2, (*it).angle,(*it).tilt);
+      case _OCTUPOLE:
+	printf(", l=%.10g, k0=%.10g, k1=%.10g, k2=%.10g, k3=%.10g, angle=%.10g,tilt=%.10g ",
+	       (*it).l,(*it).k0,(*it).k1,(*it).k2,(*it).k3,(*it).angle,(*it).tilt);
 	break;
       case _MULT:
 
@@ -947,8 +981,8 @@ void print(std::list<struct Element> l, int ident)
 	       (*it).xdir, (*it).ydir, (*it).zdir, (*it).phi, (*it).theta, (*it).psi);
 	break;
       case _MATERIAL:
-	printf(" A=%.10g, Z=%.10g, density=%.10g,  temper=%.10g",
-	       (*it).A, (*it).Z, (*it).density, (*it).temper);
+	printf(" A=%.10g, Z=%.10g, density=%.10g,  temper=%.10g, pressure=%.10g",
+	       (*it).A, (*it).Z, (*it).density, (*it).temper, (*it).pressure);
 	break;
       default:
 	break;
@@ -978,18 +1012,14 @@ void print(struct Options opt)
 
 void set_value(std::string name, double value )
 {
+  //
+  // numeric options for the "beam" command
+  //
+
   if(name == "energy" ) options.beamEnergy = value;
-  if(name == "nparticles" ) options.numberOfParticles = (int)value;
-  if(name == "ngenerate" ) options.numberToGenerate = (int)value;
-  if(name == "nperfile" ) options.numberOfEventsPerNtuple = (int)value;
-  if(name == "eventNumberOffset" ) options.eventNumberOffset = (int)value;
-  if(name == "beampipeRadius" ) options.beampipeRadius = value;
+  if(name == "nparticles" ) options.numberOfParticles = (int)value; //never used
 
-  if(name == "boxSize" ) {options.componentBoxSize = value;}
-
-  if(name == "tunnelRadius" ) options.tunnelRadius = value;
-  if(name == "beampipeThickness" ) options.beampipeThickness = value;
-
+  // options for beam distrType="gauss"
   if(name == "sigmaX" ) options.sigmaX = value;
   if(name == "sigmaY" ) options.sigmaY = value;
   if(name == "sigmaXp" ) options.sigmaXp = value;
@@ -997,41 +1027,49 @@ void set_value(std::string name, double value )
   if(name == "sigmaT" ) options.sigmaT = value;
   if(name == "sigmaE" ) options.sigmaE = value;
 
+  // options for beam distrType="eshell"
   if(name == "x" ) options.x = value;
   if(name == "y" ) options.y = value;
   if(name == "xp" ) options.xp = value;
   if(name == "yp" ) options.yp = value;
 
+  // options for beam distrType="ring"
   if(name == "X0" ) options.X0 = value;
   if(name == "Y0" ) options.X0 = value;
   if(name == "Rmin" ) options.Rmin = value;
   if(name == "Rmax" ) options.Rmax = value;
 
+
+  //
+  // numeric options for the"option" command
+  //
+
+  // options which influence the geometry
+  if(name == "boxSize" ) {options.componentBoxSize = value;}
+  if(name == "tunnelRadius" ) options.tunnelRadius = value;
+  if(name == "beampipeThickness" ) options.beampipeThickness = value;
+  if(name == "beampipeRadius" ) options.beampipeRadius = value;
+
+  // options which influence tracking 
   if(name == "deltaChord") options.deltaChord = value;
   if(name == "deltaIntersection") options.deltaIntersection = value;
   if(name == "chordStepMinimum") options.chordStepMinimum = value;
-
   if(name == "lengthSafety") options.lengthSafety = value;
+  if(name == "minimumEpsilonStep" ) options.minimumEpsilonStep = value;
+  if(name == "maximumEpsilonStep" ) options.maximumEpsilonStep = value;
+  if(name == "deltaOneStep" ) options.deltaOneStep = value;
 
+  // physics processes
   if(name == "turnInteractions") 
     {
       if(value == 0) options.turnOnInteractions = false;
       else options.turnOnInteractions = true;
     }
-
   if(name == "thresholdCutCharged" ) options.thresholdCutCharged = value;
   if(name == "thresholdCutPhotons" ) options.thresholdCutPhotons = value;
   if(name == "useEMHadronic" ) options.useEMHadronic = (int) value;
 
-  if(name == "storeTrajectory") options.storeTrajectory = (int) value; 
-  if(name == "storeMuonTrajectory") options.storeMuonTrajectories = (int) value; 
-  if(name == "storeNeutronTrajectory") options.storeNeutronTrajectories = (int) value; 
-
   if(name == "stopTracks") options.stopTracks = (int) value; 
-
-  if(name == "randomSeed") options.randomSeed = (int) value;
-
-  if(name == "nlinesIgnore") options.nlinesIgnore = (int) value;
 
   if(name == "synchRadOn") options.synchRadOn = (int) value;
   if(name == "srMeanFreeFactor") options.synchMeanFreeFactor = (int) value;
@@ -1041,42 +1079,59 @@ void set_value(std::string name, double value )
   if(name == "srMultiplicity") options.synchPhotonMultiplicity = (int) value;
   if(name == "srTrackPhotons") options.synchTrackPhotons = (int) value;
 
-  if(name == "minimumEpsilonStep" ) options.minimumEpsilonStep = value;
-  if(name == "maximumEpsilonStep" ) options.maximumEpsilonStep = value;
-  if(name == "deltaOneStep" ) options.deltaOneStep = value;
-
   if(name == "prodCutPhotons" ) options.prodCutPhotons = value;
   if(name == "prodCutPhotonsP" ) options.prodCutPhotonsP = value;
-
   if(name == "prodCutElectrons" ) options.prodCutElectrons = value;
   if(name == "prodCutElectronsP" ) options.prodCutElectronsP = value;
-
   if(name == "prodCutPositrons" ) options.prodCutPositrons = value;
   if(name == "prodCutPositronsP" ) options.prodCutPositronsP = value;
 
   // twiss parameters
-
   if(name == "betx" ) options.betx = value;
   if(name == "bety" ) options.bety = value;
   if(name == "alfx" ) options.alfx = value;
   if(name == "alfy" ) options.alfy = value;
   if(name == "emitx" ) options.emitx = value;
   if(name == "emity" ) options.emity = value;
-
   if(name == "doTwiss" ) options.doTwiss = (int) value;
 
+  if(name == "storeTrajectory") options.storeTrajectory = (int) value; 
+  if(name == "storeMuonTrajectory") options.storeMuonTrajectories = (int) value; 
+  if(name == "storeNeutronTrajectory") options.storeNeutronTrajectories = (int) value; 
 
+
+  // options for generation and storage
+  if(name == "randomSeed") options.randomSeed = (int) value;
+  if(name == "ngenerate" ) options.numberToGenerate = (int)value;
+  if(name == "nperfile" ) options.numberOfEventsPerNtuple = (int)value;
+  if(name == "eventNumberOffset" ) options.eventNumberOffset = (int)value;
+  if(name == "nlinesIgnore") options.nlinesIgnore = (int) value;
 }
 
 
 void set_value(std::string name, std::string value )
 {
-  if(name == "fifo") options.fifo = value;
+  // 
+  // string options for the "beam" command
+  //
   if(name == "particle") options.particleName = value;
   if(name == "distrType" ) options.distribType = value;
   if(name == "distrFile" ) options.distribFile = value;  
+
+
+  //
+  // string options for the "option" command
+  //
+
+  // options which influence the geometry
+  if(name == "beampipeMaterial" ) options.pipeMaterial = value;
+  if(name == "vacMaterial" ) options.vacMaterial = value;
+
+  // options which influence the tracking
   if(name == "physicsList" ) options.physicsList = value; 
-  if(name == "pipeMaterial" ) options.pipeMaterial = value;
+
+  //?
+  if(name == "fifo") options.fifo = value;
 }
 
 double property_lookup(char *element_name, char *property_name)
@@ -1109,9 +1164,12 @@ double property_lookup(char *element_name, char *property_name)
    if(!strcmp(property_name,"A")) return (*it).A;
    if(!strcmp(property_name,"Z")) return (*it).Z;
    if(!strcmp(property_name,"density")) return (*it).density;
-   if(!strcmp(property_name,"temper")) return (*it).temper;
+   if(!strcmp(property_name,"T")) return (*it).temper;
+   if(!strcmp(property_name,"P")) return (*it).pressure;
 
    return 0;
+
+   //what about property_lookup for attributes of type string, like material?
 }
 
 // ******************************************************

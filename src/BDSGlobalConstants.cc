@@ -40,30 +40,31 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
     itsPipeMaterial = "Vacuum";
   else
     itsPipeMaterial = opt.pipeMaterial;
+
+  if(opt.vacMaterial == "") 
+    itsVacMaterial = "Vacuum";
+  else
+    itsVacMaterial = opt.vacMaterial;
   
   
   tmpParticleName = G4String(opt.particleName);
   
-      
   itsBeamTotalEnergy = opt.beamEnergy * GeV;
 
-	      
-  itsBackgroundScaleFactor = opt.backgroundScaleFactor;
+  //not yet implemented!
+  if (opt.backgroundScaleFactor != 1e-9)
+    itsBackgroundScaleFactor = opt.backgroundScaleFactor;
+  else
+    itsBackgroundScaleFactor = 1.0;
 
   itsComponentBoxSize = opt.componentBoxSize *m;
-
   itsTunnelRadius = opt.tunnelRadius * m;
-
   itsBeampipeRadius = opt.beampipeRadius * m;
-  
   itsBeampipeThickness = opt.beampipeThickness * m;
     
   itsThresholdCutCharged = opt.thresholdCutCharged * GeV;
-
   itsThresholdCutPhotons = opt.thresholdCutPhotons * GeV;
-
   itsTrackWeightFactor = opt.trackWeightFactor;
-
   itsProdCutPhotons = opt.prodCutPhotons * m;
   itsProdCutPhotonsP = opt.prodCutPhotonsP * m;
   itsProdCutElectrons = opt.prodCutElectrons * m;
@@ -71,13 +72,9 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
   itsProdCutPositrons = opt.prodCutPositrons * m;
   itsProdCutPositronsP = opt.prodCutPositronsP * m;
 
-
   itsDeltaChord = opt.deltaChord * m;
-
   itsChordStepMinimum = opt.chordStepMinimum * m;
-
   itsDeltaIntersection= opt.deltaIntersection * m;
-  
   itsMinimumEpsilonStep = opt.minimumEpsilonStep;
   itsMaximumEpsilonStep = opt.maximumEpsilonStep;
   itsDeltaOneStep = opt.deltaOneStep * m;
@@ -161,7 +158,7 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
 
   itsFifo = opt.fifo;
 
-  itsIncludeIronMagFields = false;
+  itsIncludeIronMagFields = 0;
 
  //  else if(name=="INCLUDE_IRON_MAG_FIELDS")
 //     {

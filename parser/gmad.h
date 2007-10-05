@@ -126,8 +126,8 @@ struct Options {
   double tunnelRadius;
   double beampipeRadius;
   double beampipeThickness;
-
   std::string pipeMaterial;
+  std::string vacMaterial;
 
   double thresholdCutCharged;
   double thresholdCutPhotons;
@@ -198,11 +198,12 @@ struct Element {
   std::list<double> ksl;
 
    // material properties
-
   double A; 
   double Z; 
   double density; 
-  double temper; 
+  double temper;
+  double pressure;
+  std::string state;
   std::string symbol;
   std::list<char*> components;
   std::list<double> componentsFractions;
@@ -272,12 +273,12 @@ struct Parameters {
   char spec[1024]; int specset;
 
   // material properties
-
   double A; int Aset;
   double Z; int Zset;
   double density; int densityset;
   double temper; int temperset;
-  
+  double pressure; int pressureset;
+  char state[64]; int stateset;
   char symbol[64]; int symbolset;
   std::list<char*> components; int componentsset;
   std::list<double> componentsFractions; int componentsFractionsset;
@@ -289,10 +290,19 @@ struct Parameters {
     l=0; lset = 0;
     r = 0; rset = 0;
 
-    A = 0; Aset = 0;
-    Z = 0; Zset = 0;
-    density = 0; densityset = 0;
-    temper = 0; temperset = 0;
+    // materials' parameters
+    A = 0; Aset = 0; //g*mol^-1
+    Z = 0; Zset = 0; 
+    density = 0; densityset = 0; //g*cm-3
+    temper = 300; temperset = 0; //kelvin
+    pressure = 1; pressureset = 0; //atm
+    strcpy(state,"solid"); stateset = 0; // "solid", "liquid", or "gas"
+    strcpy(symbol,""); symbolset = 0;
+    componentsset = 0; componentsFractionsset = 0; componentsWeightsset = 0;
+    components.erase(components.begin(),components.end());
+    componentsFractions.erase(componentsFractions.begin(),componentsFractions.end());
+    componentsWeights.erase(componentsWeights.begin(),componentsWeights.end());
+
 
     angle = 0; angleset = 0;
     xsize = 0; xsizeset = 0;
@@ -323,13 +333,6 @@ struct Parameters {
 
     knl.erase(knl.begin(),knl.end());
     ksl.erase(ksl.begin(),ksl.end());
-
-    componentsset = 0; componentsFractionsset = 0; componentsWeightsset = 0;
-    components.erase(components.begin(),components.end());
-    componentsFractions.erase(componentsFractions.begin(),componentsFractions.end());
-    componentsWeights.erase(componentsWeights.begin(),componentsWeights.end());
-  
-    strcpy(symbol,""); symbolset = 0;
 
     strcpy(geometry,"");  geomset = 0;
 
