@@ -161,6 +161,8 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
 
   itsFifo = opt.fifo;
 
+  itsIncludeIronMagFields = false;
+
  //  else if(name=="INCLUDE_IRON_MAG_FIELDS")
 //     {
 //       _READ(itsIncludeIronMagFields);

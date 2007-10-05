@@ -1197,11 +1197,13 @@ BDSDetectorConstruction::~BDSDetectorConstruction()
 
   LogVolCount->clear();
   delete LogVolCount;
-
+/*
   LogVolMap::iterator iter;
   for(iter=LogVol->begin();iter!=LogVol->end();iter++){
+    if((*iter).second!=NULL) G4cout << "***** Deleting " << ((*iter).second)->GetName() << " *****" << G4endl; 
     delete (*iter).second;
   }
+*/
   LogVol->clear();
   delete LogVol;
 

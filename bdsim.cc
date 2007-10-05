@@ -466,8 +466,8 @@ int main(int argc,char** argv) {
   
     
   //delete BDSGlobals;
-  delete runManager;
   delete BDSGlobals;
+  delete runManager;
      
   return 0;
 }

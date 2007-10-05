@@ -5,7 +5,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSVisManager.cc,v 1.1 2005/01/22 16:42:31 agapov Exp $
+// $Id: BDSVisManager.cc,v 1.2 2007/08/03 10:59:54 malton Exp $
 // GEANT4 tag $Name:  $
 //
 // 
@@ -150,3 +150,4 @@ void BDSVisManager::RegisterGraphicsSystems () {
 void
 BDSVisManager::RegisterModelFactories() {}
 
+BDSVisManager::~BDSVisManager(){}

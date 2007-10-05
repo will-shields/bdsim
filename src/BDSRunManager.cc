@@ -27,7 +27,7 @@ BDSRunManager* BDSRunManager::GetRunManager()
 
 BDSRunManager::BDSRunManager(){ fRunManager = this;}
 
-BDSRunManager::~BDSRunManager(){}
+BDSRunManager::~BDSRunManager(){ G4cout << "BDSRunManager deleting..." << G4endl; }
 
 void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
 {
