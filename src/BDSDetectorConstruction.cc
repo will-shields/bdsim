@@ -16,7 +16,7 @@
 //
 
 
-const int DEBUG = 1;
+const int DEBUG = 0;
 
 //=================================================================
 
@@ -144,7 +144,6 @@ BDSDetectorConstruction::BDSDetectorConstruction()
 
   RotY90->rotateY(pi_ov_2);
   RotYM90->rotateY(-pi_ov_2);
-
 
 }
 
@@ -603,15 +602,17 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	
 	if(DEBUG) G4cout<<"knl=";
 	list<double>::iterator kit;
+	int i=0;
 	for(kit=(it->knl).begin();kit!=(it->knl).end();kit++)
 	  {
 	    if(DEBUG) G4cout<<(*kit)<<" ";
-	    (*kit) /= (*it).l; 
+	    (*kit) /= (*it).l;
 	  }
 	if(DEBUG) G4cout<<G4endl;
 	
 	if(DEBUG) G4cout<<"ksl=";
-	
+
+	i=0;
 	for(kit=(it->ksl).begin();kit!=(it->ksl).end();kit++)
 	  {
 	    if(DEBUG) G4cout<<(*kit)<<" ";
@@ -630,6 +631,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    " l ="<<(*it).l<<G4endl;}
 	
         G4double aper = bpRad;
+/*
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 
 	if( (*it).outR < aper/m)
@@ -639,7 +641,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << "Setting to default - 22*cm"<<G4endl;
 	    (*it).outR = aper/m + 0.22;
 	  }
-	
+*/	
 	theBeamline.push_back(new BDSElement( G4String((*it).name) , G4String((*it).geometryFile), 
 					      G4String((*it).bmapFile), (*it).l * m, aper, (*it).outR * m) );
       
