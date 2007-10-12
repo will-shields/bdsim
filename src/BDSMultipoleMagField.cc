@@ -1,6 +1,6 @@
-/** BDSIM, v0.1   
+/** BDSIM, v0.4   
 
-Last modified 17.04.2006 by Ilya Agapov
+Last modified 11.10.2007 by Steve Malton
 
 **/
 
@@ -26,11 +26,11 @@ BDSMultipoleMagField::BDSMultipoleMagField(list<G4double> knl, list<G4double> ks
 
   G4double P0 = BDSGlobals->GetBeamTotalEnergy();
   
-  // magnetic rigidity
-  G4double brho=
-    sqrt(pow(P0,2)- pow(electron_mass_c2,2))/(0.299792458 * (GeV/(tesla*m)));
-  
-
+  // compute magnetic rigidity brho
+  // formula: B(Tesla)*rho(m) = p(GeV)/(0.299792458 * |charge(e)|)
+  G4double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();
+  G4double momentum = BDSGlobals->GetBeamMomentum();
+  G4double brho = ( (momentum/GeV) / (0.299792458 * fabs(charge))) * (tesla*m);
 
   bnl = knl;
   bsl = ksl;
