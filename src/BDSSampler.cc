@@ -37,14 +37,23 @@ extern BDSOutput bdsOutput;
 extern BDSMaterials* theMaterials;
 //============================================================
 
+int BDSSampler::nSamplers = 0;
+
+const int BDSSampler::GetNSamplers() { return nSamplers; }
+
+void BDSSampler::AddExternalSampler() { nSamplers++; }
+
 BDSSampler::BDSSampler (G4String aName,G4double aLength):
   BDSAcceleratorComponent(
 			 aName,
 			 aLength,0,0,0,
 			 SetVisAttributes())
 {
+  nThisSampler= nSamplers + 1;
+  SetName(BDSGlobals->StringFromInt(nThisSampler)+"_"+itsName);
   SetType("sampler");
   SamplerLogicalVolume();
+  nSamplers++;
   //G4int nSamplers=(*LogVolCount)[itsName];
   //BDSRoot->SetSamplerNumber(nSamplers);
 
@@ -77,9 +86,11 @@ void BDSSampler::SamplerLogicalVolume()
       itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
 
      // Sensitive Detector:
-      G4cout << "Sampler.cc Nsamplers " << bdsOutput.nSamplers << G4endl;
+//SPM G4cout << "Sampler.cc Nsamplers " << bdsOutput.nSamplers << G4endl;
+      G4cout << "Sampler.cc Nsamplers " << nSamplers << G4endl;
 
-      if(bdsOutput.nSamplers==0)
+//SPM if(bdsOutput.nSamplers==0)
+      if(nSamplers==0)
 	{
 	  G4SDManager* SDMan = G4SDManager::GetSDMpointer();
 	  BDSSamplerSensDet=new BDSSamplerSD(itsName,"plane");
@@ -106,4 +117,5 @@ BDSSampler::~BDSSampler()
 {
   if(itsVisAttributes) delete itsVisAttributes;
   if(itsUserLimits) delete itsUserLimits;
+  --nSamplers;
 }

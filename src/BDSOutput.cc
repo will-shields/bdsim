@@ -72,7 +72,8 @@ void BDSOutput::Init(G4int FileNum)
   
 
   //build sampler tree
-  for(G4int i=0;i<nSamplers;i++)
+//SPM for(G4int i=0;i<nSamplers;i++)
+  for(G4int i=0;i<BDSSampler::GetNSamplers();i++)
     {
       //G4String name="samp"+BDSGlobals->StringFromInt(i+1);
       G4String name=SampName[i];

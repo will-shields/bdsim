@@ -17,6 +17,7 @@
 #include "BDSMaterials.hh"
 #include "G4SDManager.hh"
 #include "BDSSamplerSD.hh"
+#include "BDSSampler.hh"
 #include "BDSOutput.hh"
 #include <vector>
 #include <map>
@@ -726,13 +727,15 @@ void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
       aSamplerVol->SetVisAttributes(VisAtt);
 
       G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-      if(bdsOutput.nSamplers==0){
+      if(BDSSampler::GetNSamplers==0){
 	BDSSamplerSensDet = new BDSSamplerSD(Name, "plane");
 	SDMan->AddNewDetector(BDSSamplerSensDet);
       }
       aSamplerVol->SetSensitiveDetector(BDSSamplerSensDet);
-      bdsOutput.nSamplers++;
-      bdsOutput.SampName.push_back(Name+"_1");
+//SPM bdsOutput.nSamplers++;
+      BDSSampler::AddExternalSampler();
+      bdsOutput.SampName.push_back(BDSGlobals->StringFromInt(
+					BDSSampler::GetNSamplers())+"_"+Name+"_1");
 
       VOL_LIST.push_back(aSamplerVol);
     }
