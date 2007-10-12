@@ -278,10 +278,14 @@ void BDSMultipole::BuildDefaultMarkerLogicalVolume()
   if(DEBUG) G4cout<<"marker volume : x/y="<<BDSGlobals->GetComponentBoxSize()/2/m<<
 	      " m, l= "<<  (itsLength+BDSGlobals->GetLengthSafety())/2/m <<" m"<<G4endl;
 
+  G4double xLength, yLength;
+  xLength = yLength = std::max(itsOuterR,BDSGlobals->GetComponentBoxSize()/2);
+
   itsMarkerLogicalVolume=new G4LogicalVolume
     (new G4Box( itsName+"_marker",             
-		BDSGlobals->GetComponentBoxSize()/2,//x length
-		BDSGlobals->GetComponentBoxSize()/2, // y half length
+//SPM		BDSGlobals->GetComponentBoxSize()/2,//x length
+//SPM		BDSGlobals->GetComponentBoxSize()/2, // y half length
+		xLength, yLength,
 		(itsLength+BDSGlobals->GetLengthSafety())/2), //z hlf ln 
      theMaterials->GetMaterial("Vacuum"),
      itsName+"_marker");
