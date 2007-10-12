@@ -42,7 +42,7 @@ void BDSBox::Update(BDSPad* pad, Double_t xmin, Double_t xmax)
 		else
 		{
 			
-			if(item.type==_QUAD || item.type==_SBEND || item.type==_SEXTUPOLE || item.type==_ECOL || item.type==_RCOL || item.type==_OCTUPOLE)
+			if(item.type==_QUAD || item.type==_SBEND || item.type==_SEXTUPOLE || item.type==_ECOL || item.type==_RCOL || item.type==_OCTUPOLE || item.type==_MULT)
 			{
 				pad->GetListOfPrimitives()->Add(this);
 			}
