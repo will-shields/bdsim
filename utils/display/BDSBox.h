@@ -26,10 +26,58 @@ public:
 	short GetBDSType(){return item.type;}
 	Double_t GetBDSLen(){return item.l;}
 	Float_t GetBDSAngle(){return item.angle;}
-	Float_t GetBDSK0(){return item.k0;}
-	Float_t GetBDSK1(){return item.k1;}
-	Float_t GetBDSK2(){return item.k2;}
-	Float_t GetBDSK3(){return item.k3;}
+
+	Float_t GetBDSK0()
+	{
+	  if(item.type == _MULT){
+	    if(item.knl.size()>0){
+	      std::list<double>::iterator iter;
+	      iter = item.knl.begin();
+	      return (*iter);
+            }
+	  }
+	else return item.k0;
+	}
+
+	Float_t GetBDSK1()
+        {
+          if(item.type == _MULT){
+            if(item.knl.size()>1){
+              std::list<double>::iterator iter;
+              iter = item.knl.begin();
+	      iter++;
+              return (*iter);
+            }
+          }
+        else return item.k1; 
+        }
+
+	Float_t GetBDSK2()
+        {
+          if(item.type == _MULT){
+            if(item.knl.size()>2){
+              std::list<double>::iterator iter;
+              iter = item.knl.begin();
+	      iter++; iter++;
+              return (*iter);
+            }
+          }
+        else return item.k2; 
+        }
+
+	Float_t GetBDSK3()
+        {
+          if(item.type == _MULT){
+            if(item.knl.size()>3){
+              std::list<double>::iterator iter;
+              iter = item.knl.begin();
+              iter++; iter++; iter++;
+              return (*iter);
+            }
+          }
+        else return item.k3;
+        }
+
 	Float_t GetBDSTilt(){return item.tilt;}
 	Double_t SetBDSX2(Double_t S){s=S;}
 
