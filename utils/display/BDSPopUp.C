@@ -33,6 +33,7 @@ BDSPopUp::BDSPopUp(TString name, short type,Float_t len, Float_t s,
 	temp=Form("k3=%f, k4=%f",k2,k3);
 	TText *t5 = new TText(0.02,0.2,temp);
 	temp=Form("angle=%f",angle);
+	TText *t6 = new TText(0.02,0.1,temp);
 	
 	t0->SetTextColor(2);
 	t0->SetTextAlign(12);
@@ -47,6 +48,8 @@ BDSPopUp::BDSPopUp(TString name, short type,Float_t len, Float_t s,
 	t4->SetTextSize(0.09);	
 	t5->SetTextAlign(12);
 	t5->SetTextSize(0.09);	
+	t6->SetTextAlign(12);
+	t6->SetTextSize(0.09);	
 	
 	t0->Draw();
 	t1->Draw();
@@ -54,4 +57,5 @@ BDSPopUp::BDSPopUp(TString name, short type,Float_t len, Float_t s,
 	t3->Draw();
 	t4->Draw();
 	t5->Draw();
+	t6->Draw();
 }
