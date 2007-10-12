@@ -50,7 +50,7 @@ BDSSampler::BDSSampler (G4String aName,G4double aLength):
 			 SetVisAttributes())
 {
   nThisSampler= nSamplers + 1;
-  SetName(BDSGlobals->StringFromInt(nThisSampler)+"_"+itsName);
+  SetName("Sampler_"+BDSGlobals->StringFromInt(nThisSampler)+"_"+itsName);
   SetType("sampler");
   SamplerLogicalVolume();
   nSamplers++;
