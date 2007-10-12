@@ -14,8 +14,10 @@ option, beampipeRadius = 3.8 * cm,
 
 ! beamline definiton
 
-laser1 : laser, l=10*cm, position={0.,0.,0.}, direction={1.,0.,0.}, 
-				waveLength=532e-9*m, spotsize=1e-6*m, intensity=10e6;
+laser1 : laser, l=10*cm,
+		x=1, y=0, z=0, ! set direction of laser to {1,0,0} wrt beam axis
+		waveLength=532e-9*m, ! set wavelength of laser to 532nm
+		spotsize=1e-6*m, intensity=10e6, position={0,0,0}; ! not yet implemented
 
 d1: drift,l=0.00000000000001*mm;
 segmentation: drift, l=12478.4*mm;
@@ -34,7 +36,7 @@ cryoModule: element, l=12.4784*m, geometry="mokka:cryo1_geomlist.sql";
 
 !gap3: element, l=0.8*m, geometry="mokka:cryo/cavity/gap3_geomlist.sql";
 
-rb1:sbend, l=0.5*m, angle = 2e-6;
+rb1:sbend, l=0.5*m, angle = 2e-6, outR=1*m;
 
 !vrot: transform3d, psi=pi/2;
 !ivrot: transform3d, psi=-pi/2;
