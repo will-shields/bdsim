@@ -32,6 +32,10 @@ public:
   BDSDump(G4String aName,G4double aLength);
   ~BDSDump();
 
+  static const int GetNumberOfDumps();
+  static int firstActiveDump;
+  static int nUsedDumps;
+
 protected:
 
 private:
@@ -41,6 +45,8 @@ private:
   // field related objects:
   G4UserLimits* itsUserLimits;
   G4VisAttributes* itsVisAttributes;
+
+  static int nDumps;
 };
 
 #endif

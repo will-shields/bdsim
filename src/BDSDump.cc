@@ -45,7 +45,7 @@ BDSDump::BDSDump (G4String aName,G4double aLength):
 			 SetVisAttributes())
 {
   DumpLogicalVolume();
-
+  nDumps++;
   //G4int nDumps=(*LogVolCount)[itsName];
 
   //BDSRoot->SetDumpNumber(nDumps);
@@ -53,6 +53,16 @@ BDSDump::BDSDump (G4String aName,G4double aLength):
  
 }
 
+const int BDSDump::GetNumberOfDumps()
+{
+  return nDumps;
+}
+
+int BDSDump::nDumps=0;
+
+int BDSDump::firstActiveDump=1;
+
+int BDSDump::nUsedDumps=0;
 
 void BDSDump::DumpLogicalVolume()
 {
@@ -105,4 +115,5 @@ BDSDump::~BDSDump()
 {
   if(itsVisAttributes) delete itsVisAttributes;
   if(itsUserLimits) delete itsUserLimits;
+  nDumps--;
 }

@@ -1,8 +1,8 @@
 //  
 //   BDSIM, (C) 2001-2007
 //    
-//   version 0.3 
-//   last modified : 08 May 2007 by agapov@pp.rhul.ac.uk
+//   version 0.4 
+//   last modified : 11 Oct 2007 by malton@pp.rhul.ac.uk
 //  
 
 
@@ -10,7 +10,7 @@
 //    beam dumper/reader for online exchange - Sensitive Detector
 //
 
-
+const int DEBUG = 0;
 
 #include "BDSGlobalConstants.hh" // must be first in include list
 
@@ -57,11 +57,10 @@ void BDSDumpSD::Initialize(G4HCofThisEvent*HCE)
 G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
 {
   G4Track* theTrack=aStep->GetTrack();
-
  
   // postpone the track
   if(theTrack->GetParentID() == 0){
-    G4cout<<"Dump: postponing track..."<<G4endl;
+    if(DEBUG) G4cout<<"Dump: postponing track..."<<G4endl;
     BDSGlobals->setWaitingForDump(true);
     theTrack->SetTrackStatus(fPostponeToNextEvent);
   }

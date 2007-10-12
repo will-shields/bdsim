@@ -123,7 +123,7 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
       BDSGlobals->fileRead.getline(token,255);
       G4cout << token << G4endl;
       
-      double x,y,z,t,xp,yp,zp,E;
+      G4double x,y,z,t,xp,yp,zp,E;
       x = y = z = xp = yp = zp = t = E = 0;
       BDSGlobals->holdingVector.clear();
       for(int i=0; i< SM->GetNPostponedTrack();i++){
@@ -133,13 +133,18 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	
 	tmpParticle holdingParticle;
 	holdingParticle.E = E;
-	holdingParticle.x = x;
-	holdingParticle.y = y;
-	holdingParticle.z = z;
 	holdingParticle.t = t;
 	holdingParticle.xp = xp;
 	holdingParticle.yp = yp;
 	holdingParticle.zp = zp;
+
+	G4ThreeVector tmpPos = G4ThreeVector(x,y,z);
+	tmpPos += G4ThreeVector(xp,yp,zp).unit()*1e-4; // temp fix for recirculation in dump volume
+
+	holdingParticle.x = tmpPos.x();
+	holdingParticle.y = tmpPos.y();
+	holdingParticle.z = tmpPos.z();
+
 	BDSGlobals->holdingVector.push_back(holdingParticle);
 	if(DEBUG) G4cout << "Read particle number " << i << G4endl;
       }
