@@ -1367,12 +1367,12 @@ numbers :
         | aexpr ',' numbers 
           {
 	    if(execute)
-	      _tmparray.push_back($1);
+	      _tmparray.push_front($1);
           } 
        | aexpr
          {
 	   if(execute)
-	     _tmparray.push_back($1);
+	     _tmparray.push_front($1);
         }
 ;
 
@@ -1380,12 +1380,12 @@ letters :
 	| STR ',' letters
           {
             if(execute)
-              _tmpstring.push_back($1);
+              _tmpstring.push_front($1);
           }
 	| STR
          {
            if(execute)
-             _tmpstring.push_back($1);
+             _tmpstring.push_front($1);
          }
 ;
 
