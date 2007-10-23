@@ -33,14 +33,14 @@ enum {
   _SOLENOID = 9,
   _ELEMENT = 10,
   _LINE = 11,
+  _REV_LINE= -11, //for line inversion in sublines
   _COLLIMATOR = 12,
   _ECOL = 13,
   _RCOL = 14,
   _LASER=15,
   _MATERIAL=16,
-  _REV_LINE=17,
-  _RBEND=18,
-  _ATOM = 19,
+  _RBEND=17,
+  _ATOM = 18,
 
   _VKICK=31,
   _HKICK=32,
