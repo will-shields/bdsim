@@ -1,6 +1,6 @@
-/** BDSIM, v0.1   
+/** BDSIM, v0.4   
 
-Last modified 01.02.2006 by Ilya Agapov
+Last modified 23.10.2007 by Steve Malton
 
 **/
 
@@ -20,9 +20,6 @@ const int DEBUG = 0;
 using namespace std;
 
 G4double NumSpoilerRadLen=1.;
-
-namespace 
-{
 
 BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
 {
@@ -256,9 +253,7 @@ G4String BDSGlobalConstants::StringFromDigit(G4int N)
   return Cnum;
 }
 
-  BDSGlobalConstants::~BDSGlobalConstants()
-  {  
+BDSGlobalConstants::~BDSGlobalConstants()
+{  
     
-  }
-
 }
