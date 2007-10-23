@@ -793,7 +793,7 @@ std::list<struct Element>::iterator element_lookup(char *name)
        if(!strcmp((*it).name,name) )
 	 return it;
      }
-   return NULL;
+   return element_list.end();
 }
 
 std::list<struct Element>::iterator element_lookup(char *name,std::list<struct Element>& el)
