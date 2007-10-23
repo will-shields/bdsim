@@ -622,6 +622,7 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
 
 int expand_line(char *name, char *start, char* end)
 {
+  std::list<struct Element>::const_iterator iterNULL = element_list.end(); //bugfix for gcc 4.1.2 - cannot compare iterator to int(NULL). SPM
   std::list<struct Element>::iterator it;
   
   struct Element e;
@@ -687,7 +688,7 @@ int expand_line(char *name, char *start, char* end)
 		  // lookup the line in main list
 		  std::list<struct Element>::iterator tmpit = element_lookup((*it).name);
 		  
-		  if( (tmpit != NULL) && ( (*tmpit).lst != NULL) ) { // sublist found and not empty
+		  if( (tmpit != iterNULL) && ( (*tmpit).lst != NULL) ) { // sublist found and not empty
 		    
 		    if(DEBUG)
 		      printf("inserting sequence for %s - %s ...",(*it).name,(*tmpit).name);
@@ -700,7 +701,7 @@ int expand_line(char *name, char *start, char* end)
 		    // delete the list pointer
 		    beamline_list.erase(it--);
 		    
-		  } else if ( tmpit != NULL ) // entry points to a scalar element type -
+		  } else if ( tmpit != iterNULL ) // entry points to a scalar element type -
 		    //transfer properties from the main list
 		    { 
 		      if(DEBUG) printf("keeping element...%s\n",(*it).name);
@@ -741,7 +742,7 @@ int expand_line(char *name, char *start, char* end)
 	{
 	  sit = element_lookup(start,beamline_list);
 	  
-	  if(sit==NULL)
+	  if(sit==iterNULL)
 	    {
 	      sit = beamline_list.begin();
 	    }
@@ -756,7 +757,7 @@ int expand_line(char *name, char *start, char* end)
 	{
 	  eit = element_lookup(end,beamline_list);
 	  
-	  if(eit==NULL)
+	  if(eit==iterNULL)
 	    {
 	      eit = beamline_list.end();
 	    }
@@ -771,7 +772,7 @@ int expand_line(char *name, char *start, char* end)
       // insert the tunnel if present
 
       it = element_lookup("tunnel");
-      if(it!=NULL)
+      if(it!=iterNULL)
 	beamline_list.push_back(*it);
       
       return 0;
@@ -804,7 +805,7 @@ std::list<struct Element>::iterator element_lookup(char *name,std::list<struct E
        if(!strcmp((*it).name,name) )
 	 return it;
      }
-   return NULL;
+   return element_list.end();
 }
 
 
@@ -1137,8 +1138,9 @@ void set_value(std::string name, std::string value )
 double property_lookup(char *element_name, char *property_name)
 {
    std::list<struct Element>::iterator it = element_lookup(element_name);
+   std::list<struct Element>::const_iterator iterNULL = element_list.end();
 
-   if(it == NULL) return 0;
+   if(it == iterNULL) return 0;
    
    if(!strcmp(property_name,"l")) return (*it).l;
    if(!strcmp(property_name,"B")) return (*it).B;

@@ -365,7 +365,8 @@ extension : VARIABLE ',' parameters
 		{	 
 		  if(ECHO_GRAMMAR) printf("extension : VARIABLE parameters   -- %s \n",$1->name);
 		  list<struct Element>::iterator it = element_lookup($1->name);
-		  if(it == NULL)
+		  list<struct Element>::iterator iterNULL = element_list.end();
+		  if(it == iterNULL)
 		    {
 		      if(VERBOSE) printf("type %s has not been defined\n",$1->name);
 		      $$ = _NONE;
