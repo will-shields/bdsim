@@ -696,13 +696,15 @@ int expand_line(char *name, char *start, char* end)
 		    beamline_list.insert(it,(*tmpit).lst->begin(),(*tmpit).lst->end());
 		    else if((*it).type == _REV_LINE){
 		      //iterate over list and invert any sublines contained within. SPM
+		      std::list<struct Element> tmpList;
+		      tmpList.insert(tmpList.end(),(*tmpit).lst->begin(),(*tmpit).lst->end());
 		      for(std::list<struct Element>::iterator 
-			itLineInverter = (*tmpit).lst->begin();
-			itLineInverter != (*tmpit).lst->end(); itLineInverter++){
+			itLineInverter = tmpList.begin();
+			itLineInverter != tmpList.end(); itLineInverter++){
 			  if((*itLineInverter).type == _LINE ||
 			    (*itLineInverter).type == _REV_LINE)
 			      (*itLineInverter).type *= -1;}
-		      beamline_list.insert(it,(*tmpit).lst->rbegin(),(*tmpit).lst->rend());
+		      beamline_list.insert(it,tmpList.rbegin(),tmpList.rend());
 		    }
 		    if(DEBUG) printf("inserted\n");
 		    
