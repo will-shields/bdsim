@@ -91,9 +91,13 @@ BDSTMultipole::BDSTMultipole(G4String aName,G4double aLength,
 
       SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
       SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+
+      (*LogVolCount)[itsName]=1;
+      (*LogVol)[itsName]=itsMarkerLogicalVolume;
     }
   else
     {
+      (*LogVolCount)[itsName]++;
       itsMarkerLogicalVolume=(*LogVol)[itsName];
     }      
   
