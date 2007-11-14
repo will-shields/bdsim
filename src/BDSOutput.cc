@@ -174,8 +174,6 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
        
        if(!sTree) G4Exception("BDSOutput: ROOT Sampler not found!");
 
-<<<<<<< BDSOutput.cc
-
        E0=(*hc)[i]->GetInitMom() / GeV;
        x0=(*hc)[i]->GetInitX() / micrometer;
        y0=(*hc)[i]->GetInitY() / micrometer;
@@ -202,21 +200,7 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
        Zp=(*hc)[i]->GetGlobalZPrime() / radian;
 
        s=(*hc)[i]->GetS() / m;
-=======
-       x0=(*hc)[i]->GetInitX() / micrometer; 
-       xp0=(*hc)[i]->GetInitXPrime(); 
-       y0=(*hc)[i]->GetInitY() / micrometer; 
-       yp0=(*hc)[i]->GetInitYPrime(); 
-       E0=(*hc)[i]->GetInitMom() / GeV; 
-       z0=(*hc)[i]->GetInitZ() / m; 
-       x=(*hc)[i]->GetX()/ micrometer; 
-       xp=(*hc)[i]->GetXPrime(); 
-       y=(*hc)[i]->GetY() / micrometer; 
-       yp=(*hc)[i]->GetYPrime(); 
-       E=(*hc)[i]->GetMom() / GeV; 
-       z=(*hc)[i]->GetZ() / m;
-       t=(*hc)[i]->GetTime() / ns; 
->>>>>>> 1.15
+
        weight=(*hc)[i]->GetWeight();
        part=(*hc)[i]->GetPDGtype(); 
        nev=(*hc)[i]->GetEventNo(); 

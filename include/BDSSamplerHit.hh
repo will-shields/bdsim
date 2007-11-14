@@ -69,7 +69,6 @@ private:
   G4double itsXPrime;
   G4double itsY;
   G4double itsYPrime;
-<<<<<<< BDSSamplerHit.hh
   G4double itsZ;
   G4double itsZPrime;
 
@@ -87,9 +86,6 @@ private:
   //total current track length
   G4double itsS;
 
-=======
-  G4double itsTime;
->>>>>>> 1.6
   G4double itsWeight;
   G4int itsPDGtype;
   G4int itsEventNo;
@@ -162,16 +158,7 @@ public:
     {itsYPrime=yPrime;}
   inline G4double GetYPrime() const
     {return itsYPrime;}
-<<<<<<< BDSSamplerHit.hh
 
-=======
-  inline G4double GetTime() const
-    {return itsTime;}
-  inline void SetTime(G4double time)
-    {itsYPrime=time;}
-  inline G4double GetWeight() const
-    {return itsWeight;}
->>>>>>> 1.6
   inline void SetZ(G4double z)
     {itsZ=z;}
   inline G4double GetZ() const
