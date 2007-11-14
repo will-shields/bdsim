@@ -358,11 +358,11 @@ options; the beampipe outer radius can be redefined for almost every element
 with the @code{aper} option.
 The beampipe material is defined by the global @code{beampipeMaterial} option
 (default: ``Vacuum''), while the residual gas in the beampipe at the moment
-cannot be changed bu the user and is set to ``Vacuum''.
+cannot be changed by the user and is set to ``Vacuum''.
 @c NOT YET READY 
 @c defined by  the @code{beampipeGas} option (default: ``Vacuum'').
 The outer volume is represented (with the exception of the @code{drift} 
-element) by a cilinder with inner radius equal to the beampipe outer radius and
+element) by a cylinder with inner radius equal to the beampipe outer radius and
 with outer radius given by default by the global @code{boxSize} option, which
 can usually be overridden with the ``outR'' option.
 

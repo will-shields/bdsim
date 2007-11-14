@@ -67,7 +67,7 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
       G4int ParentID = theTrack->GetParentID();
 
       // not used TODO: modify to include time of flight as well as sampler z pos?
-      //G4double time=theTrack->GetGlobalTime();
+      G4double time=theTrack->GetGlobalTime();
 
       G4double energy=theTrack->GetKineticEnergy()+
 	theTrack->GetDefinition()->GetPDGMass();
@@ -77,16 +77,18 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
 
       // Get Translation and Rotation of Sampler Volume w.r.t the World Volume
       G4AffineTransform tf(aStep->GetPreStepPoint()->GetTouchable()->GetHistory()->GetTopTransform().Inverse());
-      const G4RotationMatrix Rot=tf.NetRotation();
-      const G4ThreeVector Trans=-tf.NetTranslation();
+//      const G4RotationMatrix Rot=tf.NetRotation();
+//      const G4ThreeVector Trans=-tf.NetTranslation();
 
       //Old method - works for standard Samplers, but not samplers within a deeper
       //hierarchy of volumes (e.g. Mokka built samplers)
       //const G4RotationMatrix* Rot=theTrack->GetVolume()->GetFrameRotation();
       //const G4ThreeVector Trans=theTrack->GetVolume()->GetFrameTranslation();
 
-      G4ThreeVector LocalPosition=pos+Trans; 
-      G4ThreeVector LocalDirection=Rot*momDir; 
+//      G4ThreeVector LocalPosition=pos+Trans; 
+//      G4ThreeVector LocalDirection=Rot*momDir; 
+      G4ThreeVector LocalPosition = tf.TransformPoint(pos);
+      G4ThreeVector LocalDirection = tf.TransformAxis(momDir);
 
       G4double x=LocalPosition.x();
       G4double y=LocalPosition.y();
@@ -164,7 +166,7 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
 			 SampName,
 			 start_z,start_E,start_x,start_xp,
 			 start_y,start_yp,
-			 z,energy,x,xPrime,y,yPrime,weight,
+			 z,energy,x,xPrime,y,yPrime,time,weight,
 			 PDGtype,nEvent, ParentID, TrackID);
 
       smpHit->SetType(itsType);

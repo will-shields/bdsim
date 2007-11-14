@@ -145,13 +145,37 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 
           G4cout<<"r= "<<aTrack->GetPosition()<<G4endl;
 	}
-       // TODO : dump the file
-       BDSGlobals->fileDump << aTrack->GetTotalEnergy() << "\t"
-	<< aTrack->GetPosition().x() << "\t"
-	<< aTrack->GetPosition().y() << "\t"
-	<< aTrack->GetPosition().z() << "\t"
-	<< aTrack->GetMomentumDirection().x() << "\t"
-	<< aTrack->GetMomentumDirection().y() << "\n"; // SPM
+
+	G4AffineTransform tf = BDSGlobals->GetDumpTransform().Inverse();
+//	const G4RotationMatrix Rot=tf.NetRotation();
+//	const G4ThreeVector Trans=-tf.NetTranslation();
+
+        G4ThreeVector pos=aTrack->GetPosition();
+        G4ThreeVector momDir=aTrack->GetMomentumDirection();
+
+	//pos.setZ(aTrack->GetGlobalTime()*c_light);
+
+//        G4ThreeVector LocalPosition=pos+Trans;
+//        G4ThreeVector LocalDirection=Rot*momDir;
+        G4ThreeVector LocalPosition=tf.TransformPoint(pos);
+        G4ThreeVector LocalDirection=tf.TransformAxis(momDir);
+
+	G4cout << "Stacking: Pos = " << pos << G4endl;
+	G4cout << "LocalPos: Pos = " << LocalPosition << G4endl;
+	G4cout << "Stacking: mom = " << momDir << G4endl;
+	G4cout << "LocalDir: mom = " << LocalDirection << G4endl;
+
+        G4double x=LocalPosition.x()/micrometer;
+        G4double y=LocalPosition.y()/micrometer;
+	G4double z=LocalPosition.z()/micrometer;
+        G4double xPrime=LocalDirection.x()/(1e-6*radian);
+        G4double yPrime=LocalDirection.y()/(1e-6*radian);
+
+        BDSGlobals->fileDump.precision(14);
+        // TODO : dump the file
+        BDSGlobals->fileDump << aTrack->GetTotalEnergy()/GeV << "\t"
+	<< x << "\t" << y << "\t" << z << "\t"
+	<< xPrime << "\t" << yPrime << "\n"; // SPM
        classification = fPostpone;
      }
 

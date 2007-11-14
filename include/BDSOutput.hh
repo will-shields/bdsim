@@ -70,7 +70,7 @@ private:
   ofstream of;
 
 #ifdef USE_ROOT
-  Float_t x0,xp0,y0,yp0,E0,z0,x,xp,y,yp,E,z,weight;
+  Float_t x0,xp0,y0,yp0,E0,z0,x,xp,y,yp,t,E,z,weight;
   Int_t part,nev, pID, theID, track_id;
 #endif
 

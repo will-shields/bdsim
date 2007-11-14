@@ -9,7 +9,6 @@
   extern int line_num;
   extern char* yyfilename;
 
-
   const int DEBUG = 0; // print debug info like parsing output etc.
   const int ECHO_GRAMMAR = 0; // print grammar rule expansion (for debugging)
   const int VERBOSE = 0; // print warnings and errors

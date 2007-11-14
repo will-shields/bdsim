@@ -5,12 +5,9 @@
 //   last modified : 10 Sept 2007 by malton@pp.rhul.ac.uk
 //  
 
-
-
 //
 //    Physics lists
 //
-
 
 const int DEBUG = 0;
 
@@ -41,42 +38,52 @@ const int DEBUG = 0;
 
 // physics processes
 
+//
 // EM
+//
 
+// gamma
 #include "G4ComptonScattering.hh"
 #include "G4GammaConversion.hh"
 #include "G4PhotoElectricEffect.hh"
+#include "BDSGammaConversionToMuons.hh"
 
+// charged particles
 #include "G4MultipleScattering.hh"
+#include "G4Cerenkov.hh"
 
+// e
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
 #include "G4eplusAnnihilation.hh"
 
+// mu
 #include "G4MuIonisation.hh"
 #include "G4MuBremsstrahlung.hh"
 #include "G4MuPairProduction.hh"
-#include "G4Cerenkov.hh"
-
-#include "BDSGammaConversionToMuons.hh"
 #include "G4MuonNucleusProcess.hh"
 
+//ions
 #include "G4hIonisation.hh"
 #include "G4ionIonisation.hh"
 
 
+//
 // Low EM
+//
 
+//gamma
 #include "G4LowEnergyRayleigh.hh"
 #include "G4LowEnergyPhotoElectric.hh"
 #include "G4LowEnergyCompton.hh"
 #include "G4LowEnergyGammaConversion.hh"
 
-// e-
+//e
 #include "G4LowEnergyIonisation.hh"
 #include "G4LowEnergyBremsstrahlung.hh"
 #include "G4AnnihiToMuPair.hh"
 
+//ions
 #include "G4hLowEnergyIonisation.hh"
 
 
@@ -84,7 +91,6 @@ const int DEBUG = 0;
 #include "BDSLaserCompton.hh"
 //#include "BDSPlanckScatterPhysics.hh"
 #include "BDSSynchrotronRadiation.hh"
-
 #include "BDSContinuousSR.hh"
 
 
@@ -95,8 +101,9 @@ const int DEBUG = 0;
 #include "G4StepLimiter.hh"
 
 
+//
 // Hadronic
-
+//
 #include "G4TheoFSGenerator.hh"
 #include "G4GeneratorPrecompoundInterface.hh"
 #include "G4QGSModel.hh"
@@ -111,7 +118,9 @@ const int DEBUG = 0;
 #include "G4PositronNuclearProcess.hh"
 
 
+//
 // particle definition
+//
 
 // Bosons
 #include "G4ChargedGeantino.hh"
@@ -134,7 +143,6 @@ const int DEBUG = 0;
 #include "G4MesonConstructor.hh"
 #include "G4BaryonConstructor.hh"
 #include "G4IonConstructor.hh"
-
 
 //ShortLived
 #include "G4ShortLivedConstructor.hh"
@@ -160,11 +168,6 @@ void BDSPhysicsList::ConstructProcess()
 {
   // register physics processes here
   AddTransportation();
-
-
-  // stuff needed to limitsteps
-
-  
 
   // standard e+/e-/gamma electromagnetic interactions
   if(BDSGlobals->GetPhysListName() == "em_standard") 
@@ -215,16 +218,20 @@ void BDSPhysicsList::ConstructProcess()
     }
 
 
-  //default - standard
-
+  //default - standard (only transportation)
   if(BDSGlobals->GetPhysListName() != "standard")
     {
       G4cerr<<"WARNING : Unknown physics list "<<BDSGlobals->GetPhysListName()<<
 	"  using transportation only (standard) "<<G4endl;
     } 
 
-        
-     
+  // stuff needed to limitsteps
+  theParticleIterator->reset();
+  while( (*theParticleIterator)() ){
+    G4ParticleDefinition* particle = theParticleIterator->value();
+    G4ProcessManager* pmanager = particle->GetProcessManager();
+    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
+  }
 }
 
 void BDSPhysicsList::ConstructParticle()
@@ -354,7 +361,7 @@ void BDSPhysicsList::ConstructEM()
       pmanager->AddProcess(new G4eBremsstrahlung,   -1, 3,3);     
       pmanager->AddProcess(new G4Cerenkov,          -1, 4,-1);
       pmanager->AddProcess(new G4StepLimiter,       -1,-1,5);  
-      
+
     } else if (particleName == "e+") {
       //positron
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);

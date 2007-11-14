@@ -91,6 +91,7 @@ void BDSOutput::Init(G4int FileNum)
       SamplerTree->Branch("yp",&yp,"yp/F");
       SamplerTree->Branch("E",&E,"E/F");
       SamplerTree->Branch("z",&z,"z/F");
+      SamplerTree->Branch("t",&t,"t/F");
       SamplerTree->Branch("weight",&weight,"weight/F");
       SamplerTree->Branch("part",&part,"part/I");
       SamplerTree->Branch("nev",&nev,"nev/I");
@@ -177,7 +178,8 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
        y=(*hc)[i]->GetY() / micrometer; 
        yp=(*hc)[i]->GetYPrime(); 
        E=(*hc)[i]->GetMom() / GeV; 
-       z=(*hc)[i]->GetZ() / m; 
+       z=(*hc)[i]->GetZ() / m;
+       t=(*hc)[i]->GetTime() / ns; 
        weight=(*hc)[i]->GetWeight();
        part=(*hc)[i]->GetPDGtype(); 
        nev=(*hc)[i]->GetEventNo(); 

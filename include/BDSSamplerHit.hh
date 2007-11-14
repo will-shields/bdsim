@@ -25,7 +25,7 @@ class BDSSamplerHit :public G4VHit
 		 G4double init_y, G4double init_yPrime,
 		 G4double z,G4double mom,
 		 G4double x, G4double xPrime, G4double y, 
-		 G4double yPrime,G4double weight,
+		 G4double yPrime, G4double time, G4double weight,
 		 G4int PDGtype,G4int nEvent,
 		 G4int ParentID, G4int TrackID);
 
@@ -52,6 +52,7 @@ private:
   G4double itsXPrime;
   G4double itsY;
   G4double itsYPrime;
+  G4double itsTime;
   G4double itsWeight;
   G4int itsPDGtype;
   G4int itsEventNo;
@@ -101,6 +102,10 @@ public:
     {itsYPrime=yPrime;}
   inline G4double GetYPrime() const
     {return itsYPrime;}
+  inline G4double GetTime() const
+    {return itsTime;}
+  inline void SetTime(G4double time)
+    {itsYPrime=time;}
   inline G4double GetWeight() const
     {return itsWeight;}
   inline void SetZ(G4double z)

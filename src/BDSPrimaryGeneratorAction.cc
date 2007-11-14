@@ -97,11 +97,8 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   if(!BDSGlobals->getReadFromStack()){
     theBunch.GetNextParticle(x0,y0,z0,xp,yp,zp,t,E); // get next starting point
   }
-  else if(BDSGlobals->holdingVector.size()!=0){
-    if(DEBUG)
-      G4cout << BDSGlobals->holdingVector.size() << " particles waiting to fire\n";
-
-    tmpParticle holdingParticle = (BDSGlobals->holdingVector)[BDSGlobals->holdingVector.size()-1];
+  else if(BDSGlobals->holdingQueue.size()!=0){
+    tmpParticle holdingParticle = BDSGlobals->holdingQueue.front();
     x0 = holdingParticle.x;
     y0 = holdingParticle.y;
     z0 = holdingParticle.z;
@@ -110,9 +107,9 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     zp = holdingParticle.zp;
     t = holdingParticle.t;
     E = holdingParticle.E;
-    if(DEBUG) printf("Track number %i: %f %f %f %f %f %f %f %f\n",
-	(int)BDSGlobals->holdingVector.size(),x0,y0,z0,xp,yp,zp,t,E);
-    BDSGlobals->holdingVector.pop_back();
+    if(DEBUG) printf("Particles left %i: %f %f %f %f %f %f %f %f\n",
+	(int)BDSGlobals->holdingQueue.size(),x0,y0,z0,xp,yp,zp,t,E);
+    BDSGlobals->holdingQueue.pop_front();
   }
   else G4Exception("No new particles to fire...\n");
 
@@ -141,7 +138,8 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   initial_xp=xp;
   initial_y=y0;
   initial_yp=yp;
-  initial_z=-t*c_light;
+  initial_z=z0;
+//  initial_z=-t*c_light;
   // total energy is used elsewhere:
   initial_E=E+BDSGlobals->GetParticleDefinition()->GetPDGMass();
 

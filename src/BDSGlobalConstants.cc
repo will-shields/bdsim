@@ -49,7 +49,7 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
   itsBeamTotalEnergy = opt.beamEnergy * GeV;
 
   //not yet implemented!
-  if (opt.backgroundScaleFactor != 1e-9)
+  if (opt.backgroundScaleFactor > 1e-9)
     itsBackgroundScaleFactor = opt.backgroundScaleFactor;
   else
     itsBackgroundScaleFactor = 1.0;
@@ -140,7 +140,7 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
 
   stopTracks = opt.stopTracks; 
 
-  // tmp - parameters of the laserwire process - to be given in the element attributes
+  // defaults - parameters of the laserwire process
 
   itsLaserwireWavelength = 0.4 * micrometer;
   itsLaserwireDir = G4ThreeVector(1,0,0);

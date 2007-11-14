@@ -40,13 +40,13 @@ void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
     RunInitialization();
     if(n_event>0) DoEventLoop(n_event,macroFile,n_select);
     RunTermination();
-    while(!BDSGlobals->holdingVector.empty()){
+    while(!BDSGlobals->holdingQueue.empty()){
       BDSGlobals->setReadFromStack(true);
       SM->ClearPostponeStack();
 
       RunInitialization();
 //      DoEventLoop(n_event,macroFile,n_select);
-      DoEventLoop(BDSGlobals->holdingVector.size(),macroFile,n_select);
+      DoEventLoop(BDSGlobals->holdingQueue.size(),macroFile,n_select);
       RunTermination();
 
       BDSGlobals->setReadFromStack(false);

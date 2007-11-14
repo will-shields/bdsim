@@ -1,6 +1,6 @@
-/** BDSIM, v0.1   
+/** BDSIM, v0.4
 
-Last modified 01.02.2006 by Ilya Agapov
+Last modified 30.10.2007 by Steve Malton
 
 **/
 
@@ -15,6 +15,7 @@ Last modified 01.02.2006 by Ilya Agapov
 #include <string>
 #include <set>
 #include <list>
+#include <deque>
 
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
@@ -23,6 +24,7 @@ Last modified 01.02.2006 by Ilya Agapov
 #include "globals.hh"
 #include "G4FieldManager.hh"
 #include "G4String.hh"
+#include "G4AffineTransform.hh"
 //#include "G4Track.hh"
 
 #include "parser/gmad.h"
@@ -256,15 +258,18 @@ public:
   G4String GetFifo();
   void SetFifo(G4String fileName);
 
+  G4AffineTransform GetDumpTransform();
+  void SetDumpTransform(G4AffineTransform tf);
+
   // SPM : temp filestream for placet to read and write
   ofstream fileDump;
-  ifstream fileRead;
+  // ifstream fileRead; replaced with FILE* fifo in code for consistency with Placet. SPM
 
   G4String tmpParticleName; // particle name as given in options
                             // since the particle definition is looked up in 
                             // PhysicsList we need to store the name first
 
-  std::vector<tmpParticle> holdingVector;
+  std::deque<tmpParticle> holdingQueue;
 
 protected:
 private:
@@ -426,7 +431,7 @@ private:
   G4bool isReadFromStack;
 
   G4String itsFifo; // fifo for BDSIM-placet
-
+  G4AffineTransform itsDumpTransform; //transform of frame from start to current dump element
 
 };
 
@@ -823,6 +828,10 @@ inline G4bool BDSGlobalConstants::getReadFromStack() { return isReadFromStack; }
 
 inline G4String BDSGlobalConstants::GetFifo() {return itsFifo;}
 inline void BDSGlobalConstants::SetFifo(G4String aFileName) {itsFifo = aFileName;}
+
+inline G4AffineTransform BDSGlobalConstants::GetDumpTransform() {return itsDumpTransform;}
+inline void BDSGlobalConstants::SetDumpTransform(G4AffineTransform tf)
+{itsDumpTransform=tf;}
 
 extern BDSGlobalConstants* BDSGlobals;
 #endif

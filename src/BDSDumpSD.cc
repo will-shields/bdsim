@@ -63,11 +63,12 @@ G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
     if(DEBUG) G4cout<<"Dump: postponing track..."<<G4endl;
     BDSGlobals->setWaitingForDump(true);
     theTrack->SetTrackStatus(fPostponeToNextEvent);
-  }
-    
-  return true;
-  
 
+    G4AffineTransform tf(aStep->GetPreStepPoint()->GetTouchable()->
+				GetHistory()->GetTopTransform().Inverse());
+    BDSGlobals->SetDumpTransform(tf);
+  }
+  return true;
 }
 
 void BDSDumpSD::EndOfEvent(G4HCofThisEvent*HCE)

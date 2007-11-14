@@ -59,8 +59,8 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
      
      //     itsLaserWavelength=BDSGlobals->GetLaserwireWavelength();
      //     itsLaserDirection=BDSGlobals->GetLaserwireDir();
-		      itsLaserWavelength=BDSGlobals->GetLaserwireWavelength(lVolume->GetName());
-		      itsLaserDirection=BDSGlobals->GetLaserwireDir(lVolume->GetName());
+     itsLaserWavelength=BDSGlobals->GetLaserwireWavelength(lVolume->GetName());
+     itsLaserDirection=BDSGlobals->GetLaserwireDir(lVolume->GetName());
      
      //G4cout << "&&&&&" << itsLaserDirection << "&&&&&\n";
      if(itsLaserWavelength<=0.)

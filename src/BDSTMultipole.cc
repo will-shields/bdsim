@@ -23,6 +23,8 @@ Last modified 17.04.2006 by Ilya Agapov
 
 #include <map>
 
+const int DEBUG = 0;
+
 //============================================================
 
 typedef std::map<G4String,int> LogVolCountMap;
@@ -61,7 +63,7 @@ BDSTMultipole::BDSTMultipole(G4String aName,G4double aLength,
 
   itsOrder = bnl.size();
 
-  G4cout<<"now the order is"<<bnl.size()<<G4endl;
+  //G4cout<<"now the order is"<<bnl.size()<<G4endl;
   
   if (!(*LogVolCount)[itsName])
     {
@@ -114,7 +116,7 @@ G4VisAttributes* BDSTMultipole::SetVisAttributes()
 
 void BDSTMultipole::BuildBPFieldAndStepper()
 {
-  G4cout<<"Building Multipole Field and stepper"<<G4endl;
+  if(DEBUG) G4cout<<"Building Multipole Field and stepper"<<G4endl;
 
   //G4int nvar = 6;
 

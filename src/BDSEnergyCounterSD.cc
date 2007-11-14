@@ -61,12 +61,12 @@ G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
   
 
   G4int nCopy=aStep->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
-  if(nCopy>nMaxCopy)
+  if(nCopy>nMaxCopy-1)
     {
       G4cout<<" BDSEnergyCounterSD: nCopy too large: nCopy="<<nCopy<<
 	"nMaxCopy="<<nMaxCopy<<" Volume="<<
 	aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName()<<G4endl;
-      G4Exception(" Killing program in BDSEnergyCounterSD::ProcessHits");
+      G4Exception("Killing program in BDSEnergyCounterSD::ProcessHits");
     }
 
   G4double zpos=0.5*(aStep->GetPreStepPoint()->GetPosition().z()

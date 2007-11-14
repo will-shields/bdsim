@@ -1,15 +1,28 @@
-/* BDSIM code.    Version 1.0
-   IA: 12.10.05 , modified
-*/
+//  
+//   BDSIM, (C) 2001-2007
+//   
+//   version 0.4
+//  
+//
+//
+//   Rectangular bending magnet class
+//   - itsLength parameter internally stores the geometrical length 
+//   - itsAngle parameter internally stores the bending angle
+//   - to get the arc length use the GetArcLength() function
+//   - the volume is a trapezoid with pole faces perpendicular to the ideal
+//     orbit
+//     
+//   History
+//
+//
 
 #ifndef BDSRBend_h
 #define BDSRBend_h 
 
-#include"globals.hh"
+#include "globals.hh"
 #include "BDSMaterials.hh"
 #include "G4LogicalVolume.hh"
 #include "BDSHelixStepper.hh"
-
 #include "myQuadStepper.hh"
 
 #include "G4FieldManager.hh"
@@ -17,48 +30,55 @@
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
-#include "G4UniformMagField.hh"
 #include "G4PVPlacement.hh"               
 
 #include "BDSMultipole.hh"
 #include "BDSSbendMagField.hh"
 #include "G4Mag_EqRhs.hh"
 
-class BDSRBend:public BDSMultipole
+class BDSRBend :public BDSMultipole
 {
-  public:
-    BDSRBend(G4String aName, G4double aLength,
-		  G4double bpRad,G4double FeRad,
-		  G4double bField, G4double angle, G4double outR,
-		  G4double tilt = 0, G4double bGrad=0, 
-		  G4String aMaterial = "", G4int nSegments=1);
-    ~BDSRBend();
+public:
+  BDSRBend(G4String aName, G4double aLength,
+	   G4double bpRad, G4double FeRad,
+	   G4double bField, G4double angle, G4double outR,
+	   G4double tilt = 0, G4double bGrad=0, 
+	   G4String aMaterial = "", G4int nSegments=1);
+  ~BDSRBend();
 
-  protected:
+  void SynchRescale(G4double factor);
 
-  private:
+  virtual const G4double GetArcLength() const;
+
+protected:
+
+private:
   G4double itsBField;
   G4double itsBGrad;
 
-  //  void BuildOuterLogicalVolume();
   void BuildBPFieldAndStepper();
-  void BuildSBMarkerLogicalVolume();
-
-  //void BuildBeampipe2(G4double length,G4double angle);
-  friend void BuildBeampipe2(BDSRBend *sb,G4double length,G4double angle);
-  //  friend void BuildDefaultOuterLogicalVolume2(BDSRBend* sb,G4double aLength, G4double angle, G4bool OuterMaterialIsVacuum=false);
+  void BuildRBMarkerLogicalVolume();
+  void BuildRBBeampipe();
+  void BuildRBOuterLogicalVolume(G4bool OuterMaterialIsVacuum=false);
 
   G4VisAttributes* SetVisAttributes();
+  G4Trd* markerSolidVolume;
 
   // field related objects:
-  //BDSHelixStepper* itsStepper;
   myQuadStepper* itsStepper;
   BDSSbendMagField* itsMagField;
   G4Mag_EqRhs* itsEqRhs;
 
 };
 
-void BuildBeampipe2(BDSRBend *sb,G4double length,G4double angle);
-//void BuildDefaultOuterLogicalVolume2(BDSRBend* sb,G4double aLength, G4double angle, G4bool OuterMaterialIsVacuum=false);
+inline const G4double BDSRBend::GetArcLength() const
+{
+  // arc length = radius*angle
+  //            = (geometrical length/(2.0*sin(angle/2))*angle
+  if (itsAngle == 0.0)
+    return itsLength;
+  else
+    return (itsLength * (0.5*itsAngle) / sin(0.5*itsAngle));
+}
 
 #endif

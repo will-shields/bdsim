@@ -507,14 +507,15 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
   switch(distribType){
   case _GAUSSIAN:
     {
+      E = BDSGlobals->GetBeamKineticEnergy() * (1 + energySpread * GaussGen->shoot());
+      t = - sigmaT* (1.-2.*GaussGen->shoot());
       x0 = sigmaX * GaussGen->shoot() * m;
       y0 = sigmaY * GaussGen->shoot() * m;
-      z0 = 0;
+      z0 = -t*c_light;
       xp = sigmaXp * GaussGen->shoot();
       yp = sigmaYp * GaussGen->shoot();
       zp=sqrt(1.-xp*xp -yp*yp);  
-      t = - sigmaT* (1.-2.*GaussGen->shoot());
-      E = BDSGlobals->GetBeamKineticEnergy() * (1 + energySpread * GaussGen->shoot());
+      t=0;
       break;
     }
   case _RING:

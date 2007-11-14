@@ -109,51 +109,71 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
       BDSGlobals->fileDump.close(); // SPM
       BDSGlobals->setDumping(false);
       BDSGlobals->setReading(true);
-      //
       
       // read in the stuff from placet
       
-      //
-      BDSGlobals->fileRead.open(BDSGlobals->GetFifo());
-      if(!BDSGlobals->fileDump.good()){
-	G4Exception("BDSGlobals->GetFifo(): fifo not found. Quitting.");
-	exit(1);
-      }
-      char token[255];
-      BDSGlobals->fileRead.getline(token,255);
-      G4cout << token << G4endl;
-      
+      int token;
       G4double x,y,z,t,xp,yp,zp,E;
       x = y = z = xp = yp = zp = t = E = 0;
-      BDSGlobals->holdingVector.clear();
-      for(int i=0; i< SM->GetNPostponedTrack();i++){
-	BDSGlobals->fileRead >> E >> x >> y >> z >> xp >> yp;
-	zp = sqrt(1-xp*xp-yp*yp);
-	t==0 ? t = -z/c_light : z = -t*c_light;
-	
-	tmpParticle holdingParticle;
-	holdingParticle.E = E;
-	holdingParticle.t = t;
-	holdingParticle.xp = xp;
-	holdingParticle.yp = yp;
-	holdingParticle.zp = zp;
-
-	G4ThreeVector tmpPos = G4ThreeVector(x,y,z);
-	tmpPos += G4ThreeVector(xp,yp,zp).unit()*1e-4; // temp fix for recirculation in dump volume
-
-	holdingParticle.x = tmpPos.x();
-	holdingParticle.y = tmpPos.y();
-	holdingParticle.z = tmpPos.z();
-
-	BDSGlobals->holdingVector.push_back(holdingParticle);
-	if(DEBUG) G4cout << "Read particle number " << i << G4endl;
-      }
-      sleep(1);
-      BDSGlobals->fileRead.close();
+      BDSGlobals->holdingQueue.clear();
       
-      BDSGlobals->setReading(false);
-      BDSGlobals->setReadFromStack(false);
+      G4AffineTransform tf = BDSGlobals->GetDumpTransform();
+      G4ThreeVector pos;
+      G4ThreeVector momDir;
+      G4ThreeVector LocalPosition;
+      G4ThreeVector LocalDirection;
+      
+      FILE* fifo = fopen(BDSGlobals->GetFifo(),"r");
+
+      if(fifo != NULL){
+        fscanf(fifo,"# nparticles = %i",&token);
+	G4cout << "# nparticles = " << token << G4endl;
+	for(int i=0; i< SM->GetNPostponedTrack();i++){
+	  fscanf(fifo,"%lf %lf %lf %lf %lf %lf",&E,&x,&y,&z,&xp,&yp);
+	  if(DEBUG) printf("%f %f %f %f %f %f\n",E,x,y,z,xp,yp);
+	  
+	  xp *= 1e-6*radian;
+	  yp *= 1e-6*radian;
+	  zp = sqrt(1-xp*xp-yp*yp)*radian;
+
+	  pos = G4ThreeVector(x,y,z)*micrometer;
+	  momDir = G4ThreeVector(xp,yp,zp);
+	  
+	  LocalPosition = tf.TransformPoint(pos);
+	  LocalDirection = tf.TransformAxis(momDir);
+
+	  t = -z/c_light;
+	  LocalPosition += LocalDirection.unit()*1e-4*micrometer; // temp fix for recirculation in dump volume
+	  	  
+          G4cout << "Stacking: Pos = " << pos << G4endl;
+          G4cout << "LocalPos: Pos = " << LocalPosition << G4endl;
+          G4cout << "Stacking: mom = " << momDir << G4endl;
+          G4cout << "LocalDir: mom = " << LocalDirection << G4endl;
+
+	  tmpParticle holdingParticle;
+	  holdingParticle.E = E*GeV - BDSGlobals->GetParticleDefinition()->GetPDGMass();
+	  holdingParticle.t = t;
+	  holdingParticle.xp = LocalDirection.x();
+	  holdingParticle.yp = LocalDirection.y();
+	  holdingParticle.zp = LocalDirection.z();
+	  
+	  holdingParticle.x = LocalPosition.x();
+	  holdingParticle.y = LocalPosition.y();
+	  holdingParticle.z = LocalPosition.z();
+	  
+	  BDSGlobals->holdingQueue.push_back(holdingParticle);
+	  if(DEBUG) G4cout << "Read particle number " << i << G4endl;
+        }
+        sleep(1);
+	fclose(fifo);
+        BDSGlobals->setReading(false);
+        BDSGlobals->setReadFromStack(false);
+	if(DEBUG) G4cout << "Number read in = " << BDSGlobals->holdingQueue.size() << G4endl;
+      }
+      else{
+	G4Exception("Read from fifo failed: bad file name\n");
+	exit(1);
+      }
     }
 }
-
 //==========================================================

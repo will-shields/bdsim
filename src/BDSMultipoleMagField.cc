@@ -24,7 +24,7 @@ BDSMultipoleMagField::BDSMultipoleMagField(list<G4double> knl, list<G4double> ks
  
   //G4cout<<"size->"<<knl.size()<<G4endl;
 
-  G4double P0 = BDSGlobals->GetBeamTotalEnergy();
+  //G4double P0 = BDSGlobals->GetBeamTotalEnergy();
   
   // compute magnetic rigidity brho
   // formula: B(Tesla)*rho(m) = p(GeV)/(0.299792458 * |charge(e)|)

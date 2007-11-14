@@ -23,7 +23,8 @@ BDSSamplerHit::BDSSamplerHit(G4String aName,
 G4double init_z,G4double init_mom,
 G4double init_x, G4double init_xPrime, G4double init_y, G4double init_yPrime,
 G4double z,G4double mom,
-G4double x, G4double xPrime, G4double y, G4double yPrime, G4double weight,
+G4double x, G4double xPrime, G4double y, G4double yPrime, G4double time, 
+			     G4double weight,
 			     G4int PDGtype,G4int nEvent,
 			     G4int ParentID, G4int TrackID)
   :itsName(aName),
@@ -31,7 +32,7 @@ G4double x, G4double xPrime, G4double y, G4double yPrime, G4double weight,
    itsInit_XPrime(init_xPrime),
    itsInit_Y(init_y),itsInit_YPrime(init_yPrime),
    itsZ(z),itsMom(mom),itsX(x),itsXPrime(xPrime),
-   itsY(y),itsYPrime(yPrime),itsWeight(weight),
+   itsY(y),itsYPrime(yPrime),itsTime(time),itsWeight(weight),
    itsPDGtype(PDGtype),itsEventNo(nEvent),
    itsParentID(ParentID),    itsTrackID(TrackID)
   {;}
@@ -56,6 +57,7 @@ BDSSamplerHit::BDSSamplerHit(const BDSSamplerHit &right)
   itsXPrime = right.itsXPrime;
   itsY = right.itsY;
   itsYPrime = right.itsYPrime;
+  itsTime = right.itsTime;
   itsWeight = right.itsWeight;
 
   itsPDGtype=right.itsPDGtype;
@@ -85,6 +87,7 @@ const BDSSamplerHit& BDSSamplerHit::operator=(const BDSSamplerHit &right)
   itsXPrime = right.itsXPrime;
   itsY = right.itsY;
   itsYPrime = right.itsYPrime;
+  itsTime = right.itsTime;
   itsWeight = right.itsWeight;
 
   itsPDGtype=right.itsPDGtype;

@@ -63,10 +63,12 @@ LDFLAGS += -L$(G4LIBDIR) -L./parser -lgmad
 install:
 
 distrib:
-	tar --ignore-failed-read -C .. -czvf BDSIM.tar.gz BDSIM/src BDSIM/include \
+	tar --ignore-failed-read -C .. --exclude=BDSIM/parser/parser.tab.* \
+	--exclude=BDSIM/parser/lex.* --exclude=BDSIM/parser/libgmad.*\
+	--exclude=BDSIM/parser/gmad.o \
+	-czvf BDSIM.tar.gz BDSIM/src BDSIM/include \
 	BDSIM/bdsim.cc BDSIM/bdsimrun BDSIM/Makefile.in BDSIM/vis.mac \
-	BDSIM/configure BDSIM/README \
-	BDSIM/parser/*.h BDSIM/examples \
+	BDSIM/configure BDSIM/README BDSIM/examples \
         BDSIM/docs BDSIM/parser \
 	BDSIM/examples BDSIM/utils
 
