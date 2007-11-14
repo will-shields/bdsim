@@ -5,9 +5,9 @@
 */
 
 #ifndef BDSSextupole_h
-#define BDSSextupole_h 
+#define BDSSextupole_h 1
 
-#include"globals.hh"
+#include "globals.hh"
 #include "BDSMaterials.hh"
 #include "G4LogicalVolume.hh"
 #include "BDSSextStepper.hh"
@@ -24,22 +24,21 @@
 
 class BDSSextupole :public BDSMultipole
 {
-  public:
-    BDSSextupole(G4String aName, G4double aLength,
-		 G4double bpRad,G4double FeRad,
-		 G4double BDblPrime, G4double tilt, G4double outR, 
-		 G4String aMaterial = "");
-    ~BDSSextupole();
+public:
+  BDSSextupole(G4String aName, G4double aLength,
+	       G4double bpRad, G4double FeRad,
+	       G4double BDblPrime, G4double tilt, G4double outR, 
+	       G4String aMaterial = "");
+  ~BDSSextupole();
 
   void SynchRescale(G4double factor);
-  protected:
 
-  private:
+protected:
+
+private:
   G4double itsBDblPrime;
 
-  //  void BuildOuterLogicalVolume();
   void BuildBPFieldAndStepper();
-  //void BuildMarkerLogicalVolume();
 
   G4VisAttributes* SetVisAttributes();
 
@@ -47,6 +46,7 @@ class BDSSextupole :public BDSMultipole
   BDSSextStepper* itsStepper;
   BDSSextMagField* itsMagField;
   G4Mag_UsualEqRhs* itsEqRhs;
+
 };
 
 #endif

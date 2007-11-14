@@ -38,18 +38,24 @@ extern BDSBunch theBunch;
 
 //===================================================
 // Keep initial point in phase space for diagnostics
-G4double initial_x,initial_xp,initial_y,initial_yp,initial_z,initial_E;
+G4double
+  initial_x, initial_xp,
+  initial_y, initial_yp,
+  initial_z, initial_zp,
+  initial_E, initial_t;
 
 BDSPrimaryGeneratorAction::BDSPrimaryGeneratorAction(
-                                               BDSDetectorConstruction* BDSDC)
+					      BDSDetectorConstruction* BDSDC)
 :BDSDetector(BDSDC)
 {
-
  
   particleGun  = new G4ParticleGun(1); // 1-particle gun
 
- //  particleGun->SetParticleDefinition(BDSGlobals->
-//                                       GetParticleDefinition());
+  // initialize with default values... 
+  // they will be overridden in GeneratePrimaries function
+
+  // particleGun->SetParticleDefinition(BDSGlobals->
+  //                                    GetParticleDefinition());
 
   particleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->
 				     FindParticle("e-"));
@@ -71,11 +77,8 @@ BDSPrimaryGeneratorAction::BDSPrimaryGeneratorAction(
     }
 
   particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
-  particleGun->
-    SetParticlePosition(G4ThreeVector(0.*cm,0.*cm,0.*cm));
-  if(DEBUG) G4cout<<"Primary generator: particle energy"<<BDSGlobals->GetBeamKineticEnergy()<<G4endl;
+  particleGun->SetParticlePosition(G4ThreeVector(0.*cm,0.*cm,0.*cm));
   particleGun->SetParticleEnergy(BDSGlobals->GetBeamKineticEnergy());
-
 }
 
 //===================================================
@@ -83,9 +86,8 @@ BDSPrimaryGeneratorAction::BDSPrimaryGeneratorAction(
 BDSPrimaryGeneratorAction::~BDSPrimaryGeneratorAction()
 {
   delete particleGun;
-  //delete GaussGen;
-  //delete FlatGen;
 }
+
 //===================================================
 
 void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
@@ -115,8 +117,7 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   G4ThreeVector PartMomDir=G4ThreeVector(xp,yp,zp);
  
-  particleGun->SetParticleDefinition(BDSGlobals->
-                                      GetParticleDefinition());
+  particleGun->SetParticleDefinition(BDSGlobals->GetParticleDefinition());
   particleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0 ) );
   particleGun->SetParticleEnergy(E);
   particleGun->SetParticleMomentumDirection(PartMomDir);
@@ -124,13 +125,15 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   particleGun->GeneratePrimaryVertex(anEvent);
 
-
+  G4double totalE = E+BDSGlobals->GetParticleDefinition()->GetPDGMass();
   if(DEBUG )
     {
-      G4cout<<" BDSPrimaryGeneratorAction: mom="<<PartMomDir
-	    <<" Energy="<<E/GeV<<"GeV"<<G4endl;
-      G4cout<<" BDSPrimaryGeneratorAction: Pos="<<
-	particleGun->GetParticlePosition()/m<<"m"<<G4endl;
+      G4cout
+	<< "BDSPrimaryGeneratorAction: " << G4endl
+	<< "  position= " << particleGun->GetParticlePosition()/m<<" m"<<G4endl
+	<< "  kinetic energy= " << E/GeV << " GeV" << G4endl
+	<< "  total energy= " << totalE/GeV << " GeV" << G4endl
+	<< "  momentum direction= " << PartMomDir << G4endl;
     }
 
   // save initial values outside scope for entry into the samplers:
@@ -138,11 +141,11 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   initial_xp=xp;
   initial_y=y0;
   initial_yp=yp;
+  initial_t=t;
   initial_z=z0;
-//  initial_z=-t*c_light;
+  initial_zp=zp;
   // total energy is used elsewhere:
-  initial_E=E+BDSGlobals->GetParticleDefinition()->GetPDGMass();
-
+  initial_E=totalE;
 }
 
 

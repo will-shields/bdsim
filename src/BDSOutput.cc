@@ -5,18 +5,12 @@
 extern G4String outputFilename;
 BDSOutput::BDSOutput()
 {
-  //time_t tm = time(NULL);
-
   format = _ASCII; // default - write an ascii file
-  nSamplers = 0;
-  //of.open("output.txt");
-  //of<<"## BDSIM output created "<<ctime(&tm)<<" ####"<<G4endl;
 }
 
 BDSOutput::BDSOutput(int fmt)
 {
   format = fmt;
-  nSamplers = 0;
 }
 
 BDSOutput::~BDSOutput()
@@ -72,31 +66,44 @@ void BDSOutput::Init(G4int FileNum)
   
 
   //build sampler tree
-//SPM for(G4int i=0;i<nSamplers;i++)
   for(G4int i=0;i<BDSSampler::GetNSamplers();i++)
     {
       //G4String name="samp"+BDSGlobals->StringFromInt(i+1);
       G4String name=SampName[i];
       TTree* SamplerTree = new TTree(name, "Sampler output");
       
-      SamplerTree->Branch("x0",&x0,"x0/F");
-      SamplerTree->Branch("xp0",&xp0,"xp0/F");
-      SamplerTree->Branch("y0",&y0,"y0/F");
-      SamplerTree->Branch("yp0",&yp0,"yp0/F");
-      SamplerTree->Branch("E0",&E0,"E0/F");
-      SamplerTree->Branch("z0",&z0,"z0/F");
-      SamplerTree->Branch("x",&x,"x/F");
-      SamplerTree->Branch("xp",&xp,"xp/F");
-      SamplerTree->Branch("y",&y,"y/F");
-      SamplerTree->Branch("yp",&yp,"yp/F");
-      SamplerTree->Branch("E",&E,"E/F");
-      SamplerTree->Branch("z",&z,"z/F");
-      SamplerTree->Branch("t",&t,"t/F");
+      SamplerTree->Branch("E0",&E0,"E0 (GeV)/F");
+      SamplerTree->Branch("x0",&x0,"x0 (mum)/F");
+      SamplerTree->Branch("y0",&y0,"y0 (mum)/F");
+      SamplerTree->Branch("z0",&z0,"z0 (m)/F");
+      SamplerTree->Branch("xp0",&xp0,"xp0 (rad)/F");
+      SamplerTree->Branch("yp0",&yp0,"yp0 (rad)/F");
+      SamplerTree->Branch("zp0",&zp0,"zp0 (rad)/F");
+      SamplerTree->Branch("t0",&t0,"t0 (ns)/F");
+
+      SamplerTree->Branch("E",&E,"E (GeV)/F");
+      SamplerTree->Branch("x",&x,"x (mum)/F");
+      SamplerTree->Branch("y",&y,"y (mum)/F");
+      SamplerTree->Branch("z",&z,"z (m)/F");
+      SamplerTree->Branch("xp",&xp,"xp (rad)/F");
+      SamplerTree->Branch("yp",&yp,"yp (rad)/F");
+      SamplerTree->Branch("zp",&zp,"zp (rad)/F");
+      SamplerTree->Branch("t",&t,"t (ns)/F");
+
+      SamplerTree->Branch("X",&X,"X (m)/F");
+      SamplerTree->Branch("Y",&Y,"Y (mum)/F");
+      SamplerTree->Branch("Z",&Z,"Z (m)/F");
+      SamplerTree->Branch("Xp",&Xp,"Xp (rad)/F");
+      SamplerTree->Branch("Yp",&Yp,"Yp (rad)/F");
+      SamplerTree->Branch("Zp",&Zp,"Zp (rad)/F");
+
+      SamplerTree->Branch("s",&s,"s (m)/F");
+
       SamplerTree->Branch("weight",&weight,"weight/F");
-      SamplerTree->Branch("part",&part,"part/I");
-      SamplerTree->Branch("nev",&nev,"nev/I");
-      SamplerTree->Branch("pID",&pID,"pID/I");
-      SamplerTree->Branch("tID",&track_id,"tID/I");
+      SamplerTree->Branch("lundID",&part,"lundID/I");
+      SamplerTree->Branch("nEvent",&nev,"nEvent/I");
+      SamplerTree->Branch("parentID",&pID,"parentID/I");
+      SamplerTree->Branch("trackID",&track_id,"trackID/I");
     }
 
   if(BDSGlobals->GetStoreTrajectory() || BDSGlobals->GetStoreMuonTrajectories() || BDSGlobals->GetStoreNeutronTrajectories()) 
@@ -123,7 +130,7 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
 {
   if( format == _ASCII) {
     
-    //of<<"#hits (PDGtype  p[GeV/c],x[micron],y[micron],z[m],x'[microrad],y'[microrad]):"<<G4endl;
+    //of<<"#hits (PDGtype  E[GeV],x[micron],y[micron],z[m],x'[rad],y'[rad]):"<<G4endl;
     
     G4cout.precision(6);
     
@@ -167,6 +174,35 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
        
        if(!sTree) G4Exception("BDSOutput: ROOT Sampler not found!");
 
+<<<<<<< BDSOutput.cc
+
+       E0=(*hc)[i]->GetInitMom() / GeV;
+       x0=(*hc)[i]->GetInitX() / micrometer;
+       y0=(*hc)[i]->GetInitY() / micrometer;
+       z0=(*hc)[i]->GetInitZ() / m;
+       xp0=(*hc)[i]->GetInitXPrime() / radian;
+       yp0=(*hc)[i]->GetInitYPrime() / radian;
+       zp0=(*hc)[i]->GetInitZPrime() / radian;
+       t0=(*hc)[i]->GetInitT() / ns;
+
+       E=(*hc)[i]->GetMom() / GeV;
+       x=(*hc)[i]->GetX() / micrometer;
+       y=(*hc)[i]->GetY() / micrometer;
+       z=(*hc)[i]->GetZ() / m;
+       xp=(*hc)[i]->GetXPrime() / radian;
+       yp=(*hc)[i]->GetYPrime() / radian;
+       zp=(*hc)[i]->GetZPrime() / radian;
+       t=(*hc)[i]->GetT() / ns;
+
+       X=(*hc)[i]->GetGlobalX() / m;
+       Y=(*hc)[i]->GetGlobalY() / m;
+       Z=(*hc)[i]->GetGlobalZ() / m;
+       Xp=(*hc)[i]->GetGlobalXPrime() / radian;
+       Yp=(*hc)[i]->GetGlobalYPrime() / radian;
+       Zp=(*hc)[i]->GetGlobalZPrime() / radian;
+
+       s=(*hc)[i]->GetS() / m;
+=======
        x0=(*hc)[i]->GetInitX() / micrometer; 
        xp0=(*hc)[i]->GetInitXPrime(); 
        y0=(*hc)[i]->GetInitY() / micrometer; 
@@ -180,6 +216,7 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
        E=(*hc)[i]->GetMom() / GeV; 
        z=(*hc)[i]->GetZ() / m;
        t=(*hc)[i]->GetTime() / ns; 
+>>>>>>> 1.15
        weight=(*hc)[i]->GetWeight();
        part=(*hc)[i]->GetPDGtype(); 
        nev=(*hc)[i]->GetEventNo(); 

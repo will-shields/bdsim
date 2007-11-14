@@ -67,14 +67,13 @@ enum {
   _GAUSSIAN = 0,
   _RING = 1,
   _SQUARE = 2,
-  _CIRCLE = 3, 
-  _ESHELL = 31,
-  _UDEF = 32,
-  
+  _CIRCLE = 3,
   _GUINEAPIG_BUNCH = 4,
   _GUINEAPIG_PAIRS = 5,
   _GUINEAPIG_SLAC = 6,
-  _CAIN = 7
+  _CAIN = 7,
+  _ESHELL = 8,
+  _UDEF = 32
 };
 
 // options passed with option and beam command
@@ -83,45 +82,43 @@ struct Options {
 
   std::string physicsList;
 
-
   // beam parameters
   std::string particleName;
   std::string distribType;
   std::string distribFile;
 
   int numberOfParticles;
-
+  int numberToGenerate;
   int nlinesIgnore; // ignore first lines in the input bunch file
 
-
-  double sigmaX;
-  double sigmaY;
-  double sigmaT;
-  double sigmaXp;
-  double sigmaYp;
   double beamEnergy;
-  double sigmaE;
+  double X0, Y0, Z0;
+  double Xp0, Yp0, Zp0;
+  double T0, sigmaT;
 
-  double x, xp, y, yp; // for the elliptic shell distribution
+  // for the gaussian beam distribution
+  double sigmaX, sigmaXp, sigmaY, sigmaYp;
+
+  // for the elliptic shell distribution
+  double shellX, shellXp, shellY, shellYp;
+
+  // for the ring beam distribution
+  double Rmin, Rmax;
+
+  // for the gaussian, elliptic shell, ring distributions
+  double sigmaE;
 
   double betx, bety, alfx, alfy, emitx, emity; // initial twiss parameters
   int doTwiss;
 
   // for element specification
-  double X0;
-  double Y0;
-  double Rmin;
-  double Rmax;
-
   double xsize, ysize;
 
-  int numberToGenerate;
   int numberOfEventsPerNtuple;
   unsigned long int eventNumberOffset;
   int backgroundScaleFactor;
 
   // default geometry parameters
-
   double componentBoxSize;
   double tunnelRadius;
   double beampipeRadius;
@@ -138,7 +135,6 @@ struct Options {
   double prodCutElectronsP;
   double prodCutPositrons;
   double prodCutPositronsP;
-
 
   double trackWeightFactor;
   double deltaChord;
@@ -187,7 +183,7 @@ struct Element {
   char * name;
 
   
-  double l,k0,k1,k2,k3,angle,aper,tilt,xsize,ysize,r, outR, hgap, B;
+  double l,ks,k0,k1,k2,k3,angle,aper,tilt,xsize,ysize,r,outR,hgap,B;
   double xdir, ydir, zdir, waveLength; // for laser wire and 3d transforms
 
   double gradient; // for rf cavities
@@ -234,6 +230,7 @@ struct Parameters {
   double k1; int k1set;   // quadrupole
   double k2; int k2set;   // sextupole
   double k3; int k3set;   // octupole
+  double ks; int ksset;   // solenoid
 
   std::list<double> knl;           // multipole expansion coefficients
   std::list<double> ksl;           // skew multipole expansion
@@ -326,7 +323,8 @@ struct Parameters {
     k1 = 0; k1set = 0;
     k2 = 0; k2set = 0;
     k3 = 0; k3set = 0;
-    
+    ks = 0; ksset = 0;
+
     gradient = 0; gradientset = 0;
     
     knlset = 0; kslset=0;

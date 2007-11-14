@@ -46,7 +46,6 @@ public:
 
   void BuildDefaultMarkerLogicalVolume();
 
-//  void BuildDefaultOuterLogicalVolume();
   void BuildDefaultOuterLogicalVolume(G4double aLength,G4bool OuterMaterialIsVacuum=false);
 
   void BuildBPFieldMgr(G4MagIntegratorStepper* aStepper,

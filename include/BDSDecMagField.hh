@@ -21,10 +21,12 @@ public:  // with description
 
   virtual void  GetFieldValue( const G4double Point[4],
 			       G4double *Bfield ) const;
-
+  void SetBQuadPrime(G4double aBQuadPrime);
 private:
   G4double itsBQuadPrime;
 };
 
+inline void BDSDecMagField::SetBQuadPrime(G4double aBQuadPrime)
+{ itsBQuadPrime = aBQuadPrime;}
 
-#endif /* BDSOCTMAGFIELD */
+#endif /* BDSDECMAGFIELD */

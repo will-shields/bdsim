@@ -63,9 +63,11 @@ public:
   // angle - for bends etc.
   const G4double GetAngle () const;
 
-   //	geometry length of the component.
-  const G4double GetLength () const;
+  // geometry length of the component.
   void SetLength(G4double aLength);
+  virtual const G4double GetLength () const;
+  virtual const G4double GetZLength () const;
+  virtual const G4double GetArcLength () const;
 
   const G4double GetPhi () const; //polar angle with respect to original frame
   void SetPhi (G4double val);
@@ -215,10 +217,8 @@ protected:
   G4UserLimits* itsInnerBeampipeUserLimits;
   G4LogicalVolume* itsInnerMostLogicalVolume;
 
-  // JCC Mar05 >>
   G4double itsXOffset;
   G4double itsYOffset;
-  // << JCC Mar05
   G4double itsZOffset;
 
 private:
@@ -256,8 +256,13 @@ BDSAcceleratorComponent (
   itsMagScaleFactor = 1;
 }
 
-
 inline const G4double BDSAcceleratorComponent::GetLength () const
+{return itsLength;}
+
+inline const G4double BDSAcceleratorComponent::GetArcLength () const
+{return itsLength;}
+
+inline const G4double BDSAcceleratorComponent::GetZLength () const
 {return itsLength;}
 
 inline const G4double BDSAcceleratorComponent::GetAngle () const

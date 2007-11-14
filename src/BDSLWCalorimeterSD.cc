@@ -24,8 +24,8 @@
 #include "G4RunManager.hh"
 #include <vector>
 
-typedef std::vector<G4int> MuonTrackVector;
-extern MuonTrackVector* theMuonTrackVector;
+//typedef std::vector<G4int> MuonTrackVector;
+//extern MuonTrackVector* theMuonTrackVector;
 
 extern G4double initial_x,initial_xp,initial_y,initial_yp,initial_z,initial_E;
 

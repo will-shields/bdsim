@@ -4,6 +4,8 @@
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
 
+const int DEBUG = 0;
+
 #include "BDSGlobalConstants.hh"
 
 #include "BDSUserTrackingAction.hh"
@@ -14,49 +16,50 @@
 
 void BDSUserTrackingAction::PreUserTrackingAction(const G4Track* aTrack)
 {
-
+  
   // store muon trajectories
-    if(BDSGlobals->GetStoreMuonTrajectories())
-      {
+  if(BDSGlobals->GetStoreMuonTrajectories())
+    {
+      if (DEBUG) G4cout<<"STORING MUON TRAJECTORIES"<<G4endl;
 
-	//G4cout<<"STORING MUON TRAJECTORIES"<<G4endl;
+      if( abs(aTrack->GetDefinition()->GetPDGEncoding())==13)
+	{ fpTrackingManager->SetStoreTrajectory(true); }
+      else
+	{ fpTrackingManager->SetStoreTrajectory(false); }
+    }
 
-	if( abs(aTrack->GetDefinition()->GetPDGEncoding())==13)
-	  {fpTrackingManager->SetStoreTrajectory(true); }
-	else
-	  { fpTrackingManager->SetStoreTrajectory(false); }
-      }
-
-    if(BDSGlobals->GetStoreNeutronTrajectories())
-      {
+  // store neutron trajectories
+  if(BDSGlobals->GetStoreNeutronTrajectories())
+    {
+      if (DEBUG) G4cout<<"STORING NEUTRON TRAJECTORIES"<<G4endl;
 	
-	//G4cout<<"STORING MUON TRAJECTORIES"<<G4endl;
-	
-	if( abs(aTrack->GetDefinition()->GetPDGEncoding())==2112)
-	  {fpTrackingManager->SetStoreTrajectory(true); }
-	else
-	  { fpTrackingManager->SetStoreTrajectory(false); }
-      }
+      if( abs(aTrack->GetDefinition()->GetPDGEncoding())==2112)
+	{ fpTrackingManager->SetStoreTrajectory(true); }
+      else
+	{ fpTrackingManager->SetStoreTrajectory(false); }
+    }
     
     
-  // Store trajectories for primaries
-    if(BDSGlobals->GetStoreTrajectory())
-      { 
-	if(aTrack->GetParentID()==0)
-	  { fpTrackingManager->SetStoreTrajectory(true); }
-	else
-	  { fpTrackingManager->SetStoreTrajectory(false); }
-      }
+  // store trajectories for primaries
+  if(BDSGlobals->GetStoreTrajectory())
+    { 
+      if (DEBUG) G4cout<<"STORING PRIMARY TRAJECTORIES"<<G4endl;
+
+      if(aTrack->GetParentID()==0)
+	{ fpTrackingManager->SetStoreTrajectory(true); }
+      else
+	{ fpTrackingManager->SetStoreTrajectory(false); }
+    }
  
 
-    /*
-  if(aTrack->GetDefinition()->GetParticleName()=="neutron")
+  /*
+    if(aTrack->GetDefinition()->GetParticleName()=="neutron")
     {
-      BDSNeutronTrackInfo* Info= new BDSNeutronTrackInfo();
-      Info->SetIsLogged(false);
-      fpTrackingManager->SetUserTrackInformation(Info);
+    BDSNeutronTrackInfo* Info= new BDSNeutronTrackInfo();
+    Info->SetIsLogged(false);
+    fpTrackingManager->SetUserTrackInformation(Info);
     }
-    */
+  */
   
 }
 

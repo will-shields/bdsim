@@ -10,7 +10,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSDriftStepper.hh,v 1.1.1.1 2004/12/14 18:57:41 agapov Exp $
+// $Id: BDSDriftStepper.hh,v 1.1 2005/01/22 17:05:30 agapov Exp $
 // GEANT4 tag $Name:  $
 //
 //
@@ -81,6 +81,6 @@ class BDSDriftStepper : public G4MagIntegratorStepper
 
 
 inline void BDSDriftStepper::StepperName()
-{G4cout<<"myDriftStepper"<<G4endl;}
+{G4cout<<"BDSDriftStepper"<<G4endl;}
 
 #endif /* BDSDRIFTSTEPPER_HH */

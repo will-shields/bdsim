@@ -17,18 +17,24 @@ extern G4int nptwiss;
 
 BDSBunch::BDSBunch()
 {
+  X0 = 0;
+  Y0 = 0;
+  Z0 = 0;
+  T0 = 0;
+
+  Xp0 = 0;
+  Yp0 = 0;
+  Zp0 = 1;
+
   sigmaX = 0;
   sigmaY = 0;
   sigmaT = 0;
 
   sigmaXp = 0;
   sigmaYp = 0;
-  
-  X0 = 0;
-  Y0 = 0;
-  Xp0 = 0;
-  Yp0 = 0;
-  
+
+  energySpread = 0;
+
   betaX = 0;
   betaY = 0;
   alphaX = 0;
@@ -69,7 +75,6 @@ void BDSBunch::SetOptions(struct Options& opt)
   distType["guineapig_slac"]=_GUINEAPIG_SLAC;
   distType["cain"]=_CAIN;
   distType["eshell"]=_ESHELL;
-  distType["udef"]=_UDEF;
 
 #define _skip(nvalues) for(G4int i=0;i<nvalues;i++) InputBunchFile>>val;
 
@@ -82,17 +87,35 @@ void BDSBunch::SetOptions(struct Options& opt)
   SetEmitY(opt.emity);
 
   ignoreLines = opt.nlinesIgnore;
-//  distribType = _GAUSSIAN; // default
 
   map<const G4String,int>::iterator iter;
   iter = distType.find(opt.distribType);
   if(iter!=distType.end()) 
     distribType = (*iter).second;
+  if (DEBUG) G4cout<<"distrType -> "<<opt.distribType<<G4endl;
+
+  //
+  // global parameters
+  //
+  X0 = opt.X0;
+  Y0 = opt.Y0;
+  Z0 = opt.Z0;
+  T0 = opt.T0;
+  Xp0 = opt.Xp0;
+  Yp0 = opt.Yp0;
+  if (opt.Zp0 < 0)
+    Zp0 = -sqrt(1.-Xp0*Xp0-Yp0*Yp0);
+  else
+    Zp0 = sqrt(1.-Xp0*Xp0-Yp0*Yp0);
+
+
+  //
+  // specific parameters which depend on distribution type
+  //
   switch(distribType){
-    //  if(opt.distribType == "gauss")
+
   case _GAUSSIAN:
     {
-      distribType = _GAUSSIAN; 
       SetSigmaX(opt.sigmaX); 
       SetSigmaY(opt.sigmaY);
       SetSigmaXp(opt.sigmaXp);
@@ -100,37 +123,28 @@ void BDSBunch::SetOptions(struct Options& opt)
       SetSigmaT(opt.sigmaT);
       energySpread = opt.sigmaE;
       break;
-      //return;
     } 
-    //  else if(opt.distribType == "ring")
+
   case _RING:
     {
-      distribType = _RING;
-      X0 = opt.X0;
-      Y0 = opt.Y0;
       rMin = opt.Rmin;
       rMax = opt.Rmax;
       energySpread = opt.sigmaE;
-      //return;
       break;
     } 
-    //else if(opt.distribType == "eshell")
     
   case _ESHELL:
     {
-      distribType = _ESHELL;
-      shellx = opt.x;
-      shelly = opt.y;
-      shellxp = opt.xp;
-      shellyp = opt.yp;
+      shellx = opt.shellX;
+      shelly = opt.shellY;
+      shellxp = opt.shellXp;
+      shellyp = opt.shellYp;
       energySpread = opt.sigmaE;
-      //return;
       break;
-    } 
-    //else if(opt.distribType == "guineapig_bunch")
+    }
+
   case _GUINEAPIG_BUNCH:
     {
-      distribType = _GUINEAPIG_BUNCH;
       inputfile = opt.distribFile;
       InputBunchFile.open(inputfile);
       if(!InputBunchFile.good()) 
@@ -138,51 +152,50 @@ void BDSBunch::SetOptions(struct Options& opt)
       if(DEBUG) 
 	G4cout<<"GUINEAPIG_BUNCH: skipping "<<opt.nlinesIgnore<<"  lines"<<G4endl;
       _skip(opt.nlinesIgnore * 6);
-      //return;
       break;
     } 
-    //else if(opt.distribType == "guineapig_slac")
+
   case _GUINEAPIG_SLAC:
     {
-      distribType = _GUINEAPIG_SLAC;
       inputfile = opt.distribFile;
       InputBunchFile.open(inputfile);
       if(!InputBunchFile.good())  
 	{ G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
+      if(DEBUG) 
+	G4cout<<"GUINEAPIG_SLAC: skipping "<<opt.nlinesIgnore<<"  lines"<<G4endl;
       _skip(opt.nlinesIgnore * 6);
-      //return;
       break;
     } 
+
   case _GUINEAPIG_PAIRS:
-    //else if(opt.distribType == "guineapig_pairs")
     {
-      distribType = _GUINEAPIG_PAIRS;
       inputfile = opt.distribFile;
       InputBunchFile.open(inputfile);
       if(!InputBunchFile.good()) 
 	{ G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
+      if(DEBUG) 
+	G4cout<<"GUINEAPIG_PAIRS: skipping "<<opt.nlinesIgnore<<"  lines"<<G4endl;
       _skip(opt.nlinesIgnore * 7);
-      //return;
       break;
     }
+
   case _CAIN:
-    //else if(opt.distribType == "cain")
     {
-      distribType = _CAIN;
       inputfile = opt.distribFile;
       InputBunchFile.open(inputfile);
       if(!InputBunchFile.good()) 
 	{ G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); }
+      if(DEBUG) 
+	G4cout<<"CAIN: skipping "<<opt.nlinesIgnore<<"  lines"<<G4endl;
       _skip(opt.nlinesIgnore * 14);
-      //return;
       break;
     } 
-    //else //assuming the format is "field[unit]:field[unit]:..." - User Defined
+    //else
+    //assuming the format is "field[unit]:field[unit]:..." - User Defined
   default:
     {
-      G4cout<<"distrType -> "<<opt.distribType<<G4endl;
       distribType = _UDEF; 
-      
+
       // construct the list of read attributes
       
       G4String unparsed_str = opt.distribType; 
@@ -195,24 +208,25 @@ void BDSBunch::SetOptions(struct Options& opt)
 	  pos = unparsed_str.find(":");
 	  G4String token = unparsed_str.substr(0,pos);
 	  unparsed_str = unparsed_str.substr(pos+1);
-	  //G4cout<<"token ->"<<token<<G4endl;
-	  //G4cout<<"unparsed_str ->"<<unparsed_str<<G4endl;
-	  //G4cout<<"pos ->"<<pos<<G4endl;
+	  if (DEBUG) G4cout<<"token ->"<<token<<G4endl;
+	  if (DEBUG) G4cout<<"unparsed_str ->"<<unparsed_str<<G4endl;
+	  if (DEBUG) G4cout<<"pos ->"<<pos<<G4endl;
 	  
 	  // see if the token has a meeting
 	  if( token.length() > 2) {
 	    if(token.substr(0,1)=="E") {
-	      //G4cout<<"E!"<<G4endl;
+	      if (DEBUG) G4cout<<"E!"<<G4endl;
 	      G4String rest = token.substr(1);
-	      //G4cout<<"rest ->"<<rest<<G4endl;
+	      if (DEBUG) G4cout<<"rest ->"<<rest<<G4endl;
 	      G4int pos1 = rest.find("[");
 	      G4int pos2 = rest.find("]");
 	      if(pos1 < 0 || pos2 < 0) {
 		G4cerr<<"unit format wrong!!!"<<G4endl;
 	      } else {
 		G4String fmt = rest.substr(pos1+1,pos2-1);
-		//G4cout<<"fmt ->"<<fmt<<G4endl;
+		if (DEBUG) G4cout<<"fmt ->"<<fmt<<G4endl;
 		sd.name = "E"; 
+
 		if(fmt=="GeV") sd.unit=1;
 		if(fmt=="MeV") sd.unit=1.e-3;
 		if(fmt=="KeV") sd.unit=1.e-6;
@@ -221,19 +235,41 @@ void BDSBunch::SetOptions(struct Options& opt)
 		fields.push_back(sd);
 	      }
 	    }
-	    if( (token.substr(0,1)=="x") && (token.substr(1,1)!="p") ) {
-	      //G4cout<<"x!"<<G4endl;
-	      //G4cout<<token.substr(0,1)<<G4endl;
-	      //G4cout<<token.substr(1,2)<<G4endl;
+	    if(token.substr(0,1)=="t") {
+	      if (DEBUG) G4cout<<"t!"<<G4endl;
 	      G4String rest = token.substr(1);
-	      //G4cout<<"rest ->"<<rest<<G4endl;
+	      if (DEBUG) G4cout<<"rest ->"<<rest<<G4endl;
 	      G4int pos1 = rest.find("[");
 	      G4int pos2 = rest.find("]");
 	      if(pos1 < 0 || pos2 < 0) {
 		G4cerr<<"unit format wrong!!!"<<G4endl;
 	      } else {
 		G4String fmt = rest.substr(pos1+1,pos2-1);
-		//G4cout<<"fmt ->"<<fmt<<G4endl;
+		if (DEBUG) G4cout<<"fmt ->"<<fmt<<G4endl;
+		sd.name = "t"; 
+
+		if(fmt=="s") sd.unit=1;
+		if(fmt=="ms") sd.unit=1.e-3;
+		if(fmt=="mus") sd.unit=1.e-6;
+		if(fmt=="ns") sd.unit=1.e-9;
+		if(fmt=="mm/c") sd.unit=(mm/c_light)/s;
+		if(fmt=="nm/c") sd.unit=(nm/c_light)/s;
+
+		fields.push_back(sd);
+
+	      }
+	    }
+	    if( (token.substr(0,1)=="x") && (token.substr(1,1)!="p") ) {
+	      if (DEBUG) G4cout<<"x!"<<G4endl;
+	      G4String rest = token.substr(1);
+	      if (DEBUG) G4cout<<"rest ->"<<rest<<G4endl;
+	      G4int pos1 = rest.find("[");
+	      G4int pos2 = rest.find("]");
+	      if(pos1 < 0 || pos2 < 0) {
+		G4cerr<<"unit format wrong!!!"<<G4endl;
+	      } else {
+		G4String fmt = rest.substr(pos1+1,pos2-1);
+		if (DEBUG) G4cout<<"fmt ->"<<fmt<<G4endl;
 		sd.name="x";
 		
 		if(fmt=="m") sd.unit=1;
@@ -247,16 +283,16 @@ void BDSBunch::SetOptions(struct Options& opt)
 	      }
 	    }
 	    if(token.substr(0,1)=="y" && token.substr(1,1)!="p" ) {
-	      //G4cout<<"y!"<<G4endl;
+	      if (DEBUG) G4cout<<"y!"<<G4endl;
 	      G4String rest = token.substr(1);
-	      //G4cout<<"rest ->"<<rest<<G4endl;
+	      if (DEBUG) G4cout<<"rest ->"<<rest<<G4endl;
 	      G4int pos1 = rest.find("[");
 	      G4int pos2 = rest.find("]");
 	      if(pos1 < 0 || pos2 < 0) {
 		G4cerr<<"unit format wrong!!!"<<G4endl;
 	      } else {
 		G4String fmt = rest.substr(pos1+1,pos2-1);
-		//G4cout<<"fmt ->"<<fmt<<G4endl;
+		if (DEBUG) G4cout<<"fmt ->"<<fmt<<G4endl;
 		sd.name="y";
 		
 		if(fmt=="m") sd.unit=1;
@@ -269,16 +305,16 @@ void BDSBunch::SetOptions(struct Options& opt)
 	      }
 	    }
 	    if(token.substr(0,1)=="z" && token.substr(1,1)!="p" ) {
-	      //G4cout<<"z!"<<G4endl;
+	      if (DEBUG) G4cout<<"z!"<<G4endl;
 	      G4String rest = token.substr(1);
-	      //G4cout<<"rest ->"<<rest<<G4endl;
+	      if (DEBUG) G4cout<<"rest ->"<<rest<<G4endl;
 	      G4int pos1 = rest.find("[");
 	      G4int pos2 = rest.find("]");
 	      if(pos1 < 0 || pos2 < 0) {
 		G4cerr<<"unit format wrong!!!"<<G4endl;
 	      } else {
 		G4String fmt = rest.substr(pos1+1,pos2-1);
-		//G4cout<<"fmt ->"<<fmt<<G4endl;
+		if (DEBUG) G4cout<<"fmt ->"<<fmt<<G4endl;
 		sd.name="z";
 
 		if(fmt=="m") sd.unit=1;
@@ -291,85 +327,71 @@ void BDSBunch::SetOptions(struct Options& opt)
 	      }
 	    }
 	    if(token.substr(0,2)=="xp") {
-	      //G4cout<<"xp!"<<G4endl;
-	      G4String rest = token.substr(1);
-	      //G4cout<<"rest ->"<<rest<<G4endl;
+	      if (DEBUG) G4cout<<"xp!"<<G4endl;
+	      G4String rest = token.substr(2);
+	      if (DEBUG) G4cout<<"rest ->"<<rest<<G4endl;
 	      G4int pos1 = rest.find("[");
 	      G4int pos2 = rest.find("]");
 	      if(pos1 < 0 || pos2 < 0) {
 		G4cerr<<"unit format wrong!!!"<<G4endl;
 	      } else {
 		G4String fmt = rest.substr(pos1+1,pos2-1);
-		//G4cout<<"fmt ->"<<fmt<<G4endl;
+		if (DEBUG) G4cout<<"fmt ->"<<fmt<<G4endl;
 		sd.name="xp";
 		
 		if(fmt=="rad") sd.unit=1;
 		if(fmt=="mrad") sd.unit=1.e-3;
-		
 		
 		fields.push_back(sd);
 		
 	      }
 	    }
 	    if(token.substr(0,2)=="yp") {
-	      //G4cout<<"yp!"<<G4endl;
-	      G4String rest = token.substr(1);
-	      //G4cout<<"rest ->"<<rest<<G4endl;
+	      if (DEBUG) G4cout<<"yp!"<<G4endl;
+	      G4String rest = token.substr(2);
+	      if (DEBUG) G4cout<<"rest ->"<<rest<<G4endl;
 	      G4int pos1 = rest.find("[");
 	      G4int pos2 = rest.find("]");
 	      if(pos1 < 0 || pos2 < 0) {
 		G4cerr<<"unit format wrong!!!"<<G4endl;
 	      } else {
 		G4String fmt = rest.substr(pos1+1,pos2-1);
-		//G4cout<<"fmt ->"<<fmt<<G4endl;
+		if (DEBUG) G4cout<<"fmt ->"<<fmt<<G4endl;
 		sd.name="yp";
 		
 		if(fmt=="rad") sd.unit=1;
 		if(fmt=="mrad") sd.unit=1.e-3;
 		
-		
 		fields.push_back(sd);
 	      }
 	    }
 	    if(token.substr(0,2)=="zp") {
-	      //G4cout<<"E!"<<G4endl;
-	      G4String rest = token.substr(1);
-	      //G4cout<<"rest ->"<<rest<<G4endl;
+	      if (DEBUG) G4cout<<"zp!"<<G4endl;
+	      G4String rest = token.substr(2);
+	      if (DEBUG) G4cout<<"rest ->"<<rest<<G4endl;
 	      G4int pos1 = rest.find("[");
 	      G4int pos2 = rest.find("]");
 	      if(pos1 < 0 || pos2 < 0) {
 		G4cerr<<"unit format wrong!!!"<<G4endl;
 	      } else {
 		G4String fmt = rest.substr(pos1+1,pos2-1);
-		//G4cout<<"fmt ->"<<fmt<<G4endl;
+		if (DEBUG) G4cout<<"fmt ->"<<fmt<<G4endl;
 		sd.name="zp";
 		
 		if(fmt=="rad") sd.unit=1;
 		if(fmt=="mrad") sd.unit=1.e-3;
 		
-		
 		fields.push_back(sd);
 	      }
 	    }
-	    if(token.substr(0,2)=="pt") {
-	      //G4cout<<"pt!"<<G4endl;
-	      G4String rest = token.substr(1);
-	      //G4cout<<"rest ->"<<rest<<G4endl;
-	      G4int pos1 = rest.find("[");
-	      G4int pos2 = rest.find("]");
-	      if(pos1 < 0 || pos2 < 0) {
-		G4cerr<<"unit format wrong!!!"<<G4endl;
-	      } else {
-		G4String fmt = rest.substr(pos1+1,pos2-1);
-		//G4cout<<"fmt ->"<<fmt<<G4endl;
-		sd.name="pt";
-		
-		fields.push_back(sd);
-	      }
-	    }
-	    
-	    
 	  }
+	  else
+	    if(token=="pt") {
+	      if (DEBUG) G4cout<<"pt!"<<G4endl;
+	      sd.name="pt";
+	      sd.unit=1;
+	      fields.push_back(sd);
+	    }
 	  else {
 	    G4cerr << "Cannot determine bunch data format" << G4endl; exit(1);
 	  }
@@ -455,7 +477,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 			       G4double& t, G4double& E)
 {
 
-  //G4cout<<"Twiss: "<<betaX<<" "<<betaY<<" "<<alphaX<<" "<<alphaY<<" "<<emitX<<" "<<emitY<<G4endl;
+  if (DEBUG) G4cout<<"Twiss: "<<betaX<<" "<<betaY<<" "<<alphaX<<" "<<alphaY<<" "<<emitX<<" "<<emitY<<G4endl;
 
   if(verboseStep) G4cout<<"distribution type: "<<distribType<<G4endl;
 
@@ -502,36 +524,67 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       xp*=radian;
       yp*=radian;
       return;
-    }
+    } //end doTwiss && partId<nptwiss
 
   switch(distribType){
   case _GAUSSIAN:
     {
+      if(DEBUG) G4cout<<"GAUSSIAN: "<<G4endl
+		      <<" X0= "<<X0<<" m"<<G4endl
+		      <<" Y0= "<<Y0<<" m"<<G4endl
+		      <<" Z0= "<<Z0<<" m"<<G4endl
+		      <<" T0= "<<T0<<" s"<<G4endl
+		      <<" Xp0= "<<Xp0<<G4endl
+		      <<" Yp0= "<<Yp0<<G4endl
+		      <<" Zp0= "<<Zp0<<G4endl
+		      <<" sigmaX= "<<sigmaX<<" m"<<G4endl
+		      <<" sigmaY= "<<sigmaY<<" m"<<G4endl
+		      <<" sigmaXp= "<<sigmaXp<<G4endl
+		      <<" sigmaYp= "<<sigmaYp<<G4endl
+		      <<" sigmaT= "<<sigmaT<<"s"<<G4endl
+		      <<" relative energy spread= "<<energySpread<<G4endl;
+
+      x0 = (X0 + sigmaX * GaussGen->shoot()) * m;
+      y0 = (Y0 + sigmaY * GaussGen->shoot()) * m;
+      z0 = Z0 * m;
+      xp = Xp0 + sigmaXp * GaussGen->shoot();
+      yp = Yp0 + sigmaYp * GaussGen->shoot();
+      if (Zp0<0)
+	zp = -sqrt(1.-xp*xp -yp*yp);
+      else
+	zp = sqrt(1.-xp*xp -yp*yp);
+      t = (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * s;
       E = BDSGlobals->GetBeamKineticEnergy() * (1 + energySpread * GaussGen->shoot());
-      t = - sigmaT* (1.-2.*GaussGen->shoot());
-      x0 = sigmaX * GaussGen->shoot() * m;
-      y0 = sigmaY * GaussGen->shoot() * m;
-      z0 = -t*c_light;
-      xp = sigmaXp * GaussGen->shoot();
-      yp = sigmaYp * GaussGen->shoot();
-      zp=sqrt(1.-xp*xp -yp*yp);  
-      t=0;
       break;
     }
   case _RING:
     {
-      if(DEBUG) G4cout<<"RING: rMin="<<rMin<<" rMax="<<rMax<<G4endl;
+      if(DEBUG) G4cout<<"RING: "<<G4endl
+		      <<" X0= "<<X0<<" m"<<G4endl
+		      <<" Y0= "<<Y0<<" m"<<G4endl
+		      <<" Z0= "<<Z0<<" m"<<G4endl
+		      <<" T0= "<<T0<<" s"<<G4endl
+		      <<" Xp0= "<<Xp0<<G4endl
+		      <<" Yp0= "<<Yp0<<G4endl
+		      <<" Zp0= "<<Zp0<<G4endl
+		      <<" rMin= "<<rMin<<" m"<<G4endl
+		      <<" rMax= "<<rMax<<" m"<<G4endl
+		      <<" relative energy spread= "<<energySpread<<G4endl;
+
       
-      r = ( rMin + (rMax - rMin) *  rand() / RAND_MAX ) * m;
+      r = ( rMin + (rMax - rMin) *  rand() / RAND_MAX );
       phi = 2 * pi * rand() / RAND_MAX;
       
-      x0 = r * sin(phi);
-      y0 = r * cos(phi);
-      z0 = 0;
-      xp = 0;
-      yp = 0;
-      zp=sqrt(1.-xp*xp -yp*yp);  
-      t = 0;
+      x0 = ( X0 + r * sin(phi) ) * m;
+      y0 = ( Y0 + r * cos(phi) ) * m;
+      z0 = Z0 * m;
+      xp = Xp0;
+      yp = Yp0;
+      if (Zp0<0)
+	zp = -sqrt(1.-xp*xp -yp*yp);
+      else
+	zp = sqrt(1.-xp*xp -yp*yp);
+      t = T0 * s;
       E = BDSGlobals->GetBeamKineticEnergy()
 	* (1 + energySpread/2. * (1. -2. * FlatGen->shoot()));
       break;
@@ -539,26 +592,42 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
   case _ESHELL:
     {// generate elliptical shell - first generate on S1 and then transform into ellipse
       
-      if(DEBUG) G4cout<<"SHELL: x="<<shellx<<" xp="<<shellxp<<G4endl;
+      if(DEBUG) G4cout<<"SHELL: " 
+		      <<" X0= "<<X0<<" m"<<G4endl
+		      <<" Y0= "<<Y0<<" m"<<G4endl
+		      <<" Z0= "<<Z0<<" m"<<G4endl
+		      <<" T0= "<<T0<<" s"<<G4endl
+		      <<" Xp0= "<<Xp0<<G4endl
+		      <<" Yp0= "<<Yp0<<G4endl
+		      <<" Zp0= "<<Zp0<<G4endl
+		      <<" shellX= "<<shellx<<" m"<<G4endl
+		      <<" shellY= "<<shelly<<" m"<<G4endl
+		      <<" shellXp= "<<shellxp<<G4endl
+		      <<" shellYp= "<<shellyp<<G4endl
+		      <<" relative energy spread= "<<energySpread<<G4endl;
       
       phi = 2 * pi * rand() / RAND_MAX;
       
-      x0 = sin(phi) * shellx;
-      xp = cos(phi) * shellxp;
+      x0 = (X0 + sin(phi) * shellx) * m;
+      xp = Xp0 + cos(phi) * shellxp;
       
       phi = 2 * pi * rand() / RAND_MAX;
       
-      y0 = sin(phi) * shelly;
-      yp = cos(phi) * shellyp;
+      y0 = (Y0 + sin(phi) * shelly) * m;
+      yp = Yp0 + cos(phi) * shellyp;
       
-      z0 = 0;
-      
-      zp=sqrt(1.-xp*xp -yp*yp);  
-      t = 0;
+      z0 = Z0 * m;
+      if (Zp0<0)
+	zp = -sqrt(1.-xp*xp -yp*yp);
+      else
+	zp = sqrt(1.-xp*xp -yp*yp);
+
+      t = T0 * s;
       E = BDSGlobals->GetBeamKineticEnergy()
 	* (1 + energySpread/2. * (1. -2. * FlatGen->shoot()));
       break;
     }
+
   case _GUINEAPIG_BUNCH:
     {
       #define  _READ(value) InputBunchFile>>value
@@ -610,25 +679,6 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 	InputBunchFile.seekg(0);
 	_skip(ignoreLines * 6);
 	GetNextParticle(x0,y0,z0,xp,yp,zp,t,E);
-	
-	/*   _READ(E);
-	     _READ(xp);
-	     _READ(yp);
-	     _READ(z0);
-	     _READ(x0);
-	     _READ(y0);
-	     
-	     E*=GeV;
-	     x0*= nanometer;
-	     y0*= nanometer;
-	     z0*= micrometer;
-	     xp*=radian;
-	     yp*=radian;
-	     zp=sqrt(1.-xp*xp -yp*yp);
-	     t=-z0/c_light;
-	     // use the Kinetic energy:
-	     E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
-	*/
       }
       break;
     }
@@ -797,7 +847,8 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 	  xp = px*c_light / sqrt(E*E + 2*E*part_mass);
 	  yp = py*c_light / sqrt(E*E + 2*E*part_mass);
 	  zp = pz*c_light / sqrt(E*E + 2*E*part_mass);
-	  /*	  
+
+	  if (DEBUG) {
 		  G4cout << "Bunch input was: " << G4endl;
 		  G4cout << type << "\t"
 		  << gen << "\t"
@@ -817,15 +868,16 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 		  << yp << "\t"
 		  << zp << "\t"
 		  << G4endl << G4endl;
-	  */	  
+	  }
 	}
       break;
     }
   case _UDEF:
-    {//G4cout<<"distrType=UDEF"<<G4endl;
-      
+    {
       E = x0 = y0 = z0 = xp = yp = zp = 0;
-      
+      bool zpdef = false; //keeps record whether zp has been read from file
+      bool tdef = false; //keeps record whether t has been read from file
+
       #define  _READ(value) InputBunchFile>>value
       
       G4int type;
@@ -834,14 +886,15 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       
       for(it=fields.begin();it!=fields.end();it++)
 	{
-	  //G4cout<<it->name<<"  ->  "<<it->unit<<G4endl;
+	  if (DEBUG) G4cout<<it->name<<"  ->  "<<it->unit<<G4endl;
 	  if(it->name=="E") { _READ(E); E *= ( GeV * it->unit ); }
+	  if(it->name=="t") { _READ(t); t *= ( s * it->unit ); tdef = true; }
 	  if(it->name=="x") { _READ(x0); x0 *= ( m * it->unit ); }
 	  if(it->name=="y") { _READ(y0); y0 *= ( m * it->unit ); }
 	  if(it->name=="z") { _READ(z0); z0 *= ( m * it->unit ); }
 	  if(it->name=="xp") { _READ(xp); xp *= ( radian * it->unit ); }
 	  if(it->name=="yp") { _READ(yp); yp *= ( radian * it->unit ); }
-	  if(it->name=="zp") { _READ(zp); zp *= ( radian * it->unit ); }
+	  if(it->name=="zp") { _READ(zp); zp *= ( radian * it->unit ); zpdef = true;}
 	  if(it->name=="pt") {
 	    _READ(type);
 	    if(InputBunchFile.good())
@@ -850,12 +903,12 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 						->FindParticle(type));
 	  }
 	  
-	  
-	  zp=sqrt(1.-xp*xp -yp*yp);  
-	  t=-z0/c_light;
+	  // compute zp from xp and yp if it hasn't been read from file
+	  if (!zpdef) zp=sqrt(1.-xp*xp -yp*yp);
+	  // compute t from z0 if it hasn't been read from file
+	  if (!tdef) t=-z0/c_light;
 	  // use the Kinetic energy:
 	  E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
-	  
 	}
       break;
     }

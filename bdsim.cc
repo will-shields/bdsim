@@ -46,9 +46,10 @@ const int DEBUG = 0;
 #include "BDSSteppingAction.hh"
 #include "BDSStackingAction.hh"
 #include "BDSUserTrackingAction.hh"
-#include "BDSSteppingVerbose.hh"
 #include "BDSRunManager.hh"
-
+#include "G4EventManager.hh"
+#include "G4TrackingManager.hh"
+#include "G4SteppingManager.hh"
 
 #include "BDSGeometryInterface.hh"
 
@@ -73,21 +74,21 @@ static void usage()
 
   G4cout<<"Usage: bdsim [options]"<<G4endl;
   G4cout<<"Options:"<<G4endl;
-  G4cout<<"--file=<filename>    : specify the lattice file "<<G4endl
-	<<"--output=<fmt>       : output format (root|ascii), default ascii"<<G4endl
-	<<"--outfile=<file>     : output file name. Will be appended with _N"<<G4endl
-        <<"                       where N = 0, 1, 2, 3... etc."<<G4endl
-	<<"--vis_mac=<file>     : file with the visualization macro script, default vis.mac"<<G4endl
-	<<"--help               : display this message"<<G4endl
-	<<"--verbose            : display general parameters before run"<<G4endl
-    	<<"--verbose_event      : display information for every event "<<G4endl
-    	<<"--verbose_step=N     : display tracking information after each step"<<G4endl
-	<<"--verbose_event_num  : display tracking information for event number N"<<G4endl
-	<<"--batch              : batch mode - no graphics"<<G4endl
-	<<"--outline=<file>     : print geometry info to <file>"<<G4endl
-	<<"--outline_type=<fmt> : type of outline format"<<G4endl
-	<<"                       where fmt = optics | survey"<<G4endl
-	<<"--materials		: list materials included in bdsim by default"<<G4endl;
+  G4cout<<"--file=<filename>     : specify the lattice file "<<G4endl
+	<<"--output=<fmt>        : output format (root|ascii), default ascii"<<G4endl
+	<<"--outfile=<file>      : output file name. Will be appended with _N"<<G4endl
+        <<"                        where N = 0, 1, 2, 3... etc."<<G4endl
+	<<"--vis_mac=<file>      : file with the visualization macro script, default vis.mac"<<G4endl
+	<<"--help                : display this message"<<G4endl
+	<<"--verbose             : display general parameters before run"<<G4endl
+    	<<"--verbose_event       : display information for every event "<<G4endl
+    	<<"--verbose_step        : display tracking information after each step"<<G4endl
+	<<"--verbose_event_num=N : display tracking information for event number N"<<G4endl
+	<<"--batch               : batch mode - no graphics"<<G4endl
+	<<"--outline=<file>      : print geometry info to <file>"<<G4endl
+	<<"--outline_type=<fmt>  : type of outline format"<<G4endl
+	<<"                        where fmt = optics | survey"<<G4endl
+	<<"--materials		 : list materials included in bdsim by default"<<G4endl;
 
 }
 
@@ -108,6 +109,11 @@ G4bool verboseStep = false;
 G4bool verboseEvent = false;
 G4int verboseEventNumber = -1;
 G4bool isBatch = false;
+
+G4int verboseRunLevel = 0;
+G4int verboseEventLevel = 0;
+G4int verboseTrackingLevel = 0;
+G4int verboseSteppingLevel = 0;
 
 BDSSamplerSD* BDSSamplerSensDet;
 
@@ -130,6 +136,10 @@ int main(int argc,char** argv) {
     { "verbose_step", 0, 0, 0 },
     { "verbose_event", 0, 0, 0 },
     { "verbose_event_num", 1, 0, 0 },
+    { "verbose_G4run", 1, 0, 0 },
+    { "verbose_G4event", 1, 0, 0 },
+    { "verbose_G4tracking", 1, 0, 0 },
+    { "verbose_G4stepping", 1, 0, 0 },
     { "file", 1, 0, 0 },
     { "vis_mac", 1, 0, 0 },
     { "output", 1, 0, 0 },
@@ -184,6 +194,26 @@ int main(int argc,char** argv) {
 	  {
 	    if(optarg)
 	      verboseEventNumber = atoi(optarg); 
+	  }
+	if( !strcmp(LongOptions[OptionIndex].name , "verbose_G4run") )
+	  {
+	    if(optarg)
+	      verboseRunLevel = atoi(optarg);
+	  }
+	if( !strcmp(LongOptions[OptionIndex].name , "verbose_G4event") )
+	  {
+	    if(optarg)
+	      verboseEventLevel = atoi(optarg);
+	  }
+	if( !strcmp(LongOptions[OptionIndex].name , "verbose_G4tracking") )
+	  {
+	    if(optarg)
+	      verboseTrackingLevel = atoi(optarg);
+	  }
+	if( !strcmp(LongOptions[OptionIndex].name , "verbose_G4stepping") )
+	  {
+	    if(optarg)
+	      verboseSteppingLevel = atoi(optarg);
 	  }
 	if( !strcmp(LongOptions[OptionIndex].name , "output") )
 	  {
@@ -349,7 +379,17 @@ int main(int argc,char** argv) {
   if(DEBUG) G4cout<<"init kernel"<<G4endl;
   runManager->Initialize();
 
-
+  //
+  // set verbosity levels
+  //
+  runManager
+    ->SetVerboseLevel(verboseRunLevel);
+  G4EventManager::GetEventManager()
+    ->SetVerboseLevel(verboseEventLevel);
+  G4EventManager::GetEventManager()->GetTrackingManager()
+    ->SetVerboseLevel(verboseTrackingLevel);
+  G4EventManager::GetEventManager()->GetTrackingManager()->GetSteppingManager()
+    ->SetVerboseLevel(verboseSteppingLevel);
 
   bdsOutput.Init(0); // activate the output - setting the first filename to 
                      // be appended with _0

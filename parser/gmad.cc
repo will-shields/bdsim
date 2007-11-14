@@ -43,24 +43,28 @@ void init()
 
   add_var("pi",3.14159265358979,_RESERVED);
 
-  add_var("GeV",1.0,_RESERVED);
-  add_var("eV",1e-9,_RESERVED);
-  add_var("KeV",1e-6,_RESERVED);
-  add_var("MeV",1e-3,_RESERVED);
   add_var("TeV",1e+3,_RESERVED);
+  add_var("GeV",1.0 ,_RESERVED);
+  add_var("MeV",1e-3,_RESERVED);
+  add_var("KeV",1e-6,_RESERVED);
+  add_var("eV" ,1e-9,_RESERVED);
 
   add_var("MV",1.0,_RESERVED);
 
   add_var("Tesla",1.0,_RESERVED);
 
-  add_var("mm",1e-3,_RESERVED);
-  add_var("cm",1e-2,_RESERVED);
-  add_var("m",1.0,_RESERVED);
+  add_var("m"  ,1.0 ,_RESERVED);
+  add_var("cm" ,1e-2,_RESERVED);
+  add_var("mm" ,1e-3,_RESERVED);
+  add_var("mum",1e-6,_RESERVED);
+  add_var("nm" ,1e-9,_RESERVED);
 
-  add_var("s",1.0,_RESERVED);
-  add_var("ns",1.e-9,_RESERVED);
+  add_var("s"  ,1.0  ,_RESERVED);
+  add_var("ms" ,1.e-3,_RESERVED);
+  add_var("mus",1.e-6,_RESERVED);
+  add_var("ns" ,1.e-9,_RESERVED);
 
-  add_var("rad",1.0,_RESERVED);
+  add_var("rad" ,1.0  ,_RESERVED);
   add_var("mrad",1.e-3,_RESERVED);
 
 

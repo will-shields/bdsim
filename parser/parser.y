@@ -194,6 +194,26 @@ decl : VARIABLE ':' marker
 	     params.flush();
 	   }
        }
+     | VARIABLE ':' multipole
+       {
+	 if(execute)
+	   {	 
+	     if(ECHO_GRAMMAR) printf("VARIABLE : multipole %s \n",$1->name);
+	     // check parameters and write into element table
+	     write_table(params,$1->name,_MULT);
+	     params.flush();	 
+	   }
+       }
+     | VARIABLE ':' solenoid
+       {
+	 if(execute)       
+	   {
+	     if(ECHO_GRAMMAR) printf("decl -> VARIABLE : solenoid %s \n",$1->name);
+	     // check parameters and write into element table
+	     write_table(params,$1->name,_SOLENOID);
+	     params.flush();
+	   }
+       }
      | VARIABLE ':' rcol
        {
 	 if(execute)
@@ -212,16 +232,6 @@ decl : VARIABLE ':' marker
 	     // check parameters and write into element table
 	     write_table(params,$1->name,_ECOL);
 	     params.flush();
-	   }
-       }
-     | VARIABLE ':' multipole
-       {
-	 if(execute)
-	   {	 
-	     if(ECHO_GRAMMAR) printf("VARIABLE : multipole %s \n",$1->name);
-	     // check parameters and write into element table
-	     write_table(params,$1->name,_MULT);
-	     params.flush();	 
 	   }
        }
      | VARIABLE ':' element
@@ -332,9 +342,9 @@ octupole : OCTUPOLE ',' parameters
 ;
 
 multipole : MULTIPOLE ',' parameters
-{
-  if(DEBUG) print(params);
-}
+;
+
+solenoid : SOLENOID ',' parameters
 ;
 
 ecol : ECOL ',' parameters
@@ -387,19 +397,21 @@ parameters:
 	      if(execute)
 		{
 		  if(DEBUG) printf("parameters, VARIABLE(%s) = aexpr(%.10g)\n",$1->name,$3);
-		  if(!strcmp($1->name,"l")) { params.l = $3; params.lset = 1;} 
+		  if(!strcmp($1->name,"l")) { params.l = $3; params.lset = 1;} // length
 		    else
-		  if(!strcmp($1->name,"B")) { params.B = $3; params.Bset = 1;}
+	          if(!strcmp($1->name,"B")) { params.B = $3; params.Bset = 1;} // dipole field
 		    else 
-		  if(!strcmp($1->name,"k0")) { params.k0 = $3; params.k0set = 1;}
-		    else 
-		  if(!strcmp($1->name,"k1")) { params.k1 = $3; params.k1set = 1;} 
+		  if(!strcmp($1->name,"ks")) { params.ks = $3; params.ksset = 1;} // solenoid strength
 		    else
-		  if(!strcmp($1->name,"k2")) { params.k2 = $3; params.k2set = 1;}
+		  if(!strcmp($1->name,"k0")) { params.k0 = $3; params.k0set = 1;} // dipole coef.
 		    else 
-		  if(!strcmp($1->name,"k3")) { params.k3 = $3; params.k3set = 1;}
+		  if(!strcmp($1->name,"k1")) { params.k1 = $3; params.k1set = 1;} // quadrupole coef. 
+		    else
+		  if(!strcmp($1->name,"k2")) { params.k2 = $3; params.k2set = 1;} // sextupole coef.
 		    else 
-		  if(!strcmp($1->name,"angle")) { params.angle = $3; params.angleset = 1;}
+		  if(!strcmp($1->name,"k3")) { params.k3 = $3; params.k3set = 1;} // octupole coef.
+		    else 
+		  if(!strcmp($1->name,"angle")) { params.angle = $3; params.angleset = 1;} // dipole bending angle
 		    else
 		  if(!strcmp($1->name,"aper") ||!strcmp($1->name,"aperture") ) 
 			      { params.aper = $3; params.aperset = 1;}
@@ -547,8 +559,10 @@ parameters:
 		  if(DEBUG) printf("VARIABLE (%s) = aexpr(%.10g)\n",$1->name,$3);
 		  if(!strcmp($1->name,"l")) { params.l = $3; params.lset = 1;} // length
 		    else
-		  if(!strcmp($1->name,"B")) { params.B = $3; params.Bset = 1;} // 
+		  if(!strcmp($1->name,"B")) { params.B = $3; params.Bset = 1;} // dipole field 
 		    else 
+		  if(!strcmp($1->name,"ks")) { params.ks = $3; params.ksset = 1;} // solenoid strength
+		    else
 		  if(!strcmp($1->name,"k0")) { params.k0 = $3; params.k0set = 1;} // dipole coef.
 		    else 
 		  if(!strcmp($1->name,"k1")) { params.k1 = $3; params.k1set = 1;} // quadrupole coef.
@@ -557,7 +571,7 @@ parameters:
 		    else 
 		  if(!strcmp($1->name,"k3")) { params.k3 = $3; params.k3set = 1;} // octupole coef.
 		    else 
-		  if(!strcmp($1->name,"angle")) { params.angle = $3; params.angleset = 1;}
+		  if(!strcmp($1->name,"angle")) { params.angle = $3; params.angleset = 1;} // dipole bending angle
 		    else
 		  if(!strcmp($1->name,"aper") ||!strcmp($1->name,"aperture") ) 
 			      { params.aper = $3; params.aperset = 1;}

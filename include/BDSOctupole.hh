@@ -7,7 +7,7 @@
 #ifndef BDSOctupole_h
 #define BDSOctupole_h 1
 
-#include"globals.hh"
+#include "globals.hh"
 #include "BDSMaterials.hh"
 #include "G4LogicalVolume.hh"
 #include "BDSOctStepper.hh"
@@ -24,22 +24,21 @@
 
 class BDSOctupole :public BDSMultipole
 {
-  public:
-    BDSOctupole(G4String aName, G4double aLength,
-		G4double bpRad,G4double FeRad,
-		G4double BTrpPrime, G4double tilt, G4double outR, 
-		G4String aMaterial = "");
-    ~BDSOctupole();
+public:
+  BDSOctupole(G4String aName, G4double aLength,
+	      G4double bpRad, G4double FeRad,
+	      G4double BTrpPrime, G4double tilt, G4double outR, 
+	      G4String aMaterial = "");
+  ~BDSOctupole();
 
   void SynchRescale(G4double factor);
-  protected:
 
-  private:
+protected:
+
+private:
   G4double itsBTrpPrime;
 
-  //  void BuildOuterLogicalVolume();
   void BuildBPFieldAndStepper();
-  //void BuildMarkerLogicalVolume();
 
   G4VisAttributes* SetVisAttributes();
 

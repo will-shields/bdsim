@@ -4,8 +4,9 @@
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 
    Modified 22.03.05 by J.C.Carter, Royal Holloway, Univ. of London.
-   Changed StringFromInt to BDSGlobals version
+   Changed StringFromInt to be the BDSGlobal version
 */
+
 #include "BDSGlobalConstants.hh" // must be first in include list
 
 #include "BDSSextupole.hh"
@@ -32,68 +33,75 @@ extern LogVolMap* LogVol;
 extern BDSMaterials* theMaterials;
 //============================================================
 
-BDSSextupole::BDSSextupole(G4String aName,G4double aLength, 
-			   G4double bpRad,G4double FeRad,
+BDSSextupole::BDSSextupole(G4String aName, G4double aLength, 
+			   G4double bpRad, G4double FeRad,
 			   G4double BDblPrime, G4double tilt, 
 			   G4double outR, G4String aMaterial):
-  BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes(),aMaterial),
+  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), aMaterial),
   itsBDblPrime(BDblPrime)
 {
   SetOuterRadius(outR);
   itsTilt=tilt;
   itsType="sext";
+
   if (!(*LogVolCount)[itsName])
     {
-      BuildBPFieldAndStepper();
-      BuildBPFieldMgr(itsStepper,itsMagField);
+      //
+      // build external volume
+      // 
       BuildDefaultMarkerLogicalVolume();
 
+      //
+      // build beampipe (geometry + magnetic field)
+      //
+      BuildBPFieldAndStepper();
+      BuildBPFieldMgr(itsStepper,itsMagField);
       BuildBeampipe(itsLength);
 
+      //
+      // build magnet (geometry + magnetic field)
+      //
       BuildDefaultOuterLogicalVolume(itsLength);
-      SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
-      SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
-
-      // visual attributes
-      G4VisAttributes* VisAtt =
-        new G4VisAttributes(G4Colour(0., 0., 0.));
-      VisAtt->SetForceSolid(true);
-      itsInnerBPLogicalVolume->SetVisAttributes(VisAtt);
-
-      G4VisAttributes* VisAtt1 =
-        new G4VisAttributes(G4Colour(0.4, 0.4, 0.4));
-      VisAtt1->SetForceSolid(true);
-      itsBeampipeLogicalVolume->SetVisAttributes(VisAtt1);
-
-      G4VisAttributes* VisAtt2 =
-        new G4VisAttributes(G4Colour(1., 1., 0.));
-      VisAtt2->SetForceSolid(true);
-      itsOuterLogicalVolume->SetVisAttributes(VisAtt2);
-
       if(BDSGlobals->GetIncludeIronMagFields())
 	{
 	  G4double polePos[4];
 	  G4double Bfield[3];
 
-	  polePos[0]=0.;
-	  polePos[1]=BDSGlobals->GetMagnetPoleRadius();
+	  //coordinate in GetFieldValue
+	  polePos[0]=-BDSGlobals->GetMagnetPoleRadius()*sin(pi/6);
+	  polePos[1]=BDSGlobals->GetMagnetPoleRadius()*cos(pi/6);
 	  polePos[2]=0.;
 	  polePos[3]=-999.;//flag to use polePos rather than local track
-	                   //coordinate in GetFieldValue
-	    
-	    
+
 	  itsMagField->GetFieldValue(polePos,Bfield);
 	  G4double BFldIron=
 	    sqrt(Bfield[0]*Bfield[0]+Bfield[1]*Bfield[1])*
 	    BDSGlobals->GetMagnetPoleSize()/
 	    (BDSGlobals->GetComponentBoxSize()/2-
 	     BDSGlobals->GetMagnetPoleRadius());
+
 	  // Magnetic flux from a pole is divided in two directions
 	  BFldIron/=2.;
 
-	  BuildOuterFieldManager(6, BFldIron,0);
+	  BuildOuterFieldManager(6, BFldIron,pi/6);
 	}
 
+      //
+      // define sensitive volumes for hit generation
+      //
+      SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+      SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+
+      //
+      // set visualization attributes
+      //
+      itsVisAttributes=SetVisAttributes();
+      itsVisAttributes->SetForceSolid(true);
+      itsOuterLogicalVolume->SetVisAttributes(itsVisAttributes);
+
+      //
+      // append marker logical volume to volume map
+      //
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
     }
@@ -106,24 +114,74 @@ BDSSextupole::BDSSextupole(G4String aName,G4double aLength,
 	  // means elements with the same name must have different
 	  //logical volumes, becuase they have different fields
 	  itsName+=BDSGlobals->StringFromInt((*LogVolCount)[itsName]);
+
+	  //
+	  // build external volume
+	  // 
+	  BuildDefaultMarkerLogicalVolume();
+
+	  //
+	  // build beampipe (geometry + magnetic field)
+	  //
 	  BuildBPFieldAndStepper();
 	  BuildBPFieldMgr(itsStepper,itsMagField);
-	  BuildDefaultMarkerLogicalVolume();
-	  
 	  BuildBeampipe(itsLength);
+
+	  //
+	  // build magnet (geometry + magnetic field)
+	  //
 	  BuildDefaultOuterLogicalVolume(itsLength);
+	  if(BDSGlobals->GetIncludeIronMagFields())
+	    {
+	      G4double polePos[4];
+	      G4double Bfield[3];
+	      
+	      //coordinate in GetFieldValue
+	      polePos[0]=-BDSGlobals->GetMagnetPoleRadius()*sin(pi/6);
+	      polePos[1]=BDSGlobals->GetMagnetPoleRadius()*cos(pi/6);
+	      polePos[2]=0.;
+	      polePos[3]=-999.;//flag to use polePos rather than local track
 
-	  SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
-	  SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+	      itsMagField->GetFieldValue(polePos,Bfield);
+	      G4double BFldIron=
+		sqrt(Bfield[0]*Bfield[0]+Bfield[1]*Bfield[1])*
+		BDSGlobals->GetMagnetPoleSize()/
+		(BDSGlobals->GetComponentBoxSize()/2-
+		 BDSGlobals->GetMagnetPoleRadius());
 
+	      // Magnetic flux from a pole is divided in two directions
+	      BFldIron/=2.;
+	      
+	      BuildOuterFieldManager(6, BFldIron,pi/6);
+	    }
+	  //When is SynchRescale(factor) called?
+
+	  //
+	  // define sensitive volumes for hit generation
+	  //
+	  SetSensitiveVolume(itsBeampipeLogicalVolume);// for synchrotron
+	  //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
+	  
+	  //
+	  // set visualization attributes
+	  //
+	  itsVisAttributes=SetVisAttributes();
+	  itsVisAttributes->SetForceSolid(true);
+	  itsOuterLogicalVolume->SetVisAttributes(itsVisAttributes);
+	  
+	  //
+	  // append marker logical volume to volume map
+	  //
 	  (*LogVol)[itsName]=itsMarkerLogicalVolume;
 	}
       else
 	{
+	  //
+	  // use already defined marker volume
+	  //
 	  itsMarkerLogicalVolume=(*LogVol)[itsName];
 	}      
     }
-  
 }
 
 void BDSSextupole::SynchRescale(G4double factor)
@@ -135,7 +193,7 @@ void BDSSextupole::SynchRescale(G4double factor)
 
 G4VisAttributes* BDSSextupole::SetVisAttributes()
 {
-  itsVisAttributes=new G4VisAttributes(G4Colour(1,1,0));
+  itsVisAttributes=new G4VisAttributes(G4Colour(1,0,1)); //purple
   return itsVisAttributes;
 }
 

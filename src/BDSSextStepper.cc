@@ -11,7 +11,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSSextStepper.cc,v 1.3 2006/05/17 00:18:05 agapov Exp $
+// $Id: BDSSextStepper.cc,v 1.4 2007/05/10 16:23:22 malton Exp $
 // GEANT4 tag $Name:  $
 //
 #include "BDSSextStepper.hh"
@@ -171,11 +171,6 @@ void BDSSextStepper::Stepper( const G4double yInput[],
   
   G4int i;
  
-  //const G4double *pIn = yInput+3;
-  //G4ThreeVector v0= G4ThreeVector( pIn[0], pIn[1], pIn[2]);  
-  //G4double InitMag=v0.mag();
-  //G4double kappa=  -fPtrMagEqOfMot->FCof()*itsBDblPrime/InitMag;
-  
   G4double yTemp[7], yIn[7];
   
   //  Saving yInput because yInput and yOut can be aliases for same array

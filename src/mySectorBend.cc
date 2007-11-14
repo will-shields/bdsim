@@ -1,11 +1,7 @@
-/* BDSIM code.    Version 1.0
-   Author: Grahame A. Blair, Royal Holloway, Univ. of London.
-*/
 #include "BDSGlobalConstants.hh" // must be first in include list
 
 #include "mySectorBend.hh"
 #include "G4Box.hh"
-#include "G4Tubs.hh"
 #include "G4Torus.hh"
 #include "G4IntersectionSolid.hh"
 #include "G4VisAttributes.hh"
@@ -14,8 +10,11 @@
 #include "G4UserLimits.hh"
 #include "G4TransportationManager.hh"
 #include "G4PropagatorInField.hh"
+#include "G4SubtractionSolid.hh"
 
 #include <map>
+
+const int DEBUG = 0;
 
 //============================================================
 
@@ -27,34 +26,42 @@ extern LogVolMap* LogVol;
 
 extern BDSMaterials* theMaterials;
 extern G4RotationMatrix* RotY90;
+extern G4RotationMatrix* RotX90;
 
 //============================================================
 
 mySectorBend::mySectorBend(G4String aName,G4double aLength, 
-			     G4double bpRad,G4double FeRad,
-			     G4double bField, G4double angle,
-			     G4double tilt,  G4double bGrad, 
-			     G4String aMaterial, G4int nSegments):
-  BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes(),aMaterial,0,0,angle)
+			   G4double bpRad,G4double FeRad,
+			   G4double bField, G4double angle, G4double outR,
+			   G4double tilt,  G4double bGrad, 
+			   G4String aMaterial, G4int nSegments):
+  BDSMultipole(aName,aLength,bpRad,FeRad,SetVisAttributes(),aMaterial,0,0,angle)
 {
+
+  if (outR==0) 
+    SetOuterRadius(BDSGlobals->GetComponentBoxSize()/2);
+  else
+    SetOuterRadius(outR);
   itsTilt = tilt;
   itsBField = bField;
   itsBGrad = bGrad;
 
   itsType="sbend";
 
-  if (!(*LogVolCount)[itsName])
+  if (!(*LogVolCount)[itsName] )
     {
       BuildSBMarkerLogicalVolume();
 
-      BuildBeampipe2(this,itsLength,itsAngle);
+      BuildSBBeampipe();
 
       BuildBPFieldAndStepper();
 
       BuildBPFieldMgr(itsStepper,itsMagField);
 
-      //SetSensitiveVolume(itsBeampipeLogicalVolume);// for synchrotron
-      SetSensitiveVolume(itsOuterLogicalVolume);// otherwise
+      BuildSBOuterLogicalVolume();
+
+      SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+      SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
 
       if(BDSGlobals->GetIncludeIronMagFields())
 	{
@@ -80,20 +87,84 @@ mySectorBend::mySectorBend(G4String aName,G4double aLength,
 	  //BuildOuterFieldManager(2, BFldIron,0);
 	}
 
+      
+      // vis attr
+      G4VisAttributes* VisAtt = 
+	new G4VisAttributes(G4Colour(0., 0., 0));
+      VisAtt->SetForceSolid(true);
+      itsInnerBPLogicalVolume->SetVisAttributes(VisAtt);
+      
+      G4VisAttributes* VisAtt1 = 
+	new G4VisAttributes(G4Colour(0.1, 0.1, 0.1));
+      VisAtt1->SetForceSolid(true);
+      itsBeampipeLogicalVolume->SetVisAttributes(VisAtt1);
+      
+      G4VisAttributes* VisAtt2 = 
+	new G4VisAttributes(G4Colour(0., 0., 1.));
+      VisAtt2->SetForceSolid(true);
+      itsOuterLogicalVolume->SetVisAttributes(VisAtt2);
+      
+
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
     }
   else
     {
       (*LogVolCount)[itsName]++;
+      if(BDSGlobals->GetSynchRadOn()&& BDSGlobals->GetSynchRescale())
+	{
+	  // with synchrotron radiation, the rescaled magnetic field
+	  // means elements with the same name must have different
+	  //logical volumes, becuase they have different fields
+	  itsName+=BDSGlobals->StringFromInt((*LogVolCount)[itsName]);
 
-	itsMarkerLogicalVolume=(*LogVol)[itsName];
+	  BuildSBMarkerLogicalVolume();
 
+	  BuildSBBeampipe();
+	
+	  BuildBPFieldAndStepper();
+
+	  BuildBPFieldMgr(itsStepper,itsMagField);
+
+	  BuildSBOuterLogicalVolume();
+
+	  SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+	  SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+
+	  // vis attr
+	  G4VisAttributes* VisAtt = 
+	    new G4VisAttributes(G4Colour(0., 0., 0));
+	  VisAtt->SetForceSolid(true);
+	  itsInnerBPLogicalVolume->SetVisAttributes(VisAtt);
+	  
+	  G4VisAttributes* VisAtt1 = 
+	    new G4VisAttributes(G4Colour(0.1, 0.1, 0.1));
+	  VisAtt1->SetForceSolid(true);
+	  itsBeampipeLogicalVolume->SetVisAttributes(VisAtt1);
+	  
+	  G4VisAttributes* VisAtt2 = 
+	    new G4VisAttributes(G4Colour(0., 0., 1.));
+	  VisAtt2->SetForceSolid(true);
+	  itsOuterLogicalVolume->SetVisAttributes(VisAtt2);
+	  
+	  
+	  (*LogVol)[itsName]=itsMarkerLogicalVolume;
+	}
+      else
+	{
+	  itsMarkerLogicalVolume=(*LogVol)[itsName];
+	}      
     }
-
-
 }
 
+void mySectorBend::SynchRescale(G4double factor)
+{
+  itsStepper->SetBGrad(itsBGrad*factor);
+  itsStepper->SetBField(-itsBField*factor);
+  // note that there are no methods to set the BDSSBendMagField as this
+  // class does not do anything with the BFields.
+  if(DEBUG) G4cout << "Sbend " << itsName << " has been scaled" << G4endl;
+}
 
 G4VisAttributes* mySectorBend::SetVisAttributes()
 {
@@ -108,14 +179,10 @@ void mySectorBend::BuildBPFieldAndStepper()
   G4ThreeVector Bfield(0.,-itsBField,0.);
   itsMagField=new BDSSbendMagField(Bfield,itsLength,itsAngle);
   
-  
   itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);  
   
-  
-  //itsStepper=new BDSHelixStepper(itsEqRhs);
-  itsStepper = new myQuadStepper(itsEqRhs);
-  itsStepper->SetBField(itsBField);
- 
+  itsStepper = new myQuadStepper(itsEqRhs); // note the - sign...
+  itsStepper->SetBField(-itsBField);
   itsStepper->SetBGrad(itsBGrad);
 
   BuildBPFieldMgr(itsStepper,itsMagField);
@@ -128,28 +195,18 @@ void mySectorBend::BuildBPFieldAndStepper()
 
 void mySectorBend::BuildSBMarkerLogicalVolume()
 {
-  G4double LCComponentBoxSize=BDSGlobals->GetComponentBoxSize();
+  // radius of curvature
+  G4double rho = itsLength/fabs(itsAngle);
 
-  G4double xHalfLengthMinus=(itsLength/itsAngle)*sin(itsAngle/2)
-      -fabs(cos(itsAngle/2))*LCComponentBoxSize*tan(itsAngle/2)/2
-      +BDSGlobals->GetLengthSafety()/2;
-  
-    G4double xHalfLengthPlus=(itsLength/itsAngle)*sin(itsAngle/2)
-      +fabs(cos(itsAngle/2))*LCComponentBoxSize*tan(itsAngle/2)/2
-      +BDSGlobals->GetLengthSafety()/2;
-  
- 
-  G4String LocalLogicalName=itsName;
-  
   itsMarkerLogicalVolume=    
-    new G4LogicalVolume(new G4Trd(itsName+"_marker" ,             
-				  xHalfLengthPlus,      // x hlf lgth at +z
-				  xHalfLengthMinus,     // x hlf lgth at -z
-				  LCComponentBoxSize/2, // y hlf lgth at +z
-				  LCComponentBoxSize/2, // y hlf lgth at -z
-				  fabs(cos(itsAngle/2))*LCComponentBoxSize/2),// z hlf lgth
+    new G4LogicalVolume(new G4Torus(itsName+"_marker",
+				    0,               // inner R
+				    itsOuterR,       // outer R
+				    rho,             // swept R
+				    0,               // starting phi
+				    fabs(itsAngle)), // delta phi
 			theMaterials->GetMaterial("Vacuum"),
-			LocalLogicalName+"_marker");
+			itsName+"_marker");
 
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX);
   itsMarkerUserLimits->SetMaxAllowedStep(itsLength);
@@ -158,205 +215,164 @@ void mySectorBend::BuildSBMarkerLogicalVolume()
 
 
 // construct a beampipe for sector bend
-//void mySectorBend::BuildBeampipe2(G4double length, G4double angle)
-void BuildBeampipe2(mySectorBend *sb,G4double length, G4double angle)
+void mySectorBend::BuildSBBeampipe()
 {
+  //
+  // 1) construct the solids
+  //
 
- G4double LCComponentBoxSize=BDSGlobals->GetComponentBoxSize();
- 
- G4double xHalfLengthMinus=(sb->itsLength/sb->itsAngle)*sin(sb->itsAngle/2)
-    -fabs(cos(sb->itsAngle/2)) * LCComponentBoxSize*tan(sb->itsAngle/2)/2
-    +BDSGlobals->GetLengthSafety()/2;
-
- G4double xHalfLengthPlus=(sb->itsLength/sb->itsAngle)*sin(sb->itsAngle/2)
-    +fabs(cos(sb->itsAngle/2)) * LCComponentBoxSize*tan(sb->itsAngle/2)/2
-    +BDSGlobals->GetLengthSafety()/2;
-
-
-
-  //G4double halfLength = 0.5 * (xHalfLengthMinus + xHalfLengthPlus) ;
-  
+  // radius of curvature
+  G4double rho = itsLength/fabs(itsAngle);
 
   // *** toroidal beampipes - problems with G4Torus::DistanceToTorus
   // *** when calling G4PolynomialSolver.Solve()
-
- // G4double rSwept = halfLength /  fabs( sin( angle / 2 ) );
-
-//  G4Torus *pipeTube = new G4Torus(sb->itsName+"_pipe_outer",
-// 				  sb->itsBpRadius-BDSGlobals->GetBeampipeThickness(),  // inner R
-// 				  sb->itsBpRadius, // outer R
-// 				  rSwept , // swept R
-// 				  0, // starting phi
-// 				  fabs(angle) ); // delta phi
-
-
-//   G4Torus *pipeInner = new G4Torus(sb->itsName+"_pipe_inner",
-// 				   0,   // inner R
-// 				   sb->itsBpRadius-BDSGlobals->GetBeampipeThickness()-0.000*mm,// outer
-// 				   rSwept , // swept R
-// 				   0, // starting phi
-// 				   fabs(angle) ); // delta phi
-  
-//   sb->itsBeampipeLogicalVolume=	
-//     new G4LogicalVolume(pipeTube,
-// 			theMaterials->GetMaterial("Aluminium"),
-// 			sb->itsName+"_bmp_logical");
-  
-//   sb->itsInnerBPLogicalVolume=	
-//     new G4LogicalVolume(pipeInner,
-// 			theMaterials->GetMaterial("Vacuum"),
-// 			sb->itsName+"_bmp_Inner_log");
-  
-//   G4RotationMatrix* Rot= new G4RotationMatrix;
-  
-//   Rot->rotateX(pi/2 * rad);
-//   Rot->rotateZ(- ( pi/2 - fabs(angle)/2 ) * rad);
-
-//   G4ThreeVector pipeTorusOrigin(0, 0, rSwept * fabs( cos(angle / 2) ) );
-
-//   if(angle < 0)
-//     {
-//       //Rot->rotateY(pi);
-//       Rot->rotateZ(pi);
-//       pipeTorusOrigin.setZ(-rSwept * fabs( cos(angle / 2) ) );
-//     }
-  
-
-//   G4VPhysicalVolume* PhysiInner = 
-//     new G4PVPlacement(
-// 		      Rot,		       // rotation
-// 		      pipeTorusOrigin,	               // at (0,0,0)
-// 		      sb->itsInnerBPLogicalVolume, // its logical volume
-// 		      sb->itsName+"_InnerBmp",     // its name
-// 		      sb->itsMarkerLogicalVolume, // its mother  volume
-// 		      false,		       // no boolean operation
-// 		      0);		       // copy numbe
-
-//   G4VPhysicalVolume* PhysiComp = 
-//     new G4PVPlacement(
-// 		      Rot,			     // rotation
-// 		      pipeTorusOrigin,	                     // at (0,0,0)
-// 		      sb->itsBeampipeLogicalVolume,  // its logical volume
-// 		      sb->itsName+"_bmp",	     // its name
-// 		      sb->itsMarkerLogicalVolume,     // its mother  volume
-// 		      false,		     // no boolean operation
-// 		      0);		             // copy number
+  G4double bpThickness = BDSGlobals->GetBeampipeThickness();
+  G4Torus *pipeTube = new G4Torus(itsName+"_pipe_outer",
+				  itsBpRadius-bpThickness, // innerR
+				  itsBpRadius,             // outer R
+				  rho,                     // swept R
+				  0,                       // starting phi
+				  fabs(itsAngle) );        // delta phi
   
   
-  // *** try with tubes 
+  G4Torus *pipeInner = new G4Torus(itsName+"_pipe_inner",
+				   0,                       // inner R
+				   itsBpRadius-bpThickness, // outer R
+				   rho,                     // swept R
+				   0,                       // starting phi
+				   fabs(itsAngle) );        // delta phi
 
-  G4double tubLen = 0.5 * ( xHalfLengthPlus + xHalfLengthMinus );
-
-  G4Tubs *pipeTubs = new G4Tubs(sb->itsName+"_pipe_outer",
-				 sb->itsBpRadius-BDSGlobals->GetBeampipeThickness(),  // inner R
-				 sb->itsBpRadius, // outer R
-				 tubLen , // length
-				 0, // starting phi
-				 twopi * rad ); // delta phi
-  
-  G4Tubs *pipeInner = new G4Tubs(sb->itsName+"_pipe_inner",
-				 0,  // inner R
-				 sb->itsBpRadius-BDSGlobals->GetBeampipeThickness(), // outer R
-				 tubLen , // length
-				 0, // starting phi
-				 twopi * rad ); // delta phi
-
-  /* remember to uncomment this if using intersection solid below
-  G4Trd *markerBox = new G4Trd(sb->itsName+"_marker_box" ,             
-			       xHalfLengthPlus,      // x hlf lgth at +z
-			       xHalfLengthMinus,     // x hlf lgth at -z
-			       LCComponentBoxSize/2, // y hlf lgth at +z
-			       LCComponentBoxSize/2, // y hlf lgth at -z
-			       fabs(cos(sb->itsAngle/2))*LCComponentBoxSize/2);
-  */
-  G4RotationMatrix* InvRot= new G4RotationMatrix;
-  G4RotationMatrix* Rot= new G4RotationMatrix;
-
-  G4double rotAngle = -pi/2 * rad; // * sign(sb->itsAngle);
-  InvRot->rotateY(-rotAngle + pi);
-  Rot->rotateY(rotAngle);
-
-  //G4Transform3D transform(*InvRot,G4ThreeVector(0,0,0) );  
-
-  // remember to uncomment markerBox if using this
-  // G4IntersectionSolid *pTubsIntersMarker = 
-    // new G4IntersectionSolid("_inner_tubs_intersects_marker", pipeTubs, 
-// 			    markerBox, transform ); 
-  
-//   G4IntersectionSolid *pInnerIntersMarker = 
-//     new G4IntersectionSolid("_inner_pipe_intersects_marker", pipeInner, 
-// 			    markerBox, transform ); 
-
-
- //  sb->itsBeampipeLogicalVolume=	
-//     new G4LogicalVolume(pTubsIntersMarker,
-// 			theMaterials->GetMaterial("Aluminium"),
-// 			sb->itsName+"_bmp_logical");
-  
-//   sb->itsInnerBPLogicalVolume=	
-//     new G4LogicalVolume(pInnerIntersMarker,
-// 			theMaterials->GetMaterial("Vacuum"),
-// 			sb->itsName+"_bmp_Inner_log");
-
-
-
-   sb->itsBeampipeLogicalVolume=	
-    new G4LogicalVolume(pipeTubs,
-			theMaterials->GetMaterial("Aluminium"),
-			sb->itsName+"_bmp_logical");
-  
-  sb->itsInnerBPLogicalVolume=	
-    new G4LogicalVolume(pipeInner,
-			theMaterials->GetMaterial("Vacuum"),
-			sb->itsName+"_bmp_Inner_log");
-
-  G4VPhysicalVolume* PhysiInner;
-  PhysiInner = new G4PVPlacement(
-		      Rot,		       // rotation
-		      0,	               // at (0,0,0)
-		      sb->itsInnerBPLogicalVolume, // its logical volume
-		      sb->itsName+"_InnerBmp",     // its name
-		      sb->itsMarkerLogicalVolume, // its mother  volume
-		      false,		       // no boolean operation
-		      0);		       // copy number
-  
-  G4VPhysicalVolume* PhysiComp;
-  PhysiComp = new G4PVPlacement(
-		      Rot,			     // rotation
-		      0,	                     // at (0,0,0)
-		      sb->itsBeampipeLogicalVolume,  // its logical volume
-		      sb->itsName+"_bmp",	     // its name
-		      sb->itsMarkerLogicalVolume,     // its mother  volume
-		      false,		     // no boolean operation
-		      0);		             // copy number
-  
 
   //
+  // 2) construct the logical volumes (solids+materials)
+  //
+
+  // use default beampipe material
+  G4Material *material =  theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName());
+  
+  itsBeampipeLogicalVolume=	
+    new G4LogicalVolume(pipeTube,
+			material,
+			itsName+"_bmp_logical");
+  
+  itsInnerBPLogicalVolume=	
+    new G4LogicalVolume(pipeInner,
+			theMaterials->GetMaterial("Vacuum"),
+			itsName+"_bmp_Inner_log");
 
 
-  sb->itsBeampipeUserLimits =
+  //
+  // 3) position the logical volumes inside the mother volume (the marker)
+  //
+
+  G4VPhysicalVolume* PhysiInner = 
+    new G4PVPlacement(
+		      0,		       // no rotation
+		      0,                       // no translation
+		      itsInnerBPLogicalVolume, // its logical volume
+		      itsName+"_InnerBmp",     // its name
+		      itsMarkerLogicalVolume,  // its mother volume
+		      false,		       // no boolean operation
+		      0);		       // copy number
+
+  G4VPhysicalVolume* PhysiComp = 
+    new G4PVPlacement(
+		      0,		       // no rotation
+		      0,                       // no translation
+		      itsBeampipeLogicalVolume,// its logical volume
+		      itsName+"_bmp",	       // its name
+		      itsMarkerLogicalVolume,  // its mother  volume
+		      false,		       // no boolean operation
+		      0);		             // copy number
+  
+  itsBeampipeUserLimits =
     new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());
   
-  sb->itsInnerBeampipeUserLimits =
-    new G4UserLimits("inner beamipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
+  itsInnerBeampipeUserLimits =
+    new G4UserLimits("inner beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());
+  /*  
+  itsOuterUserLimits =
+    new G4UserLimits("sbend cut",itsLength,DBL_MAX,DBL_MAX,
+		     BDSGlobals->GetThresholdCutCharged());
   
-  sb->itsBeampipeUserLimits->SetMaxAllowedStep(sb->itsLength);
-  sb->itsBeampipeLogicalVolume->SetUserLimits(sb->itsBeampipeUserLimits);
+  itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
+  */
+  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength);
+  itsBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
   
-  sb->itsInnerBeampipeUserLimits->SetMaxAllowedStep(sb->itsLength);
-  sb->itsInnerBPLogicalVolume->SetUserLimits(sb->itsInnerBeampipeUserLimits);
+  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength);
+  itsInnerBPLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
 
   // zero field in the marker volume
-  sb->itsMarkerLogicalVolume->
+  itsMarkerLogicalVolume->
     SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
-  
+
+}
+
+void mySectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum)
+{
+  // radius of curvature
+  G4double rho = itsLength/fabs(itsAngle);
+
+  // compute sagitta (???)
+  // G4double sagitta=0.;
+  // if(itsNSegments>0)
+  //   {
+  //     sagitta=(itsLength/itsAngle*(1.-cos(itsAngle/2.)))/itsNSegments;
+  //   }
+
+  G4Material* material;
+  if(itsMaterial != "") material = theMaterials->GetMaterial(itsMaterial);
+  else material = theMaterials->GetMaterial("Iron");
+
+  if(OuterMaterialIsVacuum)
+    {
+    itsOuterLogicalVolume=
+      new G4LogicalVolume(new G4Torus(itsName+"_solid",
+				      itsInnerIronRadius, // inner R
+				      itsOuterR,          // outer R
+				      rho,                // swept R
+				      0,                  // starting phi
+				      fabs(itsAngle) ),   // delta phi
+                          theMaterials->GetMaterial("Vacuum"),
+                          itsName+"_outer");
+    }
+
+  if(!OuterMaterialIsVacuum)
+    {
+    itsOuterLogicalVolume=
+      new G4LogicalVolume(new G4Torus(itsName+"_solid",
+				      itsInnerIronRadius, // inner R
+				      itsOuterR,          // outer R
+				      rho,                // swept R
+				      0,                  // starting phi
+				      fabs(itsAngle) ),   // delta phi
+			  material,
+                          itsName+"_outer");
+    }
+
+  G4VPhysicalVolume* itsPhysiComp =
+    new G4PVPlacement(
+                      0,                        // no rotation
+                      0,                        // no translation
+                      itsOuterLogicalVolume,    // its logical volume
+                      itsName+"_solid",         // its name
+                      itsMarkerLogicalVolume,   // its mother  volume
+                      false,                    // no boolean operation
+                      0);                       // copy number
+
+  itsOuterUserLimits =
+    new G4UserLimits("multipole cut",itsLength,DBL_MAX,DBL_MAX,
+                     BDSGlobals->GetThresholdCutCharged());
+  //  itsOuterUserLimits->SetMaxAllowedStep(aLength);
+  itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
+
 }
 
 mySectorBend::~mySectorBend()
 {
-  
   delete itsVisAttributes;
   delete itsMarkerLogicalVolume;
   delete itsOuterLogicalVolume;

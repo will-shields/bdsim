@@ -103,17 +103,13 @@ void BDSHelixStepper::AdvanceHelix( const G4double  yIn[],
 
 
   G4ThreeVector GlobalTangent;
-
   GlobalPosition=itsFinalPoint;
   GlobalTangent=itsFinalDir;
-
-
   GlobalTangent*=InitMag;
 
-
-  yHelix[0]   = GlobalPosition.x(); 
-  yHelix[1]   = GlobalPosition.y(); 
-  yHelix[2]   = GlobalPosition.z(); 
+  yHelix[0] = GlobalPosition.x(); 
+  yHelix[1] = GlobalPosition.y(); 
+  yHelix[2] = GlobalPosition.z(); 
 				
   yHelix[3] = GlobalTangent.x();
   yHelix[4] = GlobalTangent.y();
@@ -129,8 +125,7 @@ void BDSHelixStepper::Stepper( const G4double yInput[],
 {  
   const G4int nvar = 6 ;
 
-  G4int i;
-  for(i=0;i<nvar;i++) yErr[i]=0;
+  for(G4int i=0;i<nvar;i++) yErr[i]=0;
   AdvanceHelix(yInput,hstep,yOut);
   return ;
 }
@@ -138,7 +133,7 @@ void BDSHelixStepper::Stepper( const G4double yInput[],
 G4double BDSHelixStepper::DistChord()   const 
 {
 
-return itsDist;
+  return itsDist;
   // This is a class method that gives distance of Mid 
   //  from the Chord between the Initial and Final points.
 }

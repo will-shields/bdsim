@@ -28,17 +28,19 @@ void BDSGeometryInterface::Optics()
 
   optics.open(itsFileName);
 
-  optics << setw(10) << "Name" 
+  optics << setw(10) << "Type" 
+         << setw(10) << "Name" 
 	 << setw(10) << "Length[m]" 
 	 << setw(10) << "S [m]" 
-	 << setw(10) << "K0" 
-	 << setw(10) << "K1" 
-	 << setw(10) << "K2" 
-	 << setw(10) << "K3"
+	 << setw(10) << "Angle[rad]" 
+	 << setw(10) << "K1 [m^-2]" 
+	 << setw(10) << "K2 [m^-3]" 
+	 << setw(10) << "K3 [m^-4]"
 	 << setw(10) << "TILT"
 	 << setw(10) << "AperX [m]"
 	 << setw(10) << "AperY [m]"
-	 <<" Aper_Type"  << G4endl;
+	 << setw(10) << "Aper_Type"
+	 << G4endl;
 
   list<BDSAcceleratorComponent*>::const_iterator iBeam;
   
@@ -60,7 +62,9 @@ void BDSGeometryInterface::Optics()
       
       optics.precision(8);
       
-      optics << setw(10) << (*iBeam)->GetName() << " "
+      optics << setw(10) 
+	     << (*iBeam)->GetType() << " "
+	     << (*iBeam)->GetName() << " "
 	     << (*iBeam)->GetLength()/m  << " "
 	     << (*iBeam)->GetSPos()/m  << " "
 	     << (*iBeam)->GetAngle()   << " "
@@ -70,7 +74,7 @@ void BDSGeometryInterface::Optics()
 	     << (*iBeam)->GetTilt() << " "
 	     << (*iBeam)->GetAperX()/m   << " "
 	     << (*iBeam)->GetAperY()/m   << " "
-	     << aper_type
+	     << aper_type   << " "
 	     << G4endl;
 	}
       optics.close();
@@ -85,24 +89,29 @@ void BDSGeometryInterface::Survey()
   G4cout << "Generating Survey: " << itsFileName << " ..." << G4endl;
 
   survey.open(itsFileName);
-  survey << setw(10) << "Name" 
-	     << setw(8) << "Length[m]" 
-	     << setw(8) << "X [m]" 
-	     << setw(8) << "Y [m]" 
-	     << setw(8) << "Z [m]" 
-	     << setw(8) << "Phi [rad]" 
-	     << setw(8) << "Theta [rad]" 
-	     << setw(8) << "Psi [rad]" 
-	     << setw(8) << "AperX [m]"
-	     << setw(8) << "AperY [m]"
-	     << setw(8) <<"Aper_Type" 
-	     << setw(8) << "K0" 
-	     << setw(8) << "K1" 
-	     << setw(8) << "K2" 
-	     << setw(8) << "K3" << G4endl;
+  survey << setw(10) << "Type" << " "
+	 << setw(10) << "Name" << " "
+	 << setw(10) << "Length[m]" << " "
+	 << setw(10) << "Arc len[m]" << " "
+	 << setw(10) << "X [m]" << " "
+	 << setw(10) << "Y [m]" << " "
+	 << setw(10) << "Z [m]" << " "
+	 << setw(10) << "Phi [rad]" << " "
+	 << setw(10) << "Theta [rad]"
+	 << setw(10) << "Psi [rad]" << " "
+	 << setw(10) << "AperX [m]" << " "
+	 << setw(10) << "AperY [m]" << " "
+	 << setw(10) << "Aper_Type" << " " 
+	 << setw(10) << "Angle[rad]" << " "
+	 << setw(10) << "K1 [m^-2]" << " " 
+	 << setw(10) << "K2 [m^-3]" << " " 
+	 << setw(10) << "K3 [m^-4]" << " "
+
+	 << G4endl;
   
   list<BDSAcceleratorComponent*>::const_iterator iBeam;
-  
+  G4double length(0.0);
+  G4double arc_length(0.0);
   for(iBeam=theBeamline.begin();iBeam!=theBeamline.end();iBeam++)
     { 
       G4int aper_type; //1 = rect, 2 = circ, 3 = elispe
@@ -138,25 +147,30 @@ void BDSGeometryInterface::Survey()
       survey.setf(ios::fixed, ios::floatfield);
       survey.setf(ios::showpoint);
       
-      survey.precision(8);
+      survey.precision(7);
       
-      survey << setw(10) << (*iBeam)->GetName() << " "
-	     << (*iBeam)->GetLength()/m  << " "
-	     << (*iBeam)->GetPosition().x()/m  << " "
-	     << (*iBeam)->GetPosition().y()/m  << " "
-	     << (*iBeam)->GetPosition().z()/m  << " "
-	     << phi/radian  << " "
-	     << theta/radian  << " "
-	     << psi/radian  << " "
-	     << (*iBeam)->GetAperX()/m   << " "
-	     << (*iBeam)->GetAperY()/m   << " "
-	     << aper_type  << " "
-	     << (*iBeam)->GetAngle()   << " "
-	     << (*iBeam)->GetK1()   << " "
-	     << (*iBeam)->GetK2()   << " "
-	     << (*iBeam)->GetK3()
+      survey << setw(10) << (*iBeam)->GetType() << " "
+	     << setw(10) << (*iBeam)->GetName() << " "
+	     << setw(10) << (*iBeam)->GetLength()/m  << " "
+	     << setw(10) << (*iBeam)->GetArcLength()/m  << " "
+	     << setw(10) << (*iBeam)->GetPosition().x()/m  << " "
+	     << setw(10) << (*iBeam)->GetPosition().y()/m  << " "
+	     << setw(10) << (*iBeam)->GetPosition().z()/m  << " "
+	     << setw(10) << phi/radian  << " "
+	     << setw(10) << theta/radian  << " "
+	     << setw(10) << psi/radian  << " "
+	     << setw(10) << (*iBeam)->GetAperX()/m   << " "
+	     << setw(10) << (*iBeam)->GetAperY()/m   << " "
+	     << setw(10) << aper_type  << " "
+	     << setw(10) << (*iBeam)->GetAngle()   << " "
+	     << setw(10) << (*iBeam)->GetK1()   << " "
+	     << setw(10) << (*iBeam)->GetK2()   << " "
+	     << setw(10) << (*iBeam)->GetK3()   << " "
 	     << G4endl;
+      length+=(*iBeam)->GetLength()/m;
+      arc_length+=(*iBeam)->GetArcLength()/m;
     }
+  survey << "Total length = " << length << "m" << G4endl;
+  survey << "Total arc length = " <<  arc_length << "m" << G4endl;
   survey.close();
-  
 }

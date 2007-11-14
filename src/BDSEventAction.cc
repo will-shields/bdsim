@@ -59,8 +59,8 @@ const int DEBUG = 0;
 //typedef list<BDSAcceleratorComponent*>  BDSBeamline;
 //BDSBeamline theBeamline;
 
-typedef std::vector<G4int> MuonTrackVector;
-MuonTrackVector* theMuonTrackVector;
+//typedef std::vector<G4int> MuonTrackVector;
+//MuonTrackVector* theMuonTrackVector;
 
 typedef std::map<G4String,int> LogVolCountMap;
 extern LogVolCountMap* LogVolCount;
@@ -120,18 +120,20 @@ BDSEventAction::~BDSEventAction()
 
 void BDSEventAction::BeginOfEventAction(const G4Event* evt)
 { 
+  if(DEBUG) G4cout<<"BDSEventAction : processing begin of event action"<<G4endl;
+
   event_number = evt->GetEventID();
   htot=0.;
 
   
-  if(BDSGlobals->GetStoreMuonTrajectories())
-    theMuonTrackVector=new MuonTrackVector();
+  //if(BDSGlobals->GetStoreMuonTrajectories())
+  //  theMuonTrackVector=new MuonTrackVector();
   
   
    if(BDSGlobals->DoTwiss())
     {
       if(event_number==0) {
-	if(!BDSGlobals->GetSynchRescale())G4cout << "\n---> Calculating Twiss Parameters"<<G4endl;
+	if(!BDSGlobals->GetSynchRescale()) G4cout << "\n---> Calculating Twiss Parameters"<<G4endl;
 	if(BDSGlobals->GetSynchRescale()) G4cout<<"\n---> Calculating Twiss Parameters and Rescaling magnets" <<G4endl;
       }
     }
@@ -162,10 +164,10 @@ void BDSEventAction::BeginOfEventAction(const G4Event* evt)
     SamplerCollID_plane = SDman->GetCollectionID("Sampler_plane");
   }
   
-//if( bdsOutput.GetCylinderSamplerNumber() > 0 )
+  //if( bdsOutput.GetCylinderSamplerNumber() > 0 )
   {   
     //if (SamplerCollID_cylin==-1)
-    //SamplerCollID_cylin = SDman->GetCollectionID("Sampler_cylinder");
+    //SamplerCollID_cylin = SDman->GetCollectionID("Sampler_cylinder"); //WHY COMMENTED???
   }
   
   //if( bdsOutput.GetLWCalorimeterNumber() > 0 )
@@ -174,13 +176,17 @@ void BDSEventAction::BeginOfEventAction(const G4Event* evt)
     //LWCalorimeterCollID = SDman->GetCollectionID("LWCalorimeterCollection");
   }
   FireLaserCompton=true;
+
+  if(DEBUG) G4cout<<"BDSEventAction : begin of event action done"<<G4endl;
 }
 
 //======================================================
 
 void BDSEventAction::EndOfEventAction(const G4Event* evt)
 {
-  if(BDSGlobals->GetSynchRescale())
+  if(DEBUG) G4cout<<"BDSEventAction : processing end of event action"<<G4endl;
+
+  if(BDSGlobals->DoTwiss())
     {
       if(event_number==nptwiss-1)
 	{
@@ -189,7 +195,6 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
 	}
     }
 
-  if(DEBUG) G4cout<<"BDSEventAction : end of event action"<<G4endl;
  
   if(verboseEvent || verboseEventNumber == event_number)
     G4cout<<"processing end of event"<<G4endl;
@@ -202,40 +207,48 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
   //BDSLWCalorimeterHitsCollection* LWCalHC=NULL;
   BDSEnergyCounterHitsCollection* BDSEnergyCounter_HC=NULL;
 
-  
-  if(DEBUG) G4cout<<"processing planar hits collection"<<G4endl;
+  if(DEBUG) G4cout<<"BDSEventAction : storing hits"<<G4endl;
+
   // are there any planar samplers?
+  // if so, record the hits for each sampler 
+
+  if(DEBUG) G4cout<<"BDSEventAction : processing planar hits collection"<<G4endl;
 
   if(SamplerCollID_plane>=0)
     SampHC = (BDSSamplerHitsCollection*)(HCE->GetHC(SamplerCollID_plane));
-  
-  // if so, record the hits for each sampler 
 
   if(SampHC)  bdsOutput.WriteHits(SampHC);
 	
-  // are there any cylindrical samplers?
-  // if so, record the hits
 
   SampHC=NULL;
 
-  if(DEBUG) G4cout<<"processing cylinder hits collection"<<G4endl;
+  // are there any cylindrical samplers?
+  // if so, record the hits
+
+  if(DEBUG) G4cout<<"BDSEventAction : processing cylinder hits collection"<<G4endl;
 
   if(SamplerCollID_cylin>=0)
     SampHC = (BDSSamplerHitsCollection*)(HCE->GetHC(SamplerCollID_cylin));
 
-
   if (SampHC) bdsOutput.WriteHits(SampHC);
-  
+
+
 
   // are there any Laser wire calorimeters?
   // TODO : check it !!! at present not writing LW stuff
   // remember to uncomment LWCalHC above if using this
 
-//   if(LWCalorimeterCollID>=0) 
-//     LWCalHC=(BDSLWCalorimeterHitsCollection*)(HCE->GetHC(LWCalorimeterCollID));
+  // if(DEBUG) G4cout<<"BDSEventAction : processing laserwire calorimeter hits collection"<<G4endl;
+
+  // if(LWCalorimeterCollID>=0) 
+  //   LWCalHC=(BDSLWCalorimeterHitsCollection*)(HCE->GetHC(LWCalorimeterCollID));
+
+  // if (LWCalHC) bdsOutput.WriteHits(SampHC);
 
 
   // create energy loss histogram
+
+  if(DEBUG) G4cout<<"BDSEventAction : storing energy loss histograms"<<G4endl;
   
   for(iEC=theECList->begin();iEC!=theECList->end();iEC++)
     {
@@ -254,7 +267,7 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
     }
 
 
-  // f 0 events per ntuples - set max allowed events per ntuples  
+  // if 0 events per ntuples - set max allowed events per ntuples  
 
   int evntsPerNtuple = BDSGlobals->GetNumberOfEventsPerNtuple();
 
@@ -270,40 +283,40 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
       }
 
 
-  // Save interesting trajectories:
+
+  // Save interesting trajectories
+
+  if(DEBUG) G4cout<<"BDSEventAction : storing trajectories"<<G4endl;
+
   G4TrajectoryContainer* TrajCont=evt->GetTrajectoryContainer();
 
-
   if(!TrajCont) return;
-
   
   TrajectoryVector* TrajVec=TrajCont->GetVector();
+  bdsOutput.WriteTrajectory(TrajVec);
 
-
-  if(BDSGlobals->GetStoreTrajectory()&& TrajVec) // store trajectories of primaries
+  //the logic for controlling which trajectories are stored is already
+  //implemented in BDSUserTrackingAction.cc
+  /*
+  if(BDSGlobals->GetStoreTrajectory()&& TrajVec)
     {
+      if(DEBUG) G4cout<<"PROCESSING MUON TRAJECTORY VECTOR"<<G4endl;
       bdsOutput.WriteTrajectory(TrajVec);
     }
 
 
   if(BDSGlobals->GetStoreMuonTrajectories()&& TrajVec)
     {
-
       if(DEBUG) G4cout<<"PROCESSING MUON TRAJECTORY VECTOR"<<G4endl;
-
       bdsOutput.WriteTrajectory(TrajVec);
-   
     }
 
   if(BDSGlobals->GetStoreNeutronTrajectories()&& TrajVec)
     {
-      
       if(DEBUG) G4cout<<"PROCESSING NEUTRON TRAJECTORY VECTOR"<<G4endl;
-      
       bdsOutput.WriteTrajectory(TrajVec);
-      
     }
-  
+  */
 
   // needed to draw trajectories and hits:
   if(!isBatch) evt->Draw();
@@ -321,7 +334,7 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
 	}
     }
   
-  if(DEBUG) G4cout<<"End of event ended"<<G4endl;
+  if(DEBUG) G4cout<<"BDSEventAction : end of event action done"<<G4endl;
 }
 
 //======================================================

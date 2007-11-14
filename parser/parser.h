@@ -122,6 +122,7 @@ void flush(struct Element& e )
 {
   e.l = 0;
   e.B = 0;
+  e.ks = 0;
   e.k0 = 0;
   e.k1 = 0;
   e.k2 = 0;
@@ -191,10 +192,11 @@ void copy_properties(std::list<struct Element>::iterator dest, std::list<struct 
   (*dest).outR = (*src).outR; 
   (*dest).tilt = (*src).tilt; 
   (*dest).B = (*src).B; 
-  (*dest).k0 = (*src).k0; 
-  (*dest).k1 = (*src).k1;  
-  (*dest).k2 = (*src).k2; 
-  (*dest).k3 = (*src).k3; 
+  (*dest).ks = (*src).ks;
+  (*dest).k0 = (*src).k0;
+  (*dest).k1 = (*src).k1;
+  (*dest).k2 = (*src).k2;
+  (*dest).k3 = (*src).k3;
   (*dest).knl = (*src).knl;
   (*dest).ksl = (*src).ksl;
   (*dest).hgap = (*src).hgap;
@@ -230,6 +232,7 @@ void inherit_properties(struct Element e)
   
   if(!params.lset) { params.l = e.l; params.lset = 1; }
   if(!params.Bset) { params.B = e.B; params.Bset = 1; }
+  if(!params.ksset) { params.ks = e.ks; params.ksset = 1; }
   if(!params.k0set) { params.k0 = e.k0; params.k0set = 1; }
   if(!params.k1set) { params.k1 = e.k1; params.k1set = 1; }
   if(!params.k2set) { params.k2 = e.k2; params.k2set = 1; }
@@ -365,9 +368,11 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
   
   //specific parameters
   switch(type) {
+
   case _MARKER :
     e.type= _MARKER;
     break;
+
   case _DRIFT:
     e.type = _DRIFT;
     e.l = params.l;
@@ -416,12 +421,8 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     break;
 
   case _QUAD:
-
-    e.type = _QUAD;
-      
-    if(params.lset) {
-      e.l = params.l;
-    }
+    e.type = _QUAD;      
+    e.l = params.l;
     if(params.k0set) {
       if(VERBOSE)
 	printf("Warning: k0 will not be set for element %s of type QUADRUPOLE\n",name);
@@ -440,18 +441,12 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     if(params.tiltset) {
       e.tilt = params.tilt;
     }
-
     e.spec = std::string(params.spec); 
-    
     break;
 
   case _SEXTUPOLE:
-
     e.type = _SEXTUPOLE;
-      
-    if(params.lset) {
-      e.l = params.l;
-    }
+    e.l = params.l;
     if(params.k0set) {
       if(VERBOSE)
 	printf("Warning: k0 will not be set for element %s of type SEXTUPOLE\n",name);
@@ -467,16 +462,11 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
       if(VERBOSE)
 	printf("Warning: k3 will not be set for element %s of type SEXTUPOLE\n",name);
     }
-    
     break;
-  case _OCTUPOLE:
 
+  case _OCTUPOLE:
     e.type = _OCTUPOLE;
-    
-    if(params.lset) {
-      e.l = params.l;
-    }
-    
+    e.l = params.l;
     if(params.k0set) {
       if(VERBOSE)
 	printf("Warning: k0 will not be set for element %s of type OCTUPOLE\n",name);
@@ -492,23 +482,15 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     if(params.k3set) {
       e.k3 = params.k3;
     }
-    
-      
     break;
 
   case _MULT:
-    
     e.type = _MULT;
-    
+    e.l = params.l;
     if(params.knlset)
       e.knl = params.knl;
-
     if(params.kslset)
       e.ksl = params.ksl;
-
-    if(params.lset) {
-      e.l = params.l;
-    }
     if(params.k0set) {
       if(VERBOSE)
 	printf("Warning: k0 will not be set for element %s of type MULTIPOLE\n",name);
@@ -525,7 +507,13 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
       if(VERBOSE)
 	printf("Warning: k3 will not be set for element %s of type MULTIPOLE\n",name);
     }
-    
+    break;
+
+  case _SOLENOID:
+    e.type = _SOLENOID;
+    e.l = params.l;
+    e.ks = params.ks;
+    e.B = params.B;
     break;
 
   case _ECOL:
@@ -533,6 +521,7 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     e.l = params.l;
     e.material = std::string(params.material);
     break;
+
   case _RCOL:
     e.type = _RCOL;
     e.l = params.l;
@@ -552,18 +541,15 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     e.type = _ELEMENT;
     e.l = params.l;
     e.geometryFile = std::string(params.geometry);
-    //strcpy(e.geometryFile,params.geometry);
     e.bmapFile = std::string(params.bmap);
     break;
 
   case _LINE:
-   
     e.lst = lst;
     e.type = _LINE;
     break;
 
   case _REV_LINE:
-
     e.lst = lst;
     e.type = _REV_LINE;
     break;
@@ -687,13 +673,13 @@ int expand_line(char *name, char *start, char* end)
 		  is_expanded = false;
 		  // lookup the line in main list
 		  std::list<struct Element>::iterator tmpit = element_lookup((*it).name);
-		  
+
 		  if( (tmpit != iterNULL) && ( (*tmpit).lst != NULL) ) { // sublist found and not empty
 		    
 		    if(DEBUG)
 		      printf("inserting sequence for %s - %s ...",(*it).name,(*tmpit).name);
 		    if((*it).type == _LINE)
-		    beamline_list.insert(it,(*tmpit).lst->begin(),(*tmpit).lst->end());
+		      beamline_list.insert(it,(*tmpit).lst->begin(),(*tmpit).lst->end());
 		    else if((*it).type == _REV_LINE){
 		      //iterate over list and invert any sublines contained within. SPM
 		      std::list<struct Element> tmpList;
@@ -748,7 +734,7 @@ int expand_line(char *name, char *start, char* end)
       // rule - from first occurence of 'start' till first 'end' coming after 'start'
 
 
-      if( (start!=NULL)) // determine  the start element
+      if( (start!=NULL)) // determine the start element
 	{
 	  sit = element_lookup(start,beamline_list);
 	  
@@ -763,7 +749,7 @@ int expand_line(char *name, char *start, char* end)
 
 	}
 
-      if( (end!=NULL)) // determine  the end element
+      if( (end!=NULL)) // determine the end element
 	{
 	  eit = element_lookup(end,beamline_list);
 	  
@@ -965,8 +951,12 @@ void print(std::list<struct Element> l, int ident)
 	printf(", l=%.10g, k0=%.10g, k1=%.10g, k2=%.10g, k3=%.10g, angle=%.10g,tilt=%.10g ",
 	       (*it).l,(*it).k0,(*it).k1,(*it).k2,(*it).k3,(*it).angle,(*it).tilt);
 	break;
-      case _MULT:
 
+      case _SOLENOID:
+	printf(", l=%.10g, ks=%.10g ", (*it).l, (*it).ks);
+	break;
+
+      case _MULT:
 	printf(" , knl={");
 	for(it2=(*it).knl.begin();it2!=(*it).knl.end();it2++)
 	  printf("%.10g, ",(*it2));
@@ -1026,30 +1016,34 @@ void set_value(std::string name, double value )
   //
   // numeric options for the "beam" command
   //
-
   if(name == "energy" ) options.beamEnergy = value;
-  if(name == "nparticles" ) options.numberOfParticles = (int)value; //never used
+  if(name == "nparticles" ) options.numberOfParticles = (int)value; //not used
+  if(name == "X0" ) options.X0 = value;
+  if(name == "Y0" ) options.Y0 = value;
+  if(name == "Z0" ) options.Z0 = value;
+  if(name == "T0" ) options.T0 = value;
+  if(name == "Xp0" ) options.Xp0 = value;
+  if(name == "Yp0" ) options.Yp0 = value;
+  if(name == "Zp0" ) options.Zp0 = value;
+
+  if(name == "sigmaT" ) options.sigmaT = value;
+  if(name == "sigmaE" ) options.sigmaE = value;
 
   // options for beam distrType="gauss"
   if(name == "sigmaX" ) options.sigmaX = value;
   if(name == "sigmaY" ) options.sigmaY = value;
   if(name == "sigmaXp" ) options.sigmaXp = value;
   if(name == "sigmaYp" ) options.sigmaYp = value;
-  if(name == "sigmaT" ) options.sigmaT = value;
-  if(name == "sigmaE" ) options.sigmaE = value;
 
   // options for beam distrType="eshell"
-  if(name == "x" ) options.x = value;
-  if(name == "y" ) options.y = value;
-  if(name == "xp" ) options.xp = value;
-  if(name == "yp" ) options.yp = value;
+  if(name == "shellX" ) options.shellX = value;
+  if(name == "shellY" ) options.shellY = value;
+  if(name == "shellXp" ) options.shellXp = value;
+  if(name == "shellYp" ) options.shellYp = value;
 
   // options for beam distrType="ring"
-  if(name == "X0" ) options.X0 = value;
-  if(name == "Y0" ) options.X0 = value;
   if(name == "Rmin" ) options.Rmin = value;
   if(name == "Rmax" ) options.Rmax = value;
-
 
   //
   // numeric options for the"option" command
@@ -1154,6 +1148,7 @@ double property_lookup(char *element_name, char *property_name)
    
    if(!strcmp(property_name,"l")) return (*it).l;
    if(!strcmp(property_name,"B")) return (*it).B;
+   if(!strcmp(property_name,"ks")) return (*it).ks;
    if(!strcmp(property_name,"k0")) return (*it).k0;
    if(!strcmp(property_name,"k1")) return (*it).k1;
    if(!strcmp(property_name,"k2")) return (*it).k2;

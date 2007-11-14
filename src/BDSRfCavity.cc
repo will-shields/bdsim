@@ -30,43 +30,45 @@ extern BDSMaterials* theMaterials;
 
 BDSRfCavity::BDSRfCavity (G4String aName,G4double aLength, G4double bpRad, 
 			  G4double grad, G4String aMaterial):
-  BDSMultipole(aName,aLength, bpRad, bpRad, SetVisAttributes(), aMaterial)
+  BDSMultipole(aName ,aLength, bpRad, bpRad, SetVisAttributes(), aMaterial)
 {
-
   itsGrad = grad;
-  
+  itsType = "rfcavity";
+
   if (!(*LogVolCount)[itsName])
     {
-      itsBPFieldMgr=NULL;
+      //
+      // build external volume
+      // 
       BuildDefaultMarkerLogicalVolume();
 
+      //
+      // build beampipe (geometry + magnetic field)
+      //
+      itsBPFieldMgr=NULL;
       BuildBeampipe(itsLength);
 
+      //
+      // build cavity (geometry + electric field)
+      //
       BuildDefaultOuterLogicalVolume(itsLength);
 
-      // doesn't have an outer volume - but include it for laserwire
-      //      BuildDefaultOuterLogicalVolume(itsLength);
+      //
+      // define sensitive volumes for hit generation
+      //
       SetSensitiveVolume(itsBeampipeLogicalVolume);// for laserwire
       //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
 
+      //
+      // set visualization attributes
+      //
+      itsVisAttributes=SetVisAttributes();
+      itsVisAttributes->SetForceSolid(true);
+      itsOuterLogicalVolume->SetVisAttributes(itsVisAttributes);
 
-
-      G4VisAttributes* VisAtt = 
-	new G4VisAttributes(G4Colour(0., 0., 0));
-      VisAtt->SetForceSolid(true);
-      itsInnerBPLogicalVolume->SetVisAttributes(VisAtt);
-      
-      G4VisAttributes* VisAtt1 = 
-	new G4VisAttributes(G4Colour(0.4, 0.4, 0.4));
-      VisAtt1->SetForceSolid(true);
-      itsBeampipeLogicalVolume->SetVisAttributes(VisAtt1);
-      
-      G4VisAttributes* VisAtt2 = 
-	new G4VisAttributes(G4Colour(1.0, 0., 1.0));
-      VisAtt2->SetForceSolid(true);
-      itsOuterLogicalVolume->SetVisAttributes(VisAtt2);
-
- 
+      //
+      // append marker logical volume to volume map
+      //
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
       BuildMarkerFieldAndStepper();
@@ -76,7 +78,6 @@ BDSRfCavity::BDSRfCavity (G4String aName,G4double aLength, G4double bpRad,
       (*LogVolCount)[itsName]++;
       itsMarkerLogicalVolume=(*LogVol)[itsName];
     }
-  
 }
 
 

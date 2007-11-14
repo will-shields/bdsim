@@ -18,9 +18,6 @@ Last modified 17.04.2006 by Ilya Agapov
 #include "G4UserLimits.hh"
 #include "G4TransportationManager.hh"
 
-#include "G4EqMagElectricField.hh"
-#include "BDSRK4Stepper.hh"
-
 #include <map>
 
 const int DEBUG = 0;
@@ -42,8 +39,8 @@ BDSTMultipole::BDSTMultipole(G4String aName,G4double aLength,
 			     G4String aMaterial):
   BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes(),aMaterial)
 {
-
   SetOuterRadius(outR);
+  itsType="multipole";
 
   G4cout<<"Building Multipole of order "<<knl.size()<<G4endl;
 
@@ -67,44 +64,50 @@ BDSTMultipole::BDSTMultipole(G4String aName,G4double aLength,
   
   if (!(*LogVolCount)[itsName])
     {
-      //BuildBPFieldAndStepper();
-      //BuildBPFieldMgr();
+      //
+      // build external volume
+      //
       BuildDefaultMarkerLogicalVolume();
-      
+
+      //
+      // build beampipe (geometry + magnetic field)
+      //
+      BuildBPFieldAndStepper();
+      BuildBPFieldMgr(itsStepper,itsMagField);
       BuildBeampipe(itsLength);
+
+      //
+      // build magnet (geometry + magnetic field)
+      //
       BuildDefaultOuterLogicalVolume(itsLength);
 
-      BuildBPFieldAndStepper();
-      
-      G4VisAttributes* VisAtt =
-        new G4VisAttributes(G4Colour(0., 0., 0.));
-      VisAtt->SetForceSolid(true);
-      itsInnerBPLogicalVolume->SetVisAttributes(VisAtt);
-
-      G4VisAttributes* VisAtt1 =
-        new G4VisAttributes(G4Colour(0.4, 0.4, 0.4));
-      VisAtt1->SetForceSolid(true);
-      itsBeampipeLogicalVolume->SetVisAttributes(VisAtt1);
-
-      G4VisAttributes* VisAtt2 =
-        new G4VisAttributes(G4Colour(0.1, 0.5, 0.9));
-      VisAtt2->SetForceSolid(true);
-      itsOuterLogicalVolume->SetVisAttributes(VisAtt2);
-
+      //
+      // define sensitive volumes for hit generation
+      //
       SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
       SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
 
+      //
+      // set visualization attributes
+      //
+      itsVisAttributes=SetVisAttributes();
+      itsVisAttributes->SetForceSolid(true);
+      itsOuterLogicalVolume->SetVisAttributes(itsVisAttributes);
+
+      //
+      // append marker logical volume to volume map
+      //
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
     }
   else
     {
       (*LogVolCount)[itsName]++;
+      //
+      // use already defined marker volume
+      //
       itsMarkerLogicalVolume=(*LogVol)[itsName];
     }      
-  
-
-  
 }
   
 G4VisAttributes* BDSTMultipole::SetVisAttributes()
@@ -113,56 +116,14 @@ G4VisAttributes* BDSTMultipole::SetVisAttributes()
   return itsVisAttributes;
 }
 
-
 void BDSTMultipole::BuildBPFieldAndStepper()
 {
-  if(DEBUG) G4cout<<"Building Multipole Field and stepper"<<G4endl;
-
-  //G4int nvar = 6;
-
-  itsMagField = new BDSMultipoleMagField(bnl,bsl);
-
-   
-  //G4MagneticField* fEquation = new BDSMultipoleMagMagnetiField(itsMagField);
+  // set up the magnetic field and stepper
+  itsMagField=new BDSMultipoleMagField(bnl,bsl);
+  itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);
   
-  G4EqMagElectricField* fEquation = new G4EqMagElectricField(itsMagField);
-
-  BDSRK4Stepper * fStepper = new BDSRK4Stepper( fEquation );
-
-
-  fStepper->SetVolLength(itsLength);
-
-  // create a field manager
-  G4FieldManager* fieldManager = new G4FieldManager();
-  fieldManager->SetDetectorField(itsMagField );
-
-
-  G4double fMinStep  = BDSGlobals->GetChordStepMinimum(); 
-  
-  G4MagInt_Driver* fIntgrDriver = new G4MagInt_Driver(fMinStep, 
-						      fStepper, 
-						      fStepper->GetNumberOfVariables() );
-  
-  G4ChordFinder* fChordFinder = new G4ChordFinder(fIntgrDriver);
-
-  fChordFinder->SetDeltaChord(BDSGlobals->GetDeltaChord());
-
-  fieldManager->SetChordFinder( fChordFinder ); 
-
-  G4bool forceToAllDaughters=true;
-
-  itsInnerBPLogicalVolume->SetFieldManager(fieldManager,forceToAllDaughters);
-  
-  G4UserLimits* fUserLimits =
-    new G4UserLimits("element cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
-  
-  fUserLimits->SetMaxAllowedStep(1e-2 * m);
-  
-  itsMarkerLogicalVolume->SetUserLimits(fUserLimits);
-
-
-  
+  itsStepper=new BDSRK4Stepper(itsEqRhs);
+  itsStepper->SetVolLength(itsLength);
 }
 
 BDSTMultipole::~BDSTMultipole()
@@ -171,5 +132,7 @@ BDSTMultipole::~BDSTMultipole()
   delete itsMarkerLogicalVolume;
   delete itsOuterLogicalVolume;
   delete itsPhysiComp;
-
+  delete itsMagField;
+  delete itsEqRhs;
+  delete itsStepper;
 }

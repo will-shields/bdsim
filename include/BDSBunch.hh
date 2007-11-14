@@ -88,6 +88,16 @@ public:
   std::ifstream fifoReader;
 
 private:
+  // distribution centre
+  G4double X0;
+  G4double Y0;
+  G4double Z0;
+  G4double T0;
+
+  G4double Xp0;
+  G4double Yp0;
+  G4double Zp0;
+
   // parameters for Gaussian distribution
   G4double sigmaX; // sigmas for Gaussian bunches (m)
   G4double sigmaY;
@@ -95,16 +105,11 @@ private:
   G4double sigmaXp;
   G4double sigmaYp;
   
-  // distribution centre
-  G4double X0;
-  G4double Y0;
+  // parameters for ring distribution
   G4double rMin;
   G4double rMax;
-  G4double Xp0;
-  G4double Yp0;
 
-  // distribution parameters for the shell
-
+  // parameters for the elliptic shell distribution
   G4double shellx, shelly, shellxp, shellyp;
   
   G4double betaX;

@@ -24,20 +24,21 @@
 
 class BDSDecapole :public BDSMultipole
 {
-  public:
-  BDSDecapole(G4String& aName, G4double aLength,
-	      G4double bpRad,G4double FeRad,
-	      G4double BQuadPrime, G4String aMaterial = "");
-    ~BDSDecapole();
+public:
+  BDSDecapole(G4String aName, G4double aLength,
+	      G4double bpRad, G4double FeRad,
+	      G4double BQuadPrime, G4double tilt, G4double outR,
+	      G4String aMaterial = "");
+  ~BDSDecapole();
 
-  protected:
+  void SynchRescale(G4double factor);
 
-  private:
+protected:
+
+private:
   G4double itsBQuadPrime;
 
-  //  void BuildOuterLogicalVolume();
   void BuildBPFieldAndStepper();
-  //void BuildMarkerLogicalVolume();
 
   G4VisAttributes* SetVisAttributes();
 
