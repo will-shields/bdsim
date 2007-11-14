@@ -265,7 +265,8 @@ void mySectorBend::BuildSBBeampipe()
   // 3) position the logical volumes inside the mother volume (the marker)
   //
 
-  G4VPhysicalVolume* PhysiInner = 
+  G4VPhysicalVolume* PhysiInner;
+  PhysiInner = 
     new G4PVPlacement(
 		      0,		       // no rotation
 		      0,                       // no translation
@@ -275,7 +276,8 @@ void mySectorBend::BuildSBBeampipe()
 		      false,		       // no boolean operation
 		      0);		       // copy number
 
-  G4VPhysicalVolume* PhysiComp = 
+  G4VPhysicalVolume* PhysiComp;
+  PhysiComp = 
     new G4PVPlacement(
 		      0,		       // no rotation
 		      0,                       // no translation
@@ -353,7 +355,8 @@ void mySectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum)
                           itsName+"_outer");
     }
 
-  G4VPhysicalVolume* itsPhysiComp =
+  G4VPhysicalVolume* itsPhysiComp;
+  itsPhysiComp =
     new G4PVPlacement(
                       0,                        // no rotation
                       0,                        // no translation

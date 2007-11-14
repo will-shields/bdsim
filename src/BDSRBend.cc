@@ -320,7 +320,8 @@ void BDSRBend::BuildRBBeampipe()
 			theMaterials->GetMaterial("Vacuum"),
 			itsName+"_bmp_Inner_log");
 
-  G4VPhysicalVolume* PhysiInner = 
+  G4VPhysicalVolume* PhysiInner;
+  PhysiInner = 
     new G4PVPlacement(
 		      RotY90,		       // rotation
 		      0,	               // at (0,0,0)
@@ -330,7 +331,8 @@ void BDSRBend::BuildRBBeampipe()
 		      false,		       // no booleanm operation
 		      0);		       // copy number
   
-  G4VPhysicalVolume* PhysiComp =
+  G4VPhysicalVolume* PhysiComp;
+  PhysiComp =
     new G4PVPlacement(
 		      RotY90,		        // rotation
 		      0,	                // at (0,0,0)
