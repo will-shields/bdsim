@@ -218,7 +218,7 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
 // write a trajectory to a root/ascii file
 G4int BDSOutput::WriteTrajectory(TrajectoryVector* TrajVec)
 {
-  G4cout<<"a trajectory stored..."<<G4endl;
+//  G4cout<<"a trajectory stored..."<<G4endl;
   
   G4int tID;
   G4TrajectoryPoint* TrajPoint;

@@ -195,7 +195,7 @@ void BDSRBend::SynchRescale(G4double factor)
 
 G4VisAttributes* BDSRBend::SetVisAttributes()
 {
-  itsVisAttributes = new G4VisAttributes(G4Colour(1,0,0)); //red
+  itsVisAttributes = new G4VisAttributes(G4Colour(0,0,1)); //blue
   return itsVisAttributes;
 }
 

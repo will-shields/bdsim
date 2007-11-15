@@ -36,10 +36,7 @@ BDSSectorBend::BDSSectorBend(G4String aName, G4double aLength,
   BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), aMaterial,
 	       0, 0, angle)
 {
-  if (outR==0) 
-    SetOuterRadius(BDSGlobals->GetComponentBoxSize()/2);
-  else
-    SetOuterRadius(outR);
+  SetOuterRadius(outR);
   itsTilt=tilt;
   itsBField=bField;
   itsBGrad=bGrad;
@@ -198,7 +195,7 @@ void BDSSectorBend::SynchRescale(G4double factor)
 
 G4VisAttributes* BDSSectorBend::SetVisAttributes()
 {
-  itsVisAttributes = new G4VisAttributes(G4Colour(1,0,0)); //red
+  itsVisAttributes = new G4VisAttributes(G4Colour(0,0,1)); //blue
   return itsVisAttributes;
 }
 

@@ -481,7 +481,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	// Brho is already in G4 units, but k1 is not -> multiply k1 by m^-2
 	bPrime = - brho * ((*it).k1 / (m*m)) * synch_factor;
 
-	if( fabs((*it).angle) < 1.e-7 * rad ) {
+	if( fabs((*it).angle) < 1.e-7 * rad) {
+	  if(DEBUG)
 	  G4cerr << "---->NOT adding Sbend,"
 		 << " name= " << (*it).name
 		 << ", TOO SMALL ANGLE"
@@ -513,6 +514,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	  // REPLACE WITH BDSRBend FOR THE MOMENT (UNTIL TOROIDAL GEOMETRY IS
 	  // IMPLEMENTED!
 	  length *= sin((*it).angle/2.0) / ((*it).angle/2.0);
+
 	  theBeamline.push_back(new BDSRBend( (*it).name,
 						   length,
 						   aper,
@@ -523,7 +525,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						   (*it).tilt,
 						   bPrime,
 						   (*it).material ) );
-	  /*
+/*	  
 	  theBeamline.push_back(new BDSSectorBend( (*it).name,
 						   length,
 						   aper,
@@ -534,7 +536,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						   (*it).tilt,
 						   bPrime,
 						   (*it).material ) );
-	  */
+*/	  
 	}
       
 	added_comp=true;
@@ -589,8 +591,9 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	// Brho is already in G4 units, but k1 is not -> multiply k1 by m^-2
 	bPrime = - brho * ((*it).k1 / (m*m)) * synch_factor;
 
-        if( fabs((*it).angle) < 1.e-7 * rad ) {
-	  G4cerr << "---->NOT adding Rbend,"
+        if( fabs((*it).angle) < 1.e-7 * rad) {
+	  if(DEBUG)
+	    G4cerr << "---->NOT adding Rbend,"
 		 << " name= " << (*it).name
 		 << ", TOO SMALL ANGLE"
 		 << " angle= " << (*it).angle << "rad"
@@ -598,7 +601,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 		 << " l= " << length/m << "m"
 		 << " aper= " << aper/m << "m"
 		 << G4endl;
-
+	  
           theBeamline.push_back(new BDSDrift( (*it).name,
 					      length,
 					      aper ) );
