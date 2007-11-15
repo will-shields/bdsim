@@ -160,10 +160,12 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
         G4ThreeVector LocalPosition=tf.TransformPoint(pos);
         G4ThreeVector LocalDirection=tf.TransformAxis(momDir);
 
-	G4cout << "Stacking: Pos = " << pos << G4endl;
-	G4cout << "LocalPos: Pos = " << LocalPosition << G4endl;
-	G4cout << "Stacking: mom = " << momDir << G4endl;
-	G4cout << "LocalDir: mom = " << LocalDirection << G4endl;
+	if(DEBUG){
+	  G4cout << "Stacking: Pos = " << pos << G4endl;
+	  G4cout << "LocalPos: Pos = " << LocalPosition << G4endl;
+	  G4cout << "Stacking: mom = " << momDir << G4endl;
+	  G4cout << "LocalDir: mom = " << LocalDirection << G4endl;
+	}
 
         G4double x=LocalPosition.x()/micrometer;
         G4double y=LocalPosition.y()/micrometer;

@@ -144,12 +144,13 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 
 	  t = -z/c_light;
 	  LocalPosition += LocalDirection.unit()*1e-4*micrometer; // temp fix for recirculation in dump volume
-	  	  
-          G4cout << "Stacking: Pos = " << pos << G4endl;
-          G4cout << "LocalPos: Pos = " << LocalPosition << G4endl;
-          G4cout << "Stacking: mom = " << momDir << G4endl;
-          G4cout << "LocalDir: mom = " << LocalDirection << G4endl;
 
+	  if(DEBUG){	  	  
+            G4cout << "Stacking: Pos = " << pos << G4endl;
+            G4cout << "LocalPos: Pos = " << LocalPosition << G4endl;
+            G4cout << "Stacking: mom = " << momDir << G4endl;
+            G4cout << "LocalDir: mom = " << LocalDirection << G4endl;
+	  }
 	  tmpParticle holdingParticle;
 	  holdingParticle.E = E*GeV - BDSGlobals->GetParticleDefinition()->GetPDGMass();
 	  holdingParticle.t = t;
