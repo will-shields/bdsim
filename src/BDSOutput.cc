@@ -90,7 +90,7 @@ void BDSOutput::Init(G4int FileNum)
       SamplerTree->Branch("zp",&zp,"zp (rad)/F");
       SamplerTree->Branch("t",&t,"t (ns)/F");
 
-      SamplerTree->Branch("X",&X,"X (m)/F");
+      SamplerTree->Branch("X",&X,"X (mum)/F");
       SamplerTree->Branch("Y",&Y,"Y (mum)/F");
       SamplerTree->Branch("Z",&Z,"Z (m)/F");
       SamplerTree->Branch("Xp",&Xp,"Xp (rad)/F");
@@ -100,7 +100,7 @@ void BDSOutput::Init(G4int FileNum)
       SamplerTree->Branch("s",&s,"s (m)/F");
 
       SamplerTree->Branch("weight",&weight,"weight/F");
-      SamplerTree->Branch("lundID",&part,"lundID/I");
+      SamplerTree->Branch("partID",&part,"partID/I");
       SamplerTree->Branch("nEvent",&nev,"nEvent/I");
       SamplerTree->Branch("parentID",&pID,"parentID/I");
       SamplerTree->Branch("trackID",&track_id,"trackID/I");

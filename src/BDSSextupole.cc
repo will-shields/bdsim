@@ -193,7 +193,7 @@ void BDSSextupole::SynchRescale(G4double factor)
 
 G4VisAttributes* BDSSextupole::SetVisAttributes()
 {
-  itsVisAttributes=new G4VisAttributes(G4Colour(1,0,1)); //purple
+  itsVisAttributes=new G4VisAttributes(G4Colour(1,1,0));
   return itsVisAttributes;
 }
 

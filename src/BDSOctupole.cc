@@ -193,7 +193,7 @@ void BDSOctupole::SynchRescale(G4double factor)
 
 G4VisAttributes* BDSOctupole::SetVisAttributes()
 {
-  itsVisAttributes=new G4VisAttributes(G4Colour(0,0,1)); //blue
+  itsVisAttributes=new G4VisAttributes(G4Colour(0,1,1));
   return itsVisAttributes;
 }
 

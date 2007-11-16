@@ -119,7 +119,7 @@ BDSKicker::BDSKicker(G4String aName, G4double aLength,
 
 G4VisAttributes* BDSKicker::SetVisAttributes()
 {
-  itsVisAttributes=new G4VisAttributes(G4Colour(1,0,0)); //red
+  itsVisAttributes=new G4VisAttributes(G4Colour(0,0,1));
   return itsVisAttributes;
 }
 

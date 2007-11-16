@@ -220,7 +220,7 @@ void BDSQuadrupole::SynchRescale(G4double factor)
 
 G4VisAttributes* BDSQuadrupole::SetVisAttributes()
 {
-  itsVisAttributes=new G4VisAttributes(G4Colour(1,1,0)); //yellow
+  itsVisAttributes=new G4VisAttributes(G4Colour(1,0,0));
   return itsVisAttributes;
 }
 
