@@ -88,7 +88,7 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
 
       // Get Translation and Rotation of Sampler Volume w.r.t the World Volume
       // as described in Geant4 FAQ's: http://geant4.cern.ch/support/faq.shtml
-      G4AffineTransform tf(preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().Inverse());
+      G4AffineTransform tf(preStepPoint->GetTouchable()->GetHistory()->GetTopTransform());
 //      const G4RotationMatrix Rot=tf.NetRotation();
 //      const G4ThreeVector Trans=-tf.NetTranslation();
 
