@@ -1028,6 +1028,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
         G4double aper = bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 
+/* Fix for element volume overlaps - do not set default outR!
 	if( (*it).outR < aper/m)
 	  {
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
@@ -1036,7 +1037,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 		   << "aper+22*cm"<<G4endl;
 	    (*it).outR = aper/m + 0.22;
 	  }
-
+*/
 	if(DEBUG) G4cout << "---->adding Element,"
 			 << " name= " << (*it).name
 			 << " l= " << (*it).l << "m"
