@@ -184,6 +184,7 @@ fi
 
 else
     echo "           not using Root output driver...."
+    USE_ROOT=""
 fi
 
 # Ask for binary location
@@ -211,6 +212,12 @@ else
 	BIN_dir=$value
 fi
 
+#test for Leopard
+if test "x$G4SYSTEM" = "xDarwin-g++"; then
+   if [ `sw_vers | sed -n 's/ProductVersion://p' | cut -d . -f 2` = 5 ]; then
+      opengllib='$(OGLHOME)/lib/libGLU.dylib $(OGLHOME)/lib/libGL.dylib /System/Library/Frameworks/OpenGL.framework/Libraries/libGL.dylib'
+   fi
+fi
 
 # generate Makefile
 
@@ -236,6 +243,7 @@ s%@BINDIR@%$BIN_dir%g;
 s%@G4VERSION@%$G4_version%g;
 s%@CLHEP_VERSION@%$CLHEP_version%g;
 s%@USE_ROOT@%$USE_ROOT%g;
+s%@OGLLIBS@%$opengllib%g;
 " >> $Makefile
 else
 cat Makefile.in  | sed "
@@ -245,6 +253,7 @@ s%@BINDIR@%$BIN_dir%g;
 s%@G4VERSION@%$G4_version%g;
 s%@CLHEP_VERSION@%$CLHEP_version%g;
 s%@USE_ROOT@%$USE_ROOT%g;
+s%@OGLLIBS@%$opengllib%g;
 " >> $Makefile
 fi
 

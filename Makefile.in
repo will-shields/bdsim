@@ -43,8 +43,10 @@ EXTRALIBS += -lLHEP
 EXTRALIBS += -lPackaging
 endif
 
+ifneq ($(ROOTSYS),)
 ROOTLIBS=`$(ROOTSYS)/bin/root-config --libs`
 ROOTCFLAGS=`$(ROOTSYS)/bin/root-config --cflags`
+endif
 
 LDLIBS3 += $(ROOTLIBS) 
 
@@ -59,6 +61,9 @@ CPPFLAGS += -g -Wall -Wno-non-virtual-dtor -I.
 
 LDFLAGS += -L$(G4LIBDIR) -L./parser -lgmad
 
+ifeq ($(G4SYSTEM),Darwin-g++)
+OGLLIBS=@OGLLIBS@
+endif
 
 install:
 
