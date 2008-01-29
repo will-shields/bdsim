@@ -69,12 +69,12 @@ private:
   G4int format;
   ofstream of;
 
-#ifdef USE_ROOT
-  Float_t x0,xp0,y0,yp0,z0,zp0,E0,t0;
-  Float_t x,xp,y,yp,z,zp,E,t;
-  Float_t X,Xp,Y,Yp,Z,Zp,s,weight;
-  Int_t part,nev, pID, theID, track_id;
-#endif
+//#ifdef USE_ROOT
+  float x0,xp0,y0,yp0,z0,zp0,E0,t0;
+  float x,xp,y,yp,z,zp,E,t;
+  float X,Xp,Y,Yp,Z,Zp,s,weight;
+  int part,nev, pID, theID, track_id;
+//#endif
 
 };
 

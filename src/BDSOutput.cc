@@ -121,7 +121,7 @@ void BDSOutput::Init(G4int FileNum)
   G4int nBins = G4int(zMax/m);
 
   EnergyLossHisto = new TH1F("ElossHisto", "Energy Loss",nBins,0.,zMax/m);
-  EnergyLossNtuple= new TNtuple("ElossNtuple", "Energy Loss","z:E");
+  EnergyLossNtuple= new TNtuple("ElossNtuple", "Energy Loss","z:E:partID:parentID");
 
 #endif
 }
@@ -283,10 +283,11 @@ void BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
 	G4double Energy=(*hc)[i]->GetEnergy();
 	G4double EWeightZ=(*hc)[i]->
 	  GetEnergyWeightedPosition()/Energy;
-	
+	G4int partID = (*hc)[i]->GetPartID();
+	G4int parentID = (*hc)[i]->GetParentID();
 	EnergyLossHisto->Fill(EWeightZ/m,Energy/GeV);
 
-	EnergyLossNtuple->Fill(EWeightZ/m,Energy/GeV);
+	EnergyLossNtuple->Fill(EWeightZ/m,Energy/GeV,partID,parentID);
 
       }
 #endif
@@ -301,8 +302,10 @@ void BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
 	G4double Energy=(*hc)[i]->GetEnergy();
 	G4double EWeightZ=(*hc)[i]->
 	  GetEnergyWeightedPosition()/Energy;
+	G4int partID = (*hc)[i]->GetPartID();
+	G4int parentID = (*hc)[i]->GetParentID();
 	
-	of<<EWeightZ/m<<"  "<<Energy/GeV<<G4endl;
+	of<<EWeightZ/m<<"  "<<Energy/GeV<<"  "<<partID<<"  "<<parentID<<G4endl;
 
       }
 
