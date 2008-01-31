@@ -6,6 +6,10 @@ Last modified 30.09.2005
 #ifndef __BDSPad__
 #define __BDSPad__
 
+#ifndef ROOT_TClass
+#include "TClass.h"
+#endif
+
 #ifndef ROOT_TPad
 #include "TPad.h"
 #endif
@@ -14,6 +18,11 @@ Last modified 30.09.2005
 #ifndef ROOT_TClassMenuItem
 #include "TClassMenuItem.h"
 #endif
+
+#ifndef ROOT_TList
+#include "TList.h"
+#endif
+
 #define MAX 1000
 class BDSCanvas;
 class BDSAxis;
