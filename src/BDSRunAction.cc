@@ -103,6 +103,7 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	G4Exception("BDSGlobals->GetFifo(): fifo not found. Quitting.");
 	exit(1);
       }
+      BDSGlobals->outputQueue.clear();
       BDSGlobals->fileDump << "# nparticles = " << SM->GetNPostponedTrack() << "\n";
       SM->TransferStackedTracks(fPostpone, fUrgent);// so that they can be reclassified
       SM->ReClassify();
@@ -169,6 +170,7 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	fclose(fifo);
         BDSGlobals->setReading(false);
         BDSGlobals->setReadFromStack(false);
+
 	if(DEBUG) G4cout << "Number read in = " << BDSGlobals->holdingQueue.size() << G4endl;
       }
       else{

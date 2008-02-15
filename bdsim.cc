@@ -88,7 +88,7 @@ static void usage()
 	<<"--outline=<file>      : print geometry info to <file>"<<G4endl
 	<<"--outline_type=<fmt>  : type of outline format"<<G4endl
 	<<"                        where fmt = optics | survey"<<G4endl
-	<<"--materials		 : list materials included in bdsim by default"<<G4endl;
+	<<"--materials           : list materials included in bdsim by default"<<G4endl;
 
 }
 

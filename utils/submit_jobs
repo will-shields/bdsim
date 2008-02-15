@@ -41,7 +41,7 @@ for((i=0;i<$2;i++)); do
            s/@INF/$inpfilename/g;
            s/@OUTF/$outfilename/g;
                " > $jobfilename;
-  $qsub $qopt $jobfilename 
+#  $qsub $qopt $jobfilename 
 done
 
  

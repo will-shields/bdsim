@@ -28,9 +28,9 @@ BDSPopUp::BDSPopUp(TString name, short type,Float_t len, Float_t s,
 	TText *t2 = new TText(0.02,0.6,temp);
 	temp=Form("Aperture: X = %f m, Y = %f m",aper_x,aper_y);
 	TText *t3 = new TText(0.02,0.5,temp);
-	temp=Form("k1=%f, k2=%f",k0,k1);
+	temp=Form("k0=%f, k1=%f",k0,k1);
 	TText *t4 = new TText(0.02,0.3,temp);
-	temp=Form("k3=%f, k4=%f",k2,k3);
+	temp=Form("k2=%f, k3=%f",k2,k3);
 	TText *t5 = new TText(0.02,0.2,temp);
 	temp=Form("angle=%f",angle);
 	TText *t6 = new TText(0.02,0.1,temp);

@@ -9,7 +9,7 @@
 
 #include <map>
 
-const int DEBUG = 0;
+const int DEBUG = 1;
 
 //============================================================
 
@@ -20,7 +20,6 @@ typedef std::map<G4String,G4LogicalVolume*> LogVolMap;
 extern LogVolMap* LogVol;
 
 extern BDSMaterials* theMaterials;
-
 //============================================================
 
 BDSKicker::BDSKicker(G4String aName, G4double aLength, 
@@ -69,7 +68,8 @@ BDSKicker::BDSKicker(G4String aName, G4double aLength,
 	  polePos[0]=0.;
 	  polePos[1]=BDSGlobals->GetMagnetPoleRadius();
 	  polePos[2]=0.;
-	  polePos[0]=-999.;//flag to use polePos rather than local track
+	  polePos[3]=-999.;//flag to use polePos rather than local track
+
 	  itsMagField->GetFieldValue(polePos,Bfield);
 	  G4double BFldIron=
 	    sqrt(Bfield[0]*Bfield[0]+Bfield[1]*Bfield[1])*
@@ -92,6 +92,7 @@ BDSKicker::BDSKicker(G4String aName, G4double aLength,
       //
       // set visualization attributes
       //
+      itsVisAttributes=SetVisAttributes();
       itsVisAttributes->SetForceSolid(true);
       itsOuterLogicalVolume->SetVisAttributes(itsVisAttributes);
 

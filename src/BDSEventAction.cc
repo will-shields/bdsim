@@ -100,7 +100,7 @@ BDSEventAction::BDSEventAction()
 :SamplerCollID_plane(-1),SamplerCollID_cylin(-1),
 LWCalorimeterCollID(-1),drawFlag("all")
 { 
-  if(isBatch) printModulo=1000;
+  if(isBatch) printModulo=10;//1000;
   else printModulo=1;
   
   itsOutputFileNumber=1;
@@ -278,7 +278,8 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
 	if(DEBUG) G4cout<<"writing to file "<<G4endl;
 	// notify the output about the event end
 	// this can be used for splitting output files etc.
-	bdsOutput.Commit(itsOutputFileNumber++);
+//	bdsOutput.Commit(itsOutputFileNumber++);
+	bdsOutput.Commit();
 	if(DEBUG) G4cout<<"done"<<G4endl;
       }
 
@@ -293,7 +294,10 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
   if(!TrajCont) return;
   
   TrajectoryVector* TrajVec=TrajCont->GetVector();
-  bdsOutput.WriteTrajectory(TrajVec);
+  if(BDSGlobals->GetStoreTrajectory() ||
+	BDSGlobals->GetStoreMuonTrajectories() ||
+	BDSGlobals->GetStoreNeutronTrajectories())
+    bdsOutput.WriteTrajectory(TrajVec);
 
   //the logic for controlling which trajectories are stored is already
   //implemented in BDSUserTrackingAction.cc

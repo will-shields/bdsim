@@ -2,6 +2,7 @@
 #include "BDSBunch.hh"
 #include <iostream>
 #include "globals.hh"
+#include <cmath>
 
 const int DEBUG = 0;
 
@@ -606,12 +607,14 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 		      <<" shellYp= "<<shellyp<<G4endl
 		      <<" relative energy spread= "<<energySpread<<G4endl;
       
-      phi = 2 * pi * rand() / RAND_MAX;
+//      phi = 2 * pi * rand() / RAND_MAX;
+      phi = 2 * pi * FlatGen->shoot();
       
       x0 = (X0 + sin(phi) * shellx) * m;
       xp = Xp0 + cos(phi) * shellxp;
-      
-      phi = 2 * pi * rand() / RAND_MAX;
+
+//      phi = 2 * pi * rand() / RAND_MAX;
+      phi = 2 * pi * FlatGen->shoot();
       
       y0 = (Y0 + sin(phi) * shelly) * m;
       yp = Yp0 + cos(phi) * shellyp;

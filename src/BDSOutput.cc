@@ -3,23 +3,26 @@
 #include <ctime>
 
 extern G4String outputFilename;
-BDSOutput::BDSOutput()
+
+BDSOutput::BDSOutput():outputFileNumber(1)
 {
   format = _ASCII; // default - write an ascii file
 }
 
-BDSOutput::BDSOutput(int fmt)
+BDSOutput::BDSOutput(int fmt):outputFileNumber(1)
 {
   format = fmt;
 }
 
 BDSOutput::~BDSOutput()
 {
-  if(of != NULL)
+  if(format==_ASCII)
     of.close();
 
 
 #ifdef USE_ROOT
+  Write();
+/*
   if(format==_ROOT)
     if(theRootOutputFile->IsOpen())
       {
@@ -27,6 +30,7 @@ BDSOutput::~BDSOutput()
 	theRootOutputFile->Close();
 	delete theRootOutputFile;
       }
+*/
 #endif
 }
 
@@ -63,7 +67,6 @@ void BDSOutput::Init(G4int FileNum)
   
   G4cout<<"Setting up new file: "<<filename<<G4endl;
   theRootOutputFile=new TFile(filename,"RECREATE", "BDS output file");
-  
 
   //build sampler tree
   for(G4int i=0;i<BDSSampler::GetNSamplers();i++)
@@ -324,7 +327,27 @@ void BDSOutput::Echo(G4String str)
     G4cout<<"#"<<str<<G4endl;
 }
 
-G4int BDSOutput::Commit(G4int FileNum)
+//G4int BDSOutput::Commit(G4int FileNum)
+G4int BDSOutput::Commit()
+{
+/*
+#ifdef USE_ROOT
+  if(format==_ROOT)
+    if(theRootOutputFile->IsOpen())
+      {
+	theRootOutputFile->Write();
+	theRootOutputFile->Close();
+	delete theRootOutputFile;
+      }
+#endif
+  Init(FileNum)
+*/
+  Write();
+  Init(outputFileNumber++);
+  return 0;
+}
+
+G4int BDSOutput::Write()
 {
 #ifdef USE_ROOT
   if(format==_ROOT)
@@ -336,7 +359,6 @@ G4int BDSOutput::Commit(G4int FileNum)
       }
 #endif
 
-  Init(FileNum);
   return 0;
 }
 

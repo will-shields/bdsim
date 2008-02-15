@@ -178,6 +178,15 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
         BDSGlobals->fileDump << aTrack->GetTotalEnergy()/GeV << "\t"
 	<< x << "\t" << y << "\t" << z << "\t"
 	<< xPrime << "\t" << yPrime << "\n"; // SPM
+       tmpParticle outputParticle;
+       outputParticle.E=aTrack->GetTotalEnergy();
+       outputParticle.xp=momDir.x();
+       outputParticle.yp=momDir.y();
+       outputParticle.x=pos.x();
+       outputParticle.y=pos.y();
+       outputParticle.z=pos.z();
+       BDSGlobals->outputQueue.push_back(outputParticle);
+
        classification = fPostpone;
      }
 

@@ -59,7 +59,8 @@ G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
   G4Track* theTrack=aStep->GetTrack();
  
   // postpone the track
-  if(theTrack->GetParentID() == 0){
+//  if(theTrack->GetParentID() == 0){
+    if(theTrack->GetDefinition()->GetPDGEncoding() == 11){
     if(DEBUG) G4cout<<"Dump: postponing track..."<<G4endl;
     BDSGlobals->setWaitingForDump(true);
     theTrack->SetTrackStatus(fPostponeToNextEvent);

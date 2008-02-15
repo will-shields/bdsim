@@ -270,6 +270,7 @@ public:
                             // PhysicsList we need to store the name first
 
   std::deque<tmpParticle> holdingQueue;
+  std::deque<tmpParticle> outputQueue;
 
 protected:
 private:

@@ -41,7 +41,6 @@ typedef std::map<G4String,G4LogicalVolume*> LogVolMap;
 extern LogVolMap* LogVol;
 
 extern BDSMaterials* theMaterials;
-extern G4RotationMatrix* RotY90;
 
 //============================================================
 
@@ -135,7 +134,7 @@ void BDSMultipole::BuildBeampipe(G4double aLength,
   
   G4VPhysicalVolume* PhysiInner;
   PhysiInner = new G4PVPlacement(
-		      0,		        // rotation
+		      0,		        // no rotation
 		      0,	                // at (0,0,0)
 		      itsInnerBPLogicalVolume,  // its logical volume
 		      itsName+"_inner_bmp_phys",// its name
@@ -145,15 +144,9 @@ void BDSMultipole::BuildBeampipe(G4double aLength,
     
   if(nSegments==1)
     {
-      G4RotationMatrix* Rot=NULL;
-      if(itsAngle!=0 && itsType!="rbend") Rot=RotY90;  
-      // doesn't apply to rbends 
-      // this is needed because sbends are rendered as trapezoids G4Trd,
-      // rotated by 90 degrees???
-      
       G4VPhysicalVolume* PhysiComp;
       PhysiComp = new G4PVPlacement(
-			  Rot,			     // rotation
+			  0,			     // no rotation
 			  0,	                     // at (0,0,0)
 			  itsBeampipeLogicalVolume,  // its logical volume
 			  itsName+"_bmp_phys",	     // its name
@@ -180,12 +173,9 @@ void BDSMultipole::BuildBeampipe(G4double aLength,
 	  itsSegRot->rotateY(DeltaRot);
 	  angle+=DeltaRot;
 
-
       	  X=R*sin(angle);
 	  Y=0.;
 	  Z=R*(1.-cos(angle))-Z0;
-	  
-
 
 	  itsSegPos.setX(X);
 	  itsSegPos.setY(Y);
@@ -193,8 +183,8 @@ void BDSMultipole::BuildBeampipe(G4double aLength,
 
 	  G4VPhysicalVolume* PhysiComp;
 	  PhysiComp = new G4PVPlacement(
-			      itsSegRot,		// rotation
-			      itsSegPos,	        // at (0,0,0)
+			      itsSegRot,		// its rotation
+			      itsSegPos,	        // its position
 			      itsBeampipeLogicalVolume, // its logical volume
 			      itsName+"_bmp_phys",	// its name
 			      itsMarkerLogicalVolume,   // its mother  volume
@@ -339,11 +329,8 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
 			    itsName+"_outer_log");
     }
   
-  G4RotationMatrix* Rot=NULL;
-  if(itsAngle!=0 && itsType!="rbend") Rot=RotY90;
-  
   itsPhysiComp = new G4PVPlacement(
-		      Rot,		      // its rotation
+		      0,		      // no rotation
 		      0,                      // its position
 		      itsOuterLogicalVolume,  // its logical volume
 		      itsName+"_outer_phys",  // its name

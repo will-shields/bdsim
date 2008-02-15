@@ -101,9 +101,10 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   }
   else if(BDSGlobals->holdingQueue.size()!=0){
     tmpParticle holdingParticle = BDSGlobals->holdingQueue.front();
-    x0 = holdingParticle.x;
-    y0 = holdingParticle.y;
-    z0 = holdingParticle.z;
+    tmpParticle outputParticle  = BDSGlobals->outputQueue.front();
+    x0 = outputParticle.x;
+    y0 = outputParticle.y;
+    z0 = outputParticle.z;
     xp = holdingParticle.xp;
     yp = holdingParticle.yp;
     zp = holdingParticle.zp;
@@ -112,6 +113,7 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     if(DEBUG) printf("Particles left %i: %f %f %f %f %f %f %f %f\n",
 	(int)BDSGlobals->holdingQueue.size(),x0,y0,z0,xp,yp,zp,t,E);
     BDSGlobals->holdingQueue.pop_front();
+    BDSGlobals->outputQueue.pop_front();
   }
   else G4Exception("No new particles to fire...\n");
 

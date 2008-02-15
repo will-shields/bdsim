@@ -48,7 +48,8 @@ public:
 
   void Echo(G4String str);
 
-  G4int Commit(G4int FileNum);   // close the event
+  G4int Commit(); //G4int FileNum);   // close the event
+  G4int Write();           // close the event
 
 
   // for root output
@@ -68,6 +69,7 @@ public:
 private:
   G4int format;
   ofstream of;
+  int outputFileNumber;
 
 //#ifdef USE_ROOT
   float x0,xp0,y0,yp0,z0,zp0,E0,t0;

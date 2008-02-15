@@ -195,7 +195,7 @@ void BDSRBend::SynchRescale(G4double factor)
 
 G4VisAttributes* BDSRBend::SetVisAttributes()
 {
-  itsVisAttributes = new G4VisAttributes(G4Colour(0,0,1)); //blue
+  itsVisAttributes = new G4VisAttributes(G4Colour(0,0,1));
   return itsVisAttributes;
 }
 
@@ -216,23 +216,25 @@ void BDSRBend::BuildRBMarkerLogicalVolume()
 {
   //  if (markerSolidVolume==0) {
 
-    G4double boxSize=BDSGlobals->GetComponentBoxSize();
+    G4double yHalfLen=std::max(itsOuterR,BDSGlobals->GetComponentBoxSize()/2.);
+    //G4double zHalfLen=yHalfLen*fabs(cos(itsAngle/2));
+    G4double zHalfLen=yHalfLen;
 
     // itsLength = geometrical length
     G4double xHalfLengthMinus = itsLength/2
-      - fabs(cos(itsAngle/2))*boxSize*tan(itsAngle/2)/2
+      - zHalfLen*tan(itsAngle/2)
       + BDSGlobals->GetLengthSafety()/2;
     
     G4double xHalfLengthPlus = itsLength/2
-      + fabs(cos(itsAngle/2))*boxSize*tan(itsAngle/2)/2
+      + zHalfLen*tan(itsAngle/2)
       + BDSGlobals->GetLengthSafety()/2;
 
     markerSolidVolume = new G4Trd(itsName+"_marker",
 				  xHalfLengthPlus,     // x hlf lgth at +z
 				  xHalfLengthMinus,    // x hlf lgth at -z
-				  boxSize/2,           // y hlf lgth at +z
-				  boxSize/2,           // y hlf lgth at -z
-				  fabs(cos(itsAngle/2))*boxSize/2);// z hlf len
+				  yHalfLen,            // y hlf lgth at +z
+				  yHalfLen,            // y hlf lgth at -z
+				  zHalfLen);           // z hlf len
     //  }
 
   G4String LocalLogicalName=itsName;
@@ -266,15 +268,17 @@ void BDSRBend::BuildRBBeampipe()
   // compute some geometrical parameters
   //
   G4double bpThickness = BDSGlobals->GetBeampipeThickness();
-  G4double boxSize = BDSGlobals->GetComponentBoxSize();
+  G4double yHalfLen=std::max(itsOuterR,BDSGlobals->GetComponentBoxSize()/2.);
+  //G4double zHalfLen=yHalfLen*fabs(cos(itsAngle/2));
+  G4double zHalfLen=yHalfLen;
 
   // itsLength = geometrical length
   G4double xHalfLengthMinus = itsLength/2
-    - fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2
+    - zHalfLen*tan(itsAngle/2)
     + BDSGlobals->GetLengthSafety()/2;
-
+    
   G4double xHalfLengthPlus = itsLength/2
-    + fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2
+    + zHalfLen*tan(itsAngle/2)
     + BDSGlobals->GetLengthSafety()/2;
 
   G4double tubLen = std::max(xHalfLengthPlus,xHalfLengthMinus);
@@ -383,15 +387,17 @@ void BDSRBend::BuildRBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
   else
     material = theMaterials->GetMaterial("Iron");
 
-  G4double boxSize = BDSGlobals->GetComponentBoxSize();
+  G4double yHalfLen=std::max(itsOuterR,BDSGlobals->GetComponentBoxSize()/2.);
+  //G4double zHalfLen=yHalfLen*fabs(cos(itsAngle/2));
+  G4double zHalfLen=yHalfLen;
 
   // itsLength = geometrical length
   G4double xHalfLengthMinus = itsLength/2
-    - fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2
+    - zHalfLen*tan(itsAngle/2)
     + BDSGlobals->GetLengthSafety()/2;
-
+    
   G4double xHalfLengthPlus = itsLength/2
-    + fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2
+    + zHalfLen*tan(itsAngle/2)
     + BDSGlobals->GetLengthSafety()/2;
 
   G4double tubLen = std::max(xHalfLengthPlus,xHalfLengthMinus);
