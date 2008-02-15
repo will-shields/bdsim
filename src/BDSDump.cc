@@ -60,8 +60,6 @@ const int BDSDump::GetNumberOfDumps()
 
 int BDSDump::nDumps=0;
 
-int BDSDump::firstActiveDump=1;
-
 int BDSDump::nUsedDumps=0;
 
 void BDSDump::DumpLogicalVolume()

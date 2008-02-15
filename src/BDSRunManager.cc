@@ -19,6 +19,7 @@
 #include "G4StateManager.hh"
 #include "G4UImanager.hh"
 
+#include "BDSDump.hh"
 
 BDSRunManager* BDSRunManager::fRunManager = 0;
 
@@ -41,6 +42,7 @@ void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
     if(n_event>0) DoEventLoop(n_event,macroFile,n_select);
     RunTermination();
     while(!BDSGlobals->holdingQueue.empty()){
+      BDSDump::nUsedDumps++;
       BDSGlobals->setReadFromStack(true);
       SM->ClearPostponeStack();
 
@@ -50,6 +52,19 @@ void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
       RunTermination();
 
       BDSGlobals->setReadFromStack(false);
+    }
+    while(BDSDump::nUsedDumps < BDSDump::GetNumberOfDumps())
+    {
+      int token;
+      FILE* fifo = fopen(BDSGlobals->GetFifo(),"a");
+      fprintf(fifo,"# nparticles = 0\n");
+      fclose(fifo);
+
+      fifo = fopen(BDSGlobals->GetFifo(),"r");
+      fscanf(fifo,"# nparticles = %i",&token);
+      fclose(fifo);
+
+      BDSDump::nUsedDumps++;
     }
   }
 }

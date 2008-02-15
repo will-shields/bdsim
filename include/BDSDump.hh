@@ -33,7 +33,6 @@ public:
   ~BDSDump();
 
   static const int GetNumberOfDumps();
-  static int firstActiveDump;
   static int nUsedDumps;
 
 protected:
