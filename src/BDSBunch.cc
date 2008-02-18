@@ -545,11 +545,20 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 		      <<" sigmaT= "<<sigmaT<<"s"<<G4endl
 		      <<" relative energy spread= "<<energySpread<<G4endl;
 
-      x0 = (X0 + sigmaX * GaussGen->shoot()) * m;
-      y0 = (Y0 + sigmaY * GaussGen->shoot()) * m;
+      G4double phiX= twopi * G4UniformRand();
+      G4double phiY= twopi * G4UniformRand();
+      G4double ex=-log(G4UniformRand())*emitX;
+      G4double ey=-log(G4UniformRand())*emitY;
+      x0=sqrt(2*ex*betaX)*sin(phiX);
+      xp=sqrt(2*ex/betaX)*(cos(phiX)-alphaX*sin(phiX));
+      y0=sqrt(2*ey*betaY)*sin(phiY);
+      yp=sqrt(2*ey/betaY)*(cos(phiY)-alphaY*sin(phiY));
+
+      if(sigmaX !=0) x0 = (X0 + sigmaX * GaussGen->shoot()) * m;
+      if(sigmaY !=0) y0 = (Y0 + sigmaY * GaussGen->shoot()) * m;
       z0 = Z0 * m;
-      xp = Xp0 + sigmaXp * GaussGen->shoot();
-      yp = Yp0 + sigmaYp * GaussGen->shoot();
+      if(sigmaXp !=0) xp = Xp0 + sigmaXp * GaussGen->shoot();
+      if(sigmaYp !=0) yp = Yp0 + sigmaYp * GaussGen->shoot();
       if (Zp0<0)
 	zp = -sqrt(1.-xp*xp -yp*yp);
       else
