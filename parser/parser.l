@@ -126,7 +126,7 @@ dump  { return DUMP; }
 
 ":="    { return '=';}  // alternative assignment 
 
-[a-zA-Z#][A-Za-z0-9_#]* {
+[a-zA-Z#][A-Za-z0-9_#.]* {
      struct symtab *sp = symlook(yytext);
      yylval.symp=sp;
      if(sp->funcptr)
