@@ -359,16 +359,30 @@ void BDSPhysicsList::ConstructEM()
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
       pmanager->AddProcess(new G4eIonisation,       -1, 2,2);
       pmanager->AddProcess(new G4eBremsstrahlung,   -1, 3,3);     
-      pmanager->AddProcess(new G4Cerenkov,          -1, 4,-1);
-      pmanager->AddProcess(new G4StepLimiter,       -1,-1,5);  
+      pmanager->AddProcess(new G4StepLimiter,       -1,-1,4);  
+
+#if G4VERSION > 8  && G4MINORVERSION > 0
+      G4Cerenkov* theCerenkovProcess = new G4Cerenkov;
+      pmanager->AddProcess(theCerenkovProcess);
+      pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
+#else
+      pmanager->AddProcess(new G4Cerenkov,          -1, 5,-1);
+#endif
 
     } else if (particleName == "e+") {
       //positron
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
       pmanager->AddProcess(new G4eIonisation,       -1, 2,2);
       pmanager->AddProcess(new G4eBremsstrahlung,   -1, 3,3);
-      pmanager->AddProcess(new G4Cerenkov,          -1, 4,-1);
-      pmanager->AddProcess(new G4eplusAnnihilation,  0,-1,5);
+      pmanager->AddProcess(new G4eplusAnnihilation,  0,-1,4);
+
+#if G4VERSION > 8  && G4MINORVERSION > 0
+      G4Cerenkov* theCerenkovProcess = new G4Cerenkov;
+      pmanager->AddProcess(theCerenkovProcess);
+      pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
+#else
+      pmanager->AddProcess(new G4Cerenkov,          -1, 5,-1);
+#endif
       
     } else if( particleName == "mu+" || 
                particleName == "mu-"    ) {
@@ -385,7 +399,13 @@ void BDSPhysicsList::ConstructEM()
       //all others charged particles except geantino
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
       pmanager->AddProcess(new G4hIonisation,       -1, 2,2);
+#if G4VERSION > 8  && G4MINORVERSION > 0
+      G4Cerenkov* theCerenkovProcess = new G4Cerenkov;
+      pmanager->AddProcess(theCerenkovProcess);
+      pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
+#else
       pmanager->AddProcess(new G4Cerenkov,          -1, 3,-1);
+#endif
       //step limit
       //pmanager->AddProcess(new G4StepLimiter,       -1,-1,4);         
       ///pmanager->AddProcess(new G4UserSpecialCuts,   -1,-1,5);  
@@ -413,8 +433,14 @@ void BDSPhysicsList::ConstructMuon()
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
       pmanager->AddProcess(new G4eIonisation,       -1, 2,2);
       pmanager->AddProcess(new G4eBremsstrahlung,   -1, 3,3);     
-      pmanager->AddProcess(new G4Cerenkov,          -1, 4,-1);
       //pmanager->AddProcess(new G4StepLimiter,   -1, 1,5);
+#if G4VERSION > 8  && G4MINORVERSION > 0
+      G4Cerenkov* theCerenkovProcess = new G4Cerenkov;
+      pmanager->AddProcess(theCerenkovProcess);
+      pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
+#else
+      pmanager->AddProcess(new G4Cerenkov,          -1, 4,-1);
+#endif
 
       
     } else if (particleName == "e+") {
@@ -422,8 +448,14 @@ void BDSPhysicsList::ConstructMuon()
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
       pmanager->AddProcess(new G4eIonisation,       -1, 2,2);
       pmanager->AddProcess(new G4eBremsstrahlung,   -1, 3,3);
-      pmanager->AddProcess(new G4Cerenkov,          -1, 4,-1);
-      pmanager->AddProcess(new G4eplusAnnihilation,  0,-1,5);
+      pmanager->AddProcess(new G4eplusAnnihilation,  0,-1,4);
+#if G4VERSION > 8  && G4MINORVERSION > 0
+      G4Cerenkov* theCerenkovProcess = new G4Cerenkov;
+      pmanager->AddProcess(theCerenkovProcess);
+      pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
+#else
+      pmanager->AddProcess(new G4Cerenkov,          -1, 5,-1);
+#endif
       
     } else if( particleName == "mu+" || 
                particleName == "mu-"    ) {
@@ -432,7 +464,13 @@ void BDSPhysicsList::ConstructMuon()
       pmanager->AddProcess(new G4MuIonisation,      -1, 2,2);
       pmanager->AddProcess(new G4MuBremsstrahlung,  -1, 3,3);
       pmanager->AddProcess(new G4MuPairProduction,  -1, 4,4);
+#if G4VERSION > 8  && G4MINORVERSION > 0
+      G4Cerenkov* theCerenkovProcess = new G4Cerenkov;
+      pmanager->AddProcess(theCerenkovProcess);
+      pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
+#else
       pmanager->AddProcess(new G4Cerenkov,          -1, 5,-1);
+#endif
       pmanager->AddDiscreteProcess(new G4MuonNucleusProcess);     
       
     } else if ((!particle->IsShortLived()) &&
@@ -441,7 +479,13 @@ void BDSPhysicsList::ConstructMuon()
       //all others charged particles except geantino
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
       pmanager->AddProcess(new G4hIonisation,       -1, 2,2);
+#if G4VERSION > 8  && G4MINORVERSION > 0
+      G4Cerenkov* theCerenkovProcess = new G4Cerenkov;
+      pmanager->AddProcess(theCerenkovProcess);
+      pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
+#else
       pmanager->AddProcess(new G4Cerenkov,          -1, 3,-1);
+#endif
       //step limit
       //pmanager->AddProcess(new G4StepLimiter,       -1,-1,4);         
       ///pmanager->AddProcess(new G4UserSpecialCuts,   -1,-1,5);  

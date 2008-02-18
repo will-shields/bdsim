@@ -77,16 +77,26 @@ printf "\n \n Determiming Geant4 version ......"
 #G4_version=${G4_install##*/geant}
 #G4_version=${G4_version%%.p*}
 
-G4_version=$(echo $G4_install | grep -o '[4].[0-9]\(.[0-9]\)*' | sed "s/4.//; s/.[0-9]//")
+G4_version=$(echo $G4_install | grep -o '[4].[0-9]\(.[0-9]\)*' | cut -d . -f 2)
+G4_minor_version=$(echo $G4_install | grep -o '[4].[0-9]\(.[0-9]\)*' | cut -d . -f 3)
+#G4_version=$(echo $G4_install | grep -o '[4].[0-9]\(.[0-9]\)*' | sed "s/4.//; s/.[0-9]//")
 
 if test "$G4_version" != ""; then
-   printf " 4.$G4_version\n"
+   if test "$G4_minor_version" != "" & test $G4_version=9; then
+     printf " 4.$G4_version.$G4_minor_version\n"
+   else
+     printf " 4.$G4_version\n"
+   fi
 else
    G4_version="0"
    printf " can't determine\n"
 #   success="0"
    read -p "Choose version 4.[0-9]" value
    G4_version=$value
+   if test $G4_version = 9; then
+     read -p "Choose minor version 4.9.[0-9]" minor_value
+     G4_minor_version=$minor_value
+  fi
 fi
 
 #printf " change the G4VERSION variables \n in the Makefile if I'm  wrong \n"
@@ -106,7 +116,7 @@ else
    CLHEP_version="0"
 fi
 fi
-printf " Your CLHEP version is $CLHEP_version ???\n"
+printf " Your CLHEP version is $CLHEP_majorversion.$CLHEP_minorversion ???\n"
 
 read -p "[y/n]" value
 
@@ -241,6 +251,7 @@ s%@G4INSTALL@%$G4INSTALL%g;
 s%@ROOTSYS@%$ROOT_sys%g;
 s%@BINDIR@%$BIN_dir%g;
 s%@G4VERSION@%$G4_version%g;
+s%@G4MINORVERSION@%$G4_minor_version%g;
 s%@CLHEP_VERSION@%$CLHEP_version%g;
 s%@USE_ROOT@%$USE_ROOT%g;
 s%@OGLLIBS@%$opengllib%g;
@@ -251,6 +262,7 @@ s%@G4INSTALL@%$G4INSTALL%g;
 s%@ROOTSYS@%$ROOT_sys%g;
 s%@BINDIR@%$BIN_dir%g;
 s%@G4VERSION@%$G4_version%g;
+s%@G4MINORVERSION@%$G4_minor_version%g;
 s%@CLHEP_VERSION@%$CLHEP_version%g;
 s%@USE_ROOT@%$USE_ROOT%g;
 s%@OGLLIBS@%$opengllib%g;
