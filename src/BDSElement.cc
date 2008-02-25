@@ -122,30 +122,32 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
   G4String gFile="", bFile="";
 
   // get geometry format and file
-  G4int pos = geometry.find(":");
-
-  if(pos<0) { 
-    G4cerr<<"WARNING: invalid geometry reference format : "<<geometry<<endl;
+  if(geometry != ""){
+    G4int pos = geometry.find(":");
     gFormat="none";
-  }
-  else {
-    gFormat = geometry.substr(0,pos);
-    gFile = geometry.substr(pos+1,geometry.length() - pos); 
+    if(pos<0) { 
+      G4cerr<<"WARNING: invalid geometry reference format : "<<geometry<<endl;
+    }
+    else {
+      gFormat = geometry.substr(0,pos);
+      gFile = geometry.substr(pos+1,geometry.length() - pos); 
+    }
   }
 
   // get fieldmap format and file
-  pos = bmap.find(":");
-
-  if(pos<0) {
-    G4cerr<<"WARNING: invalid B map reference format : "<<bmap<<endl; 
+  if(bmap != ""){
+    G4int pos = bmap.find(":");
     bFormat="none";
-  }
-  else {
-    bFormat = bmap.substr(0,pos);
-    bFile = bmap.substr(pos+1,bmap.length() - pos); 
+    if(pos<0) {
+      G4cerr<<"WARNING: invalid B map reference format : "<<bmap<<endl; 
+    }
+    else {
+      bFormat = bmap.substr(0,pos);
+      bFile = bmap.substr(pos+1,bmap.length() - pos); 
+    }
   }
 
-  G4cout<<"placing components\n: geometry format - "<<gFormat<<G4endl<<
+  G4cout<<"placing components:\n geometry format - "<<gFormat<<G4endl<<
     "file - "<<gFile<<G4endl;
 
   G4cout<<"bmap format - "<<bFormat<<G4endl<<
