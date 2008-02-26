@@ -3,7 +3,7 @@
 @setfilename bdsim.info
 @settitle BDSIM User's Manual v0.4
 @c This date is automatically updated when you save this file:
-@set lastupdate Jul 5, 2007
+@set lastupdate Feb 19, 2008
 @set revision 0.4
 @c %**end of header
 
@@ -46,6 +46,7 @@ This file is updated automatically from @file{manual.texi} last updated on
 * Geometry::                    
 * Fields::     
 * Bunch description formats::
+* Known Issues::
 * References::                  
 @end menu
 
@@ -89,12 +90,14 @@ It will create a Makefile from template defined in Makefile.in. You may want to
 edit the Makefile manually to meet your needs (if your CLHEP version is greater
 than 2.x put -DCLHEP_VERSION=9). Then start the compilation by typing
 
-@code{./make}
+@code{make}
 
-If the compilation is successful @code{bdsim} executable should be created in
-the current directory or in the @code{$G4WORKDIR} directory in case this
-variable is defined. Next, set up the (DY)LD_LIBRARY_PATH variable to
-point to the ./parser directory and to the directory where libbdsim.so is.
+If the compilation is successful the @code{bdsim} executable should be created 
+in $(BDSIM)/bin/$(ARCH) where $(BDSIM) is the directory specified during 
+configuration, and $(ARCH) is of the form $(OSTYPE)-$(COMPILER), eg Linux-g++. 
+Next, set up the (DY)LD_LIBRARY_PATH variable to
+point to the ./parser directory, and also to the directory where libbdsim.so 
+is if building shared libraries.
 
 
 @code{BDSIM} is invoked by the command
@@ -304,7 +307,7 @@ Available functions @footnote{see add_func(..) in @code{parser/gmad.cc}} are:
 * transform3d::
 * element::
 * line::
-* materials::
+* matdef::
 * laser::
 * spec keyword::
 * Element number::
@@ -316,7 +319,7 @@ Available functions @footnote{see add_func(..) in @code{parser/gmad.cc}} are:
 GMAD implements almost all the standard MAD elements, but also allows to define
 arbitrary geometric entities and magnetic field configurations.
 The geometry description capabilities are extended by using ``drivers'' to
-other geometry description formats which makes interfacing and standardisation
+other geometry description formats, which makes interfacing and standardisation
 easier.
 The syntax of a physical element declaration is
 
@@ -324,7 +327,7 @@ The syntax of a physical element declaration is
 
 for example
 
-@code{qd : quadrupole, l = 0.1*0.1, k1 = 0.01;}
+@code{qd : quadrupole, l = 0.1*m, k1 = 0.01;}
 
 @code{element_type} can be of basic type or inherited. Allowed basic types are
 
@@ -426,29 +429,24 @@ In GMAD the SI units are used.
 
 There are some predefined numerical values@footnote{see add_var(..) in @code{parser/gmad.cc}} are:
 
-@multitable  @columnfractions .1 .9
+@multitable  @columnfractions .1 .4 .1 .4
 @item pi     @tab 3.14159265358979
 @c @item me     @tab electron rest mass - DOESN'T SEEM TO BE IMPLEMENTED IN parser/gmad.cc
 @c @item mp     @tab proton rest mass - DOESN'T SEEM TO BE IMPLEMENTED IN parser/gmad.cc
-@item GeV    @tab 1 
-@item eV     @tab @math{10^{-9}}
-@item KeV    @tab @math{10^{-6}}
-@item MeV    @tab @math{10^{-3}}
-@item TeV    @tab @math{10^3} 
-@item MV     @tab 1 
-@item Tesla  @tab 1 
-@item m      @tab 1
-@item cm     @tab @math{10^{-2}}
-@item mm     @tab @math{10^{-3}}
-@item rad    @tab 1
-@item mrad   @tab @math{10^{-3}}
-@item s      @tab 1
-@item ns     @tab @math{10^{-9}}
+@item GeV    @tab 1              @tab m      @tab 1             
+@item eV     @tab @math{10^{-9}} @tab cm     @tab @math{10^{-2}}
+@item KeV    @tab @math{10^{-6}} @tab mm     @tab @math{10^{-3}}
+@item MeV    @tab @math{10^{-3}} @tab um     @tab @math{10^(-6)}
+@item TeV    @tab @math{10^3}    @tab nm     @tab @math{10^(-9)}
+@item MV     @tab 1              @tab s      @tab 1             
+@item Tesla  @tab 1              @tab ms     @tab @math{10^{-3}}
+@item rad    @tab 1              @tab us     @tab @math{10^{-6}}
+@item mrad   @tab @math{10^{-3}} @tab ns     @tab @math{10^{-9}}
 @item clight @tab @math{2.99792458*10^8}
 @end multitable
 
-for example, one can write either 100 or 0.1 * KeV when energy constants are 
-concerned.
+for example, one can write either 100*eV or 0.1*KeV when energy constants 
+are concerned.
 
 @node marker
 @subsection @code{marker}
@@ -500,9 +498,11 @@ Attributes:
 @item THE CODE ALSO ALLOWS FOR A QUADRUPOLE FIELD GRADIENT K1..
 @end itemize
 
-when @code{B} is set, this defines a magnet with appropriate field strength and @code{angle}
-is not taken into account. Otherwise, @code{B} that corresponds to bending angle @code{angle} for a particle in use 
-(defined by the @code{beam} command, with appropriate energy and rest mass) is calculated and used in the simulations.
+when @code{B} is set, this defines a magnet with appropriate field strength 
+and @code{angle} is not taken into account. Otherwise, the value of @code{B} 
+that corresponds to bending angle @code{angle} for a particle in use (defined 
+by the @code{beam} command, with appropriate energy and rest mass) is 
+calculated and used in the simulations.
 
 Example :
 
@@ -643,7 +643,9 @@ Example :
 @code{mul : multipole, l=0.5*m , knl=@{ 0,0,1 @} , ksl=@{ 0,0,0 @};}
 
 @end example
-
+Note that both @code{knl} and @code{ksl} are required and must contain the same 
+number of parameters.
+ 
 @node rf
 @subsection @code{rf}
 
@@ -723,7 +725,8 @@ Not yet implemented
 @subsection @code{hkick} and @code{vkick}
 
 @code{hkick} and @code{vkick} are equivalent to a @code{rbend} and an 
-@code{rbend} rotated by 90 degrees respectively.
+@code{rbend} rotated by 90 degrees respectively. However, @code{hkick} and 
+@code{vkick} do not rotate the frame of reference.
 @*
 
 @node transform3d
@@ -761,7 +764,7 @@ Attributes:
 @item @code{geometry} = @code{<geometry_description>}
 @item @code{bmap} = @code{<bmap_description> }
 @c @item @code{emap} = @code{<emap_description>}
-@item @code{outR} - limits external extent component box size (default set to @code{aper}+1cm)
+@item @code{outR} - limits external extent component box size (default set to @code{tunnelRadius}@math{/2})
 @end itemize
 
 
@@ -790,11 +793,14 @@ Example :
 @node line
 @subsection @code{line}
 
-elements are grouped into sequences by the @code{line} command.
+Elements are grouped into sequences by the @code{line} command.
 
 @code{@var{line_name} : line=(@var{element_1},@var{element_2},...);}
 
-where @var{element_n} can be any element or another line.
+where @var{element_n} can be any element or another line. Lines can also be 
+reversed using @code{@var{line_name} : line=-(@var{line_2})}, or within 
+another line by @code{line=(@var{line_1},-@var{line_2})}. Reversing a line also 
+reverses all nested lines within.
 
 Example : 
 
@@ -813,8 +819,8 @@ A sequence of FODO cells can be defines as
 
 @c @subsection aperture
 
-@node materials
-@subsection materials
+@node matdef
+@subsection @code{matdef}
 
 To define a material the @code{matdef} keyword must be used.
 
@@ -934,6 +940,8 @@ Example:
 The second syntax can be used also to define materials which are composed by
 other materials (and not by atoms).
 
+Nb: Square brackets are required for the list of element symbols, curly 
+brackets for the list of weights or fractions.
 
 @c @subsection pipe
 
@@ -976,15 +984,14 @@ volume of the drift section. Attributes:
 @item @code{x,y,z} - components of the laser direction vector
 @item @code{waveLength} - laser wave length [m]
 @end itemize
+
+@example
+@code{laserWire : laser, l=1*um,x=1,y=0,z=0,waveLength=532*nm}
+@end example
 @*
 
 @subsection @code{gas}
-
-@subsection @code{twiss}
-
-@subsection @code{dump}
-
-@c (starting from v0.2)
+To be implemented in v0.5
 
 @c @code{gas} command is used to introduce gas into the beam pipe. 
 @c @footnote{in realistic situations the gas profile can vary in transverse dimensions.
@@ -1044,20 +1051,13 @@ volume of the drift section. Attributes:
 
 @c @end example 
 
+@c @subsection @code{twiss}
+
 @node spec keyword
 @subsection @code{spec} keyword
-
-Starting from v0.3 it is possible to add the @code{spec} keyword to all element definition. 
-
-@code{spec="keyword1=value1&keyword2=value2&.."}
-
-By this means any set of keyword/value pairs can be passed to the accelerator component construction classes.
-
-@example
-
-@code{qd : mquad,l=0.5 * m, k1 = qdk1, spec="type=cylinder";}
-
-@end example
+This has been removed in v0.4 and no longer has an effect. For setting the outer
+radius of a quadrupole, use the @code{outR} parameter in the same way as for 
+other elements.
 
 @node Element number
 @subsection Element number
@@ -1089,35 +1089,22 @@ after the element name, e.g.
 
 There is a set of predefined materials for use in elements such as collimators, e.g. 
 
-@itemize @bullet
-@item ``Air''
-@item ``Aluminium''
-@item ``BeamGasPlugMat''
-@item ``Beryllium''
-@item ``CarbonMonoxide''
-@item ``CarbonSteel''
-@item ``Concrete''
-@item ``Copper''
-@item ``Graphite''
-@item ``Invar''
-@item ``Iron''
-@item ``LaserVac''
-@item ``Lead''
+@multitable @columnfractions .5 .5
+@item ``Air''                @tab ``LiquidHelium''
+@item ``Aluminium''          @tab ``NbTi''       
+@item ``BeamGasPlugMat''     @tab ``Niobium''    
+@item ``Beryllium''          @tab ``Silicon''    
+@item ``CarbonMonoxide''     @tab ``SmCo''       
+@item ``CarbonSteel''        @tab ``Soil''       
+@item ``Concrete''           @tab ``Titanium''   
+@item ``Copper''             @tab ``TitaniumAlloy'' 
+@item ``Graphite''           @tab ``Tungsten''   
+@item ``Invar''              @tab ``Vacuum''     
+@item ``Iron''               @tab ``Vanadium''   
+@item ``LaserVac''           @tab ``Water''      
+@item ``Lead''               @tab ``WeightIron'' 
 @item ``LeadTungstate''
-@item ``LiquidHelium''
-@item ``NbTi''
-@item ``Niobium''
-@item ``Silicon''
-@item ``SmCo''
-@item ``Soil''
-@item ``Titanium''
-@item ``TitaniumAlloy''
-@item ``Tungsten''
-@item ``Vacuum''
-@item ``Vanadium''
-@item ``Water''
-@item ``WeightIron''
-@end itemize 
+@end multitable
 
 Currently ``Air'', ``CarbonMonoxide'' and ``Vacuum'' are gas at T=300K,
 p=10@math{^{-12}} bar: both ``Air'' and ``Vacuum'' are a N(80):O(20)
@@ -1127,7 +1114,8 @@ There are also predefined elements (i.e. atoms) that can be used for building
 composite materials:  "H", "He", "Be", "C" , "N", "O", "Al", "Si", "P" , "S",
 "Ca", "Ti", ``V" , "Mn", "Fe", "Co", "Ni", "Cu", "Nb", "Sm", "W" , "Pb".
 
-For more details see the file @code{src/BDSMaterials.cc}
+For more details see the file @code{src/BDSMaterials.cc} or run the command
+@code{bdsim --materials} from the command line.
 
 @node Run control
 @section Run control and output
@@ -1178,7 +1166,7 @@ The following options influence the physics:
 @item                             @tab with material and energy deposit recorded
 @item @code{synchRadOn}          @tab turn on Synchrotron Radiation process
 @item @code{srTrackPhotons}      @tab whether to track the SR photons
-@item @code{srLowX}              @tab Sets lowest energy of SR to X*E_critical
+@item @code{srLowX}              @tab sets lowest energy of SR to X*E_critical
 @item @code{srLowGamE}           @tab lowest energy of propagating SR photons
 @item @code{prodCutPhotons}      @tab standard overall production cuts for photons
 @item @code{prodCutPhotonsP}     @tab precision production cuts for photons in @code{element}
@@ -1199,7 +1187,7 @@ The following options influence the generation:
 
 Miscellaneous options:
 @multitable @columnfractions .3 .7
-@item @code{nperfile}             @tab number of events recorded per file
+@item @code{nperfile}             @tab number of events recorded per file in ROOT output
 @item @code{nlinesIgnore}         @tab number of lines to skip when reading bunch files
 @end multitable
 @*
@@ -1229,7 +1217,18 @@ In this case one needs to specify the following parameters:
 and, in addition, other parameters that depend on the distribution type that
 has been chosen:
 
+
 @enumerate
+@item Global options:
+@itemize @bullet
+@item @code{X0} - Offset of distribution centre in @code{x}[m]
+@item @code{Y0} - Offset of distribution centre in @code{y}[m]
+@item @code{Z0} - Offset of distribution centre in @code{z}[m]
+@item @code{Xp0} - Angular offset from nominal axis in @code{x-z} plane
+@item @code{Yp0} - Angular offset from nominal @code{z} axis in @code{y-z} plane
+@item @code{Zp0} - Directional flag: Zp0 < 0 points the particle back up the beamline
+@item @code{T0} - Global time offset [s]
+@end itemize
 @item @code{distrType}=''gauss'': a gaussian in @code{x}, @code{x'}, @code{y},
       @code{y'}, energy and time, with given widths:
 @itemize @bullet
@@ -1238,7 +1237,7 @@ has been chosen:
 @item @code{sigmaY} - RMS of @code{y'} distribution in [m]
 @item @code{sigmaYp} - RMS of @code{y'} distribution in [rad]
 @item @code{sigmaE} - RMS of energy distribution divided by nominal beam kinetic energy
-@item @code{sigmaT} - RMS of time distribution in []
+@item @code{sigmaT} - RMS of time distribution in [s]
 @end itemize
 
 @item @code{distrType}=''eshell'': a thin elliptic shell in @code{x,x'} and @code{y,y'} with given semiaxes:
@@ -1252,16 +1251,13 @@ has been chosen:
 
 @item @code{distrType}=``ring'': in the @code{x}, @code{y} plane the particles
 are uniformly distributed in @math{r} and in @math{\phi} inside a ring
-centered at @code{X0}=0, @code{Y0}=0, with inner radius @code{Rmin} and outer
-radius @code{Rmax}. @code{x'}, @code{y'} and time are exactly 0 for each 
-generated particle. 
-The kinetic energy distribution is flat between 
-E*(1-@code{sigmaE}/2) and E*(1+@code{sigmaE}/2), where E is the nominal beam
-kinetic energy.
+with inner radius @code{Rmin} and outer
+radius @code{Rmax}. @code{x'}, @code{y'} and time are exactly @code{Xp0},@code{Yp0} and @code{T0} respectively for each generated particle. 
+The kinetic energy distribution is a gaussian of width @code{sigmaE} centered 
+about the nominal beam kinetic energy.
 @itemize @bullet
-@item @code{X0}, @code{Y0} - centre of distribution? NOT IMPLEMENTED
 @item @code{Rmin}, @code{Rmax} - inner and outer radius in [m]
-@item @code{sigmaE}
+@item @code{sigmaE} - RMS energy spread [GeV] 
 @end itemize
 
 @c @code{Square}
@@ -1309,7 +1305,21 @@ be used:
 
 @code{csample, range=<element>, r=r0, l=l0;}
 
+@subsection @code{dump}
+Used in conjuction with @code{option,fifo=<filename>} to output the bunch 
+distribution at a given point. If the specified output file is a fifo, the 
+distribution can be modified by an external program before being piped back in 
+to continue tracking. This is useful for including 
+multi-particle effects such as wakefields at given points in the lattice.
 
+@example
+@code{dump,range=@var{dumpMarker1}}
+@code{option,fifo="/tmp/temp.dat"}
+@end example 
+
+Output is in the standard Guineapig format, with a header line stating the 
+number of particles to be output. The file to be read back should be in the 
+same format as this.
 @subsection @code{use}
 
 @code{use} command selects the beam line for study
@@ -1329,7 +1339,8 @@ be used:
 @chapter Visualization
 
 When @code{BDSIM} is invoked in interactive mode, the run is controlled by the Geant4 shell. A visualization macro
-should be then provided. A simple visualization macro is listed below.
+should be then provided. A simple visualization macro is include with the 
+distribution, and is outlined below.
 
 @c @float
 
@@ -1369,7 +1380,8 @@ should be then provided. A simple visualization macro is listed below.
 @c @end float
 
 
-By default the macro is read from the file named @code{vis.mac}. The name of the file with the macro can also be passed
+By default the macro is read from the file named @code{vis.mac} located in the 
+current directory. The name of the file with the macro can also be passed
 via the @code{vis_mac} switch.
 
 @example
@@ -1429,9 +1441,9 @@ Several predefined physics lists are available
 
 @multitable @columnfractions .3 .7
 @item @code{standard}          @tab transportation of primary particles only
-@item @code{em_standard}       @tab transportation of primary particles, ionization, bremsstrahlung, multiple scattering 
+@item @code{em_standard}       @tab transportation of primary particles, ionization, bremsstrahlung, Cerenkov, multiple scattering 
 @item @code{em_low}            @tab the same but using low energy electromagnetic models
-@item @code{em_muo}            @tab the same but using biased muon cross-sections
+@item @code{em_muon}           @tab the same but using biased muon cross-sections
 @item @code{lw}                @tab list for laser wire simulation - standard electromagnetic 
 @item                          @tab physics and "laser wire" physics which is Compton Scattering with total cross-section renormalized to 1.
 @item @code{hadronic_standard} @tab standard electromagnetic, fission, neutron capture, neutron and proton elastic and inelastic scattering
@@ -1536,7 +1548,7 @@ as a class library.
 
 @section Features to be added in next releases
 
-current development is focused on the beam-gas scattering and implementation of wakefields.
+Current development is focused on the beam-gas scattering and neutron transport.
 
 
 @c cccccccccccccccccccccccccccccccccccccccccc
@@ -1560,7 +1572,8 @@ for example,
 @code{gmad} is a simple format used as G4geometry wrapper. It can be used for specifying more or less
 simple geometries like collimators. Available shapes are:
 
-@example 
+@multitable @columnfractions .5 .5
+@item @example 
 Box @{
 x0=x_origin,
 y0=y_origin,
@@ -1568,49 +1581,73 @@ z0=z_origin,
 x=xsize,
 y=ysize,
 z=zsize,
-material=MaterialName,
-temperature=T
+phi=Euler angle for rotation,
+theta=Euler angle for rotation,
+psi=Euler angle for rotation,
+material=MaterialName
 @}
 @end example
 
+@tab
 
 @example 
 Tubs @{
 x0=x_origin,
 y0=y_origin,
 z0=z_origin,
-x=xsize,
-y=ysize,
+rmin=inner radius,
+rmax=outer radius,
+z=zsize,
+phi=Euler angle for rotation,
+theta=Euler angle for rotation,
+psi=Euler angle for rotation,
+material=MaterialName
+@}
+@end example
+
+@item
+@example
+Cons @{
+x0=x_origin,
+y0=y_origin,
+z0=z_origin,
+rmin1=inner radius at start,
+rmax1=outer radius at start,
+rmin2=inner radius at end,
+rmax2=outer radius at end,
 z=zsize,
 material=MaterialName,
-temperature=T
+phi=Euler angle for rotation,
+theta=Euler angle for rotation,
+psi=Euler angle for rotation,
+phi0=angle for start of sector,
+dphi=angle swept by sector
 @}
+
 @end example
 
-For example
+@tab
 
 @example
-
-Cons @{
-x0=0,
-y0=0,
-z0=0,
-rmin1=5
-rmax1=500
-rmin2=5
-rmax2=500
-z=250
-material=Graphite,
-phi0=0,
-dphi=360,
-temperature=1
+Trd @{
+x0=x_origin,
+y0=y_origin,
+z0=z_origin,
+x1=half length at wider side,
+x2=half length at narrower side,
+y1=half length at wider side,
+y2=half length at narrower side,
+z=zsize,
+phi=Euler angle for rotation,
+theta=Euler angle for rotation,
+psi=Euler angle for rotation,
+material=MaterialName
 @}
-
 @end example
+@end multitable
 
-
-A file can contain several objects which will be placed consequently into the volume, A user has to make
-sure that there is no overlap between them.
+A file can contain several objects which will be placed sequentially into the 
+volume, A user has to make sure that there is no overlap between them.
 
 
 @section @code{mokka}
@@ -1620,7 +1657,7 @@ sure that there is no overlap between them.
 @section @code{gdml}
 GDML is a XML schema for detector description.
 GDML will be supported as an external format starting from next release.
-
+@c Ha! Third time we've said that... oh well
 
 @c cccccccccccccccccccccccccccccccccccccccccc
 @c
@@ -1642,7 +1679,7 @@ must be specified, where each rows must have the following format:
 x y Bx By Bz
 
 
-@node Bunch description formats, References, Fields, Top
+@node Bunch description formats, Known Issues, Fields, Top
 @appendix Bunch description formats
 
 
@@ -1689,15 +1726,55 @@ beam,  particle="e-",
 
 @end example
 
+@node Known Issues, References, Bunch description formats, Top
+@appendix Known Issues
 
+A bug is present where a sampler attached to a bending magnet (RBend/SBend) will
+cause the magnetic field to fail to be set. The reference frame rotates 
+correctly but the particle trajectory does not follow. To work around this 
+issue, samplers should be attached to a marker rather than directly to the 
+magnet. For example:
 
+@example
+@code{dip: sbend,l=1*m, angle=0.1;}
+@code{temp: line=(dip);}
+@code{use, period=temp;}
+@code{sample, range=dip;}
+@end example
 
+should be replaced by:
+
+@example
+@code{dip: sbend,l=1*m, angle=0.1;}
+@code{dipMark: marker;}
+@code{temp: line=(dipMark,dip);}
+@code{use, period=temp;}
+@code{sample, range=dipMark;}
+@end example
+
+Samplers attached to multiple instances of the same element incorrectly 
+register hits only from the first instance in all such samplers. For example:
+
+@example
+@code{drift1: drift, l=1*m;}
+@code{mark1: marker;}
+@code{line1: line=(mark1,drift1,mark1,drift1);}
+@code{sample, range=mark1[1];}
+@code{sample, range=mark1[2];}
+@end example
+
+will incorrectly record hits at @code{mark1[1]} in the sampler attached to 
+@code{mark1[2]}. To avoid this, samplers should be attached to uniquely named 
+elements.
+
+There is a known issue with ROOT output using ROOT versions higher than 5.10. 
+To use ROOT output, BDSIM should be compiled with ROOT version 5.10 or lower.
 
 @c cccccccccccccccccccccccccccccccccccccccccc
 @c
 @c cccccccccccccccccccccccccccccccccccccccccc
 
-@node References, , Bunch description formats, Top
+@node References, , Known Issues, Top
 @chapter References
 
 @enumerate
@@ -1707,7 +1784,7 @@ beam,  particle="e-",
 G. Blair, Simulation of the CLIC Beam Delivery System Using BDSIM, CLIC Note 509
 
 @anchor{Root}
-@item [Root]
+@item [Root] 
 Root User's Guide, @uref{http://root.cern.ch/root/doc/RootDoc.html}
 
 @anchor{Geant}
