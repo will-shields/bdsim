@@ -306,11 +306,22 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
     {
       sagitta=itsLength/itsAngle*(1.-cos(itsAngle/2.));
     }
+
+  if(DEBUG) G4cout << "Outer volume inner radius :"
+		   << " r= " << (itsInnerIronRadius+sagitta)/m << " m"
+		   << " l= " << aLength/2./m << " m"
+		   << G4endl;
+
+  if(DEBUG) G4cout << "Outer radius :"
+		   << " r= " << outerRadius/m << " m"
+		   << " l= " << aLength/2./m << " m"
+		   << G4endl;
+
   if(OuterMaterialIsVacuum)
     {
       itsOuterLogicalVolume=
 	new G4LogicalVolume(new G4Tubs(itsName+"_outer_solid",
-				       itsInnerIronRadius+sagitta,
+				       itsInnerIronRadius+sagitta+1*nm,
 				       outerRadius,
 				       aLength/2,
 				       0,twopi*radian),
@@ -321,7 +332,7 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
     {
       itsOuterLogicalVolume=
 	new G4LogicalVolume(new G4Tubs(itsName+"_outer_solid",
-				       itsInnerIronRadius+sagitta,
+				       itsInnerIronRadius+sagitta+1*nm,
 				       outerRadius,
 				       aLength/2,
 				       0,twopi*radian),

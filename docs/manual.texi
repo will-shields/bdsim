@@ -1063,7 +1063,7 @@ other elements.
 @subsection Element number
 
 When several elements with the same name are present in the beamline they can be accessed by their 
-number in the sequence. In the next example the sampler is put before the second drift 
+number in the sequence. In the next example the sampler is put before the second drift@footnote{See @ref{Known Issues}}
 
 @example
 
@@ -1304,6 +1304,26 @@ To put a cylindrical sampler of length @code{l0} (in [m]) around element
 be used:
 
 @code{csample, range=<element>, r=r0, l=l0;}
+
+Samplers output the following parameters at the specified location:
+@multitable @columnfractions 0.1 0.4 0.1 0.4
+@item E  @tab Energy[GeV] @tab E0 @tab Energy at last scatter[Gev]
+@item X  @tab Global X position @tab s @tab path length
+@item Y  @tab Global Y position @tab t @tab time of flight
+@item Z  @tab Global Z position @tab t0 @tab time of flight at last scatter
+@item Xp @tab Global angle in x-z @tab trackID @tab trackID of particle
+@item Yp @tab Global angle in y-z @tab weight @tab weight of track
+@item Zp @tab 1-sqrt(Xp@math{^2}+Yp@math{^2}) 
+      @tab parentID @tab trackID of parent particle
+@item x @tab Relative x position @tab x0 @tab x at last scatter
+@item y @tab Relative y position @tab y0 @tab y at last scatter
+@item z @tab Relative z position @footnote{See @ref{Known Issues}} 
+      @tab z0 @tab z at last scatter
+@item xp @tab Relative angle in x-z @tab xp0 @tab xp at last scatter
+@item yp @tab Relative angle in y-z @tab yp0 @tab yp at last scatter
+@item zp @tab 1-sqrt(xp@math{^2}+yp@math{^2}) @tab zp0 @tab xp at last scatter
+@item nEvent @tab Event number @tab partID @tab PDG particle identifier
+@end multitable
 
 @subsection @code{dump}
 Used in conjuction with @code{option,fifo=<filename>} to output the bunch 
@@ -1770,6 +1790,11 @@ elements.
 There is a known issue with ROOT output using ROOT versions higher than 5.10. 
 To use ROOT output, BDSIM should be compiled with ROOT version 5.10 or lower.
 
+There is a known issue with the @var{z} parameter output to samplers. As 
+particle data is output at the z location of the sampler, when the global 
+position is transformed from global to relative coordinates @var{z} is 
+identically zero. For a description of a particle's longitudinal position in 
+the bunch, please use the parameter @var{s} instead.
 @c cccccccccccccccccccccccccccccccccccccccccc
 @c
 @c cccccccccccccccccccccccccccccccccccccccccc

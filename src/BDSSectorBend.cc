@@ -397,7 +397,7 @@ void BDSSectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
   
   G4Tubs *magTubsEnv =
     new G4Tubs(itsName+"_solid_env",
-	       itsInnerIronRadius, // inner R
+	       itsInnerIronRadius+1*nm, // inner R + overlap safety
 	       itsOuterR,          // outer R
 	       tubLen,             // length
 	       0,                  // starting phi
