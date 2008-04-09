@@ -4,7 +4,7 @@
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
 
-// $Id: BDSRunManager.hh,v 1.1 2005/01/22 17:05:31 agapov Exp $
+// $Id: BDSRunManager.hh,v 1.2 2007/07/18 13:35:01 malton Exp $
 // GEANT4 tag $Name:  $
 #ifndef BDSRunManager_h
 #define BDSRunManager_h 1

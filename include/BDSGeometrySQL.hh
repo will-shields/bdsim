@@ -70,6 +70,7 @@ private:
   void BuildTrap(BDSMySQLTable* aSQLTable);
   void BuildTorus(BDSMySQLTable* aSQLTable);
   void BuildSampler(BDSMySQLTable* aSQLTable);
+  void BuildTube(BDSMySQLTable* aSQLTable);
   G4RotationMatrix* RotateComponent(G4double psi,
 				    G4double phi,
 				    G4double theta);

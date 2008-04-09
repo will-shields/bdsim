@@ -150,18 +150,23 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 //	const G4RotationMatrix Rot=tf.NetRotation();
 //	const G4ThreeVector Trans=-tf.NetTranslation();
 
-        G4ThreeVector pos=aTrack->GetPosition();
+        G4ThreeVector initialPos=aTrack->GetPosition();
         G4ThreeVector momDir=aTrack->GetMomentumDirection();
+	G4double refTime = (BDSGlobals->referenceQueue.front() 
+				- aTrack->GetGlobalTime())/2;
+
+	G4ThreeVector transformedPos = initialPos + momDir*c_light*refTime;
 
 	//pos.setZ(aTrack->GetGlobalTime()*c_light);
 
+
 //        G4ThreeVector LocalPosition=pos+Trans;
 //        G4ThreeVector LocalDirection=Rot*momDir;
-        G4ThreeVector LocalPosition=tf.TransformPoint(pos);
+        G4ThreeVector LocalPosition=tf.TransformPoint(transformedPos);
         G4ThreeVector LocalDirection=tf.TransformAxis(momDir);
 
 	if(DEBUG){
-	  G4cout << "Stacking: Pos = " << pos << G4endl;
+	  G4cout << "Stacking: Pos = " << transformedPos << G4endl;
 	  G4cout << "LocalPos: Pos = " << LocalPosition << G4endl;
 	  G4cout << "Stacking: mom = " << momDir << G4endl;
 	  G4cout << "LocalDir: mom = " << LocalDirection << G4endl;
@@ -179,12 +184,15 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 	<< x << "\t" << y << "\t" << z << "\t"
 	<< xPrime << "\t" << yPrime << "\n"; // SPM
        tmpParticle outputParticle;
-       outputParticle.E=aTrack->GetTotalEnergy();
+       if(aTrack->GetDefinition()->GetPDGEncoding()==-11)
+	 outputParticle.E=-(aTrack->GetTotalEnergy());
+       else outputParticle.E=aTrack->GetTotalEnergy();
        outputParticle.xp=momDir.x();
        outputParticle.yp=momDir.y();
-       outputParticle.x=pos.x();
-       outputParticle.y=pos.y();
-       outputParticle.z=pos.z();
+       outputParticle.x=initialPos.x();
+       outputParticle.y=initialPos.y();
+       outputParticle.z=initialPos.z();
+       outputParticle.t=aTrack->GetGlobalTime();
        BDSGlobals->outputQueue.push_back(outputParticle);
 
        classification = fPostpone;

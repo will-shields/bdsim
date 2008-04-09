@@ -173,7 +173,8 @@ struct Options {
   double muonLowestGeneratedEnergy;
 
   std::string fifo; // fifo for BDSIM-placet
-
+  std::string refvolume; //initial starting volume
+  int refcopyno; //initial starting volume copy number
 };
 
 // type of beamline list entries
@@ -185,7 +186,7 @@ struct Element {
   
   double l,ks,k0,k1,k2,k3,angle,aper,tilt,xsize,ysize,r,outR,hgap,B;
   double xdir, ydir, zdir, waveLength; // for laser wire and 3d transforms
-
+  double flatlength,taperlength; //for realistic collimators
   double gradient; // for rf cavities
 
   double phi, theta, psi; // for 3d transforms
@@ -247,6 +248,8 @@ struct Parameters {
   double phi, theta, psi; // for 3d transforms
   int phiset, thetaset, psiset;
 
+  double flatlength; int flatlengthset;
+  double taperlength; int taperlengthset;
   double gradient; int gradientset;
 
   double outR; int outRset; // outer radius of magnets
@@ -300,7 +303,8 @@ struct Parameters {
     componentsFractions.erase(componentsFractions.begin(),componentsFractions.end());
     componentsWeights.erase(componentsWeights.begin(),componentsWeights.end());
 
-
+    flatlength = 0; flatlengthset = 0;
+    taperlength = 0; taperlengthset = 0;
     angle = 0; angleset = 0;
     xsize = 0; xsizeset = 0;
     ysize = 0; ysizeset = 0;

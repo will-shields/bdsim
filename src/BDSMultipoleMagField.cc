@@ -6,8 +6,6 @@ Last modified 11.10.2007 by Steve Malton
 
 //==============================================================
 
-
-
 #include "BDSGlobalConstants.hh" // must be first in include list
 
 #include "BDSMultipoleMagField.hh"
@@ -37,7 +35,7 @@ BDSMultipoleMagField::BDSMultipoleMagField(list<G4double> knl, list<G4double> ks
 
   list<G4double>::iterator it;
   list<G4double>::iterator its;
-  
+ 
   for(it=bnl.begin(), its=bsl.begin();it!=bnl.end();it++, its++)
     {
       //G4cout<<"was : "<<(*it)<<G4endl;
@@ -48,14 +46,14 @@ BDSMultipoleMagField::BDSMultipoleMagField(list<G4double> knl, list<G4double> ks
 
   testf.open("field.txt");
 
-  G4double pt[4];
-  G4double b[3];
+  G4double pt[3];
+  G4double b[6];
 
   for(G4double x=-1*cm;x<1*cm;x+=0.1*mm)
     for(G4double y=-1*cm;y<1*cm;y+=0.1*mm){
       pt[0]= x;
       pt[1]= y;
-      pt[2]= pt[3]=0;
+      pt[2]= 0;
       GetFieldValue(pt,b);
       testf<<pt[0]<<" "<<pt[1]<<" "<<b[0]/tesla<<" "<<b[1]/tesla<<" "<<b[2]/tesla<<G4endl;
     }
@@ -65,7 +63,7 @@ BDSMultipoleMagField::BDSMultipoleMagField(list<G4double> knl, list<G4double> ks
 
 BDSMultipoleMagField::~BDSMultipoleMagField(){}
 
-void BDSMultipoleMagField::GetFieldValue( const G4double Point[4],
+void BDSMultipoleMagField::GetFieldValue( const G4double *Point,
 		       G4double *Bfield ) const
 {
   G4Navigator* MulNavigator=

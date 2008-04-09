@@ -135,9 +135,9 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
   }
 
   // get fieldmap format and file
+  bFormat="none";
   if(bmap != ""){
     G4int pos = bmap.find(":");
-    bFormat="none";
     if(pos<0) {
       G4cerr<<"WARNING: invalid B map reference format : "<<bmap<<endl; 
     }

@@ -21,7 +21,7 @@ BDSMultipoleOuterMagField::BDSMultipoleOuterMagField(G4int nPoles,
 
 BDSMultipoleOuterMagField::~BDSMultipoleOuterMagField(){}
 
-void BDSMultipoleOuterMagField::GetFieldValue(const G4double Point[4],
+void BDSMultipoleOuterMagField::GetFieldValue(const G4double *Point,
 					      G4double *Bfield ) const
 {
   G4Navigator* MultipoleOuterNavigator=

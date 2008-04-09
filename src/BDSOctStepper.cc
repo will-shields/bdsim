@@ -10,7 +10,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSOctStepper.cc,v 1.5 2006/04/19 21:52:20 carter Exp $
+// $Id: BDSOctStepper.cc,v 1.6 2007/05/10 16:23:22 malton Exp $
 // GEANT4 tag $Name:  $
 //
 #include "BDSOctStepper.hh"

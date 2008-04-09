@@ -5,7 +5,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSVisManager.cc,v 1.2 2007/08/03 10:59:54 malton Exp $
+// $Id: BDSVisManager.cc,v 1.3 2007/10/05 11:40:26 malton Exp $
 // GEANT4 tag $Name:  $
 //
 // 

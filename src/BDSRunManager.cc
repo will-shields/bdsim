@@ -39,10 +39,17 @@ void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
   {
     numberOfEventToBeProcessed = n_event;
     RunInitialization();
+
+    if(BDSDump::GetNumberOfDumps()!=0){
+      // Run reference particle for dumps
+      BDSGlobals->isReference=true;
+      DoEventLoop(1,macroFile,0);
+      BDSGlobals->isReference=false;
+    }
+
     if(n_event>0) DoEventLoop(n_event,macroFile,n_select);
     RunTermination();
     while(!BDSGlobals->holdingQueue.empty()){
-      BDSDump::nUsedDumps++;
       BDSGlobals->setReadFromStack(true);
       SM->ClearPostponeStack();
 
@@ -53,11 +60,13 @@ void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
 
       BDSGlobals->setReadFromStack(false);
     }
+    BDSGlobals->referenceQueue.clear();
+
     while(BDSDump::nUsedDumps < BDSDump::GetNumberOfDumps())
     {
       int token;
       FILE* fifo = fopen(BDSGlobals->GetFifo(),"a");
-      fprintf(fifo,"# nparticles = 0\n");
+      fprintf(fifo,"# nparticles read from fifo = 0\n");
       fclose(fifo);
 
       fifo = fopen(BDSGlobals->GetFifo(),"r");
@@ -66,6 +75,7 @@ void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
 
       BDSDump::nUsedDumps++;
     }
+    BDSDump::nUsedDumps=0;
   }
 }
 

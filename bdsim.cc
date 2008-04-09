@@ -98,6 +98,7 @@ BDSOutput bdsOutput;                // output interface
 BDSBunch theBunch;  // bunch information
 G4int outputFormat=_ASCII;
 G4String outputFilename="output";  //receives a .txt or .root in BDSOutput
+char *fifoName=NULL;  //receives a .txt or .root in BDSOutput
 G4String outlinefile="BDSOutline.dat";  
 G4String outlineType="";
 G4String inputFilename= "optics.gmad"; // input file with gmad lattice description
@@ -144,6 +145,7 @@ int main(int argc,char** argv) {
     { "vis_mac", 1, 0, 0 },
     { "output", 1, 0, 0 },
     { "outfile", 1, 0, 0 },
+    { "fifo", 1, 0, 0 },
     { "batch", 0, 0, 0 },
     { "materials", 0, 0, 0 },
     { 0, 0, 0, 0 }
@@ -229,6 +231,12 @@ int main(int argc,char** argv) {
 	      outputFilename=optarg;
 	    }
 	  }
+	if( !strcmp(LongOptions[OptionIndex].name , "fifo") )
+	  {
+	    if(optarg) {
+	      fifoName=optarg;
+	    }
+	  }
 	if( !strcmp(LongOptions[OptionIndex].name , "outline") )
 	  {
 	    if(optarg) outlinefile = optarg; 
@@ -292,8 +300,11 @@ int main(int argc,char** argv) {
   //
 
   BDSGlobals = new BDSGlobalConstants(options);
-  theBunch.SetOptions(options);
+  if (fifoName) {
+    BDSGlobals->SetFifo(fifoName);
+  }
 
+  theBunch.SetOptions(options);
 
   //
   // set default output formats:

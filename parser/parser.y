@@ -460,6 +460,10 @@ parameters:
 		    else
 		  if(!strcmp($1->name,"waveLength")) {params.waveLength = $3; params.waveLengthset = 1;}
 		    else
+		  if(!strcmp($1->name,"taperlength")) {params.taperlength = $3; params.taperlengthset = 1;}
+		    else
+		  if(!strcmp($1->name,"flatlength")) {params.flatlength = $3; params.flatlengthset = 1;}
+		    else
 		  if(VERBOSE) printf("Warning : unknown parameter %s\n",$1->name);
 		  
 		}

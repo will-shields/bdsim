@@ -11,7 +11,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSSteppingAction.hh,v 1.2 2006/05/05 00:40:08 agapov Exp $
+// $Id: BDSSteppingAction.hh,v 1.3 2007/07/18 13:35:01 malton Exp $
 // GEANT4 tag $Name:  $
 //
 // 

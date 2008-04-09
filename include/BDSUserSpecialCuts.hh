@@ -11,7 +11,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSUserSpecialCuts.hh,v 1.1.1.1 2004/12/14 18:57:41 agapov Exp $
+// $Id: BDSUserSpecialCuts.hh,v 1.1 2005/01/22 17:05:31 agapov Exp $
 // GEANT4 tag $Name:  $
 // ------------------------------------------------------------
 //                  15 April 1998  M.Maire

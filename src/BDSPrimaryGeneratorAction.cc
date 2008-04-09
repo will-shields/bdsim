@@ -79,6 +79,7 @@ BDSPrimaryGeneratorAction::BDSPrimaryGeneratorAction(
   particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
   particleGun->SetParticlePosition(G4ThreeVector(0.*cm,0.*cm,0.*cm));
   particleGun->SetParticleEnergy(BDSGlobals->GetBeamKineticEnergy());
+  particleGun->SetParticleTime(0);
 }
 
 //===================================================
@@ -105,25 +106,56 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     x0 = outputParticle.x;
     y0 = outputParticle.y;
     z0 = outputParticle.z;
+    t = outputParticle.t;
     xp = holdingParticle.xp;
     yp = holdingParticle.yp;
     zp = holdingParticle.zp;
-    t = holdingParticle.t;
     E = holdingParticle.E;
     if(DEBUG) printf("Particles left %i: %f %f %f %f %f %f %f %f\n",
 	(int)BDSGlobals->holdingQueue.size(),x0,y0,z0,xp,yp,zp,t,E);
     BDSGlobals->holdingQueue.pop_front();
     BDSGlobals->outputQueue.pop_front();
   }
-  else G4Exception("No new particles to fire...\n");
+  else if(!BDSGlobals->isReference) G4Exception("No new particles to fire...\n");
 
-  G4ThreeVector PartMomDir=G4ThreeVector(xp,yp,zp);
- 
-  particleGun->SetParticleDefinition(BDSGlobals->GetParticleDefinition());
-  particleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0 ) );
-  particleGun->SetParticleEnergy(E);
-  particleGun->SetParticleMomentumDirection(PartMomDir);
-  particleGun->SetParticleTime(t);
+  if(E<0){
+    particleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->
+  				       FindParticle("e+"));
+    E*=-1;
+  }
+  else if(E==0) G4cout << "Particle energy is 0! This will not be tracked." << G4endl;
+  else
+    particleGun->SetParticleDefinition(BDSGlobals->GetParticleDefinition());
+
+  G4ThreeVector PartMomDir(0,0,1);
+  G4ThreeVector PartPosition(0,0,0);
+
+  G4ThreeVector LocalPos;
+  G4ThreeVector LocalMomDir;
+
+  if(!BDSGlobals->isReference){
+    PartMomDir=G4ThreeVector(xp,yp,zp);
+    PartPosition=G4ThreeVector(x0,y0,z0);
+
+    if(BDSGlobals->GetRefVolume()!=""){
+      const G4AffineTransform* tf = BDSGlobals->GetRefTransform();
+      LocalPos = tf->TransformPoint(PartPosition);
+      LocalMomDir = tf->TransformAxis(PartMomDir);
+      if(DEBUG) {
+	G4cout << PartPosition << G4endl;
+        G4cout << PartMomDir << G4endl;
+        G4cout << LocalPos << G4endl;
+        G4cout << LocalMomDir << G4endl;
+      }
+      PartPosition = LocalPos;
+      PartMomDir = LocalMomDir;
+    }
+
+    particleGun->SetParticlePosition(PartPosition);
+    particleGun->SetParticleEnergy(E);
+    particleGun->SetParticleMomentumDirection(PartMomDir);
+    particleGun->SetParticleTime(t);
+  }
 
   particleGun->GeneratePrimaryVertex(anEvent);
 

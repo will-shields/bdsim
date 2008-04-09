@@ -135,6 +135,8 @@ void flush(struct Element& e )
 
   e.gradient = 0;
 
+  e.flatlength = 0;
+  e.taperlength = 0;
   e.hgap = 0;
   e.aper = 0;
   e.outR = 0;
@@ -188,6 +190,8 @@ void copy_properties(std::list<struct Element>::iterator dest, std::list<struct 
   (*dest).psi = (*src).psi; 
   (*dest).waveLength = (*src).waveLength; 
  
+  (*dest).flatlength = (*src).flatlength;
+  (*dest).taperlength = (*src).taperlength;
   (*dest).aper = (*src).aper; 
   (*dest).outR = (*src).outR; 
   (*dest).tilt = (*src).tilt; 
@@ -249,6 +253,8 @@ void inherit_properties(struct Element e)
   if(!params.psiset) { params.psi = e.psi; params.psiset = 1; }
   if(!params.thetaset) { params.theta = e.theta; params.thetaset = 1; }
   if(!params.hgapset) { params.hgap = e.hgap; params.hgapset = 1; }
+  if(!params.flatlengthset) { params.flatlength = e.flatlength; params.flatlengthset = 1; }
+  if(!params.taperlengthset) { params.taperlength = e.taperlength; params.taperlengthset = 1; }
 
   //materials
   if(!params.Aset) { params.A = e.A; params.Aset = 1; }
@@ -526,6 +532,8 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     e.type = _RCOL;
     e.l = params.l;
     e.material = std::string(params.material);
+    e.flatlength = params.flatlength;
+    e.taperlength = params.taperlength;
     break;
 
   case _LASER:
@@ -1111,6 +1119,9 @@ void set_value(std::string name, double value )
   if(name == "nperfile" ) options.numberOfEventsPerNtuple = (int)value;
   if(name == "eventNumberOffset" ) options.eventNumberOffset = (int)value;
   if(name == "nlinesIgnore") options.nlinesIgnore = (int) value;
+
+  // options for neutrons
+  if(name=="refcopyno") options.refcopyno = (int) value;
 }
 
 
@@ -1135,8 +1146,9 @@ void set_value(std::string name, std::string value )
   // options which influence the tracking
   if(name == "physicsList" ) options.physicsList = value; 
 
-  //?
+  // options for external code interfaces
   if(name == "fifo") options.fifo = value;
+  if(name == "refvolume") options.refvolume = value;
 }
 
 double property_lookup(char *element_name, char *property_name)
@@ -1167,6 +1179,8 @@ double property_lookup(char *element_name, char *property_name)
    if(!strcmp(property_name,"tilt")) return (*it).tilt;
    if(!strcmp(property_name,"gradient")) return (*it).gradient;
    if(!strcmp(property_name,"hgap")) return (*it).hgap;
+   if(!strcmp(property_name,"flatlength")) return (*it).flatlength;
+   if(!strcmp(property_name,"taperlength")) return (*it).taperlength;
 
    if(!strcmp(property_name,"A")) return (*it).A;
    if(!strcmp(property_name,"Z")) return (*it).Z;

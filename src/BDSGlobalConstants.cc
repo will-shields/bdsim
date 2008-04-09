@@ -155,6 +155,9 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
 
   itsFifo = opt.fifo;
 
+  itsRefVolume = opt.refvolume;
+  itsRefCopyNo = opt.refcopyno;
+
   itsIncludeIronMagFields = 0;
 
  //  else if(name=="INCLUDE_IRON_MAG_FIELDS")
@@ -255,5 +258,5 @@ G4String BDSGlobalConstants::StringFromDigit(G4int N)
 
 BDSGlobalConstants::~BDSGlobalConstants()
 {  
-    
+
 }

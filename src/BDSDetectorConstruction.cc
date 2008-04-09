@@ -1,7 +1,7 @@
 //  
 //   BDSIM, (C) 2001-2007
 //   
-//   version 0.4
+//   version 0.5-dev
 //  
 //
 //
@@ -79,7 +79,7 @@ const int DEBUG = 0;
 #include "BDSElement.hh"
 #include "BDSComponentOffset.hh"
 #include "BDSCollimator.hh"
-
+#include "BDSRealisticCollimator.hh"
 // output interface
 #include "BDSOutput.hh"
 
@@ -451,6 +451,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 	// arc length
 	G4double length = (*it).l*m;
+	if((*it).angle !=0)
+	  length *= ((*it).angle/2.0) / sin((*it).angle/2.0); 
 
 	//
 	// magnetic field
@@ -493,7 +495,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 		 << G4endl;
 
 	  theBeamline.push_back(new BDSDrift( (*it).name,
-					      length,
+					      (*it).l*m,
 					      aper ) );
 	}
 	else {
@@ -513,10 +515,9 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 	  // REPLACE WITH BDSRBend FOR THE MOMENT (UNTIL TOROIDAL GEOMETRY IS
 	  // IMPLEMENTED!
-	  length *= sin((*it).angle/2.0) / ((*it).angle/2.0);
 
 	  theBeamline.push_back(new BDSRBend( (*it).name,
-						   length,
+						   (*it).l*m,
 						   aper,
 						   FeRad,
 						   bField,
@@ -1152,9 +1153,23 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 			 << " name= " << (*it).name 
 			 << " xaper= " << (*it).xsize <<"m"
 			 << " yaper= " << (*it).ysize <<"m"
+			 << " flatl= " << (*it).flatlength <<"m"
+			 << " taper= " << (*it).taperlength <<"m"
 			 << " material= " << (*it).material
 			 << G4endl;
+/*
+	theBeamline.push_back(new BDSRealisticCollimator(
+						(*it).name,
+						bpRad,
+						(*it).xsize * m,
+						(*it).ysize * m,
+						_RCOL,
+						(*it).flatlength * m,
+						(*it).taperlength * m,
+						theMaterial,
+						(*it).outR*m) );
 
+*/
 	theBeamline.push_back(new BDSCollimator( (*it).name,
 						 (*it).l * m,
 						 bpRad,
@@ -1226,6 +1241,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	  (*curr)->SetK1((*it).k1);
 	  (*curr)->SetK2((*it).k2);
 	  (*curr)->SetK3((*it).k3);
+	  
 	}
     }
   
@@ -1610,7 +1626,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 				 localY,
 				 localZ);
 
-
 	G4PVPlacement* PhysiComponentPlace = 
 	  new G4PVPlacement(
 			    rotateComponent,  // its rotation
@@ -1621,6 +1636,14 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 			    false,	      // no boolean operation
 			    nCopy);	      // copy number
 	
+	if(DEBUG) G4cout << "Volume name: " << LocalName << G4endl;
+        if(BDSGlobals->GetRefVolume()+"_phys"==LocalName && 
+		BDSGlobals->GetRefCopyNo()==nCopy){
+	  if(DEBUG) G4cout << "Setting new transform" <<G4endl;
+	  G4AffineTransform tf(globalRotation,TargetPos-G4ThreeVector(0,0,length/2));
+	  BDSGlobals->SetRefTransform(tf);
+        }
+
 	(*iBeam)->PrepareField(PhysiComponentPlace);
 
 	if(use_graphics)

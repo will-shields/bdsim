@@ -11,7 +11,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSUserSpecialCuts.cc,v 1.1 2005/01/22 16:42:31 agapov Exp $
+// $Id: BDSUserSpecialCuts.cc,v 1.2 2005/01/27 11:35:32 agapov Exp $
 // GEANT4 tag $Name:  $
 // 
 // --------------------------------------------------------------

@@ -14,7 +14,7 @@ BDSRK4Stepper::BDSRK4Stepper(G4EquationOfMotion* EqRhs, G4int nvar) :
   itsEqRhs = EqRhs;
   
  //  unsigned int noVariables= std::max(numberOfVariables,8); // For Time .. 7+1
- 
+
   dydxr = new G4double[nvar];
   dydxm = new G4double[nvar];
   dydxt = new G4double[nvar]; 
@@ -75,7 +75,7 @@ BDSRK4Stepper::AdvanceHelix( const G4double  yIn[],
   const G4double *pIn = yIn+3;
   G4double itsEnergy = sqrt(pIn[0]*pIn[0]+pIn[1]*pIn[1]+pIn[2]*pIn[2]);
   
-  G4double BField[3];
+  G4double BField[6];
   G4double Pos[4];
   Pos[0] = yIn[0];
   Pos[1] = yIn[1];

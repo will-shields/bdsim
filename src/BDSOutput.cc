@@ -147,7 +147,7 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
 	  <<" "
 	  <<(*hc)[i]->GetY()/micrometer
 	  <<" "
-	  <<(*hc)[i]->GetZ() / m
+	  <<(*hc)[i]->GetS() / m
 	  <<" "
 	  <<(*hc)[i]->GetXPrime() / radian
 	  <<" "
@@ -155,7 +155,8 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
 	  <<G4endl;
       }
     
-    of<<G4endl;
+//    of<<G4endl; // remove whitespace in output file when no events hit sampler
+      of.flush();
     //of<<"end of hits collection"<<G4endl;
   }
  
@@ -311,7 +312,7 @@ void BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
 	of<<EWeightZ/m<<"  "<<Energy/GeV<<"  "<<partID<<"  "<<parentID<<G4endl;
 
       }
-
+      of.flush();
   }
 
 }
