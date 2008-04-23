@@ -1,0 +1,459 @@
+// This code implementation is the intellectual property of
+// the GEANT4 collaboration.
+//
+// By copying, distributing or modifying the Program (or any work
+// based on the Program) you indicatbdse your acceptance of this statement,
+// and all its terms.
+//
+// $Id: BDSDetectorConstruction.cc_torus,v 1.1.1.1 2004/12/14 18:57:39 agapov Exp $
+// GEANT4 tag $Name:  $
+//
+// 
+
+//=================================================================
+//=================================================================
+
+#include "BDSDetectorConstruction.hh"
+#include "BDSDetectorMessenger.hh"
+
+#include "BDSMagField.hh"
+#include "G4UserLimits.hh"
+
+#include "G4Box.hh"
+#include "G4Tubs.hh"
+#include "G4LogicalVolume.hh"
+#include "G4PVPlacement.hh"
+#include "G4UniformMagField.hh"
+#include "G4FieldManager.hh"
+#include "G4TransportationManager.hh"
+#include "G4PropagatorInField.hh"
+#include "G4SDManager.hh"
+#include "G4RunManager.hh"
+
+#include "G4ChordFinder.hh"
+#include "G4Mag_UsualEqRhs.hh"
+#include "G4HelixHeum.hh"
+#include "myHelixStepper.hh"
+
+#include "G4HelixImplicitEuler.hh"
+#include "G4ClassicalRK4.hh"
+
+#include "G4VisAttributes.hh"
+#include "G4Colour.hh"
+#include "globals.hh"
+#include "G4ios.hh"
+#include <iostream>
+#include <list>
+#include <map>
+#include"myAcceleratorComponent.hh"
+
+#include"MagFieldFunction.hh"
+#include"G4Navigator.hh"
+
+// temp:
+#include "G4IntersectionSolid.hh"
+#include "G4Trd.hh"
+
+
+
+//====================================
+// Merlin things:
+#include "myMADInterface.hh"
+//====================================
+typedef list<myAcceleratorComponent*>  myBeamline;
+myMaterials* BDSMaterials;
+
+G4double LCComponentBoxSize=50*cm;
+
+G4double LCTunnelWidth = 3*m; 
+G4double LCBeampipeRadius =2*cm; 
+G4double LCBeampipeThickness =2*mm; 
+
+G4double BDS_Threshold_Energy=10*GeV;
+
+//typedef std::map<G4String,MagFieldFunction*> PhysFieldMap;
+//PhysFieldMap* MagFieldMap;
+
+typedef std::map<G4String,int> LogVolCountMap;
+LogVolCountMap* LogVolCount;
+
+typedef std::map<G4String,G4LogicalVolume*> LogVolMap;
+LogVolMap* LogVol;
+
+G4RotationMatrix* RotY90=new G4RotationMatrix();
+G4ThreeVector* ZeroVec=new G4ThreeVector(0,0,0);
+
+// gab tmp:
+G4String LastVolName;
+G4ThreeVector LastPos;
+G4ThreeVector LastMom;
+
+
+//G4Navigator* StepperNavigator;
+//G4Navigator* QuadNavigator;
+//=================================================================
+
+BDSDetectorConstruction::BDSDetectorConstruction()
+{  // create commands for interactive definition of the beamline  
+   detectorMessenger = new BDSDetectorMessenger(this);
+   RotY90->rotateY(pi/2);
+}
+
+//=================================================================
+
+G4VPhysicalVolume* BDSDetectorConstruction::Construct()
+{
+
+  //  MagFieldMap=new PhysFieldMap();
+  LogVolCount=new LogVolCountMap();
+  LogVol=new LogVolMap();
+
+  BDSMaterials=new myMaterials();
+
+  return ConstructBDS();
+}
+
+//=================================================================
+  
+G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS()
+{
+  // beam momentum:
+         G4double P0=250*GeV;
+  //       G4double P0=10*GeV;
+
+  // Read in the MAD decks:Linux-g++/BDS_run/BDSDetectorConstruction.o] Error 1
+  // Construct the BDS beamline model
+
+
+    G4FieldManager* fieldMgr 
+     = G4TransportationManager::GetTransportationManager()->GetFieldManager();
+
+    /*
+     G4PropagatorInField* prop
+     = G4TransportationManager::GetTransportationManager()->
+                                          GetPropagatorInField();
+     G4cout<<" fieldMgr="<<fieldMgr<<" prop in fld="<<prop<<G4endl;
+    */
+
+
+       myMADInterface mad("tesla_bds_v801.optics",P0);
+
+       	ofstream madlog("construction.log");
+       	mad.SetLogFile(madlog);
+       myBeamline theBeamline=mad.ConstructModel();
+
+
+	//	mad.SetLoggingOn();
+	//	mad.ConstructApertures(false);
+
+  list<myAcceleratorComponent*>::const_iterator iBeam;
+ 
+      G4double s_tot=0.;
+      G4double x_tot=0.;
+      G4double z_tot=0.;
+      G4double angle_tot=0.;
+
+      int k=0;
+
+     for(iBeam=theBeamline.begin();iBeam!=theBeamline.end();iBeam++)
+	 {s_tot+= (*iBeam)->GetLength();
+          G4double ang=(*iBeam)->GetAngle();
+          if(ang==0)
+	    {
+             x_tot+=(*iBeam)->GetLength()*sin(angle_tot);
+             z_tot+=(*iBeam)->GetLength()*cos(angle_tot);
+	    }
+          else
+	    {
+             G4double LinLen=((*iBeam)->GetLength()/ang)*2*sin(ang/2);
+             x_tot+=LinLen*sin(angle_tot+ang/2);
+             z_tot+=LinLen*cos(angle_tot+ang/2);
+             angle_tot+=ang;
+	    }
+	 }
+
+  // set default output formats:
+   G4cout.precision(10);
+
+  // complete the Quad parameters definition 
+  //  ComputeQuadParameters();
+
+  // -----------------------------------
+  // Beam spot dimensions (much too large, for debugging only!)
+      BeamSizeX=25.0*cm; 
+      BeamSizeY=25.0*cm; 
+      BeamSizeZ=1.0*cm;
+
+  // -----------------------------------
+  // World dimensions:
+        WorldSizeX=LCTunnelWidth/2+abs(x_tot);
+        WorldSizeY=LCTunnelWidth/2;
+        WorldSizeZ=abs(z_tot)/2; 
+
+  G4String LocalName="World";
+
+  G4cout<<"WorldSizeX="<<WorldSizeX<< G4endl;
+  G4cout<<"WorldSizeY="<<WorldSizeY<< G4endl;
+  G4cout<<"WorldSizeZ="<<WorldSizeZ<< G4endl;
+  solidWorld = new G4Box("World",				//its name
+			 WorldSizeX,WorldSizeY,WorldSizeZ);     //its size
+  //			 WorldSizeX,WorldSizeY,WorldSizeZ+1*m);     //its size
+
+  logicWorld = new G4LogicalVolume(solidWorld,		//its solid
+				   //BDSMaterials->LCAir,	//its material
+                                   BDSMaterials->LCVacuum,	//its material
+                                   "World");		//its name
+     logicWorld->SetVisAttributes (G4VisAttributes::Invisible);             
+     logicWorld->SetFieldManager(new G4FieldManager(),false);    
+
+  G4ThreeVector Bfield;
+  G4UniformMagField* WorldMagField=new G4UniformMagField(Bfield);
+  G4FieldManager* WorldFieldMgr= new G4FieldManager();
+  WorldFieldMgr->SetDetectorField(WorldMagField);
+
+
+  physiWorld = new G4PVPlacement(0,			//no rotation
+  				 G4ThreeVector(),	//at (0,0,0)
+                                 LocalName,		//its name
+                                 logicWorld,		//its logical volume
+                                 NULL,			//its mother  volume
+                                 false,			//no boolean operation
+                                 0);			//copy number
+
+
+   // set up magnetic field 
+  //    (*MagFieldMap)[LocalName] = new MagFieldFunction();
+
+
+  // build up the tunnel:
+     G4bool use_material=true;
+     G4bool use_graphics=true;
+     G4double s_local=-s_tot/2.;
+     G4double x,y,z;
+     G4ThreeVector TargetPos;
+
+  // set default output formats:
+    G4cout.precision(10);
+
+     BDSUserLimits =new G4UserLimits;
+     BDSUserLimits->SetMaxAllowedStep(5*m);
+
+   G4cout<<" total length="<<s_tot/m<< " s_local="<<s_local/m<<G4endl;
+
+ 
+   // reset counters:
+   for(iBeam=theBeamline.begin();iBeam!=theBeamline.end();iBeam++)
+    (*LogVolCount)[(*iBeam)->GetG4LogicalVolume()->GetName()]=1;
+
+   angle_tot=0.;
+   G4double x_local=0;
+   G4double z_local=-z_tot/2;
+   G4double delta_x,delta_z;
+   G4double LinLen;
+     for(iBeam=theBeamline.begin();iBeam!=theBeamline.end();iBeam++)
+     	{ 
+         G4double ang=(*iBeam)->GetAngle();
+         G4double aLength=(*iBeam)->GetLength();
+         if(ang!=0)
+	   {
+            LinLen=(aLength/ang)*2*sin(ang/2);
+            delta_x=LinLen*sin(angle_tot+ang/2);
+            delta_z=LinLen*cos(angle_tot+ang/2);
+	   }
+         else
+
+	   {
+            LinLen=aLength;
+            delta_x=LinLen*sin(angle_tot);
+            delta_z=LinLen*cos(angle_tot);
+	   }
+
+	 //                    x=x_local+delta_x/2;
+	 //         y=0.;
+	 //         z=z_local+delta_z/2;
+
+
+         G4ThreeVector RelPos;
+     G4RotationMatrix* RotateComponent=new G4RotationMatrix();
+     if(ang!=0)
+{       // allow for the fact that trapezoids are defined along z-axis...
+       //      RotateComponent->rotateY(-angle_tot-pi/2-ang/2);
+       // torus rotations:
+         TargetPos.setX(x_local);
+         TargetPos.setY(0.);
+         TargetPos.setZ(z_local);
+	         RelPos.setX(aLength/ang);
+		 //      	         RotateComponent->rotateZ(pi/2);
+		 //                 RotateComponent->rotateZ(-angle_tot);
+
+      	         if(ang<0)
+                  {RotateComponent->rotateX(-pi/2);
+	       	   RotateComponent->rotateZ(angle_tot);
+		  }
+                 else
+                  {RotateComponent->rotateZ(pi);
+                   RotateComponent->rotateX(-pi/2);
+	       	   RotateComponent->rotateZ(-angle_tot);
+		  }
+		 //                 if(ang>0)RotateComponent->rotateY(pi);
+		 //                RotateComponent->rotateY(pi/2);
+		 //	         RotateComponent->rotateX(pi/2);
+		 //	         RotateComponent->rotateZ(pi/2+signAng*ang/2);
+
+
+                 
+	       	       	RelPos.rotateY(angle_tot);
+
+}
+     else
+      {  TargetPos.setX(x_local+delta_x/2);
+         TargetPos.setY(0);
+         TargetPos.setZ(z_local+delta_z/2);
+         RotateComponent->rotateY(-angle_tot);
+      }
+      
+         angle_tot+=ang;
+         x_local+=delta_x;
+         z_local+=delta_z;
+
+         LocalName=(*iBeam)->GetName()+"_phys";
+
+         G4LogicalVolume* LocalLogVol=(*iBeam)->GetG4LogicalVolume();
+         G4String LogVolName=LocalLogVol->GetName();
+
+	 int nCopy=(*LogVolCount)[LogVolName]-1;
+          (*LogVolCount)[LogVolName]++;
+
+
+	 G4PVPlacement* PhysiComponentPlace = 
+	      new G4PVPlacement(
+	             RotateComponent,	//  rotation
+	             TargetPos+RelPos,         // its position
+		     LocalName,	        // its name
+		     LocalLogVol,	// its logical volume
+ 	             physiWorld,	// its mother  volume
+	             false,		// no boolean operation
+	             nCopy);		// copy number
+
+  // set up magnetic field 
+	 //     if(!(*MagFieldMap)[LocalName])
+	 //    (*MagFieldMap)[LocalName] = new MagFieldFunction();
+
+     // keep a track of individual lengths:
+   
+
+    if(use_graphics)
+     {
+            (*iBeam)->GetVisAttributes()->SetVisibility(true);
+	    //(*iBeam)->GetVisAttributes()->SetVisibility(false);
+      //      (*iBeam)->GetVisAttributes()->SetForceSolid(true);
+	          (*iBeam)->GetG4LogicalVolume()->
+	           SetVisAttributes((*iBeam)->GetVisAttributes());
+
+     }   
+      (*iBeam)->GetG4LogicalVolume()->SetUserLimits(BDSUserLimits);
+
+
+ }
+
+     /*
+    myMagField=new BDSMagField();
+
+G4Mag_UsualEqRhs* EqRhs=new G4Mag_UsualEqRhs(myMagField);
+
+//G4HelixImplicitEuler* BDS_Stepper= new G4HelixImplicitEuler(EqRhs);
+
+//G4HelixHeum* BDS_Stepper= new G4HelixHeum(EqRhs);
+ myHelixStepper* BDS_Stepper=new myHelixStepper(EqRhs);
+ G4ThreeVector Bfield(0.,0.074*tesla,0);
+ BDS_Stepper->SetBfield(Bfield);
+
+//G4ClassicalRK4* BDS_Stepper= new G4ClassicalRK4(EqRhs);
+
+    G4FieldManager* BDSfieldMgr=G4TransportationManager::
+                              GetTransportationManager()->GetFieldManager();
+        BDSfieldMgr->SetDetectorField(myMagField);
+        BDSfieldMgr->CreateChordFinder(myMagField);
+
+        G4ChordFinder* BDS_ChordFinder= 
+                   new G4ChordFinder(myMagField,1.*mm,BDS_Stepper);
+
+        BDS_ChordFinder->GetIntegrationDriver()-> 
+	              RenewStepperAndAdjust(BDS_Stepper);
+
+
+        BDSfieldMgr->SetChordFinder(BDS_ChordFinder);
+     */
+
+
+     /* gab comment out the following:
+   //copy the volume navigator
+       StepperNavigator=new G4Navigator();
+       //       StepperNavigator->SetWorldVolume(physiWorld);
+       *StepperNavigator=*G4TransportationManager::GetTransportationManager()->
+                           GetNavigatorForTracking();
+
+       QuadNavigator=new G4Navigator();
+       //       QuadNavigator->SetWorldVolume(physiWorld);
+       *QuadNavigator=*G4TransportationManager::GetTransportationManager()->
+                          GetNavigatorForTracking();
+     
+     */
+
+
+  return physiWorld;
+ 
+}
+
+//=================================================================
+
+void BDSDetectorConstruction::SetMagField(G4double fieldValue)
+{
+    //apply a global uniform magnetic field along Z axis
+    G4FieldManager* fieldMgr 
+     = G4TransportationManager::GetTransportationManager()->GetFieldManager();
+      
+    if(magField) delete magField;    //delete the existing magn field
+  
+    if(fieldValue!=0.)			// create a new one if non nul
+    { magField = new G4UniformMagField(G4ThreeVector(0.,fieldValue,0.));        
+      fieldMgr->SetDetectorField(magField);
+      fieldMgr->CreateChordFinder(magField);
+    } else {
+      magField = NULL;
+      fieldMgr->SetDetectorField(magField);
+    }
+}
+
+//=================================================================
+  
+void BDSDetectorConstruction::UpdateGeometry()
+{
+  G4RunManager::GetRunManager()->DefineWorldVolume(ConstructBDS());
+}
+
+//=================================================================
+BDSDetectorConstruction::~BDSDetectorConstruction()
+{ 
+  //  delete detectorMessenger;
+  //  if(myMagField)   delete myMagField;
+  //  if(BDSUserLimits)delete BDSUserLimits;
+  //  if(BDSMaterials) delete BDSMaterials;
+  //  G4cout<<"Deleting Mag Field Map"<<G4endl;
+  //  if(MagFieldMap)
+  //  {
+  //   typedef map<G4String,MagFieldFunction*>::const_iterator iMapIt;
+  //    for(iMapIt MI=(*MagFieldMap).begin();MI!=(*MagFieldMap).end();++MI)
+  //     delete MI->second;
+  //    delete MagFieldMap;
+  //  }
+
+  //  G4cout<<"Deleting Log Vol Count"<<G4endl;
+  //  delete LogVolCount;
+
+  // G4cout<<"Deleting Log Vol"<<G4endl;
+  //  if(LogVol)       delete LogVol;
+
+}
+
+//=================================================================

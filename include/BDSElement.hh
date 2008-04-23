@@ -1,0 +1,71 @@
+/* BDSIM code.    Version 1.0
+   Author: John C. Carter, Royal Holloway, Univ. of London.
+   Last modified 02.12.2004
+   Copyright (c) 2004 by J.C.Carter.  ALL RIGHTS RESERVED. 
+*/
+
+#ifndef BDSElement_h
+#define BDSElement_h 
+
+#include "globals.hh"
+#include "BDSAcceleratorComponent.hh"
+#include "BDSMaterials.hh"
+#include "G4LogicalVolume.hh"
+
+#include "G4FieldManager.hh"
+#include "G4ChordFinder.hh"
+#include "G4Mag_UsualEqRhs.hh"
+#include "G4UserLimits.hh"
+#include "G4VisAttributes.hh"
+
+#include "BDSField.hh"
+#include "BDSXYMagField.hh"
+
+#include "G4EqMagElectricField.hh"
+#include "G4ClassicalRK4.hh"
+#include "BDSRK4Stepper.hh"
+
+
+class BDSElement :public BDSAcceleratorComponent
+{
+public:
+  BDSElement(G4String aName, G4String geometry, G4String bmap, G4double aLength, 
+						G4double bpRad, G4double outR);
+  ~BDSElement();
+
+  void BuildGeometry();
+  void PlaceComponents(G4String geometry, G4String bmap);
+  void BuildMagField(G4int nvar=8, G4bool foreToAllDaughters=false);
+
+  // creates a field mesh in global coordinates in case it is given by map
+  void PrepareField(G4VPhysicalVolume *referenceVolume);
+
+  void AlignComponent(G4ThreeVector& TargetPos, 
+		      G4RotationMatrix *TargetRot,
+		      G4RotationMatrix& globalRotation,
+		      G4ThreeVector& rtot,
+		      G4ThreeVector& rlast,
+		      G4ThreeVector& localX,
+		      G4ThreeVector& localY,
+		      G4ThreeVector& localZ); 
+   
+protected:
+  
+  G4VisAttributes* SetVisAttributes();  
+
+private:
+
+  BDSField *itsField;
+  G4double itsOuterR;
+  // Volume to align incoming beamline on inside the marker volume
+  // (set during Geometery construction)
+  G4VPhysicalVolume* align_in_volume;
+  // Volume to align outgoing beamline on inside the marker volume
+  // (set during Geometery construction)
+  G4VPhysicalVolume* align_out_volume;
+
+
+};
+
+
+#endif

@@ -1,0 +1,77 @@
+General Information
+===================
+
+BDSIM version 0.4_beta, Geant4 toolkit for radiation transport in accelerators
+
+The official web site is:
+	http://ilc.pp.rhul.ac.uk/bdsim.html
+
+The official Geant4 web site is:
+	http://geant4.web.cern.ch/geant4/
+
+
+Maintained by Steve Malton (malton@pp.rhul.ac.uk),
+Ilya Agapov (agapov@pp.rhul.ac.uk) and G.A.Blair (blair@pp.rhul.ac.uk)
+
+This release x.x.2007
+
+
+
+History
+===================
+
+v0.4_beta : 25.07.07
+v0.3 : 26.01.07
+v0.2 : 18.05.06
+v0.1 : 15.11.05 
+Beta : 05.05.05
+
+
+Installation
+===================
+
+System requirements:
+
+tested on:
+    os: Linux (Fedora 3-5), MacOS X
+    compiler: gcc 3.3.3, gcc 4.0.0
+
+mandatory:
+    Geant4.8.0 or higher
+
+optional: 
+    OpenGL (Mesa), ROOT 4.x (5.x)  
+
+to compile:
+
+   %  ./configure
+   %  make
+
+
+Getting Started
+===================
+
+to run:
+    bdsim [options]
+
+f.e. 
+    bdsim --file=line.gmad --output=root
+
+to see the full list of options:
+
+    bdsim --help
+
+
+Some input examples are available in ./examples/ directory. 
+For more details consult documentation
+
+Directories
+===================
+
+parser/          : gmad parser
+examples/        : sample lettices
+docs/		 : documentation
+utils/           : various "useful" scripts
+
+
+
