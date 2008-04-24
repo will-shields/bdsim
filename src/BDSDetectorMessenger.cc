@@ -11,7 +11,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSDetectorMessenger.cc,v 1.1.1.1 2004/12/14 18:57:39 agapov Exp $
+// $Id: BDSDetectorMessenger.cc,v 1.1 2005/01/22 16:42:31 agapov Exp $
 // GEANT4 tag $Name:  $
 //
 // 

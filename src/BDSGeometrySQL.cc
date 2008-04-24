@@ -466,6 +466,7 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
 {
   G4int NVariables = aSQLTable->GetVariable("LENGTHXPLUS")->GetNVariables();
 
+	G4double trapTheta = 0; //Angle between faces of trapezoid
   G4double lengthXPlus = 0;
   G4double lengthXMinus = 0;
   G4double lengthYPlus = 0;
@@ -485,6 +486,8 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
       Material = "VACUUM";
+      if(aSQLTable->GetVariable("TRAPTHETA")!=NULL)
+	trapTheta = aSQLTable->GetVariable("TRAPTHETA")->GetDblValue(k);
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
       if(aSQLTable->GetVariable("BLUE")!=NULL)
@@ -514,11 +517,17 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
       Name = itsMarkerVol->GetName()+"_"+Name;
 
       G4Trap* aTrap = new G4Trap(Name+"_Trd",
-				 lengthXPlus/2,
-				 lengthXMinus/2,
-				 lengthYPlus/2,
-				 lengthYMinus/2,
-				 lengthZ/2);
+																 lengthZ/2,
+																 trapTheta, 0,
+																 lengthYPlus/2,
+																 lengthXPlus/2,
+																 lengthXPlus/2,
+																 0,
+																 lengthYMinus/2,
+																 lengthXMinus/2,
+																 lengthXMinus/2,
+																 0);
+			
       
       G4LogicalVolume* aTrapVol = 
 	new G4LogicalVolume(aTrap,

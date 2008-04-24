@@ -10,7 +10,7 @@
 
 
 
-const int DEBUG = 0;
+const int DEBUG = 1;
 
 //======================================================
 //======================================================
@@ -100,7 +100,7 @@ BDSEventAction::BDSEventAction()
 :SamplerCollID_plane(-1),SamplerCollID_cylin(-1),
 LWCalorimeterCollID(-1),drawFlag("all")
 { 
-  if(isBatch) printModulo=10;//1000;
+  if(isBatch) printModulo=10;
   else printModulo=1;
   
   itsOutputFileNumber=1;

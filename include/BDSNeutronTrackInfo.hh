@@ -27,7 +27,7 @@
 // ********************************************************************
 //
 //
-// $Id: BDSNeutronTrackInfo.hh,v 1.1.1.1 2004/12/14 18:57:41 agapov Exp $
+// $Id: BDSNeutronTrackInfo.hh,v 1.1 2005/01/22 17:05:31 agapov Exp $
 // GEANT4 tag $Name:  $
 //
 //

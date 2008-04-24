@@ -10,7 +10,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSDriftStepper.hh,v 1.1 2005/01/22 17:05:30 agapov Exp $
+// $Id: BDSDriftStepper.hh,v 1.2 2007/11/14 12:57:06 malton Exp $
 // GEANT4 tag $Name:  $
 //
 //

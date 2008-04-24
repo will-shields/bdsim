@@ -212,6 +212,7 @@ void BDSPhysicsList::ConstructProcess()
   // weighted compton scattering from laser wire
   if(BDSGlobals->GetPhysListName() == "lw") 
     {
+      ConstructMuon();
       ConstructEM();
       ConstructLaserWire();
       return;

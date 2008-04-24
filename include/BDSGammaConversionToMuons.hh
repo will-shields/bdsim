@@ -21,8 +21,8 @@
 // ********************************************************************
 //
 //
-// $Id: G4GammaConversionToMuons.hh,v 1.1 2004/11/19 18:44:04 vnivanch Exp $
-// GEANT4 tag $Name: geant4-08-00 $
+// $Id: BDSGammaConversionToMuons.hh,v 1.1 2006/04/09 17:59:43 agapov Exp $
+// GEANT4 tag $Name:  $
 //
 //         ------------ G4GammaConversionToMuons physics process ------
 //         by H.Burkhardt, S. Kelner and R. Kokoulin, April 2002

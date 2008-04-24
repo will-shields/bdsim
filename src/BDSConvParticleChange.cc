@@ -26,7 +26,7 @@
 // ********************************************************************
 //
 //
-// $Id: BDSConvParticleChange.cc,v 1.1 2005/01/22 16:42:30 agapov Exp $
+// $Id: BDSConvParticleChange.cc,v 1.2 2007/05/10 16:23:22 malton Exp $
 // GEANT4 tag $Name:  $
 //
 // 

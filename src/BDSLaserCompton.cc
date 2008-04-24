@@ -11,6 +11,8 @@
 #include "G4ios.hh"
 #include "G4UnitsTable.hh"
 
+#define DEBUG 1
+
 #if G4VERSION > 8
 BDSLaserCompton::BDSLaserCompton(const G4String& processName)
   :  G4VDiscreteProcess(processName),isInitialised(false)
@@ -61,7 +63,11 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
      //     itsLaserDirection=BDSGlobals->GetLaserwireDir();
      itsLaserWavelength=BDSGlobals->GetLaserwireWavelength(lVolume->GetName());
      itsLaserDirection=BDSGlobals->GetLaserwireDir(lVolume->GetName());
-     
+    
+		 if(DEBUG){
+			 G4cout << "BDSLaserCompton: itLaserWavelength = " << itsLaserWavelength/nm << " nm" << G4endl;
+			 G4cout << "BDSLaserCompton: itLaserDirection  = " << itsLaserDirection << G4endl;
+		 }
      //G4cout << "&&&&&" << itsLaserDirection << "&&&&&\n";
      if(itsLaserWavelength<=0.)
        {G4Exception("BDSLaserCompton::PostStepDoIt - Invalid Wavelength");}

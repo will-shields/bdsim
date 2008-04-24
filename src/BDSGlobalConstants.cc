@@ -33,13 +33,13 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
   else
     itsPhysListName = opt.physicsList;
 
-  if(opt.pipeMaterial == "") 
-    itsPipeMaterial = "Vacuum";
-  else
+  if(opt.pipeMaterial == "")
+		itsPipeMaterial = "StainlessSteel";
+	else
     itsPipeMaterial = opt.pipeMaterial;
 
   if(opt.vacMaterial == "") 
-    itsVacMaterial = "Vacuum";
+    itsVacMaterial = "StainlessSteel";
   else
     itsVacMaterial = opt.vacMaterial;
   
@@ -95,7 +95,8 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
 
   itsSynchLowGamE = opt.synchLowGamE * GeV;  // lowest gamma energy
 
-  itsSynchPhotonMultiplicity = opt.synchPhotonMultiplicity;
+  itsSynchPhotonMultiplicity = 10000; //deacon
+  //opt.synchPhotonMultiplicity;
 
   itsSynchMeanFreeFactor = opt.synchMeanFreeFactor;
 
@@ -142,7 +143,7 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
 
   // defaults - parameters of the laserwire process
 
-  itsLaserwireWavelength = 0.4 * micrometer;
+  itsLaserwireWavelength = 0.532 * micrometer;
   itsLaserwireDir = G4ThreeVector(1,0,0);
   itsLaserwireTrackPhotons = 1;
   itsLaserwireTrackElectrons = 1;

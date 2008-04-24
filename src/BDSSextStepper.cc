@@ -11,7 +11,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSSextStepper.cc,v 1.4 2007/05/10 16:23:22 malton Exp $
+// $Id: BDSSextStepper.cc,v 1.5 2007/11/14 12:57:06 malton Exp $
 // GEANT4 tag $Name:  $
 //
 #include "BDSSextStepper.hh"

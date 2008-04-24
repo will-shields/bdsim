@@ -11,7 +11,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSQuadStepper.cc,v 1.6 2006/05/17 00:18:05 agapov Exp $
+// $Id: BDSQuadStepper.cc,v 1.7 2007/11/14 12:43:25 malton Exp $
 //
 #include "BDSQuadStepper.hh"
 #include "G4ThreeVector.hh"

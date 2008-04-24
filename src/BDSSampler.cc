@@ -23,7 +23,7 @@
 //#include"MagFieldFunction.hh"
 #include <map>
 
-
+#define DEBUG 1
 
 typedef std::map<G4String,int> LogVolCountMap;
 extern LogVolCountMap* LogVolCount;
@@ -69,6 +69,8 @@ void BDSSampler::SamplerLogicalVolume()
       G4double SampTransSize;
       SampTransSize=2.*BDSGlobals->GetTunnelRadius();
 
+			if (DEBUG) G4cout << "BDSSampler.cc: BDSGlobals->GetTunnelRadius() = " << BDSGlobals->GetTunnelRadius()/m << "m" << G4endl; 
+
       itsMarkerLogicalVolume=
 	new G4LogicalVolume(
 			    new G4Box(itsName+"_solid",
@@ -87,16 +89,18 @@ void BDSSampler::SamplerLogicalVolume()
 
      // Sensitive Detector:
 //SPM G4cout << "Sampler.cc Nsamplers " << bdsOutput.nSamplers << G4endl;
-      G4cout << "Sampler.cc Nsamplers " << nSamplers << G4endl;
+      if(DEBUG) G4cout << "Sampler.cc: Nsamplers = " << nSamplers << G4endl;
 
 //SPM if(bdsOutput.nSamplers==0)
       if(nSamplers==0)
 	{
 	  G4SDManager* SDMan = G4SDManager::GetSDMpointer();
 	  BDSSamplerSensDet=new BDSSamplerSD(itsName,"plane");
+		if(DEBUG) G4cout << "Sampler.cc: adding new sampler" << G4endl;
 	  SDMan->AddNewDetector(BDSSamplerSensDet);
 //SPM     itsMarkerLogicalVolume->SetSensitiveDetector(BDSSamplerSensDet);
 	}
+			if(DEBUG) G4cout << "Sampler.cc: setting sensitive detector" << G4endl;
       itsMarkerLogicalVolume->SetSensitiveDetector(BDSSamplerSensDet);
     }
   else

@@ -117,10 +117,14 @@ void BDSBunch::SetOptions(struct Options& opt)
 
   case _GAUSSIAN:
     {
-      SetSigmaX(opt.sigmaX); 
-      SetSigmaY(opt.sigmaY);
-      SetSigmaXp(opt.sigmaXp);
-      SetSigmaYp(opt.sigmaYp);
+      //SetSigmaX(opt.sigmaX); 
+      //SetSigmaY(opt.sigmaY);
+      //SetSigmaXp(opt.sigmaXp);
+      //SetSigmaYp(opt.sigmaYp);
+      SetSigmaX(sqrt(opt.betx*opt.emitx)); 
+      SetSigmaY(sqrt(opt.bety*opt.emity)); 
+      SetSigmaXp(sqrt(opt.emitx/opt.betx));
+      SetSigmaYp(sqrt(opt.emity/opt.bety));
       SetSigmaT(opt.sigmaT);
       energySpread = opt.sigmaE;
       break;
@@ -527,6 +531,14 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       return;
     } //end doTwiss && partId<nptwiss
 
+G4double theta=0; 
+	G4double x0t=0; 
+	G4double xpt=0; 
+	G4double y0t=0; 
+	G4double ypt=0; 
+	G4double gammaX=0; 
+	G4double gammaY=0;
+
   switch(distribType){
   case _GAUSSIAN:
     {
@@ -544,21 +556,27 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 		      <<" sigmaYp= "<<sigmaYp<<G4endl
 		      <<" sigmaT= "<<sigmaT<<"s"<<G4endl
 		      <<" relative energy spread= "<<energySpread<<G4endl;
-
-      G4double phiX= twopi * G4UniformRand();
-      G4double phiY= twopi * G4UniformRand();
-      G4double ex=-log(G4UniformRand())*emitX;
-      G4double ey=-log(G4UniformRand())*emitY;
-      x0=sqrt(2*ex*betaX)*sin(phiX);
-      xp=sqrt(2*ex/betaX)*(cos(phiX)-alphaX*sin(phiX));
-      y0=sqrt(2*ey*betaY)*sin(phiY);
-      yp=sqrt(2*ey/betaY)*(cos(phiY)-alphaY*sin(phiY));
-
-      if(sigmaX !=0) x0 = (X0 + sigmaX * GaussGen->shoot()) * m;
-      if(sigmaY !=0) y0 = (Y0 + sigmaY * GaussGen->shoot()) * m;
-      z0 = Z0 * m;
-      if(sigmaXp !=0) xp = Xp0 + sigmaXp * GaussGen->shoot();
-      if(sigmaYp !=0) yp = Yp0 + sigmaYp * GaussGen->shoot();
+			
+			gammaX=(1+alphaX*alphaX)/betaX; 
+			theta = 2*alphaX/(gammaX-betaX); 
+	    theta = atan(theta); 
+	    theta = theta/2;
+	    x0t=  GaussGen->shoot()*sigmaX; 
+	    xpt = sigmaXp*GaussGen->shoot(); 
+	    //The phase ellipse is rotated anti clockwise by theta. 
+	    x0  = (x0t*cos(theta)-xpt*sin(theta))*m; 
+	    xp = (xpt*cos(theta)+x0t*sin(theta))*rad;
+	    
+	    gammaY=(1+alphaY*alphaY)/betaY; 
+	    theta = 2*alphaY/(gammaY-betaY); 
+	    theta = atan(theta); 
+	    theta = theta/2;
+	    y0t=  GaussGen->shoot()*sigmaY; 
+	    ypt = sigmaYp*GaussGen->shoot(); 
+	    //The phase ellipse is rotated anti clockwise by theta. 
+	    y0  = (y0t*cos(theta)-ypt*sin(theta))*m; 
+	    yp = (ypt*cos(theta)+y0t*sin(theta))*rad;
+	    E = BDSGlobals->GetBeamKineticEnergy() * (1 + energySpread * GaussGen->shoot());
       if (Zp0<0)
 	zp = -sqrt(1.-xp*xp -yp*yp);
       else

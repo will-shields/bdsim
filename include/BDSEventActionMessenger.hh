@@ -11,7 +11,7 @@
 // based on the Program) you indicate your acceptance of this statement,
 // and all its terms.
 //
-// $Id: BDSEventActionMessenger.hh,v 1.1.1.1 2004/12/14 18:57:41 agapov Exp $
+// $Id: BDSEventActionMessenger.hh,v 1.1 2005/01/22 17:05:30 agapov Exp $
 // GEANT4 tag $Name:  $
 //
 // 

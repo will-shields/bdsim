@@ -82,7 +82,7 @@ BDSQuadrupole::BDSQuadrupole(G4String aName, G4double aLength,
       else if(qtype=="cylinder")  
 	BuildDefaultOuterLogicalVolume(itsLength); // cylinder outer volume
       else //default
-	BuildDefaultOuterLogicalVolume(itsLength); // cylinder outer volume
+	BuildOuterLogicalVolume(); // standard - quad with poles and pockets
       if(BDSGlobals->GetIncludeIronMagFields())
 	{
 	  G4double polePos[4];
