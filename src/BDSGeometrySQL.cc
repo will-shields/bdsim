@@ -1032,27 +1032,40 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
 	    align_out_volume=PhysiComp;
 	}
 
-      G4double P0 = BDSGlobals->GetBeamTotalEnergy();
-      G4double brho=
-	sqrt(pow(P0,2)- pow(electron_mass_c2,2))/(0.299792458 * (GeV/(tesla*m)));
+//      G4double P0 = BDSGlobals->GetBeamTotalEnergy();
+//      G4double brho=
+//	sqrt(pow(P0,2)- pow(electron_mass_c2,2))/(0.299792458 * (GeV/(tesla*m)));
+
+      // compute magnetic rigidity brho
+      // formula: B(Tesla)*rho(m) = p(GeV)/(0.299792458 * |charge(e)|)
+      //
+      // charge (in |e| units)
+      G4double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();  
+      // momentum (in GeV/c)   
+      G4double momentum = BDSGlobals->GetBeamMomentum();
+      // rigidity (in T*m)
+      G4double brho = ( (momentum/GeV) / (0.299792458 * charge));
+      // rigidity (in Geant4 units)
+      brho *= (tesla*m);
+
       if(MagType.compareTo("QUAD",cmpmode)==0)
 	{
 	  HasFields = true;
-	  QuadBgrad.push_back(brho * K1 * tesla / m);
+	  QuadBgrad.push_back(- brho * K1 / (m*m));
 	  Quadvol.push_back(PhysiComp->GetName());
 	}
 
       if(MagType.compareTo("SEXT",cmpmode)==0)
 	{
 	  HasFields = true;
-	  SextBgrad.push_back(brho * K2 * tesla / (m*m));
+	  SextBgrad.push_back(- brho * K2 / (m*m*m));
 	  Sextvol.push_back(PhysiComp->GetName());
 	}
 
       if(MagType.compareTo("OCT",cmpmode)==0)
 	{
 	  HasFields = true;
-	  OctBgrad.push_back(brho * K3 * tesla / (m*m*m));
+	  OctBgrad.push_back(- brho * K3 / (m*m*m*m));
 	  Octvol.push_back(PhysiComp->GetName());
 	}
 
