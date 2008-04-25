@@ -49,6 +49,8 @@ struct tmpParticle {
   G4double xp;
   G4double yp;
   G4double zp;
+  G4int trackID;
+  G4int parentID;
 };
 
 /*

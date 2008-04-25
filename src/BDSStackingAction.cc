@@ -177,12 +177,13 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 	G4double z=LocalPosition.z()/micrometer;
         G4double xPrime=LocalDirection.x()/(1e-6*radian);
         G4double yPrime=LocalDirection.y()/(1e-6*radian);
+	G4double t=aTrack->GetGlobalTime();
 
         BDSGlobals->fileDump.precision(14);
         // TODO : dump the file
         BDSGlobals->fileDump << aTrack->GetTotalEnergy()/GeV << "\t"
 	<< x << "\t" << y << "\t" << z << "\t"
-	<< xPrime << "\t" << yPrime << "\n"; // SPM
+	<< xPrime << "\t" << yPrime << "\t" << t <<"\n"; // SPM
        tmpParticle outputParticle;
        if(aTrack->GetDefinition()->GetPDGEncoding()==-11)
 	 outputParticle.E=-(aTrack->GetTotalEnergy());
@@ -192,7 +193,9 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
        outputParticle.x=initialPos.x();
        outputParticle.y=initialPos.y();
        outputParticle.z=initialPos.z();
-       outputParticle.t=aTrack->GetGlobalTime();
+       outputParticle.t=t;
+       outputParticle.trackID=aTrack->GetTrackID();
+       outputParticle.parentID=aTrack->GetParentID();
        BDSGlobals->outputQueue.push_back(outputParticle);
 
        classification = fPostpone;

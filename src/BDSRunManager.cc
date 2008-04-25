@@ -65,8 +65,9 @@ void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
     while(BDSDump::nUsedDumps < BDSDump::GetNumberOfDumps())
     {
       int token;
-      FILE* fifo = fopen(BDSGlobals->GetFifo(),"a");
-      fprintf(fifo,"# nparticles read from fifo = 0\n");
+      FILE* fifo = fopen(BDSGlobals->GetFifo(),"w");
+      fprintf(fifo,"# nparticles = 0\n");
+      printf("# nparticles read from fifo = 0\n");
       fclose(fifo);
 
       fifo = fopen(BDSGlobals->GetFifo(),"r");

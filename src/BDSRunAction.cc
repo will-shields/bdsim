@@ -131,8 +131,8 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
         fscanf(fifo,"# nparticles = %i",&token);
 	G4cout << "# nparticles read from fifo = " << token << G4endl;
 	for(int i=0; i< token;i++){
-	  fscanf(fifo,"%lf %lf %lf %lf %lf %lf",&E,&x,&y,&z,&xp,&yp);
-	  if(DEBUG) printf("%f %f %f %f %f %f\n",E,x,y,z,xp,yp);
+	  fscanf(fifo,"%lf %lf %lf %lf %lf %lf %lf",&E,&x,&y,&z,&xp,&yp,&t);
+	  if(DEBUG) printf("%f %f %f %f %f %f %f\n",E,x,y,z,xp,yp,t);
 	  
 	  xp *= 1e-6*radian;
 	  yp *= 1e-6*radian;
@@ -143,10 +143,10 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	  
 	  LocalPosition = tf.TransformPoint(pos);
 	  LocalDirection = tf.TransformAxis(momDir);
+	  G4double refTime = (BDSGlobals->referenceQueue.front()-t)/2;
 
-	  LocalPosition -= LocalDirection*c_light
-				*BDSGlobals->referenceQueue.front();
-//	  t = -z/c_light;
+	  LocalPosition -= LocalDirection*c_light*refTime;
+///	  t = -z/c_light;
 	  LocalPosition += LocalDirection.unit()*1e-4*micrometer; // temp fix for recirculation in dump volume
 
 	  if(DEBUG){	  	  
@@ -157,7 +157,7 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	  }
 	  tmpParticle holdingParticle;
 	  holdingParticle.E = E*GeV - BDSGlobals->GetParticleDefinition()->GetPDGMass();
-//	  holdingParticle.t = t;
+	  holdingParticle.t = t;
 	  holdingParticle.xp = LocalDirection.x();
 	  holdingParticle.yp = LocalDirection.y();
 	  holdingParticle.zp = LocalDirection.z();
