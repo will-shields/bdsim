@@ -24,7 +24,7 @@ CREATE TABLE ECOLA_BOX (
     NAME          VARCHAR(32),   # NAME OF SOLID, LOGICAL, AND PHYSICAL VOLUME
 );
 
-INSERT INTO ECOLA_BOX VALUES (-118., 0., 150, 0., 0.5, 0.5, "S", 10, 200, 300, 0., 0.,0.,1,"ALUMINIUM", "ECOLA_COLLIMATOR",);
+INSERT INTO ECOLA_BOX VALUES (-118., 0., 150, 0., 0.5, 0.5, "S", 10, 200, 300, 0., 0.,0.,1,"Aluminium", "ECOLA_COLLIMATOR",);
 
 
 # drift tube
@@ -50,6 +50,6 @@ CREATE TABLE DQEX_CONE (
 );
                       
 
-INSERT INTO DQEX_CONE VALUES (0, 0.0, 450, 0.4, 0.0, 0.0, "S", 300, 200.0, 200.0, 210., 210.,0., 0., 0.0, "ALUMINIUM", ""); 
+INSERT INTO DQEX_CONE VALUES (0, 0.0, 450, 0.4, 0.0, 0.0, "S", 300, 200.0, 200.0, 210., 210.,0., 0., 0.0, "Aluminium", ""); 
 
 

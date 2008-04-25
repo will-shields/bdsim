@@ -393,7 +393,7 @@ scmqf1 := (kqf1 / 0.096307727548);
  mexwy   : marker;
 	
 
-dump: element,l=2*m, geometry="mokka:sql/dump.sql";
+dumpelement: element,l=2*m, geometry="mokka:sql/dump.sql";
 
 
 ! Transform at end of SF1. Values are mean of bunch distribution at that point.
@@ -609,7 +609,7 @@ swtodump:line=(  dy2chic,
                  mexwx,  mexwy,  mexdump );
 
 
-edumpl : line=(swtodump,dump);
+edumpl : line=(swtodump,dumpelement);
 
 tr4a : transform3d , z=-(ldtop+lpdump)*cos(swphi);
 tr4b : transform3d , phi=-swphi;
@@ -625,7 +625,7 @@ endl: marker;
 
 ! exline : line=(ipsf1, sf1sw, dtocol, swtodump,endl);
 ! exline : line=(ipsf1);
-! exline : line=(dump);
+! exline : line=(dumpelement);
 
 
 

@@ -30,7 +30,7 @@ CREATE TABLE QEX1A_CONE (
 
 
 #yoke
-INSERT INTO QEX1A_CONE VALUES ("", 0, 0, 1500, 1, 0, 0, "S", 3000, 0, 0, 500, 500, 0., 0., 0.,1, "IRON", "QEX1A_OUTER","");
+INSERT INTO QEX1A_CONE VALUES ("", 0, 0, 1500, 1, 0, 0, "S", 3000, 0, 0, 500, 500, 0., 0., 0.,1, "Iron", "QEX1A_OUTER","");
 
 
 
@@ -38,9 +38,9 @@ INSERT INTO QEX1A_CONE VALUES ("", 0, 0, 1500, 1, 0, 0, "S", 3000, 0, 0, 500, 50
 # note that it is made longer than qd_outer, but it will be clipped when it is removed
 
 # photon beampipe
-INSERT INTO QEX1A_CONE VALUES ("QEX1A_OUTER", -153.,-0., 0, 1, 1, 0, "I", 3100, 0, 0, 10., 10., 0., 0.,-0.0056 ,0, "VACUUM", "SUBTRACTING_TUBE","SUBTRACT");
+INSERT INTO QEX1A_CONE VALUES ("QEX1A_OUTER", -153.,-0., 0, 1, 1, 0, "I", 3100, 0, 0, 10., 10., 0., 0.,-0.0056 ,0, "Vacuum", "SUBTRACTING_TUBE","SUBTRACT");
 
-INSERT INTO QEX1A_CONE VALUES ("", -153., 0, 1500, 0, 0, 0, "S", 3000, 0, 0, 10., 10., 0., 0., -0.0056,0, "VACUUM", "ZERO_FIELD_APERTURE","");
+INSERT INTO QEX1A_CONE VALUES ("", -153., 0, 1500, 0, 0, 0, "S", 3000, 0, 0, 10., 10., 0., 0., -0.0056,0, "Vacuum", "ZERO_FIELD_APERTURE","");
 
 
 
