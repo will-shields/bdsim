@@ -33,7 +33,7 @@ extern LogVolMap* LogVol;
 
 extern BDSSamplerSD* BDSSamplerSensDet;
 
-extern BDSOutput bdsOutput;
+extern BDSOutput* bdsOutput;
 extern BDSMaterials* theMaterials;
 //============================================================
 
@@ -86,10 +86,10 @@ void BDSSampler::SamplerLogicalVolume()
       itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
 
      // Sensitive Detector:
-//SPM G4cout << "Sampler.cc Nsamplers " << bdsOutput.nSamplers << G4endl;
+//SPM G4cout << "Sampler.cc Nsamplers " << bdsOutput->nSamplers << G4endl;
       G4cout << "Sampler.cc Nsamplers " << nSamplers << G4endl;
 
-//SPM if(bdsOutput.nSamplers==0)
+//SPM if(bdsOutput->nSamplers==0)
       if(nSamplers==0)
 	{
 	  G4SDManager* SDMan = G4SDManager::GetSDMpointer();

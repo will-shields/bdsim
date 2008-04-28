@@ -33,7 +33,7 @@ extern LogVolCountMap* LogVolCount;
 
 typedef std::map<G4String,G4LogicalVolume*> LogVolMap;
 extern LogVolMap* LogVol;
-extern BDSOutput bdsOutput;
+extern BDSOutput* bdsOutput;
 BDSDumpSD* BDSDumpSensDet;
 extern BDSMaterials* theMaterials;
 //============================================================

@@ -31,7 +31,7 @@ extern BDSSamplerSD* BDSSamplerSensDet;
 
 extern BDSMaterials* theMaterials;
 extern G4RotationMatrix* RotY90;
-extern BDSOutput bdsOutput;
+extern BDSOutput* bdsOutput;
 extern BDSGlobalConstants* BDSGlobals;
 
 BDSGeometrySQL::BDSGeometrySQL(G4String DBfile, G4double markerlength)
@@ -734,9 +734,9 @@ void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
 	SDMan->AddNewDetector(BDSSamplerSensDet);
       }
       aSamplerVol->SetSensitiveDetector(BDSSamplerSensDet);
-//SPM bdsOutput.nSamplers++;
+//SPM bdsOutput->nSamplers++;
       BDSSampler::AddExternalSampler();
-      bdsOutput.SampName.push_back(BDSGlobals->StringFromInt(
+      bdsOutput->SampName.push_back(BDSGlobals->StringFromInt(
 					BDSSampler::GetNSamplers())+"_"+Name+"_1");
 
       VOL_LIST.push_back(aSamplerVol);

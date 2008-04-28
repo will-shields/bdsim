@@ -80,7 +80,7 @@ G4int event_number;
 G4bool FireLaserCompton;
 
 
-extern BDSOutput bdsOutput;
+extern BDSOutput* bdsOutput;
 extern G4String outputFilename;
 extern G4bool isBatch;
 
@@ -157,20 +157,20 @@ void BDSEventAction::BeginOfEventAction(const G4Event* evt)
 
   
   G4SDManager * SDman = G4SDManager::GetSDMpointer();
-  //G4cout << bdsOutput.GetPlaneSamplerNumber() << " < PlaneSamplers" << G4endl;
-  //if( bdsOutput.GetPlaneSamplerNumber() > 0)
+  //G4cout << bdsOutput->GetPlaneSamplerNumber() << " < PlaneSamplers" << G4endl;
+  //if( bdsOutput->GetPlaneSamplerNumber() > 0)
   {   
     //if (SamplerCollID_plane==-1)
     SamplerCollID_plane = SDman->GetCollectionID("Sampler_plane");
   }
   
-  //if( bdsOutput.GetCylinderSamplerNumber() > 0 )
+  //if( bdsOutput->GetCylinderSamplerNumber() > 0 )
   {   
     //if (SamplerCollID_cylin==-1)
     //SamplerCollID_cylin = SDman->GetCollectionID("Sampler_cylinder"); //WHY COMMENTED???
   }
   
-  //if( bdsOutput.GetLWCalorimeterNumber() > 0 )
+  //if( bdsOutput->GetLWCalorimeterNumber() > 0 )
   {
     //if (LWCalorimeterCollID==-1) 
     //LWCalorimeterCollID = SDman->GetCollectionID("LWCalorimeterCollection");
@@ -217,7 +217,7 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
   if(SamplerCollID_plane>=0)
     SampHC = (BDSSamplerHitsCollection*)(HCE->GetHC(SamplerCollID_plane));
 
-  if(SampHC)  bdsOutput.WriteHits(SampHC);
+  if(SampHC)  bdsOutput->WriteHits(SampHC);
 	
 
   SampHC=NULL;
@@ -230,7 +230,7 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
   if(SamplerCollID_cylin>=0)
     SampHC = (BDSSamplerHitsCollection*)(HCE->GetHC(SamplerCollID_cylin));
 
-  if (SampHC) bdsOutput.WriteHits(SampHC);
+  if (SampHC) bdsOutput->WriteHits(SampHC);
 
 
 
@@ -243,7 +243,7 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
   // if(LWCalorimeterCollID>=0) 
   //   LWCalHC=(BDSLWCalorimeterHitsCollection*)(HCE->GetHC(LWCalorimeterCollID));
 
-  // if (LWCalHC) bdsOutput.WriteHits(SampHC);
+  // if (LWCalHC) bdsOutput->WriteHits(SampHC);
 
 
   // create energy loss histogram
@@ -262,7 +262,7 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
 	    (BDSEnergyCounterHitsCollection*)(HCE->GetHC(BDSEnergyCounter_ID));
 	
 	  if(BDSEnergyCounter_HC) 
-	    bdsOutput.WriteEnergyLoss(BDSEnergyCounter_HC);
+	    bdsOutput->WriteEnergyLoss(BDSEnergyCounter_HC);
 	}
     }
 
@@ -278,8 +278,8 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
 	if(DEBUG) G4cout<<"writing to file "<<G4endl;
 	// notify the output about the event end
 	// this can be used for splitting output files etc.
-//	bdsOutput.Commit(itsOutputFileNumber++);
-	bdsOutput.Commit();
+//	bdsOutput->Commit(itsOutputFileNumber++);
+	bdsOutput->Commit();
 	if(DEBUG) G4cout<<"done"<<G4endl;
       }
 
@@ -297,7 +297,7 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
   if(BDSGlobals->GetStoreTrajectory() ||
 	BDSGlobals->GetStoreMuonTrajectories() ||
 	BDSGlobals->GetStoreNeutronTrajectories())
-    bdsOutput.WriteTrajectory(TrajVec);
+    bdsOutput->WriteTrajectory(TrajVec);
 
   //the logic for controlling which trajectories are stored is already
   //implemented in BDSUserTrackingAction.cc
@@ -305,20 +305,20 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
   if(BDSGlobals->GetStoreTrajectory()&& TrajVec)
     {
       if(DEBUG) G4cout<<"PROCESSING MUON TRAJECTORY VECTOR"<<G4endl;
-      bdsOutput.WriteTrajectory(TrajVec);
+      bdsOutput->WriteTrajectory(TrajVec);
     }
 
 
   if(BDSGlobals->GetStoreMuonTrajectories()&& TrajVec)
     {
       if(DEBUG) G4cout<<"PROCESSING MUON TRAJECTORY VECTOR"<<G4endl;
-      bdsOutput.WriteTrajectory(TrajVec);
+      bdsOutput->WriteTrajectory(TrajVec);
     }
 
   if(BDSGlobals->GetStoreNeutronTrajectories()&& TrajVec)
     {
       if(DEBUG) G4cout<<"PROCESSING NEUTRON TRAJECTORY VECTOR"<<G4endl;
-      bdsOutput.WriteTrajectory(TrajVec);
+      bdsOutput->WriteTrajectory(TrajVec);
     }
   */
 

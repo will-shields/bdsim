@@ -94,7 +94,7 @@ static void usage()
 
 
 BDSGlobalConstants* BDSGlobals;  // global options instance
-BDSOutput bdsOutput;                // output interface
+BDSOutput* bdsOutput; // output interface
 BDSBunch theBunch;  // bunch information
 G4int outputFormat=_ASCII;
 G4String outputFilename="output";  //receives a .txt or .root in BDSOutput
@@ -309,8 +309,8 @@ int main(int argc,char** argv) {
   //
   // set default output formats:
   //
-
-  bdsOutput.SetFormat(outputFormat);
+  bdsOutput = new BDSOutput();
+  bdsOutput->SetFormat(outputFormat);
   G4cout.precision(10);
 
 
@@ -402,7 +402,7 @@ int main(int argc,char** argv) {
   G4EventManager::GetEventManager()->GetTrackingManager()->GetSteppingManager()
     ->SetVerboseLevel(verboseSteppingLevel);
 
-  bdsOutput.Init(0); // activate the output - setting the first filename to 
+  bdsOutput->Init(0); // activate the output - setting the first filename to 
                      // be appended with _0
 
   //
@@ -548,6 +548,9 @@ int main(int argc,char** argv) {
   //
   // job termination
   //
+
+  if(DEBUG) G4cout<<"BDSOutput deleting..."<<G4endl;
+  delete bdsOutput;
 
   if(DEBUG) G4cout<<"BDSRunManager deleting..."<<G4endl;
   delete runManager;

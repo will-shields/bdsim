@@ -80,5 +80,5 @@ private:
 
 };
 
-extern BDSOutput bdsOutput;
+extern BDSOutput* bdsOutput;
 #endif

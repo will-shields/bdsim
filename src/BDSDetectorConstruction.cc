@@ -128,7 +128,7 @@ G4Navigator* QuadNavigator;
 //=========================================
 G4FieldManager* theOuterFieldManager;
 
-extern BDSOutput bdsOutput;
+extern BDSOutput* bdsOutput;
 extern G4bool verbose;
 extern G4bool outline;
 //=================================================================
@@ -342,7 +342,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 	theBeamline.push_back(new BDSSampler( (*it).name,
 					      samplerLength ) );
-	bdsOutput.nSamplers++;
+	bdsOutput->nSamplers++;
       
 	added_comp=true;
       }
@@ -361,7 +361,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	theBeamline.push_back(new BDSSamplerCylinder( (*it).name,
 						      (*it).l * m,
 						      (*it).r * m ) );
-	bdsOutput.nSamplers++;
+	bdsOutput->nSamplers++;
       
 	added_comp=true;
       }
@@ -1342,7 +1342,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       G4cout<<"s_tot="<<s_tot/m<<" m"<<G4endl;
     }
 
-  bdsOutput.zMax=s_tot;
+  bdsOutput->zMax=s_tot;
 
   solidWorld = new G4Box("World", WorldSizeX, WorldSizeY, WorldSizeZ);
     
@@ -1583,7 +1583,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	
 	if((*iBeam)->GetType()=="sampler") {
 	  LocalName=(*iBeam)->GetName()+"_phys";
-	  bdsOutput.SampName.push_back(LocalName + "_" + BDSGlobals->StringFromInt(nCopy+1));
+	  bdsOutput->SampName.push_back(LocalName + "_" + BDSGlobals->StringFromInt(nCopy+1));
 	} else {
 	  //it would be nice to set correctly names also for other elements...
 	  //but need to count them!
