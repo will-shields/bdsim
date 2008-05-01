@@ -96,7 +96,7 @@ BDSRK4Stepper::AdvanceHelix( const G4double  yIn[],
   G4double Bmag = (BVec.cross(pVec.unit())).mag();
   
   
-  BDSLocalRadiusOfCurvature = (itsEnergy/GeV) / (0.3*Bmag/tesla)*m;
+  BDSLocalRadiusOfCurvature = (itsEnergy/GeV) / (0.299792458*Bmag/tesla)*m;
 
  //  G4cout<<"===>RK Step 1,  before, dydx : ";
   
