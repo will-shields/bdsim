@@ -34,7 +34,7 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
     itsPhysListName = opt.physicsList;
 
   if(opt.pipeMaterial == "") 
-    itsPipeMaterial = "Vacuum";
+    itsPipeMaterial = "StainlessSteel";
   else
     itsPipeMaterial = opt.pipeMaterial;
 

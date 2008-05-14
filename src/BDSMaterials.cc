@@ -134,6 +134,14 @@ void BDSMaterials::Initialise()
     (name="Lead"       , symbol="Pb", z= 82., a= 207.2*g/mole);
   elements[symbol] = tmpElement;
 
+  tmpElement = new G4Element
+    (name="Molybdenum"       , symbol="Mo", z= 42., a= 95.94*g/mole);
+  elements[symbol] = tmpElement;
+
+  tmpElement = new G4Element
+    (name="Chromium"       , symbol="Cr", z= 24., a= 51.9961*g/mole);
+  elements[symbol] = tmpElement;
+
 
   //
   // Define materials
@@ -228,6 +236,31 @@ void BDSMaterials::Initialise()
   tmpMaterial->AddElement(elements["Fe"], fractionmass=0.9929);
   materials[name] = tmpMaterial;
 
+  //Stainless Steel 316L
+  tmpMaterial = new G4Material
+    (name="StainlessSteel"   , density=  8000 *kg/m3, 10, kStateSolid, 295*kelvin);
+  tmpMaterial->AddElement(elements["C"], fractionmass=0.0003);
+  tmpMaterial->AddElement(elements["Mn"], fractionmass=0.02);
+  tmpMaterial->AddElement(elements["Si"], fractionmass=0.0075);
+  tmpMaterial->AddElement(elements["P"], fractionmass=0.00045);
+  tmpMaterial->AddElement(elements["S"], fractionmass=0.0003);
+  tmpMaterial->AddElement(elements["Cr"], fractionmass=0.17);
+  tmpMaterial->AddElement(elements["Mo"], fractionmass=0.025);
+  tmpMaterial->AddElement(elements["Ni"], fractionmass=0.12);
+  tmpMaterial->AddElement(elements["N"], fractionmass=0.001);
+  tmpMaterial->AddElement(elements["Fe"], fractionmass=0.65545);
+  materials[name] = tmpMaterial;
+
+  //Kapton polyimide film
+  tmpMaterial = new G4Material
+    (name="Kapton", density=  1.42 *g/cm3, 4, kStateSolid, 295*kelvin);
+  tmpMaterial->AddElement(elements["H"], fractionmass=0.026362);
+  tmpMaterial->AddElement(elements["C"], fractionmass=0.691133);
+  tmpMaterial->AddElement(elements["N"], fractionmass=0.073270);
+  tmpMaterial->AddElement(elements["O"], fractionmass=0.209235);
+  materials[name] = tmpMaterial;
+
+
   tmpMaterial = new G4Material
     (name="NbTi"          , density=  5.6  *g/cm3, 2, kStateSolid, 4*kelvin);
   tmpMaterial->AddElement(elements["Nb"], 1);
@@ -267,6 +300,20 @@ void BDSMaterials::Initialise()
   tmpMaterial->AddElement(elements["O"], 4);
   materials[name] = tmpMaterial;
 
+	tmpMaterial = new G4Material 
+		(name="FusedSilica", density=1.032*g/cm3, 2, kStateSolid);
+	tmpMaterial->AddElement(elements["O"],2);
+	tmpMaterial->AddElement(elements["Si"],1);
+	const G4int FusedSilica_NUMENTRIES = 3; //Number of entries in the material properties table
+  G4double FusedSilica_RIND[FusedSilica_NUMENTRIES]={1.49,1.49,1.49};
+  G4double FusedSilica_AbsLength[FusedSilica_NUMENTRIES]={420.*cm,420.*cm,420.*cm};
+  G4MaterialPropertiesTable *FusedSilica_mt = new G4MaterialPropertiesTable();
+	G4double FusedSilica_Energy[FusedSilica_NUMENTRIES] = {2.0*eV,7.0*eV,7.14*eV};
+  FusedSilica_mt->AddProperty("ABSLENGTH",FusedSilica_Energy,FusedSilica_AbsLength,FusedSilica_NUMENTRIES);
+
+  FusedSilica_mt->AddProperty("RINDEX",FusedSilica_Energy,FusedSilica_RIND,FusedSilica_NUMENTRIES);
+  tmpMaterial->SetMaterialPropertiesTable(FusedSilica_mt);
+	materials[name] = tmpMaterial;
 
   // liquid materials
 
@@ -280,7 +327,6 @@ void BDSMaterials::Initialise()
   tmpMaterial->AddElement(elements["O"], 1);
   tmpMaterial->AddElement(elements["H"], 2);
   materials[name] = tmpMaterial;
-
 
   // gaseous materials
 
@@ -309,6 +355,12 @@ void BDSMaterials::Initialise()
     (name="Air"           , density, 2, kStateGas, temperature, pressure);
   tmpMaterial->AddElement(elements["O"], fractionmass=0.2);
   tmpMaterial->AddElement(elements["N"], fractionmass=0.8);
+	G4MaterialPropertiesTable *Air_mt = new G4MaterialPropertiesTable(); //Material properties table for air
+	const G4int Air_NUMENTRIES = 3; //Number of entries in the material properties table
+	G4double Air_RIND[Air_NUMENTRIES] = {1.000292,1.000292,1.000292};//Source: NPL Tables of Physical & Chemical Constants
+	G4double Air_Energy[Air_NUMENTRIES] = {2.0*eV,7.0*eV,7.14*eV};
+	Air_mt->AddProperty("RINDEX",Air_Energy, Air_RIND, Air_NUMENTRIES);
+	tmpMaterial->SetMaterialPropertiesTable(Air_mt);
   materials[name] = tmpMaterial;
 
   density = (STP_Temperature/temperature) * (pressure/(1.*atmosphere))
@@ -331,6 +383,11 @@ void BDSMaterials::Initialise()
   tmpMaterial = new G4Material
     (name="Vacuum"        , density, 1, kStateGas, temperature, pressure);
   tmpMaterial->AddMaterial(materials["Air"], fractionmass=1.);
+	G4MaterialPropertiesTable *Vacuum_mt = new G4MaterialPropertiesTable(); //Material properties table for vacuum
+	const G4int Vacuum_NUMENTRIES = 3; //Number of entries in the material properties table
+	G4double Vacuum_RIND[Vacuum_NUMENTRIES] = {1.,1.,1.};
+	Vacuum_mt->AddProperty("RINDEX",Air_Energy, Vacuum_RIND, Air_NUMENTRIES);
+	tmpMaterial->SetMaterialPropertiesTable(Vacuum_mt);
   materials[name] = tmpMaterial;
 
   tmpMaterial = new G4Material
@@ -461,6 +518,8 @@ void BDSMaterials::ListMaterials(){
   G4cout << "Titanium   - Ti" << G4endl;
   G4cout << "Tungsten   - W" << G4endl;
   G4cout << "Vanadium   - V" << G4endl;
+  G4cout << "Molybdenum   - Mo" << G4endl;
+  G4cout << "Chromium   - Cr" << G4endl;
   G4cout << "***************" << G4endl;
   G4cout << "Available materials are:" << G4endl;
   G4cout << "Air" << G4endl;
