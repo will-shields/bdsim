@@ -541,6 +541,7 @@ void BDSMaterials::ListMaterials(){
   G4cout << "Silicon" << G4endl;
   G4cout << "SmCo" << G4endl;
   G4cout << "Soil" << G4endl;
+  G4cout << "StainlessSteel" << G4endl;
   G4cout << "Titanium" << G4endl;
   G4cout << "TitaniumAlloy" << G4endl;
   G4cout << "Tungsten" << G4endl;
