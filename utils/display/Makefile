@@ -6,17 +6,19 @@
 ARCH         := $(shell root-config --arch)
 ifeq ($(ARCH),macosx)
 LIBFILES = libBDS.so libBDS.dylib
+SOFLAGS  = -O -bundle -undefined dynamic_lookup
 ifndef ROOTSYS
 ROOTSYS       = /sw/
 endif
 else
 LIBFILES = libBDS.so
+SOFLAGS  = -O -shared
 endif
 
 CXX           = g++
 LD            = g++
 CXXFLAGS      = $(shell $(ROOTSYS)/bin/root-config --cflags) -I../..
-LDFLAGS       = 
+LDFLAGS       =
 
 ROOTLIBS      = $(shell $(ROOTSYS)/bin/root-config --libs)
 LIBS          = $(ROOTLIBS) -L../../parser -lgmad
@@ -32,7 +34,7 @@ PROGRAM       = display
 all:            $(PROGRAM) $(LIBFILES)
 
 libBDS.so :
-	@$(LD) -O -bundle -undefined dynamic_lookup $(LIBS) $(OBJS) -o $@
+	@$(LD) $(SOFLAGS) $(LIBS) $(OBJS) -o $@
 
 libBDS.dylib : 
 	@$(LD) -O2 -dynamiclib -single_module -undefined dynamic_lookup	-install_name $@ $(LIBS) -o $@ $(OBJS)
