@@ -66,7 +66,7 @@ void BDSGeometryInterface::Optics()
 	     << (*iBeam)->GetType() << " "
 	     << (*iBeam)->GetName() << " "
 	     << (*iBeam)->GetLength()/m  << " "
-	     << (*iBeam)->GetSPos()/m  << " "
+	     << (*iBeam)->GetSPos()/m + (*iBeam)->GetLength()/2/m << " "
 	     << (*iBeam)->GetAngle()   << " "
 	     << (*iBeam)->GetK1()   << " "
 	     << (*iBeam)->GetK2()   << " "

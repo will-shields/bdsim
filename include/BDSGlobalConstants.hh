@@ -49,6 +49,8 @@ struct tmpParticle {
   G4double xp;
   G4double yp;
   G4double zp;
+  G4int trackID;
+  G4int parentID;
 };
 
 /*
@@ -261,6 +263,12 @@ public:
   G4AffineTransform GetDumpTransform();
   void SetDumpTransform(G4AffineTransform tf);
 
+  G4String GetRefVolume();
+  G4int GetRefCopyNo();
+
+  const G4AffineTransform* GetRefTransform();
+  void SetRefTransform(G4AffineTransform& aTransform);
+
   // SPM : temp filestream for placet to read and write
   ofstream fileDump;
   // ifstream fileRead; replaced with FILE* fifo in code for consistency with Placet. SPM
@@ -271,6 +279,8 @@ public:
 
   std::deque<tmpParticle> holdingQueue;
   std::deque<tmpParticle> outputQueue;
+  std::deque<G4double> referenceQueue;
+  G4bool isReference;
 
 protected:
 private:
@@ -434,6 +444,9 @@ private:
   G4String itsFifo; // fifo for BDSIM-placet
   G4AffineTransform itsDumpTransform; //transform of frame from start to current dump element
 
+  G4String itsRefVolume;
+  G4int itsRefCopyNo;
+  G4AffineTransform itsRefTransform;
 };
 
 inline G4double BDSGlobalConstants::GetMinimumEpsilonStep()
@@ -833,6 +846,13 @@ inline void BDSGlobalConstants::SetFifo(G4String aFileName) {itsFifo = aFileName
 inline G4AffineTransform BDSGlobalConstants::GetDumpTransform() {return itsDumpTransform;}
 inline void BDSGlobalConstants::SetDumpTransform(G4AffineTransform tf)
 {itsDumpTransform=tf;}
+
+inline G4String BDSGlobalConstants::GetRefVolume() { return itsRefVolume; }
+inline G4int BDSGlobalConstants::GetRefCopyNo() { return itsRefCopyNo; }
+
+inline const G4AffineTransform* BDSGlobalConstants::GetRefTransform() { return &itsRefTransform; }
+inline void BDSGlobalConstants::SetRefTransform(G4AffineTransform& aTransform)
+{itsRefTransform=aTransform;}
 
 extern BDSGlobalConstants* BDSGlobals;
 #endif

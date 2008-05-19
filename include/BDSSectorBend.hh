@@ -6,14 +6,12 @@
    IA: 12.10.05 , modified
 */
 
-#ifndef mySectorBend_h
-#define mySectorBend_h 
+#ifndef BDSSectorBend_h
+#define BDSSectorBend_h 
 
 #include "globals.hh"
 #include "BDSMaterials.hh"
 #include "G4LogicalVolume.hh"
-#include "BDSHelixStepper.hh"
-
 #include "myQuadStepper.hh"
 
 #include "G4FieldManager.hh"
@@ -21,7 +19,6 @@
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
-#include "G4UniformMagField.hh"
 #include "G4PVPlacement.hh"               
 
 #include "BDSMultipole.hh"
@@ -48,13 +45,13 @@ class BDSSectorBend :public BDSMultipole
   //  void BuildOuterLogicalVolume();
   void BuildBPFieldAndStepper();
   void BuildSBMarkerLogicalVolume();
+  void BuildSBBeampipe();
+  void BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum=false);
 
-  //void BuildBeampipe2(G4double length,G4double angle);
-  friend void BuildBeampipe2(BDSSectorBend *sb,G4double length,G4double angle);
-  //  friend void BuildDefaultOuterLogicalVolume2(BDSSectorBend* sb,G4double aLength, G4double angle, G4bool OuterMaterialIsVacuum=false);
 
   G4VisAttributes* SetVisAttributes();
-
+  G4Trd* markerSolidVolume;
+  
   // field related objects:
   //BDSHelixStepper* itsStepper;
   myQuadStepper* itsStepper;
@@ -68,6 +65,4 @@ class BDSSectorBend :public BDSMultipole
 
 };
 
-void BuildBeampipe2(BDSSectorBend *sb,G4double length,G4double angle);
-// void BuildDefaultOuterLogicalVolume2(BDSSectorBend* sb,G4double aLength, G4double angle, G4bool OuterMaterialIsVacuum);
 #endif

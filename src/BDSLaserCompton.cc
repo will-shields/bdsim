@@ -11,7 +11,7 @@
 #include "G4ios.hh"
 #include "G4UnitsTable.hh"
 
-#define DEBUG 1
+#define DEBUG 0
 
 #if G4VERSION > 8
 BDSLaserCompton::BDSLaserCompton(const G4String& processName)

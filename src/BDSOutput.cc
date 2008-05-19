@@ -2,6 +2,8 @@
 #include "BDSSamplerSD.hh"
 #include <ctime>
 
+const int DEBUG = 1;
+
 extern G4String outputFilename;
 
 BDSOutput::BDSOutput():outputFileNumber(1)
@@ -18,7 +20,6 @@ BDSOutput::~BDSOutput()
 {
   if(format==_ASCII)
     of.close();
-
 
 #ifdef USE_ROOT
   Write();
@@ -343,20 +344,29 @@ G4int BDSOutput::Commit()
   Init(FileNum)
 */
   Write();
-  Init(outputFileNumber++);
   return 0;
 }
 
-G4int BDSOutput::Write()
-{
+G4int BDSOutput::Write(){
 #ifdef USE_ROOT
   if(format==_ROOT)
     if(theRootOutputFile->IsOpen())
       {
+	if(DEBUG) std::cout << "Writing to root file..." << std::endl;
 	theRootOutputFile->Write();
+	if(DEBUG) std::cout << "Closing root file..." << std::endl;
 	theRootOutputFile->Close();
-	delete theRootOutputFile;
+	if(DEBUG) {
+	  if(theRootOutputFile->IsOpen()){
+	    std::cout << "Root file is still open!!!" << std::endl;
+	  }
+	  else {
+	    std::cout << "Root file closed." << std::endl;
+	  }
+	}
       }
+  delete theRootOutputFile;
+
 #endif
 
   return 0;

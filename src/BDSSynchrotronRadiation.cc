@@ -10,11 +10,11 @@
    Author of Mods: John Carter, Royal Holloway, Univ. of London
    Date: 16.11.2004
    Description: Modified to improve efficiency of process. It is now possible 
-		to use BDSInput.cards to create a given number of photons 
-		each time (rather than one) using SYNCH_PHOTON_MULTIPLICITY
-
-		Also modified to break up the meanfree path length into a given
-		number of smaller lengths. Use the following BDSInput.card
+   to use BDSInput.cards to create a given number of photons 
+   each time (rather than one) using SYNCH_PHOTON_MULTIPLICITY
+   
+   Also modified to break up the meanfree path length into a given
+   number of smaller lengths. Use the following BDSInput.card
 		flag, SYNCH_MEANFREE_FACTOR
 */
 
@@ -22,6 +22,7 @@
 #include "BDSSynchrotronRadiation.hh"
 #include "G4ios.hh"
 #include "G4UnitsTable.hh"
+#include "G4PropagatorInField.hh"
 
 #include "BDSAcceleratorComponent.hh"
 
@@ -31,81 +32,148 @@ extern G4int event_number;
 typedef list<BDSAcceleratorComponent*>  BDSBeamline;
 extern BDSBeamline theBeamline;
 
+const int DEBUG = 0;
 
 BDSSynchrotronRadiation::BDSSynchrotronRadiation(const G4String& processName)
   : G4VDiscreteProcess(processName)
-     // initialization
+    // initialization
 {
   nExpConst=5*fine_structure_const/(2*sqrt(3.0))/electron_mass_c2;
   CritEngFac=3./2.*hbarc/pow(electron_mass_c2,3);
-
 } 
- 
+
 
 G4VParticleChange* 
 BDSSynchrotronRadiation::PostStepDoIt(const G4Track& trackData,
-				     const G4Step& stepData)
+				      const G4Step& stepData)
 {
+  if(DEBUG) G4cout << "BDSSynchrotronRadiation::PostStepDoIt" << G4endl;
   aParticleChange.Initialize(trackData);
-
+  
   G4double eEnergy=trackData.GetTotalEnergy();
-
-  G4double R=BDSLocalRadiusOfCurvature;
-
+  
+  //G4double R=BDSLocalRadiusOfCurvature;
+  
   G4double NewKinEnergy = trackData.GetKineticEnergy();
- 
+  
   G4double GamEnergy=0;
-
-  aParticleChange.SetNumberOfSecondaries(BDSGlobals->GetSynchPhotonMultiplicity());
+  
   MeanFreePathCounter++;
   
-  for (int i=0; i<BDSGlobals->GetSynchPhotonMultiplicity(); i++){
+  const G4DynamicParticle* aDynamicParticle=trackData.GetDynamicParticle();
+  
+  G4double gamma = aDynamicParticle->GetTotalEnergy()/
+    (aDynamicParticle->GetMass()              );
+  
+  if(gamma <= 1.0e3 )
+    {
+      if(DEBUG) G4cout << "BDSSynchrotronRadiation::PostStepDoItG\nGamma<1000" << G4endl;
+      return G4VDiscreteProcess::PostStepDoIt(trackData,stepData);
+    }
+  G4double particleCharge = aDynamicParticle->GetCharge();
+  
+  G4ThreeVector  FieldValue;
+  const G4Field*   pField = 0 ;
+  
+  G4FieldManager* fieldMgr=0;
+  G4bool          fieldExertsForce = false;
+  
+  G4TransportationManager* transportMgr =
+    G4TransportationManager::GetTransportationManager();
 
-    if(fabs(R)>0)
-      GamEnergy=SynGenC(BDSGlobals->GetSynchLowX())*
-	CritEngFac*pow(eEnergy,3)/fabs(R);
-    
-    if(GamEnergy>0)
-      {
-	if((BDSGlobals->GetSynchTrackPhotons())&&
-	   (GamEnergy>BDSGlobals->GetSynchLowGamE()) )
-	  {
-	    G4DynamicParticle* aGamma= 
-	      new G4DynamicParticle (G4Gamma::Gamma(), 
-				     trackData.GetMomentumDirection(),
-				     GamEnergy);
-
-	    aParticleChange.AddSecondary(aGamma); 
-	  }
-
-      BDSBeamline::const_iterator iBeam;
-      //G4double zpos=trackData.GetPosition().z();
-      
-    //   for(iBeam=theBeamline.begin();
-// 	  iBeam!=theBeamline.end() && zpos>=(*iBeam)->GetZUpper(); 
-// 	  iBeam++){}
-
-      if(i==0 && MeanFreePathCounter==1) NewKinEnergy -= GamEnergy;
-	        
-      if (NewKinEnergy > 0.)
+  G4PropagatorInField* fFieldPropagator = transportMgr->GetPropagatorInField();
+  if( (particleCharge != 0.0) )
+    {
+      if(DEBUG) G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nParticle charge != 0.0" << G4endl;
+      fieldMgr = fFieldPropagator->FindAndSetFieldManager( trackData.GetVolume() );
+      if ( fieldMgr != 0 )
 	{
-	  //
-	  // Update the incident particle 
-	    aParticleChange.ProposeEnergy(NewKinEnergy);
-	} 
-      else
-	{ 
-	  aParticleChange.ProposeEnergy( 0. );
-	  aParticleChange.ProposeLocalEnergyDeposit (0.);
-	  G4double charge= trackData.GetDynamicParticle()->GetCharge();
-	  if (charge<0.) aParticleChange.ProposeTrackStatus(fStopAndKill);
-	  else       aParticleChange.ProposeTrackStatus(fStopButAlive);
+	  // If the field manager has no field, there is no field !
+	  
+	  fieldExertsForce = ( fieldMgr->GetDetectorField() != 0 );
 	}
-      }
-  }
+    }
+  if ( fieldExertsForce )
+    {
+      if(DEBUG) G4cout << "BDSSynchrotronRadiation::PostStepDoIt\n fieldExertsForce==true" << G4endl;
+      pField = fieldMgr->GetDetectorField() ;
+      G4ThreeVector  globPosition = trackData.GetPosition() ;
+      G4double  globPosVec[3], FieldValueVec[3] ;
+      globPosVec[0] = globPosition.x() ;
+      globPosVec[1] = globPosition.y() ;
+      globPosVec[2] = globPosition.z() ;
+      
+      pField->GetFieldValue( globPosVec, FieldValueVec ) ;
+      FieldValue = G4ThreeVector( FieldValueVec[0],
+				  FieldValueVec[1],
+				  FieldValueVec[2]   );
+      
+      G4ThreeVector unitMomentum = aDynamicParticle->GetMomentumDirection();
+      G4ThreeVector unitMcrossB = FieldValue.cross(unitMomentum);
+      G4double perpB = unitMcrossB.mag() ;
+      std::deque<G4DynamicParticle*> listOfSecondaries;
+      if(perpB > 0.0)
+	{
+	  if(DEBUG) G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nperpB>0.0" << G4endl;
+	  for (int i=0; i<BDSGlobals->GetSynchPhotonMultiplicity(); i++){
+	    if(DEBUG) G4cout  << "BDSSynchrotronRadiation::PostStepDoIt\nSynchPhotonMultiplicity" << G4endl;
+	    //if(fabs(R)==0)
+	    G4double R=(aDynamicParticle->GetTotalMomentum()/GeV)/
+	      (0.299792458*particleCharge*perpB);
+	    GamEnergy=SynGenC(BDSGlobals->GetSynchLowX())*
+	      CritEngFac*pow(eEnergy,3)/fabs(R);
+	    
+	    if(GamEnergy>0 && GamEnergy < NewKinEnergy)
+	      {
+		if(DEBUG) G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nGamEnergy in range" << G4endl;
+		if((BDSGlobals->GetSynchTrackPhotons())&&
+		   (GamEnergy>BDSGlobals->GetSynchLowGamE()) )
+		  {
+		    if(DEBUG) G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nTrackPhotons" << G4endl;
+		    G4DynamicParticle* aGamma= 
+		      new G4DynamicParticle (G4Gamma::Gamma(), 
+					     trackData.GetMomentumDirection(),
+					     GamEnergy);
+		    listOfSecondaries.push_back(aGamma);
+		    if(DEBUG) printf("Creating synchRad photon of energy %f\n",GamEnergy);
+		  }
+		
+		//BDSBeamline::const_iterator iBeam;
+		//G4double zpos=trackData.GetPosition().z();
+		
+		//   for(iBeam=theBeamline.begin();
+		// 	  iBeam!=theBeamline.end() && zpos>=(*iBeam)->GetZUpper(); 
+		// 	  iBeam++){}
+		
+		if(i==0 && MeanFreePathCounter==1) NewKinEnergy -= GamEnergy;
+		
+		if (NewKinEnergy > 0.)
+		  {
+		    if(DEBUG) G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nNewKinEnergy>0.0" << G4endl;
+		    // Update the incident particle 
+		    aParticleChange.ProposeEnergy(NewKinEnergy);
+		  } 
+		else
+		  { 
+		    aParticleChange.ProposeEnergy( 0. );
+		    aParticleChange.ProposeLocalEnergyDeposit (0.);
+		    G4double charge= trackData.GetDynamicParticle()->GetCharge();
+		    if (charge<0.) aParticleChange.ProposeTrackStatus(fStopAndKill);
+		    else       aParticleChange.ProposeTrackStatus(fStopButAlive);
+		  }
+	      }
+	  }
+	  aParticleChange.SetNumberOfSecondaries(listOfSecondaries.size());
+	  for(int n=0;n<(int)listOfSecondaries.size();n++){
+	    if(DEBUG) G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nAdding secondaries" << G4endl;
+	    aParticleChange.AddSecondary(listOfSecondaries.front()); 
+	    listOfSecondaries.pop_front();
+	    if(DEBUG) G4cout << "Adding secondary particle...\n";
+	  }
+	}
+    }
   return G4VDiscreteProcess::PostStepDoIt(trackData,stepData);
 }
-
 
 BDSSynchrotronRadiation::~BDSSynchrotronRadiation(){
 }

@@ -48,6 +48,10 @@ public:
 
   void Echo(G4String str);
 
+  G4int GetOutputFileNumber();
+  void SetOutputFileNumber(G4int fileNum);
+  void IncrementOutputFileNumber();
+  
   G4int Commit(); //G4int FileNum);   // close the event
   G4int Write();           // close the event
 
@@ -67,6 +71,7 @@ public:
   //BDSSamplerSD* BDSSamplerSensDet;
   std::vector <G4String> SampName;
 private:
+  G4int itsOutputFileNumber;
   G4int format;
   ofstream of;
   int outputFileNumber;
@@ -80,5 +85,16 @@ private:
 
 };
 
-extern BDSOutput bdsOutput;
+inline void BDSOutput::SetOutputFileNumber(G4int fileNum){
+  itsOutputFileNumber=fileNum;
+}
+
+inline G4int BDSOutput::GetOutputFileNumber(){
+  return itsOutputFileNumber;
+}
+
+inline void BDSOutput::IncrementOutputFileNumber(){
+  itsOutputFileNumber++;
+}
+extern BDSOutput* bdsOutput;
 #endif

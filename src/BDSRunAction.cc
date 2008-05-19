@@ -11,6 +11,7 @@
 
 #include "BDSRunAction.hh"
 #include "BDSRunManager.hh"
+#include "BDSDump.hh"
 
 #include "G4Run.hh"
 #include "G4StateManager.hh"
@@ -128,10 +129,10 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 
       if(fifo != NULL){
         fscanf(fifo,"# nparticles = %i",&token);
-	G4cout << "# nparticles = " << token << G4endl;
-	for(int i=0; i< SM->GetNPostponedTrack();i++){
-	  fscanf(fifo,"%lf %lf %lf %lf %lf %lf",&E,&x,&y,&z,&xp,&yp);
-	  if(DEBUG) printf("%f %f %f %f %f %f\n",E,x,y,z,xp,yp);
+	G4cout << "# nparticles read from fifo = " << token << G4endl;
+	for(int i=0; i< token;i++){
+	  fscanf(fifo,"%lf %lf %lf %lf %lf %lf %lf",&E,&x,&y,&z,&xp,&yp,&t);
+	  if(DEBUG) printf("%f %f %f %f %f %f %f\n",E,x,y,z,xp,yp,t);
 	  
 	  xp *= 1e-6*radian;
 	  yp *= 1e-6*radian;
@@ -142,8 +143,10 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	  
 	  LocalPosition = tf.TransformPoint(pos);
 	  LocalDirection = tf.TransformAxis(momDir);
+	  G4double refTime = (BDSGlobals->referenceQueue.front()-t)/2;
 
-	  t = -z/c_light;
+	  LocalPosition -= LocalDirection*c_light*refTime;
+///	  t = -z/c_light;
 	  LocalPosition += LocalDirection.unit()*1e-4*micrometer; // temp fix for recirculation in dump volume
 
 	  if(DEBUG){	  	  
@@ -170,6 +173,8 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	fclose(fifo);
         BDSGlobals->setReading(false);
         BDSGlobals->setReadFromStack(false);
+	BDSGlobals->referenceQueue.pop_front();
+	BDSGlobals->referenceQueue.pop_front();
 
 	if(DEBUG) G4cout << "Number read in = " << BDSGlobals->holdingQueue.size() << G4endl;
       }
@@ -177,6 +182,7 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	G4Exception("Read from fifo failed: bad file name\n");
 	exit(1);
       }
+      BDSDump::nUsedDumps++;
     }
 }
 //==========================================================

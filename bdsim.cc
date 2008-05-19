@@ -94,10 +94,11 @@ static void usage()
 
 
 BDSGlobalConstants* BDSGlobals;  // global options instance
-BDSOutput bdsOutput;                // output interface
+BDSOutput* bdsOutput; // output interface
 BDSBunch theBunch;  // bunch information
-G4int outputFormat=_ASCII;
+G4int outputFormat=_ROOT;
 G4String outputFilename="output";  //receives a .txt or .root in BDSOutput
+char *fifoName=NULL;  //receives a .txt or .root in BDSOutput
 G4String outlinefile="BDSOutline.dat";  
 G4String outlineType="";
 G4String inputFilename= "optics.gmad"; // input file with gmad lattice description
@@ -144,6 +145,7 @@ int main(int argc,char** argv) {
     { "vis_mac", 1, 0, 0 },
     { "output", 1, 0, 0 },
     { "outfile", 1, 0, 0 },
+    { "fifo", 1, 0, 0 },
     { "batch", 0, 0, 0 },
     { "materials", 0, 0, 0 },
     { 0, 0, 0, 0 }
@@ -229,6 +231,12 @@ int main(int argc,char** argv) {
 	      outputFilename=optarg;
 	    }
 	  }
+	if( !strcmp(LongOptions[OptionIndex].name , "fifo") )
+	  {
+	    if(optarg) {
+	      fifoName=optarg;
+	    }
+	  }
 	if( !strcmp(LongOptions[OptionIndex].name , "outline") )
 	  {
 	    if(optarg) outlinefile = optarg; 
@@ -292,14 +300,18 @@ int main(int argc,char** argv) {
   //
 
   BDSGlobals = new BDSGlobalConstants(options);
+  if (fifoName) {
+    BDSGlobals->SetFifo(fifoName);
+  }
+
   theBunch.SetOptions(options);
 
 
   //
   // set default output formats:
   //
-
-  bdsOutput.SetFormat(outputFormat);
+  bdsOutput = new BDSOutput();
+  bdsOutput->SetFormat(outputFormat);
   G4cout.precision(10);
 
 
@@ -391,7 +403,8 @@ int main(int argc,char** argv) {
   G4EventManager::GetEventManager()->GetTrackingManager()->GetSteppingManager()
     ->SetVerboseLevel(verboseSteppingLevel);
 
-  bdsOutput.Init(0); // activate the output - setting the first filename to 
+  bdsOutput->SetOutputFileNumber(0);
+  bdsOutput->Init(0); // activate the output - setting the first filename to 
                      // be appended with _0
 
   //
@@ -537,10 +550,12 @@ int main(int argc,char** argv) {
   //
   // job termination
   //
-
+  //if(DEBUG) G4cout<<"BDSOutput deleting..."<<G4endl;
+  //  delete bdsOutput;
+ 
   if(DEBUG) G4cout<<"BDSRunManager deleting..."<<G4endl;
   delete runManager;
-
+  
   if(DEBUG) G4cout<<"BDSGlobals deleting..."<<G4endl;
   delete BDSGlobals;
      

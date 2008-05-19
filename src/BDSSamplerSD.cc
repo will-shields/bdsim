@@ -64,8 +64,8 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
   //     G4String pName=theTrack->GetDefinition()->GetParticleName();
   //    if(pName=="mu+"||pName=="mu-")
   // 	{ // tm
-  if(BDSGlobals->DoTwiss()) StoreHit=false;
-
+  if(BDSGlobals->DoTwiss() || BDSGlobals->isReference) StoreHit=false;
+  
   if(StoreHit)
     {
       //unique ID of track
@@ -74,13 +74,14 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
       G4int ParentID = theTrack->GetParentID();
       //time since track creation
       G4double t = theTrack->GetGlobalTime();
-      //total track length
-      G4double s = theTrack->GetTrackLength();
       //total track energy
       G4double energy = theTrack->GetKineticEnergy()+
 	theTrack->GetDefinition()->GetPDGMass();
       //current particle position (global)
       G4ThreeVector pos = theTrack->GetPosition();
+      //total track length
+      G4double s = theTrack->GetTrackLength();
+      if(ParentID != 0) s = pos.z();
       //G4ThreeVector pos = preStepPoint->GetPosition();
       //current particle direction (global)
       G4ThreeVector momDir = theTrack->GetMomentumDirection();

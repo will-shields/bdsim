@@ -18,7 +18,7 @@ public:  // with description
   // Constructor and destructor. No actions.
 
 
-  virtual void  GetFieldValue( const G4double Point[4],
+  virtual void  GetFieldValue( const G4double *Point,
 			       G4double *Bfield ) const;
 
 private:

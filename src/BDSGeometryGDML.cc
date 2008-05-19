@@ -30,7 +30,7 @@ extern BDSSamplerSD* BDSSamplerSensDet;
 
 extern BDSMaterials* theMaterials;
 extern G4RotationMatrix* RotY90;
-extern BDSOutput bdsOutput;
+extern BDSOutput* bdsOutput;
 extern BDSGlobalConstants* BDSGlobals;
 
 BDSGeometryGDML::BDSGeometryGDML(G4String GDMLfile)

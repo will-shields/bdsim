@@ -34,12 +34,12 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
     itsPhysListName = opt.physicsList;
 
   if(opt.pipeMaterial == "")
-		itsPipeMaterial = "StainlessSteel";
-	else
+    itsPipeMaterial = "StainlessSteel";
+  else
     itsPipeMaterial = opt.pipeMaterial;
 
   if(opt.vacMaterial == "") 
-    itsVacMaterial = "StainlessSteel";
+    itsVacMaterial = "Vacuum";
   else
     itsVacMaterial = opt.vacMaterial;
   
@@ -146,7 +146,7 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
   itsLaserwireWavelength = 0.532 * micrometer;
   itsLaserwireDir = G4ThreeVector(1,0,0);
   itsLaserwireTrackPhotons = 1;
-  itsLaserwireTrackElectrons = 1;
+  itsLaserwireTrackElectrons = 0;
 
 
   isWaitingForDump = false;
@@ -155,6 +155,9 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
   isReadFromStack = false;
 
   itsFifo = opt.fifo;
+
+  itsRefVolume = opt.refvolume;
+  itsRefCopyNo = opt.refcopyno;
 
   itsIncludeIronMagFields = 0;
 

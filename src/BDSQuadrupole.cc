@@ -55,7 +55,8 @@ BDSQuadrupole::BDSQuadrupole(G4String aName, G4double aLength,
   G4String qtype = getParameterValueString(spec, "type");
   if(DEBUG) G4cout<<"qtype : "<<qtype<<G4endl;
 
-  SetOuterRadius(outR);
+  //  SetOuterRadius(outR); //deacon 30/4/08
+  SetOuterRadius(22*cm); 
   itsTilt=tilt;
   itsType="quad";
 

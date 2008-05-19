@@ -354,8 +354,6 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 
   //if(reg->GetName() != "precision")
     {
-      
-      
       if(pName=="gamma")
 	{
 	  G4double photonCut = BDSGlobals->GetThresholdCutPhotons();

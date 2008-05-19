@@ -31,7 +31,7 @@ extern BDSSamplerSD* BDSSamplerSensDet;
 
 extern BDSMaterials* theMaterials;
 extern G4RotationMatrix* RotY90;
-extern BDSOutput bdsOutput;
+extern BDSOutput* bdsOutput;
 extern BDSGlobalConstants* BDSGlobals;
 
 BDSGeometrySQL::BDSGeometrySQL(G4String DBfile, G4double markerlength)
@@ -83,6 +83,7 @@ void BDSGeometrySQL::BuildSQLObjects(G4String file)
       else if(ObjectType.compareTo("TRAP",cmpmode)==0) BuildTrap(itsSQLTable[i]);
       else if(ObjectType.compareTo("TORUS",cmpmode)==0) BuildTorus(itsSQLTable[i]);
       else if(ObjectType.compareTo("SAMPLER",cmpmode)==0) BuildSampler(itsSQLTable[i]);
+      else if(ObjectType.compareTo("TUBE",cmpmode)==0) BuildTube(itsSQLTable[i]);
     }
 
 }
@@ -741,12 +742,104 @@ void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
 	SDMan->AddNewDetector(BDSSamplerSensDet);
       }
       aSamplerVol->SetSensitiveDetector(BDSSamplerSensDet);
-//SPM bdsOutput.nSamplers++;
+//SPM bdsOutput->nSamplers++;
       BDSSampler::AddExternalSampler();
-      bdsOutput.SampName.push_back(BDSGlobals->StringFromInt(
+      bdsOutput->SampName.push_back(BDSGlobals->StringFromInt(
 					BDSSampler::GetNSamplers())+"_"+Name+"_1");
 
       VOL_LIST.push_back(aSamplerVol);
+    }
+
+  PlaceComponents(aSQLTable, VOL_LIST);
+}
+void BDSGeometrySQL::BuildTube(BDSMySQLTable* aSQLTable)
+{
+  G4int NVariables = aSQLTable->GetVariable("RINNER")->GetNVariables();
+
+  G4double rInner;
+  G4double rOuter;
+  G4double length;
+  G4double sphi;
+  G4double dphi;
+  G4double VisRed; 
+  G4double VisGreen;
+  G4double VisBlue;
+  G4String VisType;
+  G4String Material;
+  G4String TableName = aSQLTable->GetName();
+  G4String Name;
+
+  for(G4int k=0; k<NVariables; k++)
+    {
+      //Defaults 
+      length = 100.*mm;
+      rOuter = 10.*mm;
+      rInner = 0.0;
+      sphi = 0.0;
+      dphi=2*pi*radian;
+      VisRed = VisGreen = VisBlue = 0.;
+      VisType = "S";
+      Material = "VACUUM";
+
+      if(aSQLTable->GetVariable("RED")!=NULL)
+	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
+      if(aSQLTable->GetVariable("BLUE")!=NULL)
+	VisBlue = aSQLTable->GetVariable("BLUE")->GetDblValue(k);
+      if(aSQLTable->GetVariable("GREEN")!=NULL)
+	VisGreen = aSQLTable->GetVariable("GREEN")->GetDblValue(k);
+      if(aSQLTable->GetVariable("VISATT")!=NULL)
+	VisType = aSQLTable->GetVariable("VISATT")->GetStrValue(k);
+      if(aSQLTable->GetVariable("RINNER")!=NULL)
+	rInner = aSQLTable->GetVariable("RINNER")->GetDblValue(k);
+      if(aSQLTable->GetVariable("ROUTER")!=NULL)
+	rOuter = aSQLTable->GetVariable("ROUTER")->GetDblValue(k);
+      if(aSQLTable->GetVariable("LENGTH")!=NULL)
+	length = aSQLTable->GetVariable("LENGTH")->GetDblValue(k);
+      if(aSQLTable->GetVariable("STARTPHI")!=NULL)
+	sphi = aSQLTable->GetVariable("STARTPHI")->GetDblValue(k);
+      if(aSQLTable->GetVariable("DELTAPHI")!=NULL)
+	dphi = aSQLTable->GetVariable("DELTAPHI")->GetDblValue(k);
+      if(aSQLTable->GetVariable("MATERIAL")!=NULL)
+	Material = aSQLTable->GetVariable("MATERIAL")->GetStrValue(k);
+      if(aSQLTable->GetVariable("NAME")!=NULL)
+	Name = aSQLTable->GetVariable("NAME")->GetStrValue(k);
+
+      if(Name=="") Name = TableName+BDSGlobals->StringFromInt(k);
+
+      // make sure that each name is unique!
+      Name = itsMarkerVol->GetName()+"_"+Name;
+
+      G4Tubs* aTubs = new G4Tubs(Name+"_Tubs",
+				    rInner,
+				    rOuter,
+				    length/2,
+				    sphi,
+				    dphi);
+
+
+      G4LogicalVolume* aTubsVol = 
+	new G4LogicalVolume(aTubs,
+			    theMaterials->GetMaterial(Material),
+			    Name+"_LogVol");
+      
+      G4UserLimits* TubsUserLimits = new G4UserLimits();
+      TubsUserLimits->SetMaxAllowedStep(length);
+      aTubsVol->SetUserLimits(TubsUserLimits);
+      G4VisAttributes* VisAtt = 
+	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
+      switch (VisType(0))
+	{
+	case 'W': VisAtt->SetForceWireframe(true); break;
+	case 'I': VisAtt->SetVisibility(false); break;
+	case 'S': VisAtt->SetForceSolid(true); break;
+	case 'w': VisAtt->SetForceWireframe(true); break;
+	case 'i': VisAtt->SetVisibility(false); break;
+	case 's': VisAtt->SetForceSolid(true); break;
+	}
+      aTubsVol->SetVisAttributes(VisAtt);
+
+      VOL_LIST.push_back(aTubsVol);
+
     }
 
   PlaceComponents(aSQLTable, VOL_LIST);
@@ -905,6 +998,7 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
 							 sub,
 							 RotateComponent(RotPsi,RotPhi,RotTheta),
 							 PlacementPoint));
+	  continue;
 	}
 
 
@@ -945,27 +1039,40 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
 	    align_out_volume=PhysiComp;
 	}
 
-      G4double P0 = BDSGlobals->GetBeamTotalEnergy();
-      G4double brho=
-	sqrt(pow(P0,2)- pow(electron_mass_c2,2))/(0.299792458 * (GeV/(tesla*m)));
+//      G4double P0 = BDSGlobals->GetBeamTotalEnergy();
+//      G4double brho=
+//	sqrt(pow(P0,2)- pow(electron_mass_c2,2))/(0.299792458 * (GeV/(tesla*m)));
+
+      // compute magnetic rigidity brho
+      // formula: B(Tesla)*rho(m) = p(GeV)/(0.299792458 * |charge(e)|)
+      //
+      // charge (in |e| units)
+      G4double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();  
+      // momentum (in GeV/c)   
+      G4double momentum = BDSGlobals->GetBeamMomentum();
+      // rigidity (in T*m)
+      G4double brho = ( (momentum/GeV) / (0.299792458 * charge));
+      // rigidity (in Geant4 units)
+      brho *= (tesla*m);
+
       if(MagType.compareTo("QUAD",cmpmode)==0)
 	{
 	  HasFields = true;
-	  QuadBgrad.push_back(brho * K1 * tesla / m);
+	  QuadBgrad.push_back(- brho * K1 / (m*m));
 	  Quadvol.push_back(PhysiComp->GetName());
 	}
 
       if(MagType.compareTo("SEXT",cmpmode)==0)
 	{
 	  HasFields = true;
-	  SextBgrad.push_back(brho * K2 * tesla / (m*m));
+	  SextBgrad.push_back(- brho * K2 / (m*m*m));
 	  Sextvol.push_back(PhysiComp->GetName());
 	}
 
       if(MagType.compareTo("OCT",cmpmode)==0)
 	{
 	  HasFields = true;
-	  OctBgrad.push_back(brho * K3 * tesla / (m*m*m));
+	  OctBgrad.push_back(- brho * K3 / (m*m*m*m));
 	  Octvol.push_back(PhysiComp->GetName());
 	}
 
