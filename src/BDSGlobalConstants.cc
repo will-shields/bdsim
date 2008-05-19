@@ -158,6 +158,8 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
   itsRefVolume = opt.refvolume;
   itsRefCopyNo = opt.refcopyno;
 
+  isReference = 0;
+
   itsIncludeIronMagFields = 0;
 
  //  else if(name=="INCLUDE_IRON_MAG_FIELDS")
