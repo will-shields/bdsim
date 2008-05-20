@@ -498,7 +498,8 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       G4double pi = 2.*asin(1.);
 
       partId++;
-      E = BDSGlobals->GetBeamKineticEnergy();
+      //      E = BDSGlobals->GetBeamKineticEnergy();
+      E = BDSGlobals->GetBeamTotalEnergy() - BDSGlobals->GetParticleDefinition()->GetPDGMass()*GeV;
       zp = 1;
       t=0;
       z0=0;
