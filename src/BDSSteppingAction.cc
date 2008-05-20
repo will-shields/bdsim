@@ -80,6 +80,8 @@ extern G4bool isBatch;
 
 extern G4int nptwiss;
 
+const int DEBUG = 0;
+
 //static G4LogicalVolume* LastLogVol;
 //====================================================
 
@@ -159,7 +161,13 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
   if(BDSGlobals->DoTwiss() && ThisTrack->GetNextVolume()) 
     {
 
-      G4cout <<" ***"<< ThisTrack->GetVolume()->GetName()<<G4endl;
+      if(DEBUG){
+	G4cout <<" ***"<< ThisTrack->GetVolume()->GetName()<<G4endl;
+	G4cout <<" +++"<< ThisStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() << G4endl;      
+	G4cout <<" ---"<< ThisStep->GetPostStepPoint()->GetPhysicalVolume()->GetName() << G4endl;
+	G4cout << "StepLength = " << ThisStep->GetStepLength() << G4endl;
+	G4cout << "Track energy = " << ThisTrack->GetTotalEnergy() << G4endl;
+      }
       
       G4int curr_delim = ThisTrack->GetVolume()->GetName().find("_");
       G4String curr_gmad_name = ThisTrack->GetVolume()->GetName().substr(0,curr_delim);
@@ -173,7 +181,7 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 	  postponedEnergy+=ThisTrack->GetTotalEnergy();
 	  	  
 	  G4StackManager* SM = G4EventManager::GetEventManager()->GetStackManager();
-
+	  G4cout << "Postponing track " << SM->GetNPostponedTrack() << G4endl;
 	  if(SM->GetNPostponedTrack()!= nptwiss-1 ) { 
 	    // postpone track and save its coordinates for twiss fit
 	    ThisTrack->SetTrackStatus(fPostponeToNextEvent);
@@ -279,8 +287,7 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 		      if(BDSGlobals->GetSynchRescale()) 
 			{
 			  (*iBeam)->SynchRescale(new_brho/old_brho);
-			  
-			  if(verbose) G4cout << "Rescaling by: " << new_brho/old_brho << G4endl;
+			  if(verbose) G4cout << "Rescaling " << (*iBeam)->GetName() << "by: " << new_brho/old_brho << G4endl;
 			  G4cout << "*";
 			  G4cout.flush();
 			}
