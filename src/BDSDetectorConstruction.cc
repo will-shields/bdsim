@@ -9,6 +9,8 @@
 //
 //
 //   History
+//     19 May 2008 by Marchioni v.0.5-dev
+//     18 Mar 2008 by Malton v.0.5-dev
 //      3 Oct 2007 by Malton v.0.4
 //     21 Nov 2006 by Agapov v.0.3
 //     28 Mar 2006 by Agapov v.0.2
@@ -287,9 +289,9 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   // charge (in |e| units)
   G4double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();
   // momentum (in GeV/c)
-  G4double momentum = BDSGlobals->GetBeamMomentum();
+  G4double momentum = BDSGlobals->GetBeamMomentum()/GeV;
   // rigidity (in T*m)
-  G4double brho = ( (momentum/GeV) / (0.299792458 * charge));
+  G4double brho = ( momentum / (0.299792458 * charge));
   // rigidity (in Geant4 units)
   brho *= (tesla*m);
   if (verbose || DEBUG) G4cout << "Rigidity (Brho) : "<< fabs(brho)/(tesla*m) << " T*m"<<G4endl;
@@ -483,7 +485,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	// Brho is already in G4 units, but k1 is not -> multiply k1 by m^-2
 	bPrime = - brho * ((*it).k1 / (m*m)) * synch_factor;
 
-	if( fabs((*it).angle) < 1.e-7 * rad) {
+	if( fabs((*it).angle) < 1.e-7 * rad ) {
 	  if(DEBUG)
 	  G4cerr << "---->NOT adding Sbend,"
 		 << " name= " << (*it).name
@@ -505,7 +507,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 			   << " angle= " << (*it).angle << "rad"
 			   << " B= " << bField/tesla << "T"
 			   << " B'= " << bPrime/(tesla/m) << "T/m"
-			   << " tilt= " << (*it).tilt 
+			   << " tilt= " << (*it).tilt << "rad"
 			   << " aper= " << aper/m << "m"
 			   << " outR= " << (*it).outR << "m"
 			   << " FeRad= " << FeRad/m << "m"
@@ -522,8 +524,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						   FeRad,
 						   bField,
 						   (*it).angle,
-						   (*it).outR*m,
-						   (*it).tilt,
+						   (*it).outR * m,
+						   (*it).tilt * rad,
 						   bPrime,
 						   (*it).material ) );
 /*	  
@@ -533,7 +535,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						   FeRad,
 						   bField,
 						   (*it).angle,
-						   (*it).outR*m,
+						   (*it).outR * m,
 						   (*it).tilt,
 						   bPrime,
 						   (*it).material ) );
@@ -592,7 +594,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	// Brho is already in G4 units, but k1 is not -> multiply k1 by m^-2
 	bPrime = - brho * ((*it).k1 / (m*m)) * synch_factor;
 
-        if( fabs((*it).angle) < 1.e-7 * rad) {
+        if( fabs((*it).angle) < 1.e-7 * rad ) {
 	  if(DEBUG)
 	    G4cerr << "---->NOT adding Rbend,"
 		 << " name= " << (*it).name
@@ -614,7 +616,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 			   << " angle= " << (*it).angle << "rad"
 			   << " B= " << bField/tesla << "T"
 			   << " B'= " << bPrime/(tesla/m) << "T/m"
-			   << " tilt= " << (*it).tilt 
+			   << " tilt= " << (*it).tilt << "rad"
 			   << " aper= " << aper/m << "m"
 			   << " outR= " << (*it).outR << "m"
 			   << " FeRad= " << FeRad/m << "m"
@@ -627,8 +629,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 					      FeRad,
 					      bField,
 					      (*it).angle,
-					      (*it).outR*m,
-					      (*it).tilt,
+					      (*it).outR * m,
+					      (*it).tilt * rad,
 					      bPrime,
 					      (*it).material ) );
         }
@@ -698,7 +700,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 			   << " angle= " << (*it).angle << "rad"
 			   << " B= " << bField/tesla << "T"
 			   << " B'= " << bPrime/(tesla/m) << "T/m"
-			   << " tilt= " << (*it).tilt 
+			   << " tilt= " << (*it).tilt << "rad"
 			   << " aper= " << aper/m << "m"
 			   << " outR= " << (*it).outR << "m"
 			   << " FeRad= " << FeRad/m << "m"
@@ -711,8 +713,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 					       FeRad,
 					       bField,
 					       (*it).angle,
-					       (*it).outR*m,
-					       (*it).tilt,
+					       (*it).outR * m,
+					       (*it).tilt * rad,
 					       bPrime,
 					       (*it).material ) );
 	}
@@ -782,7 +784,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 			   << " angle= " << (*it).angle << "rad"
 			   << " B= " << bField/tesla << "T"
 			   << " B'= " << bPrime/(tesla/m) << "T/m"
-			   << " tilt= " << (*it).tilt 
+			   << " tilt= " << (*it).tilt << "rad"
 			   << " aper= " << aper/m << "m"
 			   << " outR= " << (*it).outR << "m"
 			   << " FeRad= " << FeRad/m << "m"
@@ -796,7 +798,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 					       bField,
 					       (*it).angle,
 					       (*it).outR * m,
-					       pi/2,
+					       ((*it).tilt+pi/2)*rad,
 					       bPrime,
 					       (*it).material ) );
 	}
@@ -838,6 +840,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 			 << " k1= " << (*it).k1 << "m^-2"
 			 << " brho= " << fabs(brho)/(tesla*m) << "T*m"
 			 << " B'= " << bPrime/(tesla/m) << "T/m"
+                         << " tilt= " << (*it).tilt << "rad"
 			 << " aper= " << aper/m << "m"
 			 << " outR= " << (*it).outR << "m"
 			 << " FeRad= " << FeRad/m << "m"
@@ -849,7 +852,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						 aper,
 						 FeRad,
 						 bPrime, 
-						 (*it).tilt,
+						 (*it).tilt * rad,
 						 (*it).outR * m, 
 						 (*it).material,
 						 (*it).spec ) );
@@ -890,6 +893,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 			 << " k2= " << (*it).k2 << "m^-3"
 			 << " brho= " << fabs(brho)/(tesla*m) << "T*m"
 			 << " B''= " << bDoublePrime/(tesla/(m*m)) << "T/m^2"
+                         << " tilt= " << (*it).tilt << "rad"
 			 << " aper= " << aper/m << "m"
 			 << " outR= " << (*it).outR << "m"
 			 << " FeRad= " << FeRad/m << "m"
@@ -901,7 +905,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						aper,
 						FeRad,
 						bDoublePrime,
-						(*it).tilt,
+						(*it).tilt * rad,
 						(*it).outR * m,
 						(*it).material ) );
       
@@ -941,6 +945,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 			 << " k3= " << (*it).k3 << "m^-4"
 			 << " brho= " << fabs(brho)/(tesla*m) << "T*m"
 			 << " B'''= " << bTriplePrime/(tesla/(m*m*m)) << "T/m^3"
+                         << " tilt= " << (*it).tilt << "rad"
 			 << " aper= " << aper/m << "m"
 			 << " outR= " << (*it).outR << "m"
 			 << " FeRad= " << FeRad/m << "m"
@@ -952,7 +957,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 					       aper,
 					       FeRad,
 					       bTriplePrime,
-					       (*it).tilt,
+					       (*it).tilt * rad,
 					       (*it).outR * m,
 					       (*it).material ) );
       
@@ -981,6 +986,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	if(DEBUG) G4cout << "---->adding Multipole,"
 			 << " name= " << (*it).name
 			 << " l= " << (*it).l << "m"
+                         << " tilt= " << (*it).tilt << "rad"
 			 << " aper= " << aper/m << "m"
 			 << " outR= " << (*it).outR << "m"
 			 << " FeRad= " << FeRad/m << "m"
@@ -990,7 +996,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	//
 	// magnetic field
 	//
-
 	list<double>::iterator kit;
 	
 	if(DEBUG) G4cout << " knl={ ";
@@ -999,7 +1004,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    if(DEBUG) G4cout<<(*kit)<<", ";
 	    (*kit) /= (*it).l; 
 	  }
-	if(DEBUG) G4cout << " }";
+	if(DEBUG) G4cout << "}";
 	
 	if(DEBUG) G4cout << " ksl={ ";
 	for(kit=(it->ksl).begin();kit!=(it->ksl).end();kit++)
@@ -1007,13 +1012,14 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    if(DEBUG) G4cout<<(*kit)<<" ";
 	    (*kit) /= (*it).l; 
 	  }
-	if(DEBUG) G4cout << " }" << G4endl;
+	if(DEBUG) G4cout << "}" << G4endl;
 	
 	theBeamline.push_back(new BDSTMultipole( (*it).name,
 						 (*it).l * m,
 						 aper,
 						 FeRad,
-						 (*it).outR*m,
+                                                 (*it).tilt * rad,
+						 (*it).outR * m,
 						 it->knl,
 						 it->ksl,
 						 (*it).material ) );
@@ -1051,7 +1057,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 					      (*it).bmapFile,
 					      (*it).l * m,
 					      aper,
-					      (*it).outR*m ) );
+					      (*it).outR * m ) );
       
 	added_comp=true;
       }
@@ -1334,9 +1340,9 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   //G4cout<<"world radius="<<WorldRadius/m<<" m"<<G4endl;
   if(verbose || DEBUG)
     {
-      G4cout<<"minX="<<rmin(0)/m<<"m"<<" maxX="<<rmax(0)/m<<" m"<<G4endl;
-      G4cout<<"minY="<<rmin(1)/m<<"m"<<" maxY="<<rmax(1)/m<<" m"<<G4endl;
-      G4cout<<"minZ="<<rmin(2)/m<<"m"<<" maxZ="<<rmax(2)/m<<" m"<<G4endl;
+      G4cout<<"minX="<<rmin(0)/m<<" m"<<" maxX="<<rmax(0)/m<<" m"<<G4endl;
+      G4cout<<"minY="<<rmin(1)/m<<" m"<<" maxY="<<rmax(1)/m<<" m"<<G4endl;
+      G4cout<<"minZ="<<rmin(2)/m<<" m"<<" maxZ="<<rmax(2)/m<<" m"<<G4endl;
       
       G4cout<<"box size="<<BDSGlobals->GetComponentBoxSize()/m<<" m"<<G4endl;
       G4cout<<"s_tot="<<s_tot/m<<" m"<<G4endl;
@@ -1403,7 +1409,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   // set default output formats:
   G4cout.precision(15);
   
-  if(DEBUG) G4cout<<" total length="<<s_tot/m<<G4endl;
+  if(DEBUG) G4cout<<"total length="<<s_tot/m<<"m"<<G4endl;
   
   // reset counters:
   for(iBeam=theBeamline.begin();iBeam!=theBeamline.end();iBeam++){

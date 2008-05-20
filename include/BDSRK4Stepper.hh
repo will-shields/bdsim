@@ -15,7 +15,7 @@ class BDSRK4Stepper : public G4MagIntegratorStepper
   
 public:  
   
-  BDSRK4Stepper(G4EquationOfMotion *EqRhs, int nvar=8);
+  BDSRK4Stepper(G4EquationOfMotion *EqRhs, int nvar=6);
 
   
   ~BDSRK4Stepper();
@@ -39,7 +39,7 @@ public:
   void SetVolLength(G4double aVolLength);
   
   
-  G4int IntegratorOrder()const { return 2; }
+  G4int IntegratorOrder()const { return 4; }
 
   protected:
   //  --- Methods used to implement all the derived classes -----

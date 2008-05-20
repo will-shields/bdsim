@@ -468,6 +468,9 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
       if(VERBOSE)
 	printf("Warning: k3 will not be set for element %s of type SEXTUPOLE\n",name);
     }
+    if(params.tiltset) {
+      e.tilt = params.tilt;
+    }
     break;
 
   case _OCTUPOLE:
@@ -487,6 +490,9 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     }
     if(params.k3set) {
       e.k3 = params.k3;
+    }
+    if(params.tiltset) {
+      e.tilt = params.tilt;
     }
     break;
 
@@ -512,6 +518,9 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     if(params.k3set) {
       if(VERBOSE)
 	printf("Warning: k3 will not be set for element %s of type MULTIPOLE\n",name);
+    }
+    if(params.tiltset) {
+      e.tilt = params.tilt;
     }
     break;
 

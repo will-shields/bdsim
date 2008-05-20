@@ -1,6 +1,7 @@
-/* BDSIM, v0.1   
+/* BDSIM
 
-Last modified 17.04.2006 by Ilya Agapov
+19 May 2008 by Marchiori G.
+17 Apr 2006 by Ilya Agapov
 
 */
 
@@ -10,35 +11,41 @@ Last modified 17.04.2006 by Ilya Agapov
 #include "globals.hh"
 #include "BDSMaterials.hh"
 #include "G4LogicalVolume.hh"
-#include "BDSRK4Stepper.hh"
 
 #include "G4FieldManager.hh"
 #include "G4ChordFinder.hh"
-#include "G4Mag_UsualEqRhs.hh"
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 #include "G4PVPlacement.hh"
 
 #include "BDSMultipole.hh"
-#include "BDSMultipoleMagField.hh"
 
 #include <list>
+
+class G4Mag_UsualEqRhs;
+class BDSRK4Stepper;
+class BDSMultipoleMagField;
 
 class BDSTMultipole :public BDSMultipole
 {
 public:
   BDSTMultipole(G4String aName, G4double aLength,
 		G4double bpRad, G4double FeRad,
-		G4double outR,
-		list<G4double> aknl, list<double> aksl,
+		G4double tilt, G4double outR,
+		list<G4double> akn, // list of normal multipole strengths
+		                    // (NOT multiplied by multipole length)
+		list<G4double> aks, // list of skew multipole strengths
+		                    // (NOT multiplied by multipole length)
 		G4String aMaterial = "");
     ~BDSTMultipole();
 
 protected:
 
 private:
-  list<G4double> bnl;
-  list<G4double> bsl;
+  list<G4double> kn; // list of normal multipole strengths 1/Brho * Bn
+		     // (NOT multiplied by multipole length)
+  list<G4double> ks; // list of skew multipole strengths 1/Brho * Bsn
+		     // (NOT multiplied by multipole length)
   G4int itsOrder;
   
   void BuildBPFieldAndStepper();

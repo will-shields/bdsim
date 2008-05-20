@@ -1,8 +1,9 @@
-/** BDSIM, v0.1   
+/* BDSIM
 
-Last modified 17.04.2006 by Ilya Agapov
+19 May 2008 by Marchiori G.
+17 Apr 2006 by Ilya Agapov
 
-**/
+*/
 
 //==============================================================
 
@@ -17,6 +18,10 @@ Last modified 17.04.2006 by Ilya Agapov
 #include "G4VPhysicalVolume.hh"
 #include "G4UserLimits.hh"
 #include "G4TransportationManager.hh"
+
+#include "BDSMultipoleMagField.hh"
+#include "G4Mag_UsualEqRhs.hh"
+#include "BDSRK4Stepper.hh"
 
 #include <map>
 
@@ -33,34 +38,44 @@ extern LogVolMap* LogVol;
 extern BDSMaterials* theMaterials;
 //============================================================
 
-BDSTMultipole::BDSTMultipole(G4String aName,G4double aLength, 
-			     G4double bpRad,G4double FeRad,G4double outR,
-			     list<G4double> knl, list<G4double> ksl, 
+BDSTMultipole::BDSTMultipole(G4String aName, G4double aLength, 
+			     G4double bpRad, G4double FeRad,
+			     G4double tilt, G4double outR,
+			     list<G4double> akn, list<G4double> aks, 
 			     G4String aMaterial):
   BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes(),aMaterial)
 {
   SetOuterRadius(outR);
+  itsTilt=tilt;
   itsType="multipole";
 
-  G4cout<<"Building Multipole of order "<<knl.size()<<G4endl;
+  if (DEBUG) G4cout<<"Building Multipole of order "<<akn.size()<<G4endl;
 
-  if(knl.size() != ksl.size()) { G4cerr<<"ERROR : skew and normal multipole coeficiens must be of the same numbers"<<G4endl;}
-  if(knl.size() < 1 ) { G4cerr<<"ERROR : multipole order must be greater than 0"<<G4endl; }
+  if(akn.size() != aks.size()) { G4cerr<<"ERROR : skew and normal multipole coeficiens must be of the same numbers"<<G4endl;}
+  if(akn.size() < 1 ) { G4cerr<<"ERROR : multipole order must be greater than 0"<<G4endl; }
 
-  bnl = knl;
-  bsl = ksl;
+  kn = akn;
+  ks = aks;
 
-  G4cout<<"M: bnl=";
-  list<double>::iterator kit;
-  for(kit=bnl.begin();kit!=bnl.end();kit++)
-    {
-      G4cout<<(*kit)<<" ";
-    }
-  G4cout<<G4endl;
+  if (DEBUG) {
+    int order = 0;
+    G4cout<<"M: kn={ ";
+    list<double>::iterator kit;
+    for(kit=kn.begin();kit!=kn.end();kit++)
+      {
+	G4cout<<(*kit)<<"m^-"<<++order<<" ";
+      }
+    G4cout<<"}"<<G4endl;
+    order = 0;
+    G4cout<<"M: ks={ ";
+    for(kit=ks.begin();kit!=ks.end();kit++)
+      {
+	G4cout<<(*kit)<<"m^-"<<++order<<" ";
+      }
+    G4cout<<"}"<<G4endl;
+  }
 
-  itsOrder = bnl.size();
-
-  //G4cout<<"now the order is"<<bnl.size()<<G4endl;
+  itsOrder = kn.size();
   
   if (!(*LogVolCount)[itsName])
     {
@@ -119,7 +134,7 @@ G4VisAttributes* BDSTMultipole::SetVisAttributes()
 void BDSTMultipole::BuildBPFieldAndStepper()
 {
   // set up the magnetic field and stepper
-  itsMagField=new BDSMultipoleMagField(bnl,bsl);
+  itsMagField=new BDSMultipoleMagField(kn,ks);
   itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);
   
   itsStepper=new BDSRK4Stepper(itsEqRhs);
