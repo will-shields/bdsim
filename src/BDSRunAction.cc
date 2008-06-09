@@ -22,12 +22,16 @@
 #include "BDSAcceleratorComponent.hh"
 #include <list>
 #include <fstream>
+
 #include <string>
 
 typedef list<BDSAcceleratorComponent*>  myBeamline;
 extern myBeamline theBeamline;
 
-const int DEBUG = 0;
+const int DEBUG  = 0;
+const int DEBUG2 = 0;
+
+
 
 //==========================================================
 
@@ -98,7 +102,7 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
       
       BDSGlobals->setWaitingForDump(false);
       BDSGlobals->setDumping(true);
-      
+      /*      
       BDSGlobals->fileDump.open(BDSGlobals->GetFifo()); //SPM
       if(!BDSGlobals->fileDump.good()){
 	G4Exception("BDSGlobals->GetFifo(): fifo not found. Quitting.");
@@ -106,9 +110,36 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
       }
       BDSGlobals->outputQueue.clear();
       BDSGlobals->fileDump << "# nparticles = " << SM->GetNPostponedTrack() << "\n";
+      */
+      BDSGlobals->outputQueue.clear();
+      BDSGlobals->transformedQueue.clear();
       SM->TransferStackedTracks(fPostpone, fUrgent);// so that they can be reclassified
       SM->ReClassify();
-      BDSGlobals->fileDump.close(); // SPM
+      //BDSGlobals->fileDump.close(); // SPM
+
+      std::deque<tmpParticle>::iterator iter;
+      G4double tmpZ = 0;
+      for(iter=BDSGlobals->transformedQueue.begin();
+	  iter!=BDSGlobals->transformedQueue.end();iter++)
+	tmpZ += (*iter).z;
+      tmpZ /= BDSGlobals->transformedQueue.size();
+
+      FILE* fifo = fopen(BDSGlobals->GetFifo(),"w");
+      fprintf(fifo,"# nparticles = %i\n",(int)BDSGlobals->transformedQueue.size());
+      for(iter=BDSGlobals->transformedQueue.begin();
+	  iter!=BDSGlobals->transformedQueue.end();iter++)
+	{
+	  (*iter).z -= tmpZ;
+	  fprintf(fifo,"%.15f %.15f %.15f %.15f %.15f %.15f %.15f\n",
+		  (*iter).E,
+		  (*iter).x,
+		  (*iter).y,
+		  (*iter).z,
+		  (*iter).xp,
+		  (*iter).yp,
+		  (*iter).t);
+	}
+      fclose(fifo);
       BDSGlobals->setDumping(false);
       BDSGlobals->setReading(true);
       
@@ -125,14 +156,15 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
       G4ThreeVector LocalPosition;
       G4ThreeVector LocalDirection;
       
-      FILE* fifo = fopen(BDSGlobals->GetFifo(),"r");
+      fifo = fopen(BDSGlobals->GetFifo(),"r");
 
       if(fifo != NULL){
         fscanf(fifo,"# nparticles = %i",&token);
 	G4cout << "# nparticles read from fifo = " << token << G4endl;
 	for(int i=0; i< token;i++){
-	  fscanf(fifo,"%lf %lf %lf %lf %lf %lf %lf",&E,&x,&y,&z,&xp,&yp,&t);
-	  if(DEBUG) printf("%f %f %f %f %f %f %f\n",E,x,y,z,xp,yp,t);
+	  fscanf(fifo,"%lf %lf %lf %lf %lf %lf %lf",
+		&E,&x,&y,&z,&xp,&yp,&t);
+	  if(DEBUG2) printf("In : %.15f %.15f %.15f %.15f %.15f %.15f %.15f\n",E,x,y,z,xp,yp,t);
 	  
 	  xp *= 1e-6*radian;
 	  yp *= 1e-6*radian;
@@ -173,7 +205,7 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	fclose(fifo);
         BDSGlobals->setReading(false);
         BDSGlobals->setReadFromStack(false);
-	BDSGlobals->referenceQueue.pop_front();
+//	BDSGlobals->referenceQueue.pop_front();
 	BDSGlobals->referenceQueue.pop_front();
 
 	if(DEBUG) G4cout << "Number read in = " << BDSGlobals->holdingQueue.size() << G4endl;

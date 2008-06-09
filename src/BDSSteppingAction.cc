@@ -158,7 +158,7 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
   
 
   // check that there actually is a next volume as it may be the end of the optics line
-  if(BDSGlobals->DoTwiss() && ThisTrack->GetNextVolume()) 
+  if(BDSGlobals->DoTwiss() && ThisTrack->GetNextVolume() && ThisTrack->GetParentID() <= 0) 
     {
 
       if(DEBUG){
@@ -181,7 +181,7 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 	  postponedEnergy+=ThisTrack->GetTotalEnergy();
 	  	  
 	  G4StackManager* SM = G4EventManager::GetEventManager()->GetStackManager();
-	  G4cout << "Postponing track " << SM->GetNPostponedTrack() << G4endl;
+	  if(DEBUG) G4cout << "Postponing track " << SM->GetNPostponedTrack() << G4endl;
 	  if(SM->GetNPostponedTrack()!= nptwiss-1 ) { 
 	    // postpone track and save its coordinates for twiss fit
 	    ThisTrack->SetTrackStatus(fPostponeToNextEvent);

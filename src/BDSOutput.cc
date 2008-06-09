@@ -135,7 +135,7 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
     
     //of<<"#hits (PDGtype  E[GeV],x[micron],y[micron],z[m],x'[rad],y'[rad]):"<<G4endl;
     
-    G4cout.precision(6);
+    G4cout.precision(15);
     
     for (G4int i=0; i<hc->entries(); i++)
       {

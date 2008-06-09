@@ -26,10 +26,8 @@
 #include "G4ParticleTypes.hh"
 #include "G4ios.hh"
 
-
-
-const int DEBUG = 0;
-
+const int DEBUG  = 0;
+const int DEBUG2 = 0;
 
 BDSStackingAction::BDSStackingAction()
 { 
@@ -78,7 +76,7 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
       
       // kill secondary electrons
       
-      if( (aTrack->GetParentID() != 0) && 
+      if( (aTrack->GetParentID() > 0) && 
 	  (aTrack->GetDefinition() == G4Electron::ElectronDefinition() ) )
 	{
 	  
@@ -88,14 +86,14 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 
 	  // if we are in the twiss module - aperture hit is suspicious
 	  if( BDSGlobals->DoTwiss() ) 
-	    G4cout<<"WARNING : particle outside of aperture, twiss results will be incorrect"<<
+	    G4cout<<"WARNING : Electron "<<aTrack->GetParentID()<<" outside of aperture, twiss results will be incorrect"<<
 	      G4endl;;
 
 	}
       
       // kill secondary photons
       
-      if( (aTrack->GetParentID() != 0) && 
+      if( (aTrack->GetParentID() > 0) && 
 	  (aTrack->GetDefinition() == G4Gamma::GammaDefinition() ) )
 	{
 	  classification = fKill;
@@ -103,20 +101,20 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
       
       // kill secondary positrons
       
-      if( (aTrack->GetParentID() != 0) && 
+      if( (aTrack->GetParentID() > 0) && 
 	  (aTrack->GetDefinition() == G4Positron::PositronDefinition() ) )
 	{
 	  classification = fKill;
 
 	  // if we are in the twiss module - aperture hit is suspicious
 	  if( BDSGlobals->DoTwiss() ) 
-	    G4cout<<"WARNING : particle outside of aperture, twiss results will be incorrect"<<
+	    G4cout<<"WARNING : Positron outside of aperture, twiss results will be incorrect"<<
 	      G4endl;
 	}
 
       // kill secondary protons/antiprotons
       
-      if( (aTrack->GetParentID() != 0) && 
+      if( (aTrack->GetParentID() > 0) && 
 	  ( (aTrack->GetDefinition() == G4Proton::ProtonDefinition() ) ||
 	    (aTrack->GetDefinition() == G4AntiProton::AntiProtonDefinition()) ) )
 	{
@@ -124,7 +122,7 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 	  
 	  // if we are in the twiss module - aperture hit is suspicious
 	  if( BDSGlobals->DoTwiss() ) 
-	    G4cout<<"WARNING : particle outside of aperture, twiss results will be incorrect"<<
+	    G4cout<<"WARNING : Proton outside of aperture, twiss results will be incorrect"<<
 	      G4endl;
 	}
       
@@ -156,7 +154,8 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 				- aTrack->GetGlobalTime())/2;
 
 	G4ThreeVector transformedPos = initialPos + momDir*c_light*refTime;
-
+	//G4cout << "RefTime = " << refTime << " " << BDSGlobals->referenceQueue.front()
+	//	<< " " << aTrack->GetGlobalTime() << G4endl;
 	//pos.setZ(aTrack->GetGlobalTime()*c_light);
 
 
@@ -179,26 +178,37 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
         G4double yPrime=LocalDirection.y()/(1e-6*radian);
 	G4double t=aTrack->GetGlobalTime();
 
-        BDSGlobals->fileDump.precision(14);
+        BDSGlobals->fileDump.precision(15);
         // TODO : dump the file
-        BDSGlobals->fileDump << aTrack->GetTotalEnergy()/GeV << "\t"
-	<< x << "\t" << y << "\t" << z << "\t"
-	<< xPrime << "\t" << yPrime << "\t" << t <<"\n"; // SPM
-       tmpParticle outputParticle;
-       if(aTrack->GetDefinition()->GetPDGEncoding()==-11)
-	 outputParticle.E=-(aTrack->GetTotalEnergy());
-       else outputParticle.E=aTrack->GetTotalEnergy();
-       outputParticle.xp=momDir.x();
-       outputParticle.yp=momDir.y();
-       outputParticle.x=initialPos.x();
-       outputParticle.y=initialPos.y();
-       outputParticle.z=initialPos.z();
-       outputParticle.t=t;
-       outputParticle.trackID=aTrack->GetTrackID();
-       outputParticle.parentID=aTrack->GetParentID();
-       BDSGlobals->outputQueue.push_back(outputParticle);
+	//        BDSGlobals->fileDump << aTrack->GetTotalEnergy()/GeV << "\t"
+	//<< x << "\t" << y << "\t" << z << "\t"
+	//<< xPrime << "\t" << yPrime << "\t" << t <<"\n"; // SPM
+	if(DEBUG2) printf("Out: %.15f %.15f %.15f %.15f %.15f %.15f %f\n",
+		aTrack->GetTotalEnergy()/GeV,x,y,z,xPrime,yPrime,t);
+        tmpParticle outputParticle, transformedParticle;
+        if(aTrack->GetDefinition()->GetPDGEncoding()==-11)
+	  outputParticle.E=-(aTrack->GetTotalEnergy());
+        else outputParticle.E=aTrack->GetTotalEnergy();
+        outputParticle.xp=momDir.x();
+        outputParticle.yp=momDir.y();
+        outputParticle.x=initialPos.x();
+        outputParticle.y=initialPos.y();
+        outputParticle.z=initialPos.z();
+        outputParticle.t=t;
+        outputParticle.trackID=aTrack->GetTrackID();
+        outputParticle.parentID=aTrack->GetParentID();
 
-       classification = fPostpone;
+	transformedParticle.x=x;
+	transformedParticle.y=y;
+	transformedParticle.z=z;
+	transformedParticle.xp=xPrime;
+	transformedParticle.yp=yPrime;
+	transformedParticle.t=t;
+	transformedParticle.E=aTrack->GetTotalEnergy()/GeV;
+
+        BDSGlobals->outputQueue.push_back(outputParticle);
+        BDSGlobals->transformedQueue.push_back(transformedParticle);
+        classification = fPostpone;
      }
 
      if(BDSGlobals->getReading()){

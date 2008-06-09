@@ -64,6 +64,7 @@ G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
     G4double referenceTime = theTrack->GetGlobalTime();
     if(DEBUG) G4cout << "refTime= " << referenceTime <<G4endl;
     BDSGlobals->referenceQueue.push_back(referenceTime);
+//    theTrack->SetGlobalTime(0);
   }
   else if(abs(theTrack->GetDefinition()->GetPDGEncoding()) == 11){
     if(DEBUG) G4cout<<"Dump: postponing track..."<<G4endl;

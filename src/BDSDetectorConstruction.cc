@@ -81,7 +81,7 @@ const int DEBUG = 0;
 #include "BDSElement.hh"
 #include "BDSComponentOffset.hh"
 #include "BDSCollimator.hh"
-#include "BDSRealisticCollimator.hh"
+//#include "BDSRealisticCollimator.hh"
 // output interface
 #include "BDSOutput.hh"
 

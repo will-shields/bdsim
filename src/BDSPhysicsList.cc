@@ -709,7 +709,7 @@ void BDSPhysicsList::ConstructSR()
   // BDSIM's version of Synchrotron Radiation
   BDSSynchrotronRadiation* srProcess = new BDSSynchrotronRadiation;
   
-  //BDSContinuousSR *contSR = new BDSContinuousSR(); // contin. energy loss process
+  BDSContinuousSR *contSR = new BDSContinuousSR(); // contin. energy loss process
 
   // G4's version of Synchrotron Radiation - not used because does not have
   // Multiplicity or MeanFreeFactor capability
@@ -726,9 +726,9 @@ void BDSPhysicsList::ConstructSR()
       pmanager->AddProcess(srProcess);
       pmanager->SetProcessOrderingToLast(srProcess,idxPostStep);
 
-      //G4int idx = pmanager->AddProcess(contSR);
-      //pmanager->SetProcessOrderingToLast(contSR,idxPostStep);
-      //pmanager->SetProcessActivation(idx, false);
+      G4int idx = pmanager->AddProcess(contSR);
+      pmanager->SetProcessOrderingToLast(contSR,idxPostStep);
+      pmanager->SetProcessActivation(idx, false);
     }
     
     if (particleName == "e+") {

@@ -498,11 +498,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       G4double pi = 2.*asin(1.);
 
       partId++;
-      //      E = BDSGlobals->GetBeamKineticEnergy();
-      E = BDSGlobals->GetBeamTotalEnergy() - BDSGlobals->GetParticleDefinition()->GetPDGMass()*GeV;
-      zp = 1;
-      t=0;
-      z0=0;
+
       G4double phase_factor = 1 / ( (nptwiss/2.) - 1.0 );
       if(partId<=nptwiss/2) //primary - xx' ellipse
 	{
@@ -525,6 +521,19 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       y0*=m;
       xp*=radian;
       yp*=radian;
+
+      //      E = BDSGlobals->GetBeamKineticEnergy();
+      E = BDSGlobals->GetBeamTotalEnergy() - BDSGlobals->GetParticleDefinition()->GetPDGMass();
+      zp = sqrt(1-xp*xp-yp*yp);
+      t=0;
+      z0=0;
+
+      if(DEBUG){
+	G4cout << "x: " << x0/micrometer << " xp: " << xp/radian << G4endl;
+	G4cout << "y: " << y0/micrometer << " yp: " << yp/radian << G4endl;
+	G4cout << "z: " << z0/micrometer << " zp: " << zp/radian << G4endl;
+      }
+
       return;
     } //end doTwiss && partId<nptwiss
 

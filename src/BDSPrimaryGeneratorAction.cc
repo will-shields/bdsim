@@ -97,35 +97,37 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   G4double x0, y0, z0, xp, yp, zp, t, E;
 
-  if(!BDSGlobals->getReadFromStack()){
+  particleGun->SetParticleDefinition(BDSGlobals->GetParticleDefinition());
+
+  if(!BDSGlobals->getReadFromStack() && !BDSGlobals->isReference){
     theBunch.GetNextParticle(x0,y0,z0,xp,yp,zp,t,E); // get next starting point
   }
   else if(BDSGlobals->holdingQueue.size()!=0){
     tmpParticle holdingParticle = BDSGlobals->holdingQueue.front();
     tmpParticle outputParticle  = BDSGlobals->outputQueue.front();
-    x0 = holdingParticle.x; //
-    y0 = holdingParticle.y; //
-    z0 = holdingParticle.z; //
+    x0 = outputParticle.x; //
+    y0 = outputParticle.y; //
+    z0 = outputParticle.z; //
     t = holdingParticle.t;  //
     xp = holdingParticle.xp;
     yp = holdingParticle.yp;
     zp = holdingParticle.zp;
     E = holdingParticle.E;
+
+    if(E<0){
+      particleGun->SetParticleDefinition(
+		G4ParticleTable::GetParticleTable()->FindParticle(
+			BDSGlobals->GetParticleDefinition()->
+				GetAntiPDGEncoding()));
+      E*=-1;
+    }
+
     if(DEBUG) printf("Particles left %i: %f %f %f %f %f %f %f %f\n",
 	(int)BDSGlobals->holdingQueue.size(),x0,y0,z0,xp,yp,zp,t,E);
   }
   else if(!BDSGlobals->isReference) G4Exception("No new particles to fire...\n");
 
-  if(E<0){
-    particleGun->SetParticleDefinition(
-		G4ParticleTable::GetParticleTable()->FindParticle(
-			BDSGlobals->GetParticleDefinition()->
-				GetAntiPDGEncoding()));
-    E*=-1;
-  }
-  else if(E==0) G4cout << "Particle energy is 0! This will not be tracked." << G4endl;
-  else
-    particleGun->SetParticleDefinition(BDSGlobals->GetParticleDefinition());
+  if(E==0) G4cout << "Particle energy is 0! This will not be tracked." << G4endl;
 
   G4ThreeVector PartMomDir(0,0,1);
   G4ThreeVector PartPosition(0,0,0);
