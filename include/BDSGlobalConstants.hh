@@ -279,6 +279,7 @@ public:
 
   std::deque<tmpParticle> holdingQueue;
   std::deque<tmpParticle> outputQueue;
+  std::deque<tmpParticle> transformedQueue;
   std::deque<G4double> referenceQueue;
   G4bool isReference;
 
