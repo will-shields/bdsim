@@ -1,7 +1,7 @@
 //  
-//   BDSIM, (C) 2001-2007 
+//   BDSIM, (C) 2001-2008 
 //   
-//   version 0.4
+//   version 0.5-dev
 //  
 //
 //
@@ -67,9 +67,9 @@ const int DEBUG = 0;
 // Print program usage
 static void usage()
 {
-  G4cout<<"bdsim : version 0.4 build _UNKNOWN_BUILD_DATE_"<<G4endl;
-  G4cout<<"        (C) 2001-2007 Royal Holloway University London"<<G4endl;
-  G4cout<<"        http://ilc.pp.rhul.ac.uk/bdsim.html"<<G4endl;
+  G4cout<<"bdsim : version 0.5-dev build _UNKNOWN_BUILD_DATE_"<<G4endl;
+  G4cout<<"        (C) 2001-2008 Royal Holloway University London"<<G4endl;
+  G4cout<<"        http://www.pp.rhul.ac.uk/twiki/bin/view/JAI/simulation"<<G4endl;
   G4cout<<G4endl;
 
   G4cout<<"Usage: bdsim [options]"<<G4endl;
