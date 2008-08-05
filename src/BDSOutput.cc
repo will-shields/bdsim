@@ -1,5 +1,6 @@
 #include "BDSOutput.hh"
 #include "BDSSamplerSD.hh"
+
 #include <ctime>
 
 extern G4String outputFilename;
@@ -73,6 +74,45 @@ void BDSOutput::Init(G4int FileNum)
     {
       //G4String name="samp"+BDSGlobals->StringFromInt(i+1);
       G4String name=SampName[i];
+      TTree* SamplerTree = new TTree(name, "Sampler output");
+      
+      SamplerTree->Branch("E0",&E0,"E0 (GeV)/F");
+      SamplerTree->Branch("x0",&x0,"x0 (mum)/F");
+      SamplerTree->Branch("y0",&y0,"y0 (mum)/F");
+      SamplerTree->Branch("z0",&z0,"z0 (m)/F");
+      SamplerTree->Branch("xp0",&xp0,"xp0 (rad)/F");
+      SamplerTree->Branch("yp0",&yp0,"yp0 (rad)/F");
+      SamplerTree->Branch("zp0",&zp0,"zp0 (rad)/F");
+      SamplerTree->Branch("t0",&t0,"t0 (ns)/F");
+
+      SamplerTree->Branch("E",&E,"E (GeV)/F");
+      SamplerTree->Branch("x",&x,"x (mum)/F");
+      SamplerTree->Branch("y",&y,"y (mum)/F");
+      SamplerTree->Branch("z",&z,"z (m)/F");
+      SamplerTree->Branch("xp",&xp,"xp (rad)/F");
+      SamplerTree->Branch("yp",&yp,"yp (rad)/F");
+      SamplerTree->Branch("zp",&zp,"zp (rad)/F");
+      SamplerTree->Branch("t",&t,"t (ns)/F");
+
+      SamplerTree->Branch("X",&X,"X (mum)/F");
+      SamplerTree->Branch("Y",&Y,"Y (mum)/F");
+      SamplerTree->Branch("Z",&Z,"Z (m)/F");
+      SamplerTree->Branch("Xp",&Xp,"Xp (rad)/F");
+      SamplerTree->Branch("Yp",&Yp,"Yp (rad)/F");
+      SamplerTree->Branch("Zp",&Zp,"Zp (rad)/F");
+
+      SamplerTree->Branch("s",&s,"s (m)/F");
+
+      SamplerTree->Branch("weight",&weight,"weight/F");
+      SamplerTree->Branch("partID",&part,"partID/I");
+      SamplerTree->Branch("nEvent",&nev,"nEvent/I");
+      SamplerTree->Branch("parentID",&pID,"parentID/I");
+      SamplerTree->Branch("trackID",&track_id,"trackID/I");
+    }
+  for(G4int i=0;i<BDSSamplerCylinder::GetNSamplers();i++)
+    {
+      //G4String name="samp"+BDSGlobals->StringFromInt(i+1);
+      G4String name=CSampName[i];
       TTree* SamplerTree = new TTree(name, "Sampler output");
       
       SamplerTree->Branch("E0",&E0,"E0 (GeV)/F");

@@ -167,7 +167,7 @@ void BDSEventAction::BeginOfEventAction(const G4Event* evt)
   //if( bdsOutput->GetCylinderSamplerNumber() > 0 )
   {   
     //if (SamplerCollID_cylin==-1)
-    //SamplerCollID_cylin = SDman->GetCollectionID("Sampler_cylinder"); //WHY COMMENTED???
+    SamplerCollID_cylin = SDman->GetCollectionID("Sampler_cylinder"); //WHY COMMENTED???
   }
   
   //if( bdsOutput->GetLWCalorimeterNumber() > 0 )

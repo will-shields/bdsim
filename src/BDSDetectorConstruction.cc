@@ -1286,7 +1286,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       (*iBeam)->SetSPos(s_tot+(*iBeam)->GetArcLength()/2.0);
 
       // advance coordinates , but not for cylindrical sampler
-      if(( (*iBeam)->GetType() != "sampler") || ( (*iBeam)->GetLength() <= samplerLength ) )
+      if(( (*iBeam)->GetType() != "csampler") || ( (*iBeam)->GetLength() <= samplerLength ) )
 	{
 	  s_tot+= (*iBeam)->GetArcLength();
 
@@ -1505,7 +1505,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       if(DEBUG) G4cout<<"TargetPos="<<TargetPos<<G4endl;
 
       // advance the coordinates, but not for cylindrical samplers 
-      if( ( ( (*iBeam)->GetType() != "sampler") || ( length <= samplerLength ) )  && ( (*iBeam)->GetType()!=_ELEMENT ))
+      if( ( ( (*iBeam)->GetType() != "csampler") || ( length <= samplerLength ) ) ) // && ( (*iBeam)->GetType()!=_ELEMENT ))
 	{
 	  if(DEBUG) G4cout << (*iBeam)->GetType() << " "
 			   << (*iBeam)->GetName() << " "
@@ -1574,7 +1574,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	  }
 
 	vector<G4LogicalVolume*> MultipleSensVols = (*iBeam)->GetMultipleSensitiveVolumes();
-	if((*iBeam)->GetType()!="sampler" && MultipleSensVols.size()>0)
+	if( ( (*iBeam)->GetType()!="sampler" && (*iBeam)->GetType()!="csampler" )
+		&& MultipleSensVols.size()>0)
 	   {
 	     for(G4int i=0; i<(G4int)MultipleSensVols.size(); i++)
 	       {
@@ -1590,6 +1591,10 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	if((*iBeam)->GetType()=="sampler") {
 	  LocalName=(*iBeam)->GetName()+"_phys";
 	  bdsOutput->SampName.push_back(LocalName + "_" + BDSGlobals->StringFromInt(nCopy+1));
+	} 
+	else if((*iBeam)->GetType()=="csampler") {
+	  LocalName=(*iBeam)->GetName()+"_phys";
+	  bdsOutput->CSampName.push_back(LocalName + "_" + BDSGlobals->StringFromInt(nCopy+1));
 	} else {
 	  //it would be nice to set correctly names also for other elements...
 	  //but need to count them!

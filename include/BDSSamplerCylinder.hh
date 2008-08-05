@@ -21,6 +21,9 @@ public:
   BDSSamplerCylinder(G4String aName,G4double aLength, G4double aRadius);
   ~BDSSamplerCylinder();
 
+  static const int GetNSamplers();
+  static void AddExternalSampler();
+
 protected:
 
 private:
@@ -31,6 +34,9 @@ private:
   // field related objects:
   G4UserLimits* itsUserLimits;
   G4VisAttributes* itsVisAttributes;
+
+  int nThisSampler;
+  static int nSamplers;
 };
 
 #endif

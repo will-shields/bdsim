@@ -30,6 +30,12 @@ extern LogVolMap* LogVol;
 extern BDSMaterials* theMaterials;
 //============================================================
 
+int BDSSamplerCylinder::nSamplers = 0;
+
+const int BDSSamplerCylinder::GetNSamplers() { return nSamplers; }
+
+void BDSSamplerCylinder::AddExternalSampler() { nSamplers++; }
+
 BDSSamplerCylinder::
 BDSSamplerCylinder (G4String aName,G4double aLength,G4double aRadius):
   BDSAcceleratorComponent(
@@ -38,7 +44,11 @@ BDSSamplerCylinder (G4String aName,G4double aLength,G4double aRadius):
 			 SetVisAttributes()),
   itsRadius(aRadius)
 {
+  nThisSampler = nSamplers + 1;
+  SetName("CSampler_"+BDSGlobals->StringFromInt(nThisSampler)+"_"+itsName);
+  SetType("csampler");
   SamplerCylinderLogicalVolume();
+  nSamplers++;
   //G4int nSamplers=(*LogVolCount)[itsName];
   //BDSRoot->SetSampCylinderNumber(nSamplers);
 }
@@ -91,4 +101,5 @@ BDSSamplerCylinder::~BDSSamplerCylinder()
 {
   delete itsVisAttributes;
   delete itsUserLimits;
+  --nSamplers;
 }

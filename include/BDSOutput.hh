@@ -8,6 +8,7 @@
 #include "BDSSampler.hh"
 #include "BDSSamplerHit.hh"
 #include "BDSSamplerSD.hh"
+#include "BDSSamplerCylinder.hh"
 #include "BDSEnergyCounterHit.hh"
 
 #include "BDSLWCalorimeter.hh"
@@ -66,6 +67,7 @@ public:
   G4double zMax;
   //BDSSamplerSD* BDSSamplerSensDet;
   std::vector <G4String> SampName;
+  std::vector <G4String> CSampName;
 private:
   G4int format;
   ofstream of;
