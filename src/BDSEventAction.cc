@@ -158,13 +158,13 @@ void BDSEventAction::BeginOfEventAction(const G4Event* evt)
   
   G4SDManager * SDman = G4SDManager::GetSDMpointer();
   //G4cout << bdsOutput->GetPlaneSamplerNumber() << " < PlaneSamplers" << G4endl;
-  //if( bdsOutput->GetPlaneSamplerNumber() > 0)
+  if( BDSSampler::GetNSamplers() > 0)
   {   
     //if (SamplerCollID_plane==-1)
     SamplerCollID_plane = SDman->GetCollectionID("Sampler_plane");
   }
   
-  //if( bdsOutput->GetCylinderSamplerNumber() > 0 )
+  if( BDSSamplerCylinder::GetNSamplers() > 0 )
   {   
     //if (SamplerCollID_cylin==-1)
     SamplerCollID_cylin = SDman->GetCollectionID("Sampler_cylinder"); //WHY COMMENTED???
