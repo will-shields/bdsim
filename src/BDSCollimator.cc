@@ -39,13 +39,16 @@ BDSCollimator::BDSCollimator (G4String aName,G4double aLength,G4double bpRad,
 {
   if(type==_RCOL) itsType="rcol";
   if(type==_ECOL) itsType="ecol";
+
+  if(itsOuterR==0) itsOuterR = BDSGlobals->GetComponentBoxSize()/2;
+
   if ( (*LogVolCount)[itsName]==0)
     {
       itsMarkerLogicalVolume=
 	new G4LogicalVolume(
 			    new G4Box(itsName,
-				      BDSGlobals->GetComponentBoxSize()/2,
-				      BDSGlobals->GetComponentBoxSize()/2,
+				      itsOuterR,
+				      itsOuterR,
 				      itsLength/2),
 			    theMaterials->GetMaterial("Vacuum"),
 			    itsName);
@@ -85,8 +88,6 @@ void BDSCollimator::BuildInnerCollimator()
 
   if(itsXAper <= 0) itsXAper = BDSGlobals->GetComponentBoxSize()/2;
   if(itsYAper <= 0) itsYAper = BDSGlobals->GetComponentBoxSize()/2;
-
-  if(itsOuterR==0) itsOuterR = BDSGlobals->GetComponentBoxSize()/2;
 
   itsSolidLogVol=
     new G4LogicalVolume(new G4Box(itsName+"_solid",
