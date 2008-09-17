@@ -17,6 +17,7 @@
 #include "G4LogicalVolume.hh"
 #include "G4Cons.hh"
 #include "G4Tubs.hh"
+#include "G4EllipticalTube.hh"
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 #include "BDSMySQLTable.hh"
@@ -71,6 +72,7 @@ private:
   void BuildTorus(BDSMySQLTable* aSQLTable);
   void BuildSampler(BDSMySQLTable* aSQLTable);
   void BuildTube(BDSMySQLTable* aSQLTable);
+  void BuildEllipticalTube(BDSMySQLTable* aSQLTable);
   G4RotationMatrix* RotateComponent(G4double psi,
 				    G4double phi,
 				    G4double theta);
