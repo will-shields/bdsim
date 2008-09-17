@@ -3,6 +3,7 @@
 #include "G4Box.hh"
 #include "G4Trap.hh"
 #include "G4Tubs.hh"
+#include "G4EllipticalTube.hh"
 #include "G4Cons.hh"
 #include "G4EllipticalCone.hh"
 #include "G4Torus.hh"
@@ -84,6 +85,7 @@ void BDSGeometrySQL::BuildSQLObjects(G4String file)
       else if(ObjectType.compareTo("TORUS",cmpmode)==0) BuildTorus(itsSQLTable[i]);
       else if(ObjectType.compareTo("SAMPLER",cmpmode)==0) BuildSampler(itsSQLTable[i]);
       else if(ObjectType.compareTo("TUBE",cmpmode)==0) BuildTube(itsSQLTable[i]);
+      else if(ObjectType.compareTo("ELLIPTICALTUBE",cmpmode)==0) BuildEllipticalTube(itsSQLTable[i]);
     }
 
 }
@@ -467,6 +469,7 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
 {
   G4int NVariables = aSQLTable->GetVariable("LENGTHXPLUS")->GetNVariables();
 
+	G4double trapTheta = 0; //Angle between faces of trapezoid
   G4double lengthXPlus = 0;
   G4double lengthXMinus = 0;
   G4double lengthYPlus = 0;
@@ -486,6 +489,8 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
       Material = "VACUUM";
+      if(aSQLTable->GetVariable("TRAPTHETA")!=NULL)
+	trapTheta = aSQLTable->GetVariable("TRAPTHETA")->GetDblValue(k);
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
       if(aSQLTable->GetVariable("BLUE")!=NULL)
@@ -515,11 +520,17 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
       Name = itsMarkerVol->GetName()+"_"+Name;
 
       G4Trap* aTrap = new G4Trap(Name+"_Trd",
-				 lengthXPlus/2,
-				 lengthXMinus/2,
-				 lengthYPlus/2,
-				 lengthYMinus/2,
-				 lengthZ/2);
+																 lengthZ/2,
+																 trapTheta, 0,
+																 lengthYPlus/2,
+																 lengthXPlus/2,
+																 lengthXPlus/2,
+																 0,
+																 lengthYMinus/2,
+																 lengthXMinus/2,
+																 lengthXMinus/2,
+																 0);
+			
       
       G4LogicalVolume* aTrapVol = 
 	new G4LogicalVolume(aTrap,
@@ -640,7 +651,6 @@ void BDSGeometrySQL::BuildTorus(BDSMySQLTable* aSQLTable)
 
   PlaceComponents(aSQLTable, VOL_LIST);
 }
-
 void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
 {
   G4int NVariables = aSQLTable->GetVariable("LENGTH")->GetNVariables();
@@ -744,7 +754,6 @@ void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
 
   PlaceComponents(aSQLTable, VOL_LIST);
 }
-
 void BDSGeometrySQL::BuildTube(BDSMySQLTable* aSQLTable)
 {
   G4int NVariables = aSQLTable->GetVariable("RINNER")->GetNVariables();
@@ -835,6 +844,96 @@ void BDSGeometrySQL::BuildTube(BDSMySQLTable* aSQLTable)
 
     }
 
+  PlaceComponents(aSQLTable, VOL_LIST);
+}
+
+void BDSGeometrySQL::BuildEllipticalTube(BDSMySQLTable* aSQLTable)
+{
+  G4int NVariables = aSQLTable->GetVariable("LENGTHX")->GetNVariables();
+
+  G4double lengthX;
+  G4double lengthY;
+  G4double lengthZ;
+  G4double VisRed; 
+  G4double VisGreen;
+  G4double VisBlue;
+  G4String VisType;
+  G4String Material;
+  G4String TableName = aSQLTable->GetName();
+  G4String Name;
+
+  for(G4int k=0; k<NVariables; k++)
+    {
+      //Defaults 
+      lengthX = 100.*mm;
+      lengthY = 50.*mm;
+      lengthZ = 200.*mm;
+      VisRed = VisGreen = VisBlue = 0.;
+      VisType = "S";
+      Material = "VACUUM";
+
+      if(aSQLTable->GetVariable("RED")!=NULL)
+	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
+      if(aSQLTable->GetVariable("BLUE")!=NULL)
+	VisBlue = aSQLTable->GetVariable("BLUE")->GetDblValue(k);
+      if(aSQLTable->GetVariable("GREEN")!=NULL)
+	VisGreen = aSQLTable->GetVariable("GREEN")->GetDblValue(k);
+      if(aSQLTable->GetVariable("VISATT")!=NULL)
+	VisType = aSQLTable->GetVariable("VISATT")->GetStrValue(k);
+      if(aSQLTable->GetVariable("LENGTHX")!=NULL)
+	lengthX = aSQLTable->GetVariable("LENGTHX")->GetDblValue(k);
+      if(aSQLTable->GetVariable("LENGTHY")!=NULL)
+	lengthY = aSQLTable->GetVariable("LENGTHY")->GetDblValue(k);
+      if(aSQLTable->GetVariable("LENGTHZ")!=NULL)
+	lengthZ = aSQLTable->GetVariable("LENGTHZ")->GetDblValue(k);
+      if(aSQLTable->GetVariable("MATERIAL")!=NULL)
+	Material = aSQLTable->GetVariable("MATERIAL")->GetStrValue(k);
+      if(aSQLTable->GetVariable("NAME")!=NULL)
+	Name = aSQLTable->GetVariable("NAME")->GetStrValue(k);
+
+      if(Name=="") Name = TableName+BDSGlobals->StringFromInt(k);
+
+      // make sure that each name is unique!
+      Name = itsMarkerVol->GetName()+"_"+Name;
+
+      G4EllipticalTube* aEllipticalTube = new G4EllipticalTube(Name+"_EllipticalTube",
+							       lengthX/2,
+							       lengthY/2,
+							       lengthZ/2
+							       );
+
+
+      G4LogicalVolume* aEllipticalTubeVol = 
+	new G4LogicalVolume(aEllipticalTube,
+			    theMaterials->GetMaterial(Material),
+			    Name+"_LogVol");
+      
+      G4UserLimits* EllipticalTubeUserLimits = new G4UserLimits();
+      G4double maxLength = lengthX;
+      if (lengthY>lengthX&&lengthY>lengthZ){
+	maxLength = lengthY;
+      }
+      else if(lengthZ>lengthY&&lengthZ>lengthX){
+	maxLength = lengthZ;
+      }
+      EllipticalTubeUserLimits->SetMaxAllowedStep(maxLength);
+      aEllipticalTubeVol->SetUserLimits(EllipticalTubeUserLimits);
+      G4VisAttributes* VisAtt = 
+	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
+      switch (VisType(0))
+	{
+	case 'W': VisAtt->SetForceWireframe(true); break;
+	case 'I': VisAtt->SetVisibility(false); break;
+	case 'S': VisAtt->SetForceSolid(true); break;
+	case 'w': VisAtt->SetForceWireframe(true); break;
+	case 'i': VisAtt->SetVisibility(false); break;
+	case 's': VisAtt->SetForceSolid(true); break;
+	}
+      aEllipticalTubeVol->SetVisAttributes(VisAtt);
+
+      VOL_LIST.push_back(aEllipticalTubeVol);
+
+    }
   PlaceComponents(aSQLTable, VOL_LIST);
 }
 
@@ -995,7 +1094,7 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
 	}
 
 
-      G4VPhysicalVolume* PhysiComp=
+      G4VPhysicalVolume* PhysiComp = 
 	new G4PVPlacement(RotateComponent(RotPsi,RotPhi,RotTheta),
 			  PlacementPoint,
 			  VOL_LIST[ID],
