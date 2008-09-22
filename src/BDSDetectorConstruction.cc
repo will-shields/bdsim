@@ -1505,7 +1505,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       if(DEBUG) G4cout<<"TargetPos="<<TargetPos<<G4endl;
 
       // advance the coordinates, but not for cylindrical samplers 
-      if( ( ( (*iBeam)->GetType() != "csampler") || ( length <= samplerLength ) ) ) // && ( (*iBeam)->GetType()!=_ELEMENT ))
+      if( ( ( (*iBeam)->GetType() != "csampler") || ( length <= samplerLength ) )  && ( (*iBeam)->GetType()!=_ELEMENT ))
 	{
 	  if(DEBUG) G4cout << (*iBeam)->GetType() << " "
 			   << (*iBeam)->GetName() << " "
