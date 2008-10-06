@@ -175,7 +175,7 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	  
 	  LocalPosition = tf.TransformPoint(pos);
 	  LocalDirection = tf.TransformAxis(momDir);
-	  G4double refTime = (BDSGlobals->referenceQueue.front()-t)/2;
+	  G4double refTime = (BDSGlobals->referenceQueue.front()-t); // all t0=0 so remove /2
 
 	  LocalPosition -= LocalDirection*c_light*refTime;
 ///	  t = -z/c_light;

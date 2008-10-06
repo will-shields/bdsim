@@ -566,14 +566,14 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 
       if(sigmaX !=0) x0 = (X0 + sigmaX * GaussGen->shoot()) * m;
       if(sigmaY !=0) y0 = (Y0 + sigmaY * GaussGen->shoot()) * m;
-      z0 = Z0 * m;
+      z0 = Z0 * m + (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * c_light * s;
       if(sigmaXp !=0) xp = Xp0 + sigmaXp * GaussGen->shoot();
       if(sigmaYp !=0) yp = Yp0 + sigmaYp * GaussGen->shoot();
       if (Zp0<0)
 	zp = -sqrt(1.-xp*xp -yp*yp);
       else
 	zp = sqrt(1.-xp*xp -yp*yp);
-      t = (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * s;
+      t = 0; // (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * s;
       E = BDSGlobals->GetBeamKineticEnergy() * (1 + energySpread * GaussGen->shoot());
       break;
     }
@@ -668,7 +668,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 	  xp*=1.e-6*radian;
 	  yp*=1.e-6*radian;
 	  zp=sqrt(1.-xp*xp -yp*yp);  
-	  t=-z0/c_light;
+	  t=0; // t=-z0/c_light;
 	  // use the Kinetic energy:
 	  E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
 	}
@@ -692,7 +692,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 	  xp*=radian;
 	  yp*=radian;
 	  zp=sqrt(1.-xp*xp -yp*yp);  
-	  t=-z0/c_light;
+	  t=0; // t=-z0/c_light;
 	  // use the Kinetic energy:
 	  E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
 	}
@@ -732,7 +732,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 	  // but calculating zp more accurately
 	  if(zp<0) zp = -sqrt(1-(xp*xp+yp*yp));
 	  else zp = sqrt(1-(xp*xp+yp*yp));
-	  t=-z0/c_light;
+	  t=0; // t=-z0/c_light;
 	  // use the Kinetic energy:
 	  E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
 	}
@@ -928,7 +928,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 	  // compute zp from xp and yp if it hasn't been read from file
 	  if (!zpdef) zp=sqrt(1.-xp*xp -yp*yp);
 	  // compute t from z0 if it hasn't been read from file
-	  if (!tdef) t=-z0/c_light;
+	  if (!tdef) t=0; // t=-z0/c_light;
 	  // use the Kinetic energy:
 	  E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
 	}
