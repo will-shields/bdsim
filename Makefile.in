@@ -72,7 +72,7 @@ install:
 distrib:
 	tar --ignore-failed-read -C .. --exclude=BDSIM/parser/parser.tab.* \
 	--exclude=BDSIM/parser/lex.* --exclude=BDSIM/parser/libgmad.*\
-	--exclude=BDSIM/parser/gmad.o \
+	--exclude=BDSIM/parser/gmad.o --exclude=*.svn* \
         --exclude=BDSIM/examples/ILC/2mrad/bunches/beam1_cs11.dat* \
 	-czvf BDSIM.tar.gz BDSIM/src BDSIM/include \
 	BDSIM/bdsim.cc BDSIM/bdsimrun BDSIM/Makefile.in BDSIM/vis.mac \
