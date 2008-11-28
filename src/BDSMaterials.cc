@@ -300,6 +300,7 @@ void BDSMaterials::Initialise()
   tmpMaterial->AddElement(elements["O"], 4);
   materials[name] = tmpMaterial;
 
+<<<<<<< .working
 	tmpMaterial = new G4Material 
 		(name="fusedsilica", density=1.032*g/cm3, 2, kStateSolid);
 	tmpMaterial->AddElement(elements["O"],2);
@@ -310,6 +311,18 @@ void BDSMaterials::Initialise()
   G4MaterialPropertiesTable *FusedSilica_mt = new G4MaterialPropertiesTable();
 	G4double FusedSilica_Energy[FusedSilica_NUMENTRIES] = {2.0*eV,7.0*eV,7.14*eV};
   FusedSilica_mt->AddProperty("ABSLENGTH",FusedSilica_Energy,FusedSilica_AbsLength,FusedSilica_NUMENTRIES);
+=======
+	tmpMaterial = new G4Material 
+		(name="FusedSilica", density=1.032*g/cm3, 2, kStateSolid);
+	tmpMaterial->AddElement(elements["O"],2);
+	tmpMaterial->AddElement(elements["Si"],1);
+	const G4int FusedSilica_NUMENTRIES = 3; //Number of entries in the material properties table
+  G4double FusedSilica_RIND[FusedSilica_NUMENTRIES]={1.49,1.49,1.49};
+  G4double FusedSilica_AbsLength[FusedSilica_NUMENTRIES]={420.*cm,420.*cm,420.*cm};
+  G4MaterialPropertiesTable *FusedSilica_mt = new G4MaterialPropertiesTable();
+	G4double FusedSilica_Energy[FusedSilica_NUMENTRIES] = {2.0*eV,7.0*eV,7.14*eV};
+  FusedSilica_mt->AddProperty("ABSLENGTH",FusedSilica_Energy,FusedSilica_AbsLength,FusedSilica_NUMENTRIES);
+>>>>>>> .merge-right.r595
 
   FusedSilica_mt->AddProperty("RINDEX",FusedSilica_Energy,FusedSilica_RIND,FusedSilica_NUMENTRIES);
   tmpMaterial->SetMaterialPropertiesTable(FusedSilica_mt);
@@ -383,6 +396,11 @@ void BDSMaterials::Initialise()
   tmpMaterial = new G4Material
     (name="vacuum"        , density, 1, kStateGas, temperature, pressure);
   tmpMaterial->AddMaterial(materials["air"], fractionmass=1.);
+	G4MaterialPropertiesTable *Vacuum_mt = new G4MaterialPropertiesTable(); //Material properties table for vacuum
+	const G4int Vacuum_NUMENTRIES = 3; //Number of entries in the material properties table
+	G4double Vacuum_RIND[Vacuum_NUMENTRIES] = {1.,1.,1.};
+	Vacuum_mt->AddProperty("RINDEX",Air_Energy, Vacuum_RIND, Air_NUMENTRIES);
+	tmpMaterial->SetMaterialPropertiesTable(Vacuum_mt);
 	G4MaterialPropertiesTable *Vacuum_mt = new G4MaterialPropertiesTable(); //Material properties table for vacuum
 	const G4int Vacuum_NUMENTRIES = 3; //Number of entries in the material properties table
 	G4double Vacuum_RIND[Vacuum_NUMENTRIES] = {1.,1.,1.};

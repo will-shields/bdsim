@@ -55,7 +55,8 @@ BDSQuadrupole::BDSQuadrupole(G4String aName, G4double aLength,
   G4String qtype = getParameterValueString(spec, "type");
   if(DEBUG) G4cout<<"qtype : "<<qtype<<G4endl;
 
-  SetOuterRadius(outR);
+  //  SetOuterRadius(outR); //deacon 30/4/08
+  SetOuterRadius(22*cm); 
   itsTilt=tilt;
   itsType="quad";
 
@@ -82,7 +83,7 @@ BDSQuadrupole::BDSQuadrupole(G4String aName, G4double aLength,
       else if(qtype=="cylinder")  
 	BuildDefaultOuterLogicalVolume(itsLength); // cylinder outer volume
       else //default
-	BuildDefaultOuterLogicalVolume(itsLength); // cylinder outer volume
+	BuildOuterLogicalVolume(); // standard - quad with poles and pockets
       if(BDSGlobals->GetIncludeIronMagFields())
 	{
 	  G4double polePos[4];

@@ -27,34 +27,41 @@
 
 class BDSSectorBend :public BDSMultipole
 {
-public:
-  BDSSectorBend(G4String aName, G4double aLength,
-		G4double bpRad, G4double FeRad,
-		G4double bField, G4double angle, G4double outR,
-		G4double tilt = 0, G4double bGrad=0, G4String aMaterial = "",
-		G4int nSegments=1);
-  ~BDSSectorBend();
-
+  public:
+    BDSSectorBend(G4String aName, G4double aLength,
+		  G4double bpRad,G4double FeRad,
+		  G4double bField, G4double angle, G4double outR,
+		  G4double tilt = 0, G4double bGrad=0, G4String aMaterial = "",
+		  G4int nSegments=1);
+    ~BDSSectorBend();
   void SynchRescale(G4double factor);
+  protected:
 
-protected:
-
-private:
+  private:
   G4double itsBField;
   G4double itsBGrad;
 
+	void BuildDipoleOuterLogicalVolume(G4double alength); //deacon_20_10_06
+  //  void BuildOuterLogicalVolume();
   void BuildBPFieldAndStepper();
   void BuildSBMarkerLogicalVolume();
   void BuildSBBeampipe();
   void BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum=false);
 
+
   G4VisAttributes* SetVisAttributes();
   G4Trd* markerSolidVolume;
-
+  
   // field related objects:
+  //BDSHelixStepper* itsStepper;
   myQuadStepper* itsStepper;
   BDSSbendMagField* itsMagField;
   G4Mag_EqRhs* itsEqRhs;
+
+
+	 G4LogicalVolume* itsDipoleLogicalVolumeTop;
+	 G4LogicalVolume* itsDipoleLogicalVolumeMiddle;
+	 G4LogicalVolume* itsDipoleLogicalVolumeBottom;
 
 };
 

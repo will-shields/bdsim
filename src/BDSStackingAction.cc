@@ -152,7 +152,6 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
         G4ThreeVector momDir=aTrack->GetMomentumDirection();
 	G4double refTime = (BDSGlobals->referenceQueue.front() 
 				- aTrack->GetGlobalTime()); // all t0 = 0 so remove /2
-
 	G4ThreeVector transformedPos = initialPos + momDir*c_light*refTime;
 	//G4cout << "RefTime = " << refTime << " " << BDSGlobals->referenceQueue.front()
 	//	<< " " << aTrack->GetGlobalTime() << G4endl;
@@ -180,6 +179,7 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 
         BDSGlobals->fileDump.precision(15);
         // TODO : dump the file
+<<<<<<< .working
 	//        BDSGlobals->fileDump << aTrack->GetTotalEnergy()/GeV << "\t"
 	//<< x << "\t" << y << "\t" << z << "\t"
 	//<< xPrime << "\t" << yPrime << "\t" << t <<"\n"; // SPM
@@ -197,6 +197,24 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
         outputParticle.t=t;
         outputParticle.trackID=aTrack->GetTrackID();
         outputParticle.parentID=aTrack->GetParentID();
+=======
+        BDSGlobals->fileDump << aTrack->GetTotalEnergy()/GeV << "\t"
+	<< x << "\t" << y << "\t" << z << "\t"
+	<< xPrime << "\t" << yPrime << "\t" << t <<"\n"; // SPM
+       tmpParticle outputParticle;
+       if(aTrack->GetDefinition()->GetPDGEncoding()==-11)
+	 outputParticle.E=-(aTrack->GetTotalEnergy());
+       else outputParticle.E=aTrack->GetTotalEnergy();
+       outputParticle.xp=momDir.x();
+       outputParticle.yp=momDir.y();
+       outputParticle.x=initialPos.x();
+       outputParticle.y=initialPos.y();
+       outputParticle.z=initialPos.z();
+       outputParticle.t=t;
+       outputParticle.trackID=aTrack->GetTrackID();
+       outputParticle.parentID=aTrack->GetParentID();
+       BDSGlobals->outputQueue.push_back(outputParticle);
+>>>>>>> .merge-right.r595
 
 	transformedParticle.x=x;
 	transformedParticle.y=y;

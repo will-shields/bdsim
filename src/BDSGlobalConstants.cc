@@ -95,7 +95,8 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
 
   itsSynchLowGamE = opt.synchLowGamE * GeV;  // lowest gamma energy
 
-  itsSynchPhotonMultiplicity = opt.synchPhotonMultiplicity;
+  itsSynchPhotonMultiplicity = 10000; //deacon
+  //opt.synchPhotonMultiplicity;
 
   itsSynchMeanFreeFactor = opt.synchMeanFreeFactor;
 
@@ -142,10 +143,10 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
 
   // defaults - parameters of the laserwire process
 
-  itsLaserwireWavelength = 0.4 * micrometer;
+  itsLaserwireWavelength = 0.532 * micrometer;
   itsLaserwireDir = G4ThreeVector(1,0,0);
   itsLaserwireTrackPhotons = 1;
-  itsLaserwireTrackElectrons = 1;
+  itsLaserwireTrackElectrons = 0;
 
 
   isWaitingForDump = false;

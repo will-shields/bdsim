@@ -117,10 +117,14 @@ void BDSBunch::SetOptions(struct Options& opt)
 
   case _GAUSSIAN:
     {
-      SetSigmaX(opt.sigmaX); 
-      SetSigmaY(opt.sigmaY);
-      SetSigmaXp(opt.sigmaXp);
-      SetSigmaYp(opt.sigmaYp);
+      //SetSigmaX(opt.sigmaX); 
+      //SetSigmaY(opt.sigmaY);
+      //SetSigmaXp(opt.sigmaXp);
+      //SetSigmaYp(opt.sigmaYp);
+      SetSigmaX(sqrt(opt.betx*opt.emitx)); 
+      SetSigmaY(sqrt(opt.bety*opt.emity)); 
+      SetSigmaXp(sqrt(opt.emitx/opt.betx));
+      SetSigmaYp(sqrt(opt.emity/opt.bety));
       SetSigmaT(opt.sigmaT);
       energySpread = opt.sigmaE;
       break;
@@ -537,6 +541,14 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       return;
     } //end doTwiss && partId<nptwiss
 
+G4double theta=0; 
+	G4double x0t=0; 
+	G4double xpt=0; 
+	G4double y0t=0; 
+	G4double ypt=0; 
+	G4double gammaX=0; 
+	G4double gammaY=0;
+
   switch(distribType){
   case _GAUSSIAN:
     {
@@ -569,6 +581,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       z0 = Z0 * m + (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * c_light * s;
       if(sigmaXp !=0) xp = Xp0 + sigmaXp * GaussGen->shoot();
       if(sigmaYp !=0) yp = Yp0 + sigmaYp * GaussGen->shoot();
+
       if (Zp0<0)
 	zp = -sqrt(1.-xp*xp -yp*yp);
       else
