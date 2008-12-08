@@ -78,8 +78,10 @@ BDSMultipoleMagField::BDSMultipoleMagField(list<G4double> kn, list<G4double> ks)
     G4cout<<"Writing field map to file field.txt"<<G4endl;
 
     testf.open("field.txt");
+
     G4double pt[4];
     G4double b[6];
+
     testf<<"x(cm) y(cm) Bx(T) By(T) Bz(T) "<<G4endl;
 
     for(G4double x=-1*cm;x<1*cm;x+=0.1*mm)

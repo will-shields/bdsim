@@ -15,7 +15,7 @@ class BDSRK4Stepper : public G4MagIntegratorStepper
   
 public:  
   
-  BDSRK4Stepper(G4EquationOfMotion *EqRhs, int nvar=8);
+  BDSRK4Stepper(G4EquationOfMotion *EqRhs, int nvar=6);
 
   
   ~BDSRK4Stepper();

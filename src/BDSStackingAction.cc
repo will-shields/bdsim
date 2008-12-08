@@ -152,6 +152,7 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
         G4ThreeVector momDir=aTrack->GetMomentumDirection();
 	G4double refTime = (BDSGlobals->referenceQueue.front() 
 				- aTrack->GetGlobalTime()); // all t0 = 0 so remove /2
+
 	G4ThreeVector transformedPos = initialPos + momDir*c_light*refTime;
 	//G4cout << "RefTime = " << refTime << " " << BDSGlobals->referenceQueue.front()
 	//	<< " " << aTrack->GetGlobalTime() << G4endl;

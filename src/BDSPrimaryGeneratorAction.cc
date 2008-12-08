@@ -127,16 +127,7 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   }
   else if(!BDSGlobals->isReference) G4Exception("No new particles to fire...\n");
 
-  if(E<0){
-    particleGun->SetParticleDefinition(
-		G4ParticleTable::GetParticleTable()->FindParticle(
-			BDSGlobals->GetParticleDefinition()->
-				GetAntiPDGEncoding()));
-    E*=-1;
-  }
-  else if(E==0) G4cout << "Particle energy is 0! This will not be tracked." << G4endl;
-  else
-    particleGun->SetParticleDefinition(BDSGlobals->GetParticleDefinition());
+  if(E==0) G4cout << "Particle energy is 0! This will not be tracked." << G4endl;
 
   G4ThreeVector PartMomDir(0,0,1);
   G4ThreeVector PartPosition(0,0,0);

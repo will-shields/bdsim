@@ -16,7 +16,7 @@
 
 #include <map>
 
-const int DEBUG = 1;
+const int DEBUG = 0;
 
 //============================================================
 
@@ -48,11 +48,7 @@ BDSDrift::BDSDrift (G4String aName, G4double aLength,
       // build beampipe (geometry + magnetic field)
       //
       itsBPFieldMgr=NULL;
-      G4String materialName = "";
-      if(this->itsName.contains("WINDOW")){
-	materialName = "Vacuum";
-      }
-      BuildBeampipe(itsLength,materialName);
+      BuildBeampipe(itsLength);
 
       // drift doesn't have an outer volume - but include it for laserwire
       // BuildDefaultOuterLogicalVolume(itsLength,true);

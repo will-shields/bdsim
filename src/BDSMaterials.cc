@@ -310,7 +310,6 @@ void BDSMaterials::Initialise()
   G4MaterialPropertiesTable *FusedSilica_mt = new G4MaterialPropertiesTable();
 	G4double FusedSilica_Energy[FusedSilica_NUMENTRIES] = {2.0*eV,7.0*eV,7.14*eV};
   FusedSilica_mt->AddProperty("ABSLENGTH",FusedSilica_Energy,FusedSilica_AbsLength,FusedSilica_NUMENTRIES);
-
   FusedSilica_mt->AddProperty("RINDEX",FusedSilica_Energy,FusedSilica_RIND,FusedSilica_NUMENTRIES);
   tmpMaterial->SetMaterialPropertiesTable(FusedSilica_mt);
 	materials[name] = tmpMaterial;

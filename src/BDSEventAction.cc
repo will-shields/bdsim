@@ -100,7 +100,7 @@ BDSEventAction::BDSEventAction()
 :SamplerCollID_plane(-1),SamplerCollID_cylin(-1),
 LWCalorimeterCollID(-1),drawFlag("all")
 { 
-  if(isBatch) printModulo=1000;
+  if(isBatch) printModulo=10;//1000;
   else printModulo=1;
   
   itsOutputFileNumber=1;
@@ -109,7 +109,6 @@ LWCalorimeterCollID(-1),drawFlag("all")
     
   LastComp=NULL;
 }
-
 
 //======================================================
 
@@ -273,30 +272,25 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
   int evntsPerNtuple = BDSGlobals->GetNumberOfEventsPerNtuple();
 
   if(evntsPerNtuple>0)
-    if ((event_number+1)% evntsPerNtuple == 0) //&& 
-	//	event_number+1 != BDSGlobals->GetNumberToGenerate())
+    if ((event_number+1)% evntsPerNtuple == 0 && 
+		event_number+1 != BDSGlobals->GetNumberToGenerate())
       {
 	if(DEBUG) G4cout<<"writing to file "<<G4endl;
 	// notify the output about the event end
 	// this can be used for splitting output files etc.
-	// bdsOutput->Commit(itsOutputFileNumber++);
+//	bdsOutput->Commit(itsOutputFileNumber++);
 	bdsOutput->Commit();
-	//If not finished, initialise another file
-	if (event_number+1 != BDSGlobals->GetNumberToGenerate()){
-	  bdsOutput->IncrementOutputFileNumber();
-	  bdsOutput->Init(bdsOutput->GetOutputFileNumber());
-	}
 	if(DEBUG) G4cout<<"done"<<G4endl;
       }
 
 
 
   // Save interesting trajectories
-  
+
   if(DEBUG) G4cout<<"BDSEventAction : storing trajectories"<<G4endl;
-  
+
   G4TrajectoryContainer* TrajCont=evt->GetTrajectoryContainer();
-  
+
   if(!TrajCont) return;
   
   TrajectoryVector* TrajVec=TrajCont->GetVector();

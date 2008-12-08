@@ -15,7 +15,7 @@ BDSRK4Stepper::BDSRK4Stepper(G4EquationOfMotion* EqRhs, G4int nvar) :
   itsEqRhs = EqRhs;
   
   unsigned int noVariables= std::max(nvar,8); // For Time .. 7+1
-
+ 
   dydxm = new G4double[noVariables];
   dydxt = new G4double[noVariables]; 
   yt    = new G4double[noVariables]; 

@@ -31,9 +31,9 @@ public:
 public:
   virtual void   BeginOfEventAction(const G4Event*);
   virtual void   EndOfEventAction(const G4Event*);
-
+  
   void SetDrawFlag   (G4String val)  {drawFlag = val;};
-
+ 
 private:
   G4int                       SamplerCollID_plane;                
   G4int                       SamplerCollID_cylin;                
