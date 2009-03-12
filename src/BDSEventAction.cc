@@ -91,7 +91,7 @@ extern G4bool verboseEvent;
 extern G4int verboseEventNumber;
 extern G4bool isBatch;
 
-extern int nptwiss;
+extern G4int nptwiss;
 
 
 //======================================================
@@ -139,7 +139,7 @@ void BDSEventAction::BeginOfEventAction(const G4Event* evt)
     }
   else
     {
-      if ((event_number+1)%printModulo ==0)
+      if (BDSGlobals->isReference==false && (event_number+1)%printModulo ==0)
 	{
 	  G4cout << "\n---> Begin of event: " << event_number ;
 	  

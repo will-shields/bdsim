@@ -1497,7 +1497,7 @@ command : STOP             { if(execute) quit(); }
             if(execute)                                       
               {                                               
                 if(ECHO_GRAMMAR) printf("command -> DUMP\n"); 
-                add_dump("dump",$3->name, element_count);     
+                add_dump($3->name,$3->name, element_count);     
                 element_count = 1;                            
                 params.flush();                               
               }                                               

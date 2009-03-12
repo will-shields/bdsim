@@ -99,7 +99,7 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   particleGun->SetParticleDefinition(BDSGlobals->GetParticleDefinition());
 
-  if(!BDSGlobals->getReadFromStack() && !BDSGlobals->isReference){
+  if(!BDSGlobals->getReadFromStack()){
     theBunch.GetNextParticle(x0,y0,z0,xp,yp,zp,t,E); // get next starting point
   }
   else if(BDSGlobals->holdingQueue.size()!=0){
@@ -113,6 +113,10 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     yp = holdingParticle.yp;
     zp = holdingParticle.zp;
     E = holdingParticle.E;
+
+    //flag for secondaries from previous runs
+    //    if(outputParticle.parentID != 0)
+      //      anEvent->SetEventID(-(anEvent->GetEventID()));
 
     if(E<0){
       particleGun->SetParticleDefinition(

@@ -484,6 +484,27 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 
   double r, phi;
   // Rescal must be at the top of GetNextParticle
+
+  if(BDSGlobals->isReference && partId<nptwiss){
+    G4double phiX= twopi * G4UniformRand();
+    G4double phiY= twopi * G4UniformRand();
+    G4double ex=-log(G4UniformRand())*emitX;
+    G4double ey=-log(G4UniformRand())*emitY;
+    x0=sqrt(2*ex*betaX)*sin(phiX);
+    xp=sqrt(2*ex/betaX)*(cos(phiX)-alphaX*sin(phiX));
+    y0=sqrt(2*ey*betaY)*sin(phiY);
+    yp=sqrt(2*ey/betaY)*(cos(phiY)-alphaY*sin(phiY)); 
+    z0 = Z0 * m + (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * c_light * s;
+    if (Zp0<0)
+      zp = -sqrt(1.-xp*xp -yp*yp);
+    else
+      zp = sqrt(1.-xp*xp -yp*yp);
+    t = 0; // (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * s;
+    E = BDSGlobals->GetBeamKineticEnergy();// * (1 + energySpread * GaussGen->shoot());
+    ++partId;
+    return;
+  }
+  
   if(BDSGlobals->DoTwiss() && partId<nptwiss)
     {
       // temp numbers - to be replaced by parsed parameters

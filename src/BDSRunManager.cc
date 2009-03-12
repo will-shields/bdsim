@@ -21,6 +21,8 @@
 
 #include "BDSDump.hh"
 
+extern G4int nptwiss;
+
 BDSRunManager* BDSRunManager::fRunManager = 0;
 
 BDSRunManager* BDSRunManager::GetRunManager()
@@ -41,9 +43,9 @@ void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
     RunInitialization();
 
     if(BDSDump::GetNumberOfDumps()!=0){
-      // Run reference particle for dumps
+      // Run reference bunch for dumps
       BDSGlobals->isReference=true;
-      DoEventLoop(1,macroFile,0);
+      DoEventLoop(nptwiss,macroFile,0);
       BDSGlobals->isReference=false;
     }
 

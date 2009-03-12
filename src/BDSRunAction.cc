@@ -27,6 +27,7 @@
 
 typedef list<BDSAcceleratorComponent*>  myBeamline;
 extern myBeamline theBeamline;
+extern G4int nptwiss;
 
 const int DEBUG  = 0;
 const int DEBUG2 = 0;
@@ -117,19 +118,40 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
       SM->ReClassify();
       //BDSGlobals->fileDump.close(); // SPM
 
-      std::deque<tmpParticle>::iterator iter;
-      G4double tmpZ = 0;
-      for(iter=BDSGlobals->transformedQueue.begin();
-	  iter!=BDSGlobals->transformedQueue.end();iter++)
-	tmpZ += (*iter).z;
-      tmpZ /= BDSGlobals->transformedQueue.size();
+      G4double tmpT = 0;
+      /*
+	G4int nPrimaries = 0;
+	for(iter=BDSGlobals->transformedQueue.begin();
+	iter!=BDSGlobals->transformedQueue.end();iter++)
+	if((*iter).parentID == 0){ // only interested in primary particles
+	tmpT += (*iter).t;
+	++nPrimaries;
+	}
+	
+	if(nPrimaries)
+	tmpT /= nPrimaries; // average event time elapsed
+      */
+
+      G4double* referenceTimes = BDSGlobals->referenceQueue.front();
+      for(int i=0;i<nptwiss;++i){
+	tmpT += referenceTimes[i];
+	//G4cout << referenceTimes[i] << G4endl;
+      }
+      tmpT /= nptwiss;
 
       FILE* fifo = fopen(BDSGlobals->GetFifo(),"w");
       fprintf(fifo,"# nparticles = %i\n",(int)BDSGlobals->transformedQueue.size());
+
+      //change particle z from absolute to relative
+      //      tmpZ = BDSGlobals->referenceQueue.front()*c_light;
+      if(DEBUG) G4cout << "reftime = " << tmpT << G4endl;
+      std::deque<tmpParticle>::iterator iter;
       for(iter=BDSGlobals->transformedQueue.begin();
 	  iter!=BDSGlobals->transformedQueue.end();iter++)
 	{
-	  (*iter).z -= tmpZ;
+	  (*iter).x -= ((*iter).t-tmpT)*(*iter).xp*c_light/micrometer;
+	  (*iter).y -= ((*iter).t-tmpT)*(*iter).yp*c_light/micrometer;
+	  (*iter).z -= ((*iter).t-tmpT)*c_light/micrometer;
 	  fprintf(fifo,"%.15f %.15f %.15f %.15f %.15f %.15f %.15f\n",
 		  (*iter).E,
 		  (*iter).x,
@@ -175,7 +197,7 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	  
 	  LocalPosition = tf.TransformPoint(pos);
 	  LocalDirection = tf.TransformAxis(momDir);
-	  G4double refTime = (BDSGlobals->referenceQueue.front()-t); // all t0=0 so remove /2
+	  G4double refTime = (tmpT-t); // all t0=0 so remove /2
 
 	  LocalPosition -= LocalDirection*c_light*refTime;
 ///	  t = -z/c_light;
@@ -206,6 +228,7 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
         BDSGlobals->setReading(false);
         BDSGlobals->setReadFromStack(false);
 //	BDSGlobals->referenceQueue.pop_front();
+	delete[] BDSGlobals->referenceQueue.front();
 	BDSGlobals->referenceQueue.pop_front();
 
 	if(DEBUG) G4cout << "Number read in = " << BDSGlobals->holdingQueue.size() << G4endl;

@@ -118,7 +118,7 @@ G4int verboseSteppingLevel = 0;
 
 BDSSamplerSD* BDSSamplerSensDet;
 
-G4int nptwiss = 200; // number of particles for twiss parameters matching (by tracking)
+G4int nptwiss = 200; // number of particles for twiss parameters matching (by tracking) and reference bunch for wakefields
 
 //=======================================================
 

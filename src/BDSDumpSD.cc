@@ -1,8 +1,8 @@
 //  
 //   BDSIM, (C) 2001-2007
 //    
-//   version 0.4 
-//   last modified : 11 Oct 2007 by malton@pp.rhul.ac.uk
+//   version 0.5 
+//   last modified : 12 Mar 2009 by malton@pp.rhul.ac.uk
 //  
 
 
@@ -15,6 +15,7 @@ const int DEBUG = 0;
 #include "BDSGlobalConstants.hh" // must be first in include list
 
 #include "BDSDumpSD.hh"
+#include "BDSDump.hh"
 #include "BDSSamplerHit.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4LogicalVolume.hh"
@@ -57,14 +58,27 @@ void BDSDumpSD::Initialize(G4HCofThisEvent*HCE)
 G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
 {
   G4Track* theTrack=aStep->GetTrack();
- 
+
   // postpone the track
 //  if(theTrack->GetParentID() == 0){
   if(BDSGlobals->isReference){
     G4double referenceTime = theTrack->GetGlobalTime();
     if(DEBUG) G4cout << "refTime= " << referenceTime <<G4endl;
-    BDSGlobals->referenceQueue.push_back(referenceTime);
-//    theTrack->SetGlobalTime(0);
+    if(DEBUG) G4cout << theTrack->GetVolume()->GetName() << G4endl;
+    if(lastVolume!=theTrack->GetVolume()->GetName())
+      BDSGlobals->referenceQueue.at(nCounter++)[trackCounter] = referenceTime;
+    
+    if(DEBUG) G4cout << "Track: " << trackCounter
+		     << " Dump : " << nCounter 
+		     << " Time: " << referenceTime << G4endl;
+	   
+    if(nCounter==BDSDump::GetNumberOfDumps()){
+      nCounter=0;
+      ++trackCounter;
+    }
+
+    lastVolume = theTrack->GetVolume()->GetName();
+    //    theTrack->SetGlobalTime(0);
   }
   else if(abs(theTrack->GetDefinition()->GetPDGEncoding()) == 11){
     if(DEBUG) G4cout<<"Dump: postponing track..."<<G4endl;
@@ -88,4 +102,11 @@ void BDSDumpSD::clear(){}
 void BDSDumpSD::DrawAll(){} 
 
 void BDSDumpSD::PrintAll(){} 
+
+G4int BDSDumpSD::nCounter = 0; 
+
+G4int BDSDumpSD::trackCounter = 0; 
+
+G4String BDSDumpSD::lastVolume = "";
+
 

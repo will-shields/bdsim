@@ -36,6 +36,8 @@ extern LogVolMap* LogVol;
 extern BDSOutput* bdsOutput;
 BDSDumpSD* BDSDumpSensDet;
 extern BDSMaterials* theMaterials;
+extern G4int nptwiss;
+
 //============================================================
 
 BDSDump::BDSDump (G4String aName,G4double aLength):
@@ -44,10 +46,12 @@ BDSDump::BDSDump (G4String aName,G4double aLength):
 			 aLength,0,0,0,
 			 SetVisAttributes())
 {
+  SetName("Dump_"+BDSGlobals->StringFromInt(nDumps)+"_"+itsName);
   DumpLogicalVolume();
-  nDumps++;
+  const int nParticles = nptwiss;
+  BDSGlobals->referenceQueue.push_back(new G4double[nParticles]);
+  ++nDumps;
   //G4int nDumps=(*LogVolCount)[itsName];
-
   //BDSRoot->SetDumpNumber(nDumps);
 
  

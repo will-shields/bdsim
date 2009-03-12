@@ -149,11 +149,11 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 //	const G4ThreeVector Trans=-tf.NetTranslation();
 
         G4ThreeVector initialPos=aTrack->GetPosition();
-        G4ThreeVector momDir=aTrack->GetMomentumDirection();
-	G4double refTime = (BDSGlobals->referenceQueue.front() 
-				- aTrack->GetGlobalTime()); // all t0 = 0 so remove /2
+        G4ThreeVector momDir=aTrack->GetMomentumDirection().unit();
+	//	G4double refTime = (BDSGlobals->referenceQueue.front() 
+	//				- aTrack->GetGlobalTime()); // all t0 = 0 so remove /2
 
-	G4ThreeVector transformedPos = initialPos + momDir*c_light*refTime;
+	G4ThreeVector transformedPos = initialPos;// + momDir*c_light*refTime;
 	//G4cout << "RefTime = " << refTime << " " << BDSGlobals->referenceQueue.front()
 	//	<< " " << aTrack->GetGlobalTime() << G4endl;
 	//pos.setZ(aTrack->GetGlobalTime()*c_light);
@@ -205,6 +205,7 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 	transformedParticle.yp=yPrime;
 	transformedParticle.t=t;
 	transformedParticle.E=aTrack->GetTotalEnergy()/GeV;
+        transformedParticle.parentID=aTrack->GetParentID();
 
         BDSGlobals->outputQueue.push_back(outputParticle);
         BDSGlobals->transformedQueue.push_back(transformedParticle);
