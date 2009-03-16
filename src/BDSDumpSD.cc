@@ -75,6 +75,7 @@ G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
     if(nCounter==BDSDump::GetNumberOfDumps()){
       nCounter=0;
       ++trackCounter;
+      lastVolume="";
     }
 
     lastVolume = theTrack->GetVolume()->GetName();
