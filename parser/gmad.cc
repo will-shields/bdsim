@@ -39,7 +39,7 @@ void init()
   add_func("asin",asin); 
   add_func("acos",acos);
   add_func("abs",fabs);
- 
+	add_func("atan",atan);
 
   add_var("pi",3.14159265358979,_RESERVED);
 
