@@ -25,7 +25,11 @@ const int DEBUG = 0;
 #include "ggmad.hh"
 #include "BDSGeometrySQL.hh"
 
-#ifdef USE_XML
+#ifdef USE_LCDD
+#include "BDSGeometryLCDD.hh"
+#endif
+
+#ifdef USE_GDML
 #include "BDSGeometryGDML.hh"
 #endif
 
@@ -90,16 +94,19 @@ void BDSElement::BuildGeometry()
 
   if(DEBUG) G4cout<<"BDSElement : creating logical volume"<<G4endl;
   G4double elementSizeX=itsOuterR, elementSizeY = itsOuterR;
-  if(itsOuterR==0)
+  
+  
+if(itsOuterR==0)
     {
-      elementSizeX =BDSGlobals->GetTunnelRadius() / 2;
-      elementSizeY =BDSGlobals->GetTunnelRadius() / 2;
+      elementSizeX =(BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()) / 2;
+      elementSizeY = (BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()) / 2;
     }
-      
+
+  
   itsMarkerLogicalVolume = 
     new G4LogicalVolume(new G4Box(itsName+"generic_element",
-				  elementSizeX,
-				  elementSizeY,
+				  elementSizeX+std::abs(BDSGlobals->GetTunnelOffsetX()),
+				  elementSizeY+std::abs(BDSGlobals->GetTunnelOffsetY()),
 				  itsLength/2),
 			theMaterials->GetMaterial("Vacuum"),
 			itsName);
@@ -161,8 +168,11 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
   GGmadDriver *ggmad;
   BDSGeometrySQL *Mokka;
 
-#ifdef USE_XML
-  BDSGeometryGDML *LCDD;
+#ifdef USE_LCDD
+  BDSGeometryLCDD *LCDD;
+#endif
+#ifdef USE_GDML
+  BDSGeometryGDML *GDML;
 #endif
 
   if(gFormat=="gmad") {
@@ -189,12 +199,12 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
       }
   }
   else if(gFormat=="lcdd") {
-#ifdef USE_XML
-    LCDD = new BDSGeometryGDML(gFile);
+#ifdef USE_LCDD
+    LCDD = new BDSGeometryLCDD(gFile);
     LCDD->Construct(itsMarkerLogicalVolume);
 #else
-    G4cout << "XML support not selected during BDSIM configuration" << G4endl;
-    G4Exception("Please re-compile BDSIM with USE_XML flag in Makefile");
+    G4cout << "LCDD support not selected during BDSIM configuration" << G4endl;
+    G4Exception("Please re-compile BDSIM with USE_LCDD flag in Makefile");
 #endif
   }
   else if(gFormat=="mokka") {
@@ -227,9 +237,13 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
       }
   } 
   else if(gFormat=="gdml") {
-    
-    G4cout<<"GDML.... sorry, not implemented yet..."<<G4endl;
-
+#ifdef USE_GDML
+    GDML = new BDSGeometryGDML(gFile);
+    GDML->Construct(itsMarkerLogicalVolume);
+#else
+    G4cout << "GDML support not selected during BDSIM configuration" << G4endl;
+    G4Exception("Please re-compile BDSIM with USE_LCDD flag in Makefile");
+#endif
   }
   else {
     G4cerr<<"geometry format "<<gFormat<<" not supported"<<G4endl;
