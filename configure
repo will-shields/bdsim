@@ -21,16 +21,28 @@ echo " Checking your system ..."
 
 # Determine if libxml exist...
 # we will uyse at the end of the file
+#For linear collider detector description format LCDD (in development)
 #xmltest=`which xml2-config`
 #if [ ! -z "$xmltest" ]; then
 #printf "You have libxml installed:\n"
 #printf "Do you want to enable the GDML geometry description format ?\n"
 #read -p "[y/n]" value
 #if test "$value" == "y"; then
-#    USE_XML="USE_XML"
-#	         echo "           BDSIM is able to read GDML format...."
+#    USE_LCDD="-DUSE_LCDD"
+#    USE_LCDD_CFLAGS=`xml2-config --cflags`
+#	         echo "           BDSIM is able to read LCDD format...."
 #fi
 #fi
+
+if [ $G4LIB_BUILD_GDML ]; then
+printf "You have compiled Geant4 with GDML support enabled:\n"
+printf "Do you want to enable the GDML geometry description format in BDSIM?\n"
+read -p "[y/n]" value
+if test "$value" == "y"; then
+    USE_GDML="-DUSE_GDML"
+	         echo "           BDSIM is able to read GDML format...."
+fi
+fi
 
 
 # Determine G4 installation directory
@@ -254,6 +266,10 @@ s%@G4VERSION@%$G4_version%g;
 s%@G4MINORVERSION@%$G4_minor_version%g;
 s%@CLHEP_VERSION@%$CLHEP_version%g;
 s%@USE_ROOT@%$USE_ROOT%g;
+s%@USE_GDML@%$USE_GDML%g;
+s%@USE_LCDD@%$USE_LCDD%g;
+s%@LCDD_CFLAGS@%$LCDD_CFLAGS%g;
+s%@LCDD_LIBS@%$LCDD_LIBS%g;
 s%@OGLLIBS@%$opengllib%g;
 " >> $Makefile
 else
@@ -265,6 +281,10 @@ s%@G4VERSION@%$G4_version%g;
 s%@G4MINORVERSION@%$G4_minor_version%g;
 s%@CLHEP_VERSION@%$CLHEP_version%g;
 s%@USE_ROOT@%$USE_ROOT%g;
+s%@USE_GDML@%$USE_GDML%g;
+s%@USE_LCDD@%$USE_LCDD%g;
+s%@LCDD_CFLAGS@%$LCDD_CFLAGS%g;
+s%@LCDD_LIBS@%$LCDD_LIBSS%g;
 s%@OGLLIBS@%$opengllib%g;
 " >> $Makefile
 fi
