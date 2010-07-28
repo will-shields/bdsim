@@ -96,17 +96,19 @@ void BDSElement::BuildGeometry()
   G4double elementSizeX=itsOuterR, elementSizeY = itsOuterR;
   
   
-if(itsOuterR==0)
-    {
-      elementSizeX =(BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()) / 2;
-      elementSizeY = (BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()) / 2;
-    }
+  //if(itsOuterR==0)
+  //    {
+  //      elementSizeX =(BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()) / 2;   Geometry parameters for tunnel - in development
+  //      elementSizeY = (BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()) / 2;
+  //    }
 
   
   itsMarkerLogicalVolume = 
     new G4LogicalVolume(new G4Box(itsName+"generic_element",
-				  elementSizeX+std::abs(BDSGlobals->GetTunnelOffsetX()),
-				  elementSizeY+std::abs(BDSGlobals->GetTunnelOffsetY()),
+                                  //			  elementSizeX+std::abs(BDSGlobals->GetTunnelOffsetX()),
+                                  //				  elementSizeY+std::abs(BDSGlobals->GetTunnelOffsetY()),   Geometry parameters for tunnel - in development
+                                  elementSizeX,
+                                  elementSizeY,
 				  itsLength/2),
 			theMaterials->GetMaterial("Vacuum"),
 			itsName);
