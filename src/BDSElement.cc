@@ -98,15 +98,21 @@ void BDSElement::BuildGeometry()
   
   //if(itsOuterR==0)
   //    {
-  //      elementSizeX =(BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()) / 2;   Geometry parameters for tunnel - in development
+  //      elementSizeX =(BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()) / 2;   Offset parameters for tunnel - in development
   //      elementSizeY = (BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()) / 2;
   //    }
+
+  if(itsOuterR==0)
+      {
+        elementSizeX =BDSGlobals->GetTunnelRadius();
+        elementSizeY = BDSGlobals->GetTunnelRadius();
+      }
 
   
   itsMarkerLogicalVolume = 
     new G4LogicalVolume(new G4Box(itsName+"generic_element",
                                   //			  elementSizeX+std::abs(BDSGlobals->GetTunnelOffsetX()),
-                                  //				  elementSizeY+std::abs(BDSGlobals->GetTunnelOffsetY()),   Geometry parameters for tunnel - in development
+                                  //				  elementSizeY+std::abs(BDSGlobals->GetTunnelOffsetY()),   Offset parameters for tunnel - in development
                                   elementSizeX,
                                   elementSizeY,
 				  itsLength/2),
