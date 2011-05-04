@@ -24,14 +24,17 @@ class BDSDrift :public BDSMultipole
 {
 public:
   BDSDrift(G4String aName, G4double aLength,
-	   G4double bpRad);
+           std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, 
+	   G4double startAper, G4double endAper=BDSGlobals->GetBeampipeRadius(), G4String aTunnelMaterial="");
   ~BDSDrift();
 
 protected:
 
 private:
+  void BuildBLMs();
   G4VisAttributes* SetVisAttributes();
-
+  G4double itsStartOuterR;
+  G4double itsEndOuterR;
 };
 
 #endif

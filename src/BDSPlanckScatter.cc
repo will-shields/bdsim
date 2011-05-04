@@ -42,7 +42,7 @@ BDSPlanckScatter::BDSPlanckScatter():G4VeEnergyLoss("PlanckScatt")
   itsPlanckMeanFreePath=1/(photon_density*sigma);
   
   // include scaling so that statistics are more reasonable:
-  itsPlanckMeanFreePath /= BDSGlobals->GetBackgroundScaleFactor(); 
+  itsPlanckMeanFreePath /= BDSGlobals->GetPlanckScatterFe(); 
 } 
 
 
@@ -123,7 +123,7 @@ G4VParticleChange* BDSPlanckScatter::PostStepDoIt(const G4Track& trackData,
 }
 
 #if G4VERSION > 8
-void BDSPlanckScatter::InitialiseEnergyLossProcess(const G4ParticleDefinition* p, const G4ParticleDefinition*)
+void BDSPlanckScatter::InitialiseEnergyLossProcess(const G4ParticleDefinition*, const G4ParticleDefinition*)
 {
 }
 

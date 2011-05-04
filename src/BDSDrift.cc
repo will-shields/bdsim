@@ -16,8 +16,6 @@
 
 #include <map>
 
-const int DEBUG = 0;
-
 //============================================================
 
 typedef std::map<G4String,int> LogVolCountMap;
@@ -29,12 +27,14 @@ extern LogVolMap* LogVol;
 extern BDSMaterials* theMaterials;
 //============================================================
 
-BDSDrift::BDSDrift (G4String aName, G4double aLength,
-		    G4double bpRad):
-  BDSMultipole(aName, aLength, bpRad, bpRad, SetVisAttributes())
+BDSDrift::BDSDrift (G4String aName, G4double aLength, 
+                    std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double startAper, G4double endAper, G4String tunnelMaterial):
+  BDSMultipole(aName, aLength, (startAper+endAper)/2, (startAper+endAper)/2, SetVisAttributes(),  blmLocZ, blmLocTheta, tunnelMaterial, "")
 {
-  G4double outerR=bpRad+1*mm;
-  SetOuterRadius(outerR);
+  itsStartOuterR=startAper + BDSGlobals->GetBeampipeThickness();
+  itsEndOuterR=endAper + BDSGlobals->GetBeampipeThickness();
+  SetStartOuterRadius(itsStartOuterR);
+  SetEndOuterRadius(itsEndOuterR);
   itsType="drift";
 
   if (!(*LogVolCount)[itsName])
@@ -48,17 +48,20 @@ BDSDrift::BDSDrift (G4String aName, G4double aLength,
       // build beampipe (geometry + magnetic field)
       //
       itsBPFieldMgr=NULL;
-      BuildBeampipe(itsLength);
-
-      // drift doesn't have an outer volume - but include it for laserwire
-      // BuildDefaultOuterLogicalVolume(itsLength,true);
-
+      if(BDSGlobals->GetBuildTunnel()){
+        BuildTunnel();
+      }
+      //      BuildTaperedBeampipe(startAper, endAper);
+      BuildBeampipe();
+      BuildBLMs();
+  
       //
       // define sensitive volumes for hit generation
       //
-      SetSensitiveVolume(itsBeampipeLogicalVolume);// for laserwire
-      //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
-
+      if(BDSGlobals->GetSensitiveBeamPipe()){
+        SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+      }
+      
       //
       // append marker logical volume to volume map
       //
@@ -68,7 +71,7 @@ BDSDrift::BDSDrift (G4String aName, G4double aLength,
   else
     {
       (*LogVolCount)[itsName]++;
-
+      
       //
       // use already defined marker volume
       //
@@ -80,6 +83,11 @@ G4VisAttributes* BDSDrift::SetVisAttributes()
 {
   itsVisAttributes=new G4VisAttributes(G4Colour(0,1,0)); //useless
   return itsVisAttributes;
+}
+
+void BDSDrift::BuildBLMs(){
+  itsBlmLocationR = std::max(itsStartOuterR, itsEndOuterR) - itsBpRadius;
+  BDSAcceleratorComponent::BuildBLMs();
 }
 
 BDSDrift::~BDSDrift()

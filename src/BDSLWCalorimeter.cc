@@ -37,11 +37,11 @@ extern G4RotationMatrix* RotY90;
 //============================================================
 
 BDSLWCalorimeter::BDSLWCalorimeter (G4String& aName,G4double aLength,
-				    G4double aBpRad):
+				    G4double aBpRad, G4String aTunnelMaterial):
   BDSAcceleratorComponent(
 			 aName,
 			 aLength,aBpRad,0,0,
-			 SetVisAttributes())
+			 SetVisAttributes(),aTunnelMaterial)
 {
   LWCalorimeterLogicalVolume();
   BuildCal(aLength);
@@ -116,7 +116,6 @@ void BDSLWCalorimeter::BuildCal(G4double aLength)
   SDMan->AddNewDetector(SensDet);
   
   itsLWCalLogicalVolume->SetSensitiveDetector(SensDet);
-    
 }
 void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
 {
@@ -144,8 +143,8 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
   
   G4VPhysicalVolume* PhysiInner;
   PhysiInner =  new G4PVPlacement(
-		      0,		       // rotation
-		      0,	               // at (0,0,0)
+				  (G4RotationMatrix*)0,	 // rotation
+				  (G4ThreeVector)0,      // at (0,0,0)
 		      itsInnerBPLogicalVolume, // its logical volume
 		      itsName+"_InnerBmp",     // its name
 		      itsBeampipeLogicalVolume, // its mother  volume
@@ -159,7 +158,7 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
    G4VPhysicalVolume* PhysiComp;
    PhysiComp = new G4PVPlacement(
 		       Rot,			     // rotation
-		       0,	                     // at (0,0,0)
+		       (G4ThreeVector)0,	                     // at (0,0,0)
 		       itsBeampipeLogicalVolume,  // its logical volume
 		       itsName+"_bmp",	     // its name
 		       itsMarkerLogicalVolume,     // its mother  volume

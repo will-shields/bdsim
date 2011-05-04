@@ -20,8 +20,6 @@
 
 #include <map>
 
-const int DEBUG = 0;
-
 //============================================================
 
 typedef std::map<G4String,int> LogVolCountMap;
@@ -36,8 +34,10 @@ extern BDSMaterials* theMaterials;
 BDSOctupole::BDSOctupole(G4String aName, G4double aLength, 
 			 G4double bpRad, G4double FeRad,
 			 G4double BTrpPrime, G4double tilt, 
-			 G4double outR, G4String aMaterial):
-  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), aMaterial),
+			 G4double outR, 
+                         std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+                         G4String aTunnelMaterial, G4String aMaterial):
+  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), blmLocZ, blmLocTheta, aTunnelMaterial, aMaterial),
   itsBTrpPrime(BTrpPrime)
 {
   SetOuterRadius(outR);
@@ -52,11 +52,18 @@ BDSOctupole::BDSOctupole(G4String aName, G4double aLength,
       BuildDefaultMarkerLogicalVolume();
 
       //
+      //build tunnel
+      //
+      if(BDSGlobals->GetBuildTunnel()){
+        BuildTunnel();
+      }
+
+      //
       // build beampipe (geometry + magnetic field)
       //
       BuildBPFieldAndStepper();
       BuildBPFieldMgr(itsStepper,itsMagField);
-      BuildBeampipe(itsLength);
+      BuildBeampipe();
 
       //
       // build magnet (geometry + magnetic field)
@@ -86,11 +93,18 @@ BDSOctupole::BDSOctupole(G4String aName, G4double aLength,
 	  BuildOuterFieldManager(8, BFldIron,pi/8);
 	}
 
+      //Build the beam loss monitors
+      BuildBLMs();
+
       //
       // define sensitive volumes for hit generation
       //
-      SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
-      SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      if(BDSGlobals->GetSensitiveBeamPipe()){
+        SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+      }
+      if(BDSGlobals->GetSensitiveComponents()){
+        SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      }
 
       //
       // set visualization attributes
@@ -125,7 +139,7 @@ BDSOctupole::BDSOctupole(G4String aName, G4double aLength,
 	  //
 	  BuildBPFieldAndStepper();
 	  BuildBPFieldMgr(itsStepper,itsMagField);
-	  BuildBeampipe(itsLength);
+	  BuildBeampipe();
 
 	  //
 	  // build magnet (geometry + magnetic field)
@@ -159,9 +173,12 @@ BDSOctupole::BDSOctupole(G4String aName, G4double aLength,
 	  //
 	  // define sensitive volumes for hit generation
 	  //
-	  SetSensitiveVolume(itsBeampipeLogicalVolume);// for synchrotron
-	  //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
-	  
+          if(BDSGlobals->GetSensitiveBeamPipe()){
+            SetSensitiveVolume(itsBeampipeLogicalVolume);
+          }
+          if(BDSGlobals->GetSensitiveComponents()){
+            SetSensitiveVolume(itsOuterLogicalVolume);
+	  }
 	  //
 	  // set visualization attributes
 	  //
@@ -188,7 +205,9 @@ void BDSOctupole::SynchRescale(G4double factor)
 {
   itsStepper->SetBTrpPrime(factor*itsBTrpPrime);
   itsMagField->SetBTrpPrime(factor*itsBTrpPrime);
-  if(DEBUG) G4cout << "Oct " << itsName << " has been scaled" << G4endl;
+#ifdef DEBUG
+  G4cout << "Oct " << itsName << " has been scaled" << G4endl;
+#endif
 }
 
 G4VisAttributes* BDSOctupole::SetVisAttributes()

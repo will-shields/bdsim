@@ -29,7 +29,7 @@ BDSOctStepper::BDSOctStepper(G4Mag_EqRhs *EqRhs)
 
 
 void BDSOctStepper::AdvanceHelix( const G4double  yIn[],
-                                   G4ThreeVector Bfld,
+                                   G4ThreeVector,
 				   G4double  h,
 				   G4double  yOct[])
 {
@@ -155,7 +155,7 @@ void BDSOctStepper::AdvanceHelix( const G4double  yIn[],
 }
 
 void BDSOctStepper::Stepper( const G4double yInput[],
-			    const G4double dydx[],
+			    const G4double[],
 			    const G4double hstep,
 			    G4double yOut[],
 			    G4double yErr[]      )
@@ -177,12 +177,12 @@ void BDSOctStepper::Stepper( const G4double yInput[],
   G4double h = hstep * 0.5; 
   
   // Do two half steps
-  AdvanceHelix(yIn,   0,  h, yTemp);
-  AdvanceHelix(yTemp, 0, h, yOut); 
+  AdvanceHelix(yIn,   (G4ThreeVector)0,  h, yTemp);
+  AdvanceHelix(yTemp, (G4ThreeVector)0, h, yOut); 
   
   // Do a full Step
   h = hstep ;
-  AdvanceHelix(yIn, 0, h, yTemp); 
+  AdvanceHelix(yIn, (G4ThreeVector)0, h, yTemp); 
   
   for(i=0;i<nvar;i++) yErr[i] = yOut[i] - yTemp[i] ;
 

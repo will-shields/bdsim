@@ -77,7 +77,7 @@ BDSContinuousSR::IsApplicable(const G4ParticleDefinition& particle)
 
 inline G4double 
 BDSContinuousSR::GetMeanFreePath(const G4Track& track,
-					G4double PreviousStepSize,
+					G4double,
 					G4ForceCondition* ForceCondition)
 {  
   *ForceCondition = NotForced ;

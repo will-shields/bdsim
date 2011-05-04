@@ -40,11 +40,11 @@ extern G4int nptwiss;
 
 //============================================================
 
-BDSDump::BDSDump (G4String aName,G4double aLength):
+BDSDump::BDSDump (G4String aName,G4double aLength, G4String aTunnelMaterial):
   BDSAcceleratorComponent(
 			 aName,
 			 aLength,0,0,0,
-			 SetVisAttributes())
+			 SetVisAttributes(), aTunnelMaterial)
 {
   SetName("Dump_"+BDSGlobals->StringFromInt(nDumps)+"_"+itsName);
   DumpLogicalVolume();
@@ -96,7 +96,7 @@ void BDSDump::DumpLogicalVolume()
 	  G4SDManager* SDMan = G4SDManager::GetSDMpointer();
 	  BDSDumpSensDet=new BDSDumpSD(itsName,"plane");
 	  SDMan->AddNewDetector(BDSDumpSensDet);
-	  itsMarkerLogicalVolume->SetSensitiveDetector(BDSDumpSensDet);
+          itsMarkerLogicalVolume->SetSensitiveDetector(BDSDumpSensDet);
 	}
     }
   else

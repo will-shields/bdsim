@@ -36,6 +36,11 @@ public:
 
   virtual void UserSteppingAction(const G4Step*);
 
+  void SetTrackLengthInWorldRegion(G4double dvalue);
+  void SetTrackLength(G4double dvalue);
+  G4double GetTrackLengthInWorldRegion();
+  G4double  GetTrackLength();
+
 private:
   G4double itsTrackWeight;
   G4double itsInverseTrackWeight;
@@ -45,6 +50,9 @@ private:
   G4double itsZposTolerance;
   G4double itsPosKick;
   G4double postponedEnergy;
+
+  G4double trackLengthInWorldRegion;
+  G4double trackLength;
 
   std::vector<G4ThreeVector> r;
   std::vector<G4ThreeVector> rp;

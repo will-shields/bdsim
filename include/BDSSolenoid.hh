@@ -23,6 +23,10 @@
 
 #include "G4VisAttributes.hh"
 #include "BDSMultipole.hh"
+#include "G4Mag_UsualEqRhs.hh"
+#include "G4UniformMagField.hh"
+#include "BDSSolenoidStepper.hh"
+#include "BDSSolenoidMagField.hh"
 
 class G4Mag_UsualEqRhs;
 class G4UniformMagField;
@@ -35,7 +39,9 @@ public:
   BDSSolenoid(G4String aName, G4double aLength,
 	      G4double bpRad, G4double FeRad,
 	      G4double bField, G4double outR, 
-	      G4String aMaterial= "", G4String spec="");
+              std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+              G4String aTunnelMaterial="",
+	      G4String aMaterial= "");
   ~BDSSolenoid();
 
   void SynchRescale(G4double factor);

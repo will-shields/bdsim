@@ -19,13 +19,13 @@
 #include "G4UserLimits.hh"
 #include "G4TransportationManager.hh"
 
+#include "BDSQuadMagField.hh"
+#include "BDSQuadStepper.hh"
 #include "BDSMultipoleMagField.hh"
 #include "G4Mag_UsualEqRhs.hh"
 #include "BDSRK4Stepper.hh"
 
 #include <map>
-
-const int DEBUG = 0;
 
 //============================================================
 
@@ -42,38 +42,69 @@ BDSTMultipole::BDSTMultipole(G4String aName, G4double aLength,
 			     G4double bpRad, G4double FeRad,
 			     G4double tilt, G4double outR,
 			     list<G4double> akn, list<G4double> aks, 
-			     G4String aMaterial):
-  BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes(),aMaterial)
+                             std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+			     G4String aTunnelMaterial, G4String aMaterial):
+  BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes(),blmLocZ, blmLocTheta, aTunnelMaterial, aMaterial)
 {
   SetOuterRadius(outR);
   itsTilt=tilt;
   itsType="multipole";
 
-  if (DEBUG) G4cout<<"Building Multipole of order "<<akn.size()<<G4endl;
+#ifdef DEBUG
+  if (akn.size()>0){
+    G4cout<<"Building multipole of order "<<akn.size()<<G4endl;
+  } else {
+    G4cout<<"Building multipole of order "<<aks.size()<<G4endl;
+  }
+#endif
 
-  if(akn.size() != aks.size()) { G4cerr<<"ERROR : skew and normal multipole coeficiens must be of the same numbers"<<G4endl;}
-  if(akn.size() < 1 ) { G4cerr<<"ERROR : multipole order must be greater than 0"<<G4endl; }
+  //If the multipole has both skew and normal coefficients then they must have the same number of coefficients 
+  if((akn.size() != aks.size()) && ((akn.size() >0) && (aks.size() > 0))) { G4cerr<<"ERROR : multipole skew and normal coefficients present, but to different order"<<G4endl;}
+  if(akn.size() == 0 &&  aks.size() == 0) { G4cerr<<"ERROR : skew or normal multipole order must be greater than 0"<<G4endl; }
+
+  //Check if any components are non-zero
+  /*  
+  G4bool fieldNonZero=false;
+  for(list<double>::iterator it = akn.begin(); it != akn.end() && fieldNonZero == false; it++){
+    if(*it != 0) fieldNonZero = true;
+  }
+  for(list<double>::iterator it = aks.begin(); it != aks.end() && fieldNonZero == false; it++){
+    if(*it != 0) fieldNonZero = true;
+  }
+  */
+
+  //If list of normal or skew multipole coefficients not present, create a default list containing zeroes.
+  if (aks.size()==0){
+    for(unsigned int i=0; i<akn.size(); i++){
+      aks.push_back(0.0);
+    }
+  }
+  if (akn.size()==0){
+    for(unsigned int i=0; i<aks.size(); i++){
+      akn.push_back(0.0);
+    }
+  }
 
   kn = akn;
   ks = aks;
 
-  if (DEBUG) {
-    int order = 0;
-    G4cout<<"M: kn={ ";
-    list<double>::iterator kit;
-    for(kit=kn.begin();kit!=kn.end();kit++)
-      {
-	G4cout<<(*kit)<<"m^-"<<++order<<" ";
-      }
-    G4cout<<"}"<<G4endl;
-    order = 0;
-    G4cout<<"M: ks={ ";
-    for(kit=ks.begin();kit!=ks.end();kit++)
-      {
-	G4cout<<(*kit)<<"m^-"<<++order<<" ";
-      }
-    G4cout<<"}"<<G4endl;
-  }
+#ifdef DEBUG 
+  int order = 0;
+  G4cout<<"M: kn={ ";
+  list<double>::iterator kit;
+  for(kit=kn.begin();kit!=kn.end();kit++)
+    {
+      G4cout<<(*kit)<<"m^-"<<++order<<" ";
+    }
+  G4cout<<"}"<<G4endl;
+  order = 0;
+  G4cout<<"M: ks={ ";
+  for(kit=ks.begin();kit!=ks.end();kit++)
+    {
+      G4cout<<(*kit)<<"m^-"<<++order<<" ";
+    }
+  G4cout<<"}"<<G4endl;
+#endif
 
   itsOrder = kn.size();
   
@@ -85,30 +116,46 @@ BDSTMultipole::BDSTMultipole(G4String aName, G4double aLength,
       BuildDefaultMarkerLogicalVolume();
 
       //
+      //build tunnel
+      if(BDSGlobals->GetBuildTunnel()){
+        BuildTunnel();
+      }
+      
+      //
       // build beampipe (geometry + magnetic field)
       //
-      BuildBPFieldAndStepper();
-      BuildBPFieldMgr(itsStepper,itsMagField);
-      BuildBeampipe(itsLength);
-
+      //Build multipole field and stepper if field is non-zero, otherwise
+      //build drift field and stepper
+      //      if(fieldNonZero){
+        BuildBPFieldAndStepper();
+        BuildBPFieldMgr(itsStepper,itsMagField);
+        //      }
+      BuildBeampipe();
+      
       //
       // build magnet (geometry + magnetic field)
       //
       BuildDefaultOuterLogicalVolume(itsLength);
-
+      
       //
       // define sensitive volumes for hit generation
       //
-      SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
-      SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      if(BDSGlobals->GetSensitiveBeamPipe()){
+        SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+      }
+      if(BDSGlobals->GetSensitiveComponents()){
+        SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      }
 
+      BuildBLMs();
+      
       //
       // set visualization attributes
       //
       itsVisAttributes=SetVisAttributes();
       itsVisAttributes->SetForceSolid(true);
       itsOuterLogicalVolume->SetVisAttributes(itsVisAttributes);
-
+      
       //
       // append marker logical volume to volume map
       //
@@ -124,7 +171,7 @@ BDSTMultipole::BDSTMultipole(G4String aName, G4double aLength,
       itsMarkerLogicalVolume=(*LogVol)[itsName];
     }      
 }
-  
+
 G4VisAttributes* BDSTMultipole::SetVisAttributes()
 {
   itsVisAttributes=new G4VisAttributes(G4Colour(0.1,0.4,0.2));
@@ -138,7 +185,7 @@ void BDSTMultipole::BuildBPFieldAndStepper()
   itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);
   
   itsStepper=new BDSRK4Stepper(itsEqRhs);
-  itsStepper->SetVolLength(itsLength);
+  itsStepper->SetVolLength(itsLength*4.0);
 }
 
 BDSTMultipole::~BDSTMultipole()

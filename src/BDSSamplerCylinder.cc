@@ -58,8 +58,6 @@ void BDSSamplerCylinder::SamplerCylinderLogicalVolume()
 {
   if(!(*LogVolCount)[itsName])
     {
-      G4double SampTransSize;
-      SampTransSize=2.*BDSGlobals->GetTunnelRadius();
 
       itsMarkerLogicalVolume=
 	new G4LogicalVolume(new G4Tubs(itsName+"_body",

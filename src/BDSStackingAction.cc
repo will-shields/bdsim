@@ -26,9 +26,6 @@
 #include "G4ParticleTypes.hh"
 #include "G4ios.hh"
 
-const int DEBUG  = 0;
-const int DEBUG2 = 0;
-
 BDSStackingAction::BDSStackingAction()
 { 
 }
@@ -40,37 +37,30 @@ BDSStackingAction::~BDSStackingAction()
 G4ClassificationOfNewTrack 
 BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 {
-  //G4ClassificationOfNewTrack classification = fWaiting;
   G4ClassificationOfNewTrack classification = fUrgent;
- 
   G4String pName=aTrack->GetDefinition()->GetParticleName();
 
-
-  if(DEBUG) {
-    G4cout<<"StackingAction: ClassifyNewtrack "<<aTrack->GetTrackID()<<
-      " "<<aTrack->GetDefinition()->GetParticleName()<<G4endl;
-
-    G4StackManager* SM = G4EventManager::GetEventManager()->GetStackManager();
-
-    G4cout<<"N total tracks : "<<SM->GetNTotalTrack() << G4endl;
-    G4cout<<"N waiting tracks : "<<SM->GetNWaitingTrack() << G4endl;
-    G4cout<<"N urgent tracks : "<<SM->GetNUrgentTrack() << G4endl;
-    G4cout<<"N postponed tracks : "<<SM->GetNPostponedTrack() << G4endl;
-    G4cout<<"Events to process : "<<
-      G4RunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEventToBeProcessed()<<G4endl;
-     G4cout<<"Number of event : "<<
-       G4RunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEvent()<<G4endl;
-
-    
-  }
-
+#ifdef DEBUG 
+  G4cout<<"StackingAction: ClassifyNewtrack "<<aTrack->GetTrackID()<<
+    " "<<aTrack->GetDefinition()->GetParticleName()<<G4endl;
+  G4StackManager* SM = G4EventManager::GetEventManager()->GetStackManager();
+  G4cout<<"N total tracks : "<<SM->GetNTotalTrack() << G4endl;
+  G4cout<<"N waiting tracks : "<<SM->GetNWaitingTrack() << G4endl;
+  G4cout<<"N urgent tracks : "<<SM->GetNUrgentTrack() << G4endl;
+  G4cout<<"N postponed tracks : "<<SM->GetNPostponedTrack() << G4endl;
+  G4cout<<"Events to process : "<<
+    G4RunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEventToBeProcessed()<<G4endl;
+  G4cout<<"Number of event : "<<
+    G4RunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEvent()<<G4endl;
+#endif
+  
   if(BDSGlobals->DoTwiss())
     {
-            if((aTrack->GetParentID() <= 0) &&
-	       (aTrack->GetTrackStatus()==fPostponeToNextEvent) )
+      if((aTrack->GetParentID() <= 0) &&
+         (aTrack->GetTrackStatus()==fPostponeToNextEvent) )
 	classification = fPostpone;
     }
-
+  
   if(BDSGlobals->GetStopTracks()) // if tracks killed after interaction
     {
       
@@ -79,7 +69,7 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
       if( (aTrack->GetParentID() > 0) && 
 	  (aTrack->GetDefinition() == G4Electron::ElectronDefinition() ) )
 	{
-	  
+          
 	  
 	  classification = fKill;
 	  //classification = fUrgent;
@@ -133,43 +123,28 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
        // when waiting to synchronize with placet - put on postponed stack
        if( aTrack->GetTrackStatus()==fPostponeToNextEvent )
        classification = fPostpone;
-       //BDSGlobals->setWaitingForDump(false); // next event ok
      }
   
     if(BDSGlobals->getDumping()) // in the process of dumping
      {
-	if(DEBUG){
-          G4cout<<"reclassifying track "<<aTrack->GetTrackID()<<G4endl;
-
-          G4cout<<"r= "<<aTrack->GetPosition()<<G4endl;
-	}
+#ifdef DEBUG
+       G4cout<<"reclassifying track "<<aTrack->GetTrackID()<<G4endl;
+       G4cout<<"r= "<<aTrack->GetPosition()<<G4endl;
+#endif
 
 	G4AffineTransform tf = BDSGlobals->GetDumpTransform().Inverse();
-//	const G4RotationMatrix Rot=tf.NetRotation();
-//	const G4ThreeVector Trans=-tf.NetTranslation();
-
         G4ThreeVector initialPos=aTrack->GetPosition();
         G4ThreeVector momDir=aTrack->GetMomentumDirection().unit();
-	//	G4double refTime = (BDSGlobals->referenceQueue.front() 
-	//				- aTrack->GetGlobalTime()); // all t0 = 0 so remove /2
-
-	G4ThreeVector transformedPos = initialPos;// + momDir*c_light*refTime;
-	//G4cout << "RefTime = " << refTime << " " << BDSGlobals->referenceQueue.front()
-	//	<< " " << aTrack->GetGlobalTime() << G4endl;
-	//pos.setZ(aTrack->GetGlobalTime()*c_light);
-
-
-//        G4ThreeVector LocalPosition=pos+Trans;
-//        G4ThreeVector LocalDirection=Rot*momDir;
+	G4ThreeVector transformedPos = initialPos;
         G4ThreeVector LocalPosition=tf.TransformPoint(transformedPos);
         G4ThreeVector LocalDirection=tf.TransformAxis(momDir);
 
-	if(DEBUG){
-	  G4cout << "Stacking: Pos = " << transformedPos << G4endl;
-	  G4cout << "LocalPos: Pos = " << LocalPosition << G4endl;
-	  G4cout << "Stacking: mom = " << momDir << G4endl;
-	  G4cout << "LocalDir: mom = " << LocalDirection << G4endl;
-	}
+#ifdef DEBUG
+        G4cout << "Stacking: Pos = " << transformedPos << G4endl;
+        G4cout << "LocalPos: Pos = " << LocalPosition << G4endl;
+        G4cout << "Stacking: mom = " << momDir << G4endl;
+        G4cout << "LocalDir: mom = " << LocalDirection << G4endl;
+#endif
 
         G4double x=LocalPosition.x()/micrometer;
         G4double y=LocalPosition.y()/micrometer;
@@ -183,8 +158,10 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 	//        BDSGlobals->fileDump << aTrack->GetTotalEnergy()/GeV << "\t"
 	//<< x << "\t" << y << "\t" << z << "\t"
 	//<< xPrime << "\t" << yPrime << "\t" << t <<"\n"; // SPM
-	if(DEBUG2) printf("Out: %.15f %.15f %.15f %.15f %.15f %.15f %f\n",
-		aTrack->GetTotalEnergy()/GeV,x,y,z,xPrime,yPrime,t);
+#ifdef DEBUG
+        printf("Out: %.15f %.15f %.15f %.15f %.15f %.15f %f\n",
+               aTrack->GetTotalEnergy()/GeV,x,y,z,xPrime,yPrime,t);
+#endif
         tmpParticle outputParticle, transformedParticle;
         if(aTrack->GetDefinition()->GetPDGEncoding()==-11)
 	  outputParticle.E=-(aTrack->GetTotalEnergy());
@@ -224,10 +201,10 @@ void BDSStackingAction::NewStage()
 {
   // urgent stack empty, looking into the waiting stack
  
-  if(DEBUG) G4cout<<"StackingAction: New stage"<<G4endl;
+#ifdef DEBUG
+  G4cout<<"StackingAction: New stage"<<G4endl;
+#endif
 
-  //stackManager->ReClassify();
-  
   return;
  
 }

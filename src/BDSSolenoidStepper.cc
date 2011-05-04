@@ -23,8 +23,6 @@ using std::max;
 extern G4double BDSLocalRadiusOfCurvature;
 extern G4int event_number;
 
-const int DEBUG = 0;
-
 BDSSolenoidStepper::BDSSolenoidStepper(G4Mag_EqRhs *EqRhs)
   : G4MagIntegratorStepper(EqRhs,6)  // integrate over 6 variables only !!
                                      // position & velocity
@@ -33,7 +31,7 @@ BDSSolenoidStepper::BDSSolenoidStepper(G4Mag_EqRhs *EqRhs)
 }
 
 void BDSSolenoidStepper::AdvanceHelix( const G4double  yIn[],
-				       G4ThreeVector Bfld,
+				       G4ThreeVector,
 				       G4double  h,
 				       G4double  yOut[])
 {
@@ -57,17 +55,19 @@ void BDSSolenoidStepper::AdvanceHelix( const G4double  yIn[],
     Bz = itsBField;
 
 
-  if (DEBUG) G4cout << "BDSSolenoidStepper: step= " << h/m << " m" << G4endl;
-  if (DEBUG) G4cout << "BDSSolenoidStepper: initial point in global coordinates:" << G4endl
-		    << " x= " << yIn[0]/m << "m" << G4endl
-		    << " y= " << yIn[1]/m << "m" << G4endl
-		    << " z= " << yIn[2]/m << "m" << G4endl
-		    << " px= " << yIn[3]/GeV << "GeV/c" << G4endl
-		    << " py= " << yIn[4]/GeV << "GeV/c" << G4endl
-		    << " pz= " << yIn[5]/GeV << "GeV/c" << G4endl
-		    << " q= " << charge/eplus << "e" << G4endl
-		    << " B= " << Bz/tesla << "T" << G4endl
-		    << G4endl; 
+#ifdef DEBUG 
+  G4cout << "BDSSolenoidStepper: step= " << h/m << " m" << G4endl;
+  G4cout << "BDSSolenoidStepper: initial point in global coordinates:" << G4endl
+         << " x= " << yIn[0]/m << "m" << G4endl
+         << " y= " << yIn[1]/m << "m" << G4endl
+         << " z= " << yIn[2]/m << "m" << G4endl
+         << " px= " << yIn[3]/GeV << "GeV/c" << G4endl
+         << " py= " << yIn[4]/GeV << "GeV/c" << G4endl
+         << " pz= " << yIn[5]/GeV << "GeV/c" << G4endl
+         << " q= " << charge/eplus << "e" << G4endl
+         << " B= " << Bz/tesla << "T" << G4endl
+         << G4endl; 
+#endif
 
 
   //
@@ -91,14 +91,16 @@ void BDSSolenoidStepper::AdvanceHelix( const G4double  yIn[],
   G4ThreeVector LocalR = GlobalAffine.TransformPoint(GlobalR); 
   G4ThreeVector LocalRp = GlobalAffine.TransformAxis(GlobalRp);
 
-  if (DEBUG) G4cout << "BDSSolenoidStepper: initial point in local coordinates:" << G4endl
-		    << " x= " << LocalR[0]/m << "m" << G4endl
-		    << " y= " << LocalR[1]/m << "m" << G4endl
-		    << " z= " << LocalR[2]/m << "m" << G4endl
-		    << " x'= " << LocalRp[0] << G4endl
-		    << " y'= " << LocalRp[1] << G4endl
-		    << " z'= " << LocalRp[2] << G4endl
-		    << G4endl; 
+#ifdef DEBUG
+  G4cout << "BDSSolenoidStepper: initial point in local coordinates:" << G4endl
+         << " x= " << LocalR[0]/m << "m" << G4endl
+         << " y= " << LocalR[1]/m << "m" << G4endl
+         << " z= " << LocalR[2]/m << "m" << G4endl
+         << " x'= " << LocalRp[0] << G4endl
+         << " y'= " << LocalRp[1] << G4endl
+         << " z'= " << LocalRp[2] << G4endl
+         << G4endl; 
+#endif
 
 
   //
@@ -142,13 +144,15 @@ void BDSSolenoidStepper::AdvanceHelix( const G4double  yIn[],
       G4double dz = h / sqrt(1. + pow(2.*pi*R/pitch,2));
       G4double dtheta = 2*pi*dz/pitch*R/fabs(R);
       
-      if (DEBUG) G4cout << "Parameters of helix: " << G4endl
-			<< " R= " << R/m << " m" << G4endl
-			<< " pitch= " << pitch/m << " m" <<G4endl
-			<< " center= " << center/m << " m"<<G4endl
-			<< " step length= " << h/m << " m"<<G4endl
-			<< " step dz= " << dz/m << " m"<<G4endl
-			<< " step dtheta= " << dtheta/radian << " rad"<<G4endl;
+#ifdef DEBUG 
+      G4cout << "Parameters of helix: " << G4endl
+             << " R= " << R/m << " m" << G4endl
+             << " pitch= " << pitch/m << " m" <<G4endl
+             << " center= " << center/m << " m"<<G4endl
+             << " step length= " << h/m << " m"<<G4endl
+             << " step dz= " << dz/m << " m"<<G4endl
+             << " step dtheta= " << dtheta/radian << " rad"<<G4endl;
+#endif
 
 
       //
@@ -187,15 +191,16 @@ void BDSSolenoidStepper::AdvanceHelix( const G4double  yIn[],
       itsDist=0.;
     }
   
-  if (DEBUG) G4cout << "BDSSolenoidStepper: final point in local coordinates:" << G4endl
-		    << " x= " << itsFinalR[0]/m << "m" << G4endl
-		    << " y= " << itsFinalR[1]/m << "m" << G4endl
-		    << " z= " << itsFinalR[2]/m << "m" << G4endl
-		    << " x'= " << itsFinalRp[0] << G4endl
-		    << " y'= " << itsFinalRp[1] << G4endl
-		    << " z'= " << itsFinalRp[2] << G4endl
-		    << G4endl; 
-
+#ifdef DEBUG 
+  G4cout << "BDSSolenoidStepper: final point in local coordinates:" << G4endl
+         << " x= " << itsFinalR[0]/m << "m" << G4endl
+         << " y= " << itsFinalR[1]/m << "m" << G4endl
+         << " z= " << itsFinalR[2]/m << "m" << G4endl
+         << " x'= " << itsFinalRp[0] << G4endl
+         << " y'= " << itsFinalRp[1] << G4endl
+         << " z'= " << itsFinalRp[2] << G4endl
+         << G4endl; 
+#endif
 
   //
   // transform local to global coordinates
@@ -213,19 +218,21 @@ void BDSSolenoidStepper::AdvanceHelix( const G4double  yIn[],
   yOut[4] = GlobalP.y();
   yOut[5] = GlobalP.z();
 
-  if (DEBUG) G4cout << "BDSSolenoidStepper: final point in global coordinates:" << G4endl
-		    << " x= " << yOut[0]/m << "m" << G4endl
-		    << " y= " << yOut[1]/m << "m" << G4endl
-		    << " z= " << yOut[2]/m << "m" << G4endl
-		    << " px= " << yOut[3]/GeV << "GeV/c" << G4endl
-		    << " py= " << yOut[4]/GeV << "GeV/c" << G4endl
-		    << " pz= " << yOut[5]/GeV << "GeV/c" << G4endl
-		    << G4endl; 
+#ifdef DEBUG 
+  G4cout << "BDSSolenoidStepper: final point in global coordinates:" << G4endl
+         << " x= " << yOut[0]/m << "m" << G4endl
+         << " y= " << yOut[1]/m << "m" << G4endl
+         << " z= " << yOut[2]/m << "m" << G4endl
+         << " px= " << yOut[3]/GeV << "GeV/c" << G4endl
+         << " py= " << yOut[4]/GeV << "GeV/c" << G4endl
+         << " pz= " << yOut[5]/GeV << "GeV/c" << G4endl
+         << G4endl; 
+#endif
 }    
 
 
 void BDSSolenoidStepper::Stepper( const G4double yInput[],
-				  const G4double dydx[],
+				  const G4double[],
 				  const G4double hstep,
 				  G4double yOut[],
 				  G4double yErr[]      )
@@ -233,7 +240,7 @@ void BDSSolenoidStepper::Stepper( const G4double yInput[],
   const G4int nvar = 6 ;
 
   for(G4int i=0;i<nvar;i++) yErr[i]=0;
-  AdvanceHelix(yInput,0,hstep,yOut);
+  AdvanceHelix(yInput,(G4ThreeVector)0,hstep,yOut);
   return ;
 }
 

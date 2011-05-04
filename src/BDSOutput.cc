@@ -19,19 +19,11 @@ BDSOutput::~BDSOutput()
 {
   if(format==_ASCII)
     of.close();
-
-
 #ifdef USE_ROOT
-  Write();
-/*
-  if(format==_ROOT)
-    if(theRootOutputFile->IsOpen())
-      {
-	theRootOutputFile->Write();
-	theRootOutputFile->Close();
-	delete theRootOutputFile;
-      }
-*/
+  if(format==_ROOT){
+    theRootOutputFile->Close();
+    delete theRootOutputFile;
+  }
 #endif
 }
 
@@ -161,7 +153,7 @@ void BDSOutput::Init(G4int FileNum)
     }
 
   // build energy loss histogram
-  G4int nBins = G4int(zMax/m);
+  G4int nBins = G4int(zMax/(BDSGlobals->GetElossHistoBinWidth()*m));
 
   EnergyLossHisto = new TH1F("ElossHisto", "Energy Loss",nBins,0.,zMax/m);
   EnergyLossNtuple= new TNtuple("ElossNtuple", "Energy Loss","z:E:partID:parentID");
@@ -228,6 +220,7 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
        t0=(*hc)[i]->GetInitT() / ns;
 
        E=(*hc)[i]->GetMom() / GeV;
+       //       Edep=(*hc)[i]->GetEdep() / GeV;
        x=(*hc)[i]->GetX() / micrometer;
        y=(*hc)[i]->GetY() / micrometer;
        z=(*hc)[i]->GetZ() / m;
@@ -257,6 +250,57 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
 #endif
   }
  
+}
+
+G4int BDSOutput::WriteTrajectory(std::vector<G4VTrajectory*> TrajVec){
+  //  G4cout<<"a trajectory stored..."<<G4endl;
+  
+  G4int tID;
+  G4TrajectoryPoint* TrajPoint;
+  G4ThreeVector TrajPos;
+  
+#ifdef USE_ROOT
+  TTree* TrajTree;
+    
+  G4String name = "Trajectories";
+  
+  TrajTree=(TTree*)gDirectory->Get(name);
+
+  if(TrajTree == NULL) { G4cerr<<"TrajTree=NULL"<<G4endl; return -1;}
+#endif
+  
+  
+  if(TrajVec.size())
+    {
+      std::vector<G4VTrajectory*>::iterator iT;
+      
+      for(iT=TrajVec.begin();iT<TrajVec.end();iT++)
+	{
+	  G4Trajectory* Traj=(G4Trajectory*)(*iT);
+	  
+	  tID=Traj->GetTrackID();	      
+	  part = Traj->GetPDGEncoding();
+	  
+	  for(G4int j=0; j<Traj->GetPointEntries(); j++)
+	    {
+	      TrajPoint=(G4TrajectoryPoint*)Traj->GetPoint(j);
+	      TrajPos=TrajPoint->GetPosition();
+	      
+	      x = TrajPos.x() / m;
+	      y = TrajPos.y() / m;
+	      z = TrajPos.z() / m;
+              
+#ifdef USE_ROOT
+	      if( format == _ROOT) 
+		TrajTree->Fill();
+#endif
+              
+	      //G4cout<<"TrajPos="<<TrajPos<<G4endl;
+	    }
+	}
+    }
+  
+  return 0;
 }
 
 // write a trajectory to a root/ascii file
@@ -324,7 +368,7 @@ void BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
     
     for (G4int i=0;i<n_hit;i++)
       {
-	G4double Energy=(*hc)[i]->GetEnergy();
+        G4double Energy=(*hc)[i]->GetEnergy();
 	G4double EWeightZ=(*hc)[i]->
 	  GetEnergyWeightedPosition()/Energy;
 	G4int partID = (*hc)[i]->GetPartID();
@@ -343,7 +387,7 @@ void BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
     
     for (G4int i=0;i<n_hit;i++)
       {
-	G4double Energy=(*hc)[i]->GetEnergy();
+        G4double Energy=(*hc)[i]->GetEnergy();
 	G4double EWeightZ=(*hc)[i]->
 	  GetEnergyWeightedPosition()/Energy;
 	G4int partID = (*hc)[i]->GetPartID();
@@ -371,35 +415,24 @@ void BDSOutput::Echo(G4String str)
 //G4int BDSOutput::Commit(G4int FileNum)
 G4int BDSOutput::Commit()
 {
-/*
-#ifdef USE_ROOT
-  if(format==_ROOT)
-    if(theRootOutputFile->IsOpen())
-      {
-	theRootOutputFile->Write();
-	theRootOutputFile->Close();
-	delete theRootOutputFile;
-      }
-#endif
-  Init(FileNum)
-*/
   Write();
   Init(outputFileNumber++);
   return 0;
 }
 
-G4int BDSOutput::Write()
+void BDSOutput::Write()
 {
 #ifdef USE_ROOT
-  if(format==_ROOT)
+  if(format == _ROOT){
     if(theRootOutputFile->IsOpen())
       {
 	theRootOutputFile->Write();
-	theRootOutputFile->Close();
+        while(theRootOutputFile->IsOpen()){
+                theRootOutputFile->Close();
+              }
 	delete theRootOutputFile;
       }
+  }
 #endif
-
-  return 0;
 }
 

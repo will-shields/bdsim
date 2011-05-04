@@ -78,8 +78,8 @@ inline G4bool BDSPlanckScatter::IsApplicable(
    return(  (&particle == G4Electron::Electron())
           ||(&particle == G4Positron::Positron()) );
 }
-inline G4double BDSPlanckScatter::GetMeanFreePath(const G4Track& track,
-                                           G4double PreviousStepSize,
+inline G4double BDSPlanckScatter::GetMeanFreePath(const G4Track&,
+                                           G4double,
                                            G4ForceCondition* ForceCondition)
 {  
 *ForceCondition= NotForced ;

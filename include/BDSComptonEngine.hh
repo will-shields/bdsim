@@ -36,9 +36,13 @@ class BDSComptonEngine
  
     ~BDSComptonEngine();
 
-     void PerformCompton();
-     void SetIncomingPhoton4Vec(G4LorentzVector inGam);
-     void SetIncomingElectron4Vec(G4LorentzVector inEl);
+  void PerformCompton();
+  void PerformHighEnergyCompton();
+  void PerformHighEnergyCompton2();
+  G4double ComptonDifferentialCrossSection(G4double costh=0, G4double gamma2=0);
+  G4double PeakAmplitudeOfComptonDifferentialCrossSection(G4double gamma2=0);
+  void SetIncomingPhoton4Vec(G4LorentzVector inGam);
+  void SetIncomingElectron4Vec(G4LorentzVector inEl);
 
      G4LorentzVector GetScatteredElectron();
      G4LorentzVector GetScatteredGamma();

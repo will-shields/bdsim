@@ -39,14 +39,14 @@ BDSEnergyCounterSD::BDSEnergyCounterSD(G4String name)
 BDSEnergyCounterSD::~BDSEnergyCounterSD()
 {delete [] HitID;}
 
-void BDSEnergyCounterSD::Initialize(G4HCofThisEvent*HCE)
+void BDSEnergyCounterSD::Initialize(G4HCofThisEvent*)
 {
   BDSEnergyCounterCollection = new BDSEnergyCounterHitsCollection
     (SensitiveDetectorName,collectionName[0]); 
   for(G4int i=0; i<nMaxCopy;i++)HitID[i]=-1;
 }
 
-G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
+G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
 { 
   G4double edep = aStep->GetTotalEnergyDeposit();
   G4int partID = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();

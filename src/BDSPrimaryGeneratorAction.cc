@@ -8,8 +8,6 @@
 */
 
 
-const int DEBUG = 0;
-
 //==================================================================
 //==================================================================
 #include "BDSGlobalConstants.hh" // must be first in include list
@@ -54,11 +52,12 @@ BDSPrimaryGeneratorAction::BDSPrimaryGeneratorAction(
   // initialize with default values... 
   // they will be overridden in GeneratePrimaries function
 
-  // particleGun->SetParticleDefinition(BDSGlobals->
-  //                                    GetParticleDefinition());
+  //  particleGun->SetParticleDefinition(BDSGlobals->
+  //                                      GetParticleDefinition());
 
-  particleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->
-				     FindParticle("e-"));
+  G4cout << "Primary particle is " << BDSGlobals->GetParticleDefinition()->GetParticleName() << G4endl;
+    particleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->
+                                       FindParticle("e-"));
 
   
   if(BDSGlobals->GetUseSynchPrimaryGen()) // synchrotron radiation generator
@@ -126,8 +125,10 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       E*=-1;
     }
 
-    if(DEBUG) printf("Particles left %i: %f %f %f %f %f %f %f %f\n",
-	(int)BDSGlobals->holdingQueue.size(),x0,y0,z0,xp,yp,zp,t,E);
+#ifdef DEBUG 
+    printf("Particles left %i: %f %f %f %f %f %f %f %f\n",
+           (int)BDSGlobals->holdingQueue.size(),x0,y0,z0,xp,yp,zp,t,E);
+#endif
   }
   else if(!BDSGlobals->isReference) G4Exception("No new particles to fire...\n");
 
@@ -147,12 +148,12 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       const G4AffineTransform* tf = BDSGlobals->GetRefTransform();
       LocalPos = tf->TransformPoint(PartPosition);
       LocalMomDir = tf->TransformAxis(PartMomDir);
-      if(DEBUG) {
-	G4cout << PartPosition << G4endl;
-        G4cout << PartMomDir << G4endl;
-        G4cout << LocalPos << G4endl;
-        G4cout << LocalMomDir << G4endl;
-      }
+#ifdef DEBUG 
+      G4cout << PartPosition << G4endl;
+      G4cout << PartMomDir << G4endl;
+      G4cout << LocalPos << G4endl;
+      G4cout << LocalMomDir << G4endl;
+#endif
       PartPosition = LocalPos;
       PartMomDir = LocalMomDir;
     }
@@ -174,15 +175,14 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   }
 
   G4double totalE = E+particleGun->GetParticleDefinition()->GetPDGMass();
-  if(DEBUG )
-    {
-      G4cout
-	<< "BDSPrimaryGeneratorAction: " << G4endl
-	<< "  position= " << particleGun->GetParticlePosition()/m<<" m"<<G4endl
-	<< "  kinetic energy= " << E/GeV << " GeV" << G4endl
-	<< "  total energy= " << totalE/GeV << " GeV" << G4endl
-	<< "  momentum direction= " << PartMomDir << G4endl;
-    }
+#ifdef DEBUG
+  G4cout
+    << "BDSPrimaryGeneratorAction: " << G4endl
+    << "  position= " << particleGun->GetParticlePosition()/m<<" m"<<G4endl
+    << "  kinetic energy= " << E/GeV << " GeV" << G4endl
+    << "  total energy= " << totalE/GeV << " GeV" << G4endl
+    << "  momentum direction= " << PartMomDir << G4endl;
+#endif
 
   // save initial values outside scope for entry into the samplers:
   initial_x=x0;

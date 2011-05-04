@@ -1,7 +1,7 @@
 General Information
 ===================
 
-BDSIM version 0.5_dev, Geant4 toolkit for radiation transport in accelerators
+BDSIM version 0.6_dev, Geant4 toolkit for radiation transport in accelerators
 
 The official web site is:
 	http://www.pp.rhul.ac.uk/twiki/bin/view/JAI/simulation
@@ -10,17 +10,18 @@ The official Geant4 web site is:
 	http://geant4.web.cern.ch/geant4/
 
 
-Maintained by Steve Malton (malton@pp.rhul.ac.uk),
-Ilya Agapov (agapov@pp.rhul.ac.uk) and G.A.Blair (blair@pp.rhul.ac.uk)
+Maintained by Lawrence Deacon (l.deacon@cern.ch),
+and G.A.Blair (g.blair@rhul.ac.uk)
 
-This release x.x.2008
+This development version x.x.2011
 
 
 
 History
 ===================
 
-v0.5-dev : x.x.08
+v0.6-dev : x.x.11
+v0.5 : 30.05.08
 v0.4 : 25.02.08
 v0.3 : 26.01.07
 v0.2 : 18.05.06
@@ -34,14 +35,18 @@ Installation
 System requirements:
 
 tested on:
-    os: Linux (Fedora 3-5), MacOS X
-    compiler: gcc 3.3.3, gcc 4.0.0
-
+    os: Linux (Scientific Linux Cern 5, kernel release 2.6.18-238.9.1.el5), 
+    architecture: x86_64,	
+    compiler: gcc 4.4.3
+   
 mandatory:
-    Geant4.8.0 or higher
+    Geant version greater then Geant4.8.0.
+    This version of BDSIM has been successfully compiled and run with Geant 4.9.4.p01.
 
 optional: 
     OpenGL (Mesa), ROOT 4.x (5.x<=10)  
+    This version of BDSIM has been successfully compiled and run with ROOT 5.26.00b
+   
 
 to compile:
 

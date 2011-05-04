@@ -45,8 +45,9 @@ BDSGeometrySQL::BDSGeometrySQL(G4String DBfile, G4double markerlength)
   HasFields = false;
 }
 
-BDSGeometrySQL::~BDSGeometrySQL()
-{;}
+BDSGeometrySQL::~BDSGeometrySQL(){
+  delete rotateComponent;
+}
 
 void BDSGeometrySQL::Construct(G4LogicalVolume *marker)
 {
@@ -939,7 +940,7 @@ void BDSGeometrySQL::BuildEllipticalTube(BDSMySQLTable* aSQLTable)
 
 G4RotationMatrix* BDSGeometrySQL::RotateComponent(G4double psi,G4double phi,G4double theta)
 {
-  G4RotationMatrix *rotateComponent = new G4RotationMatrix;
+  rotateComponent = new G4RotationMatrix;
   if(psi==0 && phi==0 && theta==0) return rotateComponent;
 
   G4RotationMatrix LocalRotation;

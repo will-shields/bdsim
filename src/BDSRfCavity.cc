@@ -29,8 +29,8 @@ extern BDSMaterials* theMaterials;
 //============================================================
 
 BDSRfCavity::BDSRfCavity (G4String aName,G4double aLength, G4double bpRad, 
-			  G4double grad, G4String aMaterial):
-  BDSMultipole(aName ,aLength, bpRad, bpRad, SetVisAttributes(), aMaterial)
+			  G4double grad, G4String aTunnelMaterial, G4String aMaterial):
+  BDSMultipole(aName ,aLength, bpRad, bpRad, SetVisAttributes(), aTunnelMaterial, aMaterial)
 {
   itsGrad = grad;
   itsType = "rfcavity";
@@ -46,7 +46,7 @@ BDSRfCavity::BDSRfCavity (G4String aName,G4double aLength, G4double bpRad,
       // build beampipe (geometry + magnetic field)
       //
       itsBPFieldMgr=NULL;
-      BuildBeampipe(itsLength);
+      BuildBeampipe();
 
       //
       // build cavity (geometry + electric field)
@@ -56,9 +56,10 @@ BDSRfCavity::BDSRfCavity (G4String aName,G4double aLength, G4double bpRad,
       //
       // define sensitive volumes for hit generation
       //
-      SetSensitiveVolume(itsBeampipeLogicalVolume);// for laserwire
-      //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
-
+      if(BDSGlobals->GetSensitiveComponents()){
+        SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      }
+    
       //
       // set visualization attributes
       //

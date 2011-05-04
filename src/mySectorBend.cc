@@ -14,8 +14,6 @@
 
 #include <map>
 
-const int DEBUG = 0;
-
 //============================================================
 
 typedef std::map<G4String,int> LogVolCountMap;
@@ -34,8 +32,8 @@ mySectorBend::mySectorBend(G4String aName,G4double aLength,
 			   G4double bpRad,G4double FeRad,
 			   G4double bField, G4double angle, G4double outR,
 			   G4double tilt,  G4double bGrad, 
-			   G4String aMaterial, G4int nSegments):
-  BDSMultipole(aName,aLength,bpRad,FeRad,SetVisAttributes(),aMaterial,0,0,angle)
+			   G4String aMaterial):
+  BDSMultipole(aName,aLength,bpRad,FeRad,SetVisAttributes(),"",aMaterial,0,0,angle)
 {
 
   if (outR==0) 
@@ -52,6 +50,10 @@ mySectorBend::mySectorBend(G4String aName,G4double aLength,
     {
       BuildSBMarkerLogicalVolume();
 
+      if(BDSGlobals->GetBuildTunnel()){
+        BuildTunnel();
+      }
+
       BuildSBBeampipe();
 
       BuildBPFieldAndStepper();
@@ -60,8 +62,12 @@ mySectorBend::mySectorBend(G4String aName,G4double aLength,
 
       BuildSBOuterLogicalVolume();
 
-      SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
-      SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      if(BDSGlobals->GetSensitiveBeamPipe()){
+        SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+      }
+      if(BDSGlobals->GetSensitiveComponents()){
+        SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      }
 
       if(BDSGlobals->GetIncludeIronMagFields())
 	{
@@ -163,7 +169,9 @@ void mySectorBend::SynchRescale(G4double factor)
   itsStepper->SetBField(-itsBField*factor);
   // note that there are no methods to set the BDSSBendMagField as this
   // class does not do anything with the BFields.
-  if(DEBUG) G4cout << "Sbend " << itsName << " has been scaled" << G4endl;
+#ifdef DEBUG
+  G4cout << "Sbend " << itsName << " has been scaled" << G4endl;
+#endif
 }
 
 G4VisAttributes* mySectorBend::SetVisAttributes()
@@ -268,8 +276,8 @@ void mySectorBend::BuildSBBeampipe()
   G4VPhysicalVolume* PhysiInner;
   PhysiInner = 
     new G4PVPlacement(
-		      0,		       // no rotation
-		      0,                       // no translation
+		      (G4RotationMatrix*)0,		       // no rotation
+		      (G4ThreeVector)0,                       // no translation
 		      itsInnerBPLogicalVolume, // its logical volume
 		      itsName+"_InnerBmp",     // its name
 		      itsMarkerLogicalVolume,  // its mother volume
@@ -279,8 +287,8 @@ void mySectorBend::BuildSBBeampipe()
   G4VPhysicalVolume* PhysiComp;
   PhysiComp = 
     new G4PVPlacement(
-		      0,		       // no rotation
-		      0,                       // no translation
+		      (G4RotationMatrix*)0,		       // no rotation
+		      (G4ThreeVector)0,                       // no translation
 		      itsBeampipeLogicalVolume,// its logical volume
 		      itsName+"_bmp",	       // its name
 		      itsMarkerLogicalVolume,  // its mother  volume
@@ -358,8 +366,8 @@ void mySectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum)
   G4VPhysicalVolume* itsPhysiComp;
   itsPhysiComp =
     new G4PVPlacement(
-                      0,                        // no rotation
-                      0,                        // no translation
+                      (G4RotationMatrix*)0,                        // no rotation
+                      (G4ThreeVector)0,                        // no translation
                       itsOuterLogicalVolume,    // its logical volume
                       itsName+"_solid",         // its name
                       itsMarkerLogicalVolume,   // its mother  volume

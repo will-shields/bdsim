@@ -11,6 +11,7 @@
 #include"BDSAcceleratorComponent.hh"
 #include "BDSMaterials.hh"
 #include "G4LogicalVolume.hh"
+#include "G4Mag_UsualEqRhs.hh"
 
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"

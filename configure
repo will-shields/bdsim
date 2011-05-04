@@ -84,7 +84,7 @@ G4_install=$value
 #determine G4 version --- to be fixed x.x.x
 				      # x x
 
-printf "\n \n Determiming Geant4 version ......"
+printf "\n \n Determining Geant4 version ......"
 
 #G4_version=${G4_install##*/geant}
 #G4_version=${G4_version%%.p*}

@@ -76,6 +76,7 @@ private:
   G4RotationMatrix* RotateComponent(G4double psi,
 				    G4double phi,
 				    G4double theta);
+  G4RotationMatrix* rotateComponent;
   void PlaceComponents(BDSMySQLTable* aSQLTable, std::vector<G4LogicalVolume*> VOL_LIST);
 
   G4double itsMarkerLength;

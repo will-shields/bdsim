@@ -1,4 +1,4 @@
-
+ 
 /** BDSIM, v0.1   
 
 Last modified 01.02.2006 by Ilya Agapov
@@ -31,7 +31,13 @@ public:
 
   void ConstructEM();
 
+  void ConstructEM_LPB(); //added by M.D. Salt, R.B. Appleby, 15/10/09
+
   void ConstructMuon();
+
+  void ConstructMuon_LPB(); 
+
+  void ConstructMuon_XSBias(); 
 
   void ConstructMerlin();
 
@@ -42,6 +48,10 @@ public:
   void ConstructLaserWire();
 
   void ConstructHadronic();
+
+  void ConstructQGSP();
+
+  void ConstructDecay();
 
 
 };

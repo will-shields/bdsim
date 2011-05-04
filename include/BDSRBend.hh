@@ -1,20 +1,10 @@
-//  
-//   BDSIM, (C) 2001-2007
-//   
-//   version 0.4
-//  
-//
-//
-//   Rectangular bending magnet class
-//   - itsLength parameter internally stores the geometrical length 
-//   - itsAngle parameter internally stores the bending angle
-//   - to get the arc length use the GetArcLength() function
-//   - the volume is a trapezoid with pole faces perpendicular to the ideal
-//     orbit
-//     
-//   History
-//
-//
+/* BDSIM code.    Version 1.0
+   Author: Grahame A. Blair, Royal Holloway, Univ. of London.
+   Last modified 18.10.2002
+   Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
+
+   IA: 12.10.05 , modified
+*/
 
 #ifndef BDSRBend_h
 #define BDSRBend_h 
@@ -22,7 +12,6 @@
 #include "globals.hh"
 #include "BDSMaterials.hh"
 #include "G4LogicalVolume.hh"
-#include "BDSHelixStepper.hh"
 #include "myQuadStepper.hh"
 
 #include "G4FieldManager.hh"
@@ -40,21 +29,20 @@ class BDSRBend :public BDSMultipole
 {
 public:
   BDSRBend(G4String aName, G4double aLength,
-	   G4double bpRad, G4double FeRad,
-	   G4double bField, G4double angle, G4double outR,
-	   G4double tilt = 0, G4double bGrad=0, 
-	   G4String aMaterial = "", G4int nSegments=1);
+		G4double bpRad, G4double FeRad,
+		G4double bField, G4double angle, G4double outR,
+           std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+           G4double tilt = 0, G4double bGrad=0, G4String aTunnelMaterial="", G4String aMaterial = "");
   ~BDSRBend();
 
   void SynchRescale(G4double factor);
-
-  virtual const G4double GetArcLength() const;
 
 protected:
 
 private:
   G4double itsBField;
   G4double itsBGrad;
+  G4double itsMagFieldLength;
 
   void BuildBPFieldAndStepper();
   void BuildRBMarkerLogicalVolume();
@@ -63,6 +51,16 @@ private:
 
   G4VisAttributes* SetVisAttributes();
   G4Trd* markerSolidVolume;
+  G4Trd* rbendRectangleSolidVolume;
+  G4LogicalVolume* rbendRectangleLogicalVolume;
+  G4LogicalVolume* middleBeampipeLogicalVolume;
+  G4LogicalVolume* middleInnerBPLogicalVolume;
+  G4LogicalVolume* endsBeampipeLogicalVolume;
+  G4LogicalVolume* endsInnerBPLogicalVolume;
+  G4UserLimits* endsBeampipeUserLimits;
+  G4UserLimits* endsInnerBeampipeUserLimits;
+  G4VisAttributes* innerBeampipeVisAtt;
+  G4VisAttributes* beampipeVisAtt;
 
   // field related objects:
   myQuadStepper* itsStepper;
@@ -70,15 +68,5 @@ private:
   G4Mag_EqRhs* itsEqRhs;
 
 };
-
-inline const G4double BDSRBend::GetArcLength() const
-{
-  // arc length = radius*angle
-  //            = (geometrical length/(2.0*sin(angle/2))*angle
-  if (itsAngle == 0.0)
-    return itsLength;
-  else
-    return (itsLength * (0.5*itsAngle) / sin(0.5*itsAngle));
-}
 
 #endif

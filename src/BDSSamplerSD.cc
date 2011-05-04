@@ -6,6 +6,7 @@
    Modified 22.03.05 by J.C.Carter, Royal Holloway, Univ. of London.
    Changed Samplers to account for plane and cylinder types (GABs code)
 */
+
 #include "BDSGlobalConstants.hh" // must be first in include list
 
 #include "BDSSamplerSD.hh"
@@ -50,13 +51,13 @@ BDSSamplerSD::BDSSamplerSD(G4String name, G4String type)
 BDSSamplerSD::~BDSSamplerSD()
 {;}
 
-void BDSSamplerSD::Initialize(G4HCofThisEvent*HCE)
+void BDSSamplerSD::Initialize(G4HCofThisEvent*)
 {
   SamplerCollection = 
     new BDSSamplerHitsCollection(SensitiveDetectorName,itsCollectionName);
 }
 
-G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
+G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
 {
   G4Track* theTrack = aStep->GetTrack();
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
@@ -75,8 +76,12 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
       //time since track creation
       G4double t = theTrack->GetGlobalTime();
       //total track energy
-      G4double energy = theTrack->GetKineticEnergy()+
-	theTrack->GetDefinition()->GetPDGMass();
+
+
+      G4double energy = theTrack->GetKineticEnergy()+ 
+      	theTrack->GetDefinition()->GetPDGMass();
+      
+
       //current particle position (global)
       G4ThreeVector pos = theTrack->GetPosition();
       //total track length
@@ -128,6 +133,11 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
 
       G4String pName=theTrack->GetDefinition()->GetParticleName();
 
+#ifdef DEBUG
+      G4cout << "BDSSamplerSD> Paricle name: " << pName << G4endl;  
+      G4cout << "BDSSamplerSD> PDG encoding: " << PDGtype << G4endl;  
+#endif
+
       G4ThreeVector vtx=theTrack->GetVertexPosition();
       G4ThreeVector dir=theTrack->GetVertexMomentumDirection();
       
@@ -146,8 +156,10 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
 	  start_yp  =  dir.y();	  
 	  start_z   =  vtx.z();
 	  start_zp  =  dir.z();
-	  start_E   =  theTrack->GetVertexKineticEnergy()+
-	    theTrack->GetDefinition()->GetPDGMass();
+
+          start_E   =  theTrack->GetVertexKineticEnergy()+ 
+            theTrack->GetDefinition()->GetPDGMass();
+
 	  start_t   = t - theTrack->GetLocalTime();
 	}
       else

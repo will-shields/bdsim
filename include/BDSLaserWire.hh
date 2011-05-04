@@ -17,14 +17,13 @@
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
-//#include "BDSLaserCompton.hh"
+#include "BDSLaserCompton.hh"
 
 class BDSLaserWire :public BDSAcceleratorComponent
 {
 public:
   BDSLaserWire(G4String aName,G4double aLength,
-	       G4double aWavelength, G4ThreeVector aDirection,
-	       G4ThreeVector aPosition=0, G4double xSigma=0, G4double ySigma=0);
+	       G4double aWavelength, G4ThreeVector aDirection);
   ~BDSLaserWire();
 
   inline void SetLaserDirection(G4ThreeVector aDirection);
@@ -32,8 +31,6 @@ public:
 
   inline void SetLaserWavelength(G4double aWavelength);
   inline G4double GetLaserWavelength();
-
-  //  G4VProcess* GetLaserWireProcess();
 
 protected:
 
@@ -43,7 +40,7 @@ private:
   G4UserLimits* itsUserLimits;
   G4VisAttributes* itsVisAttributes;
 
-  //  BDSLaserCompton* itsLaserCompton;
+  BDSLaserCompton* itsLaserCompton;
   G4ThreeVector itsLaserDirection;
   G4double itsLaserWavelength;
 };
@@ -59,8 +56,5 @@ inline void BDSLaserWire::SetLaserWavelength(G4double aWavelength)
 
 inline G4double BDSLaserWire::GetLaserWavelength()
 {return itsLaserWavelength;}
-
-//inline G4VProcess* BDSLaserWire::GetLaserWireProcess()
-//{return itsLaserCompton;}
 
 #endif

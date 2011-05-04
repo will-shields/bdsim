@@ -29,10 +29,6 @@ typedef list<BDSAcceleratorComponent*>  myBeamline;
 extern myBeamline theBeamline;
 extern G4int nptwiss;
 
-const int DEBUG  = 0;
-const int DEBUG2 = 0;
-
-
 
 //==========================================================
 
@@ -49,19 +45,12 @@ BDSRunAction::~BDSRunAction()
 
 void BDSRunAction::BeginOfRunAction(const G4Run* aRun)
 {
-  //  BDSGlobals->GetTimer()->Start();
- 
   G4cout << "### Run " << aRun->GetRunID() << " start." << G4endl;
-
- //  if(BDSGlobals->GetUseTimer())
-//     {
-//       //BDSGlobals->GetTimer()->Start();
-//     }
 
   if (G4VVisManager::GetConcreteInstance())
     {
       G4UImanager* UI = G4UImanager::GetUIpointer(); 
-      UI->ApplyCommand("/vis/scene/notifyHandlers");
+      //  UI->ApplyCommand("/vis/scene/notifyHandlers");
     } 
 
 
@@ -72,79 +61,34 @@ void BDSRunAction::BeginOfRunAction(const G4Run* aRun)
 void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 {
 
-  //  if (G4VVisManager::GetConcreteInstance()) {
-  //   G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/update");
-
- //  if(BDSGlobals->GetUseTimer())
-//     {
-//       BDSGlobals->GetTimer()->Stop();
-//       G4cout<<"RUN Elapsed time="<<*BDSGlobals->GetTimer()<<G4endl;
-//     }
-
-
-  /*  
-  if(BDSGlobals->GetSynchRadOn())
-    {
-    ofstream synch_output("synch_factors_new.dat");
-      myBeamline::const_iterator iBeam;
-      for(iBeam=theBeamline.begin();iBeam!=theBeamline.end();iBeam++)
-	{
-	  synch_output<<(*iBeam)->GetSynchEnergyLoss()/ 
-	    G4double(aRun->GetNumberOfEvent())/GeV<<G4endl;
-	}
-	}
-  */
   if(BDSGlobals->getWaitingForDump()) // synchronization with placet
     {
-      //G4cout<<"end of event : "<<event_number<<G4endl;
       G4cout<<"last event reached! dumping"<<G4endl;
       
       G4StackManager* SM = G4EventManager::GetEventManager()->GetStackManager();
       
       BDSGlobals->setWaitingForDump(false);
       BDSGlobals->setDumping(true);
-      /*      
-      BDSGlobals->fileDump.open(BDSGlobals->GetFifo()); //SPM
-      if(!BDSGlobals->fileDump.good()){
-	G4Exception("BDSGlobals->GetFifo(): fifo not found. Quitting.");
-	exit(1);
-      }
-      BDSGlobals->outputQueue.clear();
-      BDSGlobals->fileDump << "# nparticles = " << SM->GetNPostponedTrack() << "\n";
-      */
       BDSGlobals->outputQueue.clear();
       BDSGlobals->transformedQueue.clear();
       SM->TransferStackedTracks(fPostpone, fUrgent);// so that they can be reclassified
       SM->ReClassify();
-      //BDSGlobals->fileDump.close(); // SPM
 
       G4double tmpT = 0;
-      /*
-	G4int nPrimaries = 0;
-	for(iter=BDSGlobals->transformedQueue.begin();
-	iter!=BDSGlobals->transformedQueue.end();iter++)
-	if((*iter).parentID == 0){ // only interested in primary particles
-	tmpT += (*iter).t;
-	++nPrimaries;
-	}
-	
-	if(nPrimaries)
-	tmpT /= nPrimaries; // average event time elapsed
-      */
 
       G4double* referenceTimes = BDSGlobals->referenceQueue.front();
       for(int i=0;i<nptwiss;++i){
 	tmpT += referenceTimes[i];
-	//G4cout << referenceTimes[i] << G4endl;
       }
       tmpT /= nptwiss;
 
       FILE* fifo = fopen(BDSGlobals->GetFifo(),"w");
       fprintf(fifo,"# nparticles = %i\n",(int)BDSGlobals->transformedQueue.size());
 
-      //change particle z from absolute to relative
-      //      tmpZ = BDSGlobals->referenceQueue.front()*c_light;
-      if(DEBUG) G4cout << "reftime = " << tmpT << G4endl;
+
+#ifdef DEBUG
+      G4cout << "reftime = " << tmpT << G4endl;
+#endif
       std::deque<tmpParticle>::iterator iter;
       for(iter=BDSGlobals->transformedQueue.begin();
 	  iter!=BDSGlobals->transformedQueue.end();iter++)
@@ -186,8 +130,9 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	for(int i=0; i< token;i++){
 	  fscanf(fifo,"%lf %lf %lf %lf %lf %lf %lf",
 		&E,&x,&y,&z,&xp,&yp,&t);
-	  if(DEBUG2) printf("In : %.15f %.15f %.15f %.15f %.15f %.15f %.15f\n",E,x,y,z,xp,yp,t);
-	  
+#ifdef DEBUG
+          printf("In : %.15f %.15f %.15f %.15f %.15f %.15f %.15f\n",E,x,y,z,xp,yp,t);
+#endif
 	  xp *= 1e-6*radian;
 	  yp *= 1e-6*radian;
 	  zp = sqrt(1-xp*xp-yp*yp)*radian;
@@ -203,12 +148,12 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 ///	  t = -z/c_light;
 	  LocalPosition += LocalDirection.unit()*1e-4*micrometer; // temp fix for recirculation in dump volume
 
-	  if(DEBUG){	  	  
-            G4cout << "Stacking: Pos = " << pos << G4endl;
-            G4cout << "LocalPos: Pos = " << LocalPosition << G4endl;
-            G4cout << "Stacking: mom = " << momDir << G4endl;
-            G4cout << "LocalDir: mom = " << LocalDirection << G4endl;
-	  }
+#ifdef DEBUG
+          G4cout << "Stacking: Pos = " << pos << G4endl;
+          G4cout << "LocalPos: Pos = " << LocalPosition << G4endl;
+          G4cout << "Stacking: mom = " << momDir << G4endl;
+          G4cout << "LocalDir: mom = " << LocalDirection << G4endl;
+#endif
 	  tmpParticle holdingParticle;
 	  holdingParticle.E = E*GeV - BDSGlobals->GetParticleDefinition()->GetPDGMass();
 	  holdingParticle.t = t;
@@ -221,7 +166,9 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	  holdingParticle.z = LocalPosition.z();
 	  
 	  BDSGlobals->holdingQueue.push_back(holdingParticle);
-	  if(DEBUG) G4cout << "Read particle number " << i << G4endl;
+#ifdef DEBUG 
+          G4cout << "Read particle number " << i << G4endl;
+#endif
         }
         sleep(1);
 	fclose(fifo);
@@ -231,7 +178,9 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	delete[] BDSGlobals->referenceQueue.front();
 	BDSGlobals->referenceQueue.pop_front();
 
-	if(DEBUG) G4cout << "Number read in = " << BDSGlobals->holdingQueue.size() << G4endl;
+#ifdef DEBUG 
+        G4cout << "Number read in = " << BDSGlobals->holdingQueue.size() << G4endl;
+#endif
       }
       else{
 	G4Exception("Read from fifo failed: bad file name\n");
@@ -239,5 +188,6 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
       }
       BDSDump::nUsedDumps++;
     }
+  G4cout << "### Run " << aRun->GetRunID() << " end." << G4endl;
 }
 //==========================================================

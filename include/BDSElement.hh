@@ -30,7 +30,7 @@ class BDSElement :public BDSAcceleratorComponent
 {
 public:
   BDSElement(G4String aName, G4String geometry, G4String bmap, G4double aLength, 
-						G4double bpRad, G4double outR);
+             G4double bpRad, G4double outR, G4String aTunnelMaterial="");
   ~BDSElement();
 
   void BuildGeometry();
@@ -54,6 +54,8 @@ protected:
   G4VisAttributes* SetVisAttributes();  
 
 private:
+  G4ChordFinder* fChordFinder;
+
 
   BDSField *itsField;
   G4double itsOuterR;

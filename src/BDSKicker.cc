@@ -9,8 +9,6 @@
 
 #include <map>
 
-const int DEBUG = 1;
-
 //============================================================
 
 typedef std::map<G4String,int> LogVolCountMap;
@@ -26,8 +24,8 @@ BDSKicker::BDSKicker(G4String aName, G4double aLength,
 		     G4double bpRad, G4double FeRad,
 		     G4double bField, G4double angle, G4double outR,
 		     G4double tilt, G4double bGrad, 
-		     G4String aMaterial, G4int nSegments):
-  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), aMaterial,
+		     G4String aTunnelMaterial, G4String aMaterial):
+  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), aTunnelMaterial, aMaterial,
 	       0, 0, angle)
 {
   SetOuterRadius(outR);
@@ -53,7 +51,7 @@ BDSKicker::BDSKicker(G4String aName, G4double aLength,
       //
       BuildBPFieldAndStepper();
       BuildBPFieldMgr(itsStepper,itsMagField);
-      BuildBeampipe(itsLength);
+      BuildBeampipe();
 
       //
       // build magnet (geometry + magnetic field)
@@ -86,8 +84,12 @@ BDSKicker::BDSKicker(G4String aName, G4double aLength,
       //
       // define sensitive volumes for hit generation
       //
-      SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
-      SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      if(BDSGlobals->GetSensitiveBeamPipe()){
+        SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+      }
+      if(BDSGlobals->GetSensitiveComponents()){
+        SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      }
 
       //
       // set visualization attributes

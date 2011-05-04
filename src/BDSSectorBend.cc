@@ -2,6 +2,7 @@
 
 #include "BDSSectorBend.hh"
 #include "G4Tubs.hh"
+#include "G4Trd.hh"
 #include "G4IntersectionSolid.hh"
 #include "G4VisAttributes.hh"
 #include "G4LogicalVolume.hh"
@@ -10,8 +11,6 @@
 #include "G4TransportationManager.hh"
 
 #include <map>
-
-const int DEBUG = 0;
 
 //============================================================
 
@@ -31,10 +30,11 @@ extern G4RotationMatrix* RotYM90;
 BDSSectorBend::BDSSectorBend(G4String aName, G4double aLength, 
 			     G4double bpRad, G4double FeRad,
 			     G4double bField, G4double angle, G4double outR,
+                             std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
 			     G4double tilt, G4double bGrad, 
-			     G4String aMaterial, G4int nSegments):
-  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), aMaterial,
-	       0, 0, angle)
+			     G4String aTunnelMaterial, G4String aMaterial, G4double aXAper, G4double aYAper):
+  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), blmLocZ, blmLocTheta, aTunnelMaterial, aMaterial,
+	       aXAper, aYAper, angle)
 {
   SetOuterRadius(outR);
   itsTilt=tilt;
@@ -48,17 +48,37 @@ BDSSectorBend::BDSSectorBend(G4String aName, G4double aLength,
       // build external volume
       // 
       BuildSBMarkerLogicalVolume();
+      G4VisAttributes* VisAtt1 = new G4VisAttributes(G4Colour(0.4, 0.4, 0.4));
+      VisAtt1->SetVisibility(true);
+      VisAtt1->SetForceSolid(true);
+      itsMarkerLogicalVolume->SetVisAttributes(VisAtt1);
+      //
+      // build tunnel
+      //
+      G4double oldTunnelRad=      BDSGlobals->GetTunnelRadius();
+         
+      if(BDSGlobals->GetBuildTunnel()){
+	BuildTunnel(); 
+      }
+      
+      //      BDSGlobals->SetTunnelRadius(oldTunnelRad);
 
+      //Build IP8Gate
+      //      BuildGate();
+     
       //
       // build beampipe (geometry + magnetic field)
       //
-      BuildBPFieldAndStepper();
-      BuildBPFieldMgr(itsStepper,itsMagField);
-      BuildSBBeampipe();
+      
+	      BuildBPFieldAndStepper();
+	      BuildBPFieldMgr(itsStepper,itsMagField);
+	      BuildSBBeampipe();
 
       //
       // build magnet (geometry + magnetic field)
       //
+      
+
       BuildSBOuterLogicalVolume();
       if(BDSGlobals->GetIncludeIronMagFields())
 	{
@@ -87,16 +107,23 @@ BDSSectorBend::BDSSectorBend(G4String aName, G4double aLength,
       //
       // define sensitive volumes for hit generation
       //
-      SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
-      SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+
+
+      if(BDSGlobals->GetSensitiveBeamPipe()){
+        SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+      }
+      if(BDSGlobals->GetSensitiveComponents()){
+        SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      }
+
 
       //
       // set visualization attributes
       //
       itsVisAttributes=SetVisAttributes();
-      itsVisAttributes->SetForceSolid(true);
-      itsOuterLogicalVolume->SetVisAttributes(itsVisAttributes);
-
+      
+	 itsOuterLogicalVolume->SetVisAttributes(itsVisAttributes);
+      
       //
       // append marker logical volume to volume map
       //
@@ -159,14 +186,14 @@ BDSSectorBend::BDSSectorBend(G4String aName, G4double aLength,
 	  //
 	  SetSensitiveVolume(itsBeampipeLogicalVolume);// for synchrotron
 	  //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
-
+	  
 	  //
 	  // set visualization attributes
 	  //
 	  itsVisAttributes=SetVisAttributes();
 	  itsVisAttributes->SetForceSolid(true);
 	  itsOuterLogicalVolume->SetVisAttributes(itsVisAttributes);
-
+	  
 	  //
 	  // append marker logical volume to volume map
 	  //
@@ -178,8 +205,12 @@ BDSSectorBend::BDSSectorBend(G4String aName, G4double aLength,
 	  // use already defined marker volume
 	  //
 	  itsMarkerLogicalVolume=(*LogVol)[itsName];
+	  itsVisAttributes=SetVisAttributes();
+	  itsVisAttributes->SetForceSolid(true);
 	}      
     }
+
+  BuildBLMs();
 }
 
 void BDSSectorBend::SynchRescale(G4double factor)
@@ -190,12 +221,16 @@ void BDSSectorBend::SynchRescale(G4double factor)
   // note that there are no methods to set the BDSSBendMagField as this
   // class does not do anything with the BFields.
   // not true when I will use Geant4 propagation
-  if(DEBUG) G4cout << "Sbend " << itsName << " has been scaled" << G4endl;
+#ifdef DEBUG
+  G4cout << "Sbend " << itsName << " has been scaled" << G4endl;
+#endif
 }
 
 G4VisAttributes* BDSSectorBend::SetVisAttributes()
 {
   itsVisAttributes = new G4VisAttributes(G4Colour(0,0,1)); //blue
+  itsVisAttributes->SetForceSolid(true);
+  itsVisAttributes->SetVisibility(true);
   return itsVisAttributes;
 }
 
@@ -214,36 +249,56 @@ void BDSSectorBend::BuildBPFieldAndStepper()
 
 void BDSSectorBend::BuildSBMarkerLogicalVolume()
 {
-  if (markerSolidVolume==0) {
 
-    G4double boxSize=BDSGlobals->GetComponentBoxSize();
+  G4double xLength, yLength;
+  G4double aThickness=std::min(1*cm,BDSGlobals->GetTunnelSoilThickness());
+  G4double totalTunnelRadius = BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness()+aThickness+std::max(BDSGlobals->GetTunnelOffsetX(),BDSGlobals->GetTunnelOffsetY());
+ 
+  G4double boxSize = std::max(itsOuterR,BDSGlobals->GetComponentBoxSize()/2);
+  boxSize = std::max(boxSize,totalTunnelRadius);
 
-    G4double xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
-      - fabs(cos(itsAngle/2))*boxSize*tan(itsAngle/2)/2
-      + BDSGlobals->GetLengthSafety()/2;
+#ifdef DEBUG 
+  G4cout<<"marker volume : x/y="<<boxSize/m<<
+    " m, l= "<<  (itsLength+BDSGlobals->GetLengthSafety())/2/m <<" m"<<G4endl;
+#endif
+
+    G4double xHalfLengthPlus, xHalfLengthMinus;
+    if(fabs(itsAngle) > 1e-20){
+      xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
+        - fabs(cos(itsAngle/2))*boxSize*tan(itsAngle/2)/2
+        + BDSGlobals->GetLengthSafety()/2;
+      
+      xHalfLengthPlus = (itsLength/itsAngle)*sin(itsAngle/2)
+        + fabs(cos(itsAngle/2))*boxSize*tan(itsAngle/2)/2
+        + BDSGlobals->GetLengthSafety()/2;
+    } else {
+      xHalfLengthPlus=itsLength/2.0;
+      xHalfLengthMinus=itsLength/2.0;
+    }
     
-    G4double xHalfLengthPlus = (itsLength/itsAngle)*sin(itsAngle/2)
-      + fabs(cos(itsAngle/2))*boxSize*tan(itsAngle/2)/2
-      + BDSGlobals->GetLengthSafety()/2;
+    if((xHalfLengthPlus<0) || (xHalfLengthMinus<0)){
+      G4cerr << "Bend radius in " << itsName << " too small for this tunnel/component geometry. Exiting." << G4endl;
+      exit(1);
+    }
 
-    markerSolidVolume = new G4Trd(itsName+"_marker",
+    itsMarkerSolidVolume = new G4Trd(itsName+"_marker",
 				  xHalfLengthPlus,     // x hlf lgth at +z
 				  xHalfLengthMinus,    // x hlf lgth at -z
 				  boxSize/2,           // y hlf lgth at +z
 				  boxSize/2,           // y hlf lgth at -z
 				  fabs(cos(itsAngle/2))*boxSize/2);// z hlf lgth
-  }
 
   G4String LocalLogicalName=itsName;
   
   itsMarkerLogicalVolume=    
-    new G4LogicalVolume(markerSolidVolume,
+    new G4LogicalVolume(itsMarkerSolidVolume,
 			theMaterials->GetMaterial("Vacuum"),
 			LocalLogicalName+"_marker");
 
-  itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX);
+  itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX, BDSGlobals->GetThresholdCutCharged());
   itsMarkerUserLimits->SetMaxAllowedStep(itsLength);
   itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
+  
 
   //
   // zero field in the marker volume
@@ -259,56 +314,67 @@ void BDSSectorBend::BuildSBBeampipe()
   //
   // use default beampipe material
   //
-  G4Material *material =  theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName());
+    G4Material *material =  theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName());
+    //  G4Material *material =  theMaterials->GetMaterial("Vacuum"); //LD 8/11/10 
   
   //
   // compute some geometrical parameters
   //
-  G4double bpThickness = BDSGlobals->GetBeampipeThickness();
   G4double boxSize = BDSGlobals->GetComponentBoxSize();
 
-  G4double xHalfLengthMinus =
-    (itsLength/itsAngle)*sin(itsAngle/2)
-    - fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2
-    + BDSGlobals->GetLengthSafety()/2;
+  G4double xHalfLengthPlus, xHalfLengthMinus, tubLen;
+  if(itsAngle != 0){
+    xHalfLengthMinus =
+      (itsLength/itsAngle)*sin(itsAngle/2)
+      - fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2
+      + BDSGlobals->GetLengthSafety()/2;
+    
+    xHalfLengthPlus =
+      (itsLength/itsAngle)*sin(itsAngle/2)
+      + fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2
+      + BDSGlobals->GetLengthSafety()/2;
+    tubLen = std::max(xHalfLengthPlus,xHalfLengthMinus);
+  } else {
+    tubLen=itsLength/2.0;
+  }
 
-  G4double xHalfLengthPlus =
-    (itsLength/itsAngle)*sin(itsAngle/2)
-    + fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2
-    + BDSGlobals->GetLengthSafety()/2;
-
-  G4double tubLen = std::max(xHalfLengthPlus,xHalfLengthMinus);
+  
 
   //
   // build beampipe
   //
-  G4Tubs *pipeTubsEnv = new G4Tubs(itsName+"_pipe_outer_env",
-				   itsBpRadius-bpThickness, // inner R
-				   itsBpRadius,             // outer R
-				   tubLen,                  // length
-				   0,                       // starting phi
-				   twopi * rad );           // delta phi
+  G4VSolid *pipeTubsEnv = new G4SubtractionSolid("_pipe_outer_env",
+                                               new G4EllipticalTube(itsName+"_pipe_outer_tmp_1",
+                                                                    this->GetAperX(), 
+                                                                    this->GetAperY(),          
+                                                                    tubLen),
+                                               new G4EllipticalTube(itsName+"_pipe_outer_tmp_2",
+                                                                    this->GetAperX()-BDSGlobals->GetBeampipeThickness()+BDSGlobals->GetLengthSafety()/2.0, 
+                                                                    this->GetAperY()-BDSGlobals->GetBeampipeThickness()+BDSGlobals->GetLengthSafety()/2.0,          
+                                                                    tubLen*2)
+                                               );
+
+
+
   
-  G4Tubs *pipeInnerEnv = new G4Tubs(itsName+"_pipe_inner_env",
-				    0,                       // inner R
-				    itsBpRadius-bpThickness, // outer R
-				    tubLen,                  // length
-				    0,                       // starting phi
-				    twopi * rad );           // delta phi
+  G4VSolid *pipeInnerEnv = new G4EllipticalTube(itsName+"_pipe_outer_tmp_2",
+                                                this->GetAperX()-BDSGlobals->GetBeampipeThickness()+BDSGlobals->GetLengthSafety()/2.0, 
+                                                this->GetAperY()-BDSGlobals->GetBeampipeThickness()+BDSGlobals->GetLengthSafety()/2.0,          
+                                                tubLen);
 
   G4IntersectionSolid *pipeTubs =
     new G4IntersectionSolid(itsName+"_pipe_outer",
 			    pipeTubsEnv,
- 			    markerSolidVolume,
+ 			    itsMarkerSolidVolume,
 			    RotYM90,
-			    0);
+			    (G4ThreeVector)0);
   
   G4IntersectionSolid *pipeInner =
     new G4IntersectionSolid(itsName+"_pipe_inner",
 			    pipeInnerEnv, 
- 			    markerSolidVolume,
+ 			    itsMarkerSolidVolume,
 			    RotYM90,
-			    0);
+			    (G4ThreeVector)0);
 
   itsBeampipeLogicalVolume=	
     new G4LogicalVolume(pipeTubs,
@@ -324,7 +390,7 @@ void BDSSectorBend::BuildSBBeampipe()
   PhysiInner = 
     new G4PVPlacement(
 		      RotY90,		       // rotation
-		      0,	               // at (0,0,0)
+		      (G4ThreeVector)0,	               // at (0,0,0)
 		      itsInnerBPLogicalVolume, // its logical volume
 		      itsName+"_InnerBmp",     // its name
 		      itsMarkerLogicalVolume,  // its mother volume
@@ -335,7 +401,7 @@ void BDSSectorBend::BuildSBBeampipe()
   PhysiComp =
     new G4PVPlacement(
 		      RotY90,		        // rotation
-		      0,	                // at (0,0,0)
+		      (G4ThreeVector)0,	                // at (0,0,0)
 		      itsBeampipeLogicalVolume, // its logical volume
 		      itsName+"_bmp",	        // its name
 		      itsMarkerLogicalVolume,   // its mother volume
@@ -371,6 +437,7 @@ void BDSSectorBend::BuildSBBeampipe()
   itsInnerBPLogicalVolume->SetVisAttributes(VisAtt);
 
   G4VisAttributes* VisAtt1 = new G4VisAttributes(G4Colour(0.4, 0.4, 0.4));
+  VisAtt1->SetVisibility(true);
   VisAtt1->SetForceSolid(true);
   itsBeampipeLogicalVolume->SetVisAttributes(VisAtt1);
 }
@@ -378,37 +445,47 @@ void BDSSectorBend::BuildSBBeampipe()
 void BDSSectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
 
   G4Material* material;
+  
   if(itsMaterial != "")
     material = theMaterials->GetMaterial(itsMaterial);
   else
     material = theMaterials->GetMaterial("Iron");
-
-  G4double boxSize = BDSGlobals->GetComponentBoxSize();
- 
-  G4double xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
-    - fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2
-    + BDSGlobals->GetLengthSafety()/2;
-
-  G4double xHalfLengthPlus = (itsLength/itsAngle)*sin(itsAngle/2)
-    + fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2
-    + BDSGlobals->GetLengthSafety()/2;
-
-  G4double tubLen = std::max(xHalfLengthPlus,xHalfLengthMinus);
   
-  G4Tubs *magTubsEnv =
-    new G4Tubs(itsName+"_solid_env",
-	       itsInnerIronRadius+1*nm, // inner R + overlap safety
-	       itsOuterR,          // outer R
-	       tubLen,             // length
-	       0,                  // starting phi
-	       twopi * rad );      // delta phi
+  G4double xHalfLengthPlus, xHalfLengthMinus, tubLen;
+  if(itsAngle != 0){
+    xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
+      - fabs(cos(itsAngle/2)) * BDSGlobals->GetComponentBoxSize() * tan(itsAngle/2)/2
+      + BDSGlobals->GetLengthSafety()/2;
+
+    xHalfLengthPlus = (itsLength/itsAngle)*sin(itsAngle/2)
+    + fabs(cos(itsAngle/2)) * BDSGlobals->GetComponentBoxSize() * tan(itsAngle/2)/2
+      + BDSGlobals->GetLengthSafety()/2;
+    
+    tubLen = std::max(xHalfLengthPlus,xHalfLengthMinus);
+  } else {
+    tubLen = itsLength/2.0;
+  }
+  
+  
+  G4VSolid *magTubsEnv = new G4SubtractionSolid(itsName+"_solid_env",
+                                                new G4Tubs(itsName+"_solid_tmp_1",
+                                                           0,//           itsInnerIronRadius + BDSGlobals->GetLengthSafety(), // inner R + overlap safety
+                                                           itsOuterR,          // outer R
+                                                           tubLen,             // length
+                                                           0,                  // starting phi
+                                                           twopi * rad ),      // delta phi
+                                                new G4EllipticalTube(itsName+"_pipe_outer_tmp_2",
+                                                                     this->GetAperX()+BDSGlobals->GetLengthSafety()/2.0, 
+                                                                     this->GetAperY()+BDSGlobals->GetLengthSafety()/2.0,          
+                                                                     tubLen*2)
+                                                );
   
   G4IntersectionSolid *magTubs =
     new G4IntersectionSolid(itsName+"_solid",
 			    magTubsEnv,
-			    markerSolidVolume,
+			    itsMarkerSolidVolume,
 			    RotYM90,
-			    0); 
+			    (G4ThreeVector)0); 
 
   if(OuterMaterialIsVacuum)
     {
@@ -428,7 +505,7 @@ void BDSSectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
   itsPhysiComp =
     new G4PVPlacement(
                       RotY90,                 // rotation
-                      0,                      // at (0,0,0)
+                      (G4ThreeVector)0,                      // at (0,0,0)
                       itsOuterLogicalVolume,  // its logical volume
                       itsName+"_solid",       // its name
                       itsMarkerLogicalVolume, // its mother  volume
@@ -451,5 +528,4 @@ BDSSectorBend::~BDSSectorBend()
   delete itsMagField;
   delete itsEqRhs;
   delete itsStepper;
-  if (markerSolidVolume) delete markerSolidVolume;
 }

@@ -3,7 +3,6 @@
    Last modified 25.12.2003
    Copyright (c) 2003 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
-const int DEBUG = 0;
 
 #include "BDSGlobalConstants.hh" // must be first in include list
 
@@ -223,13 +222,12 @@ void BDSMagFieldSQL::GetFieldValue( const G4double Point[4],
   */
   
   
-  if(DEBUG) 
-    {
-      LocalB.rotateY(10e-3); //to track from incoming beamline perspective
-      // this needs the be the crossing angle plus any marker rotation applied
-      // for IR solenoid case
-      G4cout << RLocalR.x()/m << " "<<RLocalR.y()/m << " "<<RLocalR.z()/m << " "<< LocalB.x()/tesla << " " << LocalB.y()/tesla << " " << LocalB.z()/tesla << G4endl;
-    }
+#ifdef DEBUG 
+  LocalB.rotateY(10e-3); //to track from incoming beamline perspective
+  // this needs the be the crossing angle plus any marker rotation applied
+  // for IR solenoid case
+  G4cout << RLocalR.x()/m << " "<<RLocalR.y()/m << " "<<RLocalR.z()/m << " "<< LocalB.x()/tesla << " " << LocalB.y()/tesla << " " << LocalB.z()/tesla << G4endl;
+#endif
   delete aTouchable;
   aTouchable = NULL;
 

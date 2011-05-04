@@ -73,6 +73,8 @@ const char *typestr(int type) {
     return "solenoid";
   case _ECOL : 
     return "ecol";
+  case _MUSPOILER : 
+    return "muspoiler";
   case _VKICK :
     return "vkick";
   case _HKICK :
@@ -139,6 +141,10 @@ void flush(struct Element& e )
   e.taperlength = 0;
   e.hgap = 0;
   e.aper = 0;
+  e.aperX = 0;
+  e.aperY = 0;
+  e.inR = 0;
+  e.bpRad = 0;
   e.outR = 0;
   e.waveLength = 0;
 
@@ -167,13 +173,16 @@ void flush(struct Element& e )
 
   //e.material = "";
   e.spec = "";
+  e.material="";
+  e.tunnelMaterial="";
 };
 
 void copy_properties(std::list<struct Element>::iterator dest, std::list<struct Element>::iterator src)
 {
 
-  if(DEBUG) printf("%s %s \n",typestr((*dest).type),typestr((*src).type));
-
+#ifdef DEBUG 
+  printf("%s %s \n",typestr((*dest).type),typestr((*src).type));
+#endif
   (*dest).type = (*src).type;  
  
   (*dest).l = (*src).l;
@@ -193,6 +202,10 @@ void copy_properties(std::list<struct Element>::iterator dest, std::list<struct 
   (*dest).flatlength = (*src).flatlength;
   (*dest).taperlength = (*src).taperlength;
   (*dest).aper = (*src).aper; 
+  (*dest).aperX = (*src).aperX; 
+  (*dest).aperY = (*src).aperY; 
+  (*dest).inR = (*src).inR; 
+  (*dest).bpRad = (*src).bpRad ;
   (*dest).outR = (*src).outR; 
   (*dest).tilt = (*src).tilt; 
   (*dest).B = (*src).B; 
@@ -203,6 +216,8 @@ void copy_properties(std::list<struct Element>::iterator dest, std::list<struct 
   (*dest).k3 = (*src).k3;
   (*dest).knl = (*src).knl;
   (*dest).ksl = (*src).ksl;
+  (*dest).blmLocZ = (*src).blmLocZ;
+  (*dest).blmLocTheta = (*src).blmLocTheta;
   (*dest).hgap = (*src).hgap;
 
   (*dest).gradient = (*src).gradient; 
@@ -223,6 +238,8 @@ void copy_properties(std::list<struct Element>::iterator dest, std::list<struct 
   (*dest).bmapFile = (*src).bmapFile;
 
   (*dest).material = (*src).material;
+
+  (*dest).tunnelMaterial = (*src).tunnelMaterial;
 
   (*dest).spec = (*src).spec;
 
@@ -272,6 +289,10 @@ void inherit_properties(struct Element e)
     { params.componentsFractions = e.componentsFractions; params.componentsFractionsset = 1; }
 
   if(!params.aperset) { params.aper = e.aper; params.aperset = 1; }
+  if(!params.aperXset) { params.aperX = e.aperX; params.aperXset = 1; }
+  if(!params.aperYset) { params.aperY = e.aperY; params.aperYset = 1; }
+  if(!params.inRset) { params.inR = e.inR; params.inRset = 1; }
+  if(!params.bpRadset) { params.bpRad = e.bpRad; params.bpRadset = 1; }
   if(!params.outRset) { params.outR = e.outR; params.outRset = 1; }
 
   if(!params.gradientset) { params.gradient = e.gradient; params.gradientset = 1; }
@@ -279,9 +300,13 @@ void inherit_properties(struct Element e)
   if(!params.tiltset) { params.tilt = e.tilt; params.tiltset = 1; }
   if(!params.knlset) { params.knl = e.knl; params.knlset = 1; }
   if(!params.kslset) { params.ksl = e.ksl; params.kslset = 1; }
+  //beam loss monitor locations
+  if(!params.blmLocZset) { params.blmLocZ = e.blmLocZ; params.blmLocZset = 1; }
+  if(!params.blmLocThetaset) { params.blmLocTheta = e.blmLocTheta; params.blmLocThetaset = 1; }
 
   if(!params.specset) { strncpy(params.spec,e.spec.c_str(),1024); params.specset = 1; }
   if(!params.materialset) { strncpy(params.material,e.spec.c_str(),64); params.materialset = 1; }
+  if(!params.tunnelMaterialset) { strncpy(params.tunnelMaterial,e.spec.c_str(),64); params.tunnelMaterialset = 1; }
 
 
 
@@ -291,9 +316,13 @@ void set_vector(std::list<double>& dst, struct Array *src)
 {
   for(int i=0; i< src->size;i++){
     dst.push_back(src->data[i]);
-    if(DEBUG) std::cout << src->data[i] << " ";
+#ifdef DEBUG 
+    std::cout << src->data[i] << " ";
+#endif
   }
-  if(DEBUG) std::cout << std::endl;
+#ifdef DEBUG 
+  std::cout << std::endl;
+#endif
   
 };
 
@@ -302,18 +331,26 @@ void set_vector(std::list<char*>& dst, struct Array *src)
 {
   for(int i=0; i< src->size;i++){
     dst.push_back(src->symbols[i]);
-    if(DEBUG) std::cout << src->symbols[i] << " ";
+#ifdef DEBUG 
+    std::cout << src->symbols[i] << " ";
+#endif
   }
-  if(DEBUG) std::cout << std::endl;
+#ifdef DEBUG 
+  std::cout << std::endl;
+#endif
 };
 
 void set_vector(std::list<int>& dst, struct Array *src)
 {
   for(int i=0; i< src->size;i++){
     dst.push_back((int)(src->data[i]));
-    if(DEBUG) std::cout << (int)(src->data[i]) << " ";
+#ifdef DEBUG 
+    std::cout << (int)(src->data[i]) << " ";
+#endif
   }
-  if(DEBUG) std::cout << std::endl;
+#ifdef DEBUG 
+  std::cout << std::endl;
+#endif
 };
 
 
@@ -359,18 +396,23 @@ void quit()
 
 int write_table(struct Parameters params,char* name, int type, std::list<struct Element> *lst)
 {
-  if(DEBUG) printf("k1=%.10g, k2=%.10g, k3=%.10g, type=%d, lset = %d\n", params.k1, params.k2, params.k3, type, params.lset);
-  
+#ifdef DEBUG 
+  printf("k1=%.10g, k2=%.10g, k3=%.10g, type=%d, lset = %d\n", params.k1, params.k2, params.k3, type, params.lset);
+#endif
   struct Element e;
   flush(e);
   // common parameters for all elements
   e.name = name;
   e.lst = NULL;
   e.aper = params.aper;
+  e.aperX = params.aperX;
+  e.aperY = params.aperY;
+  e.bpRad = params.bpRad;
   e.outR = params.outR;
   e.xsize = params.xsize;
   e.ysize = params.ysize;
   e.material = params.material;  
+  e.tunnelMaterial = params.tunnelMaterial;  
   
   //specific parameters
   switch(type) {
@@ -382,12 +424,20 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
   case _DRIFT:
     e.type = _DRIFT;
     e.l = params.l;
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
     break;
 
   case _RF:
     e.type = _RF;
     e.l = params.l;
     e.gradient = params.gradient;
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
     break;
 
   case _SBEND:
@@ -398,6 +448,11 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     e.hgap = params.hgap;
     e.k1 = params.k1;
     if(params.tiltset) e.tilt = params.tilt;
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
+    
     break;
 
   case _RBEND:
@@ -408,6 +463,11 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     e.hgap = params.hgap;
     e.k1 = params.k1;
     if(params.tiltset) e.tilt = params.tilt;
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
+    
     break;
 
   case _VKICK:
@@ -416,6 +476,11 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     e.B = params.B;
     e.angle = params.angle;
     if(params.tiltset) e.tilt = params.tilt;
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
+    
     break;
 
   case _HKICK:
@@ -424,11 +489,17 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     e.B = params.B;
     e.angle = params.angle;
     if(params.tiltset) e.tilt = params.tilt;
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
+    
     break;
 
   case _QUAD:
     e.type = _QUAD;      
     e.l = params.l;
+    
     if(params.k0set) {
       if(VERBOSE)
 	printf("Warning: k0 will not be set for element %s of type QUADRUPOLE\n",name);
@@ -448,11 +519,16 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
       e.tilt = params.tilt;
     }
     e.spec = std::string(params.spec); 
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
     break;
 
   case _SEXTUPOLE:
     e.type = _SEXTUPOLE;
     e.l = params.l;
+    
     if(params.k0set) {
       if(VERBOSE)
 	printf("Warning: k0 will not be set for element %s of type SEXTUPOLE\n",name);
@@ -471,11 +547,16 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     if(params.tiltset) {
       e.tilt = params.tilt;
     }
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
     break;
 
   case _OCTUPOLE:
     e.type = _OCTUPOLE;
     e.l = params.l;
+    
     if(params.k0set) {
       if(VERBOSE)
 	printf("Warning: k0 will not be set for element %s of type OCTUPOLE\n",name);
@@ -494,11 +575,16 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     if(params.tiltset) {
       e.tilt = params.tilt;
     }
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
     break;
 
   case _MULT:
     e.type = _MULT;
     e.l = params.l;
+    
     if(params.knlset)
       e.knl = params.knl;
     if(params.kslset)
@@ -522,6 +608,10 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     if(params.tiltset) {
       e.tilt = params.tilt;
     }
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
     break;
 
   case _SOLENOID:
@@ -529,12 +619,33 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     e.l = params.l;
     e.ks = params.ks;
     e.B = params.B;
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
     break;
 
   case _ECOL:
     e.type = _ECOL;
     e.l = params.l;
     e.material = std::string(params.material);
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
+    
+    break;
+
+  case _MUSPOILER:
+    e.type = _MUSPOILER;
+    e.l = params.l;
+    e.B = params.B;
+    e.outR = params.outR;
+    e.inR = params.inR;
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
     break;
 
   case _RCOL:
@@ -543,6 +654,10 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     e.material = std::string(params.material);
     e.flatlength = params.flatlength;
     e.taperlength = params.taperlength;
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
     break;
 
   case _LASER:
@@ -552,6 +667,10 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     e.ydir = params.ydir;
     e.zdir = params.zdir;
     e.waveLength = params.waveLength;
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
     break;
 
   case _ELEMENT:
@@ -559,6 +678,10 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
     e.l = params.l;
     e.geometryFile = std::string(params.geometry);
     e.bmapFile = std::string(params.bmap);
+    if(params.blmLocZset)
+      e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset)
+      e.blmLocTheta = params.blmLocTheta;
     break;
 
   case _LINE:
@@ -683,8 +806,9 @@ int expand_line(char *name, char *start, char* end)
 	  is_expanded = true;
 	  for(it = ++beamline_list.begin();it!=beamline_list.end();it++ )
 	    {
-	      if(DEBUG) printf("%s , %s \n",(*it).name,typestr((*it).type));
-	      
+#ifdef DEBUG 
+              printf("%s , %s \n",(*it).name,typestr((*it).type));
+#endif
 	      if((*it).type == _LINE || (*it).type == _REV_LINE)  // list - expand further	  
 		{
 		  is_expanded = false;
@@ -693,9 +817,10 @@ int expand_line(char *name, char *start, char* end)
 
 		  if( (tmpit != iterNULL) && ( (*tmpit).lst != NULL) ) { // sublist found and not empty
 		    
-		    if(DEBUG)
-		      printf("inserting sequence for %s - %s ...",(*it).name,(*tmpit).name);
-		    if((*it).type == _LINE)
+#ifdef DEBUG
+                    printf("inserting sequence for %s - %s ...",(*it).name,(*tmpit).name);
+#endif
+if((*it).type == _LINE)
 		      beamline_list.insert(it,(*tmpit).lst->begin(),(*tmpit).lst->end());
 		    else if((*it).type == _REV_LINE){
 		      //iterate over list and invert any sublines contained within. SPM
@@ -709,7 +834,9 @@ int expand_line(char *name, char *start, char* end)
 			      (*itLineInverter).type *= -1;}
 		      beamline_list.insert(it,tmpList.rbegin(),tmpList.rend());
 		    }
-		    if(DEBUG) printf("inserted\n");
+#ifdef DEBUG 
+ printf("inserted\n");
+#endif
 		    
 		    // delete the list pointer
 		    beamline_list.erase(it--);
@@ -717,9 +844,13 @@ int expand_line(char *name, char *start, char* end)
 		  } else if ( tmpit != iterNULL ) // entry points to a scalar element type -
 		    //transfer properties from the main list
 		    { 
-		      if(DEBUG) printf("keeping element...%s\n",(*it).name);
+#ifdef DEBUG 
+                      printf("keeping element...%s\n",(*it).name);
+#endif
 		      copy_properties(it,tmpit);
-		      if(DEBUG) printf("done\n");
+#ifdef DEBUG 
+                      printf("done\n");
+#endif
 
 		    } else  // element of undefined type - neglecting
 		      {
@@ -825,8 +956,9 @@ std::list<struct Element>::iterator element_lookup(char *name,std::list<struct E
 // insert a sampler into beamline_list
 void add_sampler(char *name, char *before, int before_count)
 {
-  if(DEBUG) std::cout<<"inserting sampler before "<<before<<"["<<before_count<<"]"<<std::endl;
-
+#ifdef DEBUG 
+  std::cout<<"inserting sampler before "<<before<<"["<<before_count<<"]"<<std::endl;
+#endif
   std::list<struct Element>::iterator it;
 
   int element_count = 1;  // count from 1 like in goddam FORTRAN -- for range parsing
@@ -837,7 +969,9 @@ void add_sampler(char *name, char *before, int before_count)
 
   for(it = beamline_list.begin();it != beamline_list.end(); ++it)
     {
-      if(DEBUG) std::cout<<"-->"<<(*it).name<<std::endl;
+#ifdef DEBUG 
+      std::cout<<"-->"<<(*it).name<<std::endl;
+#endif
 
       if( !strcmp((*it).name, before)) 
 	{
@@ -860,7 +994,9 @@ void add_sampler(char *name, char *before, int before_count)
 // insert a cylindrical sampler into beamline_list
 void add_csampler(char *name, char *before, int before_count, double length, double rad)
 {
-  if(DEBUG) std::cout<<"inserting sampler before "<<before<<"["<<before_count<<"]"<<std::endl;
+#ifdef DEBUG 
+  std::cout<<"inserting sampler before "<<before<<"["<<before_count<<"]"<<std::endl;
+#endif
 
   std::list<struct Element>::iterator it;
 
@@ -874,7 +1010,9 @@ void add_csampler(char *name, char *before, int before_count, double length, dou
 
   for(it = beamline_list.begin();it != beamline_list.end(); ++it)
     {
-      if(DEBUG) std::cout<<"-->"<<(*it).name<<std::endl;
+#ifdef DEBUG 
+      std::cout<<"-->"<<(*it).name<<std::endl;
+#endif
 
       if( !strcmp((*it).name, before)) 
 	{
@@ -897,7 +1035,9 @@ void add_csampler(char *name, char *before, int before_count, double length, dou
 // insert a beam dumper into beamline_list
 void add_dump(char *name, char *before, int before_count)
 {
-  if(DEBUG) std::cout<<"inserting dump before "<<before<<"["<<before_count<<"]"<<std::endl;
+#ifdef DEBUG 
+  std::cout<<"inserting dump before "<<before<<"["<<before_count<<"]"<<std::endl;
+#endif
 
   std::list<struct Element>::iterator it;
 
@@ -909,7 +1049,9 @@ void add_dump(char *name, char *before, int before_count)
 
   for(it = beamline_list.begin();it != beamline_list.end(); ++it)
     {
-      if(DEBUG) std::cout<<"-->"<<(*it).name<<std::endl;
+#ifdef DEBUG 
+      std::cout<<"-->"<<(*it).name<<std::endl;
+#endif
 
       if( !strcmp((*it).name, before))
         {
@@ -1021,127 +1163,200 @@ void print(struct Options opt)
   std::cout<<"Options : "<<std::endl;
   std::cout<<"particle : "<<opt.particleName<<std::endl;
   std::cout<<"energy : "<<opt.beamEnergy<<std::endl;
-  std::cout<<"n particles : "<<opt.numberOfParticles<<std::endl;
   std::cout<<"n macroparticles : "<<opt.numberToGenerate<<std::endl;
   std::cout<<"sigmaX           : "<<opt.sigmaX<<std::endl;
-  std::cout<<"interactions on           : "<<opt.turnOnInteractions<<std::endl;
+  std::cout<<"Cerenkov on               : "<<opt.turnOnCerenkov<<std::endl;
 }
 
 
 void set_value(std::string name, double value )
 {
+#ifdef DEBUG
+  cout << "parser.h> Setting value " << name << ", " << value << endl; 
+#endif
   //
   // numeric options for the "beam" command
   //
-  if(name == "energy" ) options.beamEnergy = value;
-  if(name == "nparticles" ) options.numberOfParticles = (int)value; //not used
-  if(name == "X0" ) options.X0 = value;
-  if(name == "Y0" ) options.Y0 = value;
-  if(name == "Z0" ) options.Z0 = value;
-  if(name == "T0" ) options.T0 = value;
-  if(name == "Xp0" ) options.Xp0 = value;
-  if(name == "Yp0" ) options.Yp0 = value;
-  if(name == "Zp0" ) options.Zp0 = value;
+  if(name == "elossHistoBinWidth") {options.elossHistoBinWidth = value; return;}
+  if(name == "defaultRangeCut") {options.defaultRangeCut = value; return;}
+  if(name == "ffact") {options.ffact = value; return;}
+  if(name == "energy" ) {options.beamEnergy = value; return;}
+  if(name == "X0" ) { options.X0 = value; return; }
+  if(name == "Y0" ) { options.Y0 = value; return; }
+  if(name == "Z0" ) { options.Z0 = value; return; }
+  if(name == "T0" ) { options.T0 = value; return; }
+  if(name == "Xp0" ) { options.Xp0 = value; return; }
+  if(name == "Yp0" ) { options.Yp0 = value; return; }
+  if(name == "Zp0" ) { options.Zp0 = value; return; }
 
-  if(name == "sigmaT" ) options.sigmaT = value;
-  if(name == "sigmaE" ) options.sigmaE = value;
+  if(name == "sigmaT" ) { options.sigmaT = value; return; }
+  if(name == "sigmaE" ) { options.sigmaE = value; return; }
 
   // options for beam distrType="gauss"
-  if(name == "sigmaX" ) options.sigmaX = value;
-  if(name == "sigmaY" ) options.sigmaY = value;
-  if(name == "sigmaXp" ) options.sigmaXp = value;
-  if(name == "sigmaYp" ) options.sigmaYp = value;
+  if(name == "sigmaX" ) { options.sigmaX = value; return; }
+  if(name == "sigmaY" ) { options.sigmaY = value; return; }
+  if(name == "sigmaXp" ) { options.sigmaXp = value; return; }
+  if(name == "sigmaYp" ) { options.sigmaYp = value; return; }
 
   // options for beam distrType="eshell"
-  if(name == "shellX" ) options.shellX = value;
-  if(name == "shellY" ) options.shellY = value;
-  if(name == "shellXp" ) options.shellXp = value;
-  if(name == "shellYp" ) options.shellYp = value;
+  if(name == "shellX" ) { options.shellX = value; return; }
+  if(name == "shellY" ) { options.shellY = value; return; }
+  if(name == "shellXp" ) { options.shellXp = value; return; }
+  if(name == "shellYp" ) { options.shellYp = value; return; }
 
   // options for beam distrType="ring"
-  if(name == "Rmin" ) options.Rmin = value;
-  if(name == "Rmax" ) options.Rmax = value;
+  if(name == "Rmin" ) { options.Rmin = value; return; }
+  if(name == "Rmax" ) { options.Rmax = value; return; }
 
   //
   // numeric options for the"option" command
   //
 
+  // options for beam loss monitor geometry
+  if(name == "blmRad" ) { options.blmRad = value; return; }
+  if(name == "blmLength" ) { options.blmLength = value; return; }
+
   // options which influence the geometry
-  if(name == "boxSize" ) {options.componentBoxSize = value;}
-  if(name == "tunnelRadius" ) options.tunnelRadius = value;
-  if(name == "beampipeThickness" ) options.beampipeThickness = value;
-  if(name == "beampipeRadius" ) options.beampipeRadius = value;
+  if(name == "boxSize" ) {options.componentBoxSize = value; return; }
+  if(name == "tunnelRadius" ) { options.tunnelRadius = value; return; }
+  if(name == "beampipeThickness" ) { options.beampipeThickness = value; return; }
+  if(name == "beampipeRadius" ) { options.beampipeRadius = value; return; }
+
+  if(name == "includeIronMagFields") {
+    if (value == 0) {
+      options.includeIronMagFields = false;
+    } else {
+      options.includeIronMagFields = true;
+    }
+    return; 
+  }
+
+  if(name == "buildTunnel") {
+    if (value == 0) {
+      options.buildTunnel = false;
+    } else {
+      options.buildTunnel = true;
+    }
+    return; 
+  }
+  if(name == "buildTunnelFloor") {
+    if (value == 0) {
+      options.buildTunnelFloor = false;
+    } else {
+      options.buildTunnelFloor = true;
+    }
+    return;
+  }
+  if(name == "showTunnel") {
+    if (value == 0) {
+      options.showTunnel = false;
+    } else {
+      options.showTunnel = true;
+    }
+    return;
+  }
+
+  if(name == "tunnelOffsetX" ) { options.tunnelOffsetX = value; return; }
+  if(name == "tunnelOffsetY" ) { options.tunnelOffsetY = value; return; }
+  if(name == "samplerDiameter" ) { options.samplerDiameter = value; return; }
+  if(name == "tunnelThickness" ) { options.tunnelThickness = value; return; }
+  if(name == "tunnelSoilThickness" ) { options.tunnelSoilThickness = value; return; }
+  if(name == "tunnelFloorOffset" ) { options.tunnelFloorOffset = value; return; }
 
   // options which influence tracking 
-  if(name == "deltaChord") options.deltaChord = value;
-  if(name == "deltaIntersection") options.deltaIntersection = value;
-  if(name == "chordStepMinimum") options.chordStepMinimum = value;
-  if(name == "lengthSafety") options.lengthSafety = value;
-  if(name == "minimumEpsilonStep" ) options.minimumEpsilonStep = value;
-  if(name == "maximumEpsilonStep" ) options.maximumEpsilonStep = value;
-  if(name == "deltaOneStep" ) options.deltaOneStep = value;
+  if(name == "deltaChord") { options.deltaChord = value; return; }
+  if(name == "deltaIntersection") { options.deltaIntersection = value; return; }
+  if(name == "chordStepMinimum") { options.chordStepMinimum = value; return; }
+  if(name == "lengthSafety") { options.lengthSafety = value; return; }
+  if(name == "minimumEpsilonStep" ) { options.minimumEpsilonStep = value; return; }
+  if(name == "maximumEpsilonStep" ) { options.maximumEpsilonStep = value; return; }
+  if(name == "deltaOneStep" ) { options.deltaOneStep = value; return; }
 
   // physics processes
-  if(name == "turnInteractions") 
-    {
-      if(value == 0) options.turnOnInteractions = false;
-      else options.turnOnInteractions = true;
+  if(name == "turnOnCerenkov") {
+    if(value != 0) { 
+      options.turnOnCerenkov = true;
+    } else{
+      options.turnOnCerenkov = false;
+      return;
     }
-  if(name == "thresholdCutCharged" ) options.thresholdCutCharged = value;
-  if(name == "thresholdCutPhotons" ) options.thresholdCutPhotons = value;
-  if(name == "useEMHadronic" ) options.useEMHadronic = (int) value;
+  }
+  if(name == "useEMLPB") { options.useEMLPB = value; return; }
+  if(name == "useHadLPB") { options.useHadLPB = value; return; }
+  if(name == "sensitiveBeamlineComponents") { options.sensitiveBeamlineComponents = value; return; }
+  if(name == "sensitiveBeamPipe") { options.sensitiveBeamPipe = value; return; }
+  if(name == "sensitiveBLMs") { options.sensitiveBLMs = value; return; }
+  if(name == "LPBFraction") { options.LPBFraction = value; return; }
+  if(name == "annihiToMuFe") { options.annihiToMuFe = value; return; }
+  if(name == "gammaToMuFe") { options.gammaToMuFe = value; return; }
+  if(name == "eeToHadronsFe") { options.eeToHadronsFe = value; return; }
+  if(name == "thresholdCutCharged" ) { options.thresholdCutCharged = value; return; }
+  if(name == "thresholdCutPhotons" ) { options.thresholdCutPhotons = value; return; }
+  if(name == "vacuumPressure") { options.vacuumPressure = (double)value; return; }
+  if(name == "planckScatterFe") { options.planckScatterFe = (double)value; return; }
+  if(name == "stopTracks") { options.stopTracks = (int) value; return; } 
+  if(name == "synchRadOn") { options.synchRadOn = (int) value; return; }
+  if(name == "decayOn") { options.decayOn = (int) value; return; }
+  if(name == "srRescale") { options.synchRescale = (int) value; return; }
+  if(name == "srLowX") { options.synchLowX = value; return; }
+  if(name == "srLowGamE") { options.synchLowGamE = value; return; }
+  if(name == "srMultiplicity") { options.synchPhotonMultiplicity = (int) value; return; }
+  if(name == "srMeamFreeFactor") { options.synchMeanFreeFactor = (int) value; return; }
+  if(name == "srTrackPhotons") { options.synchTrackPhotons = (int) value; return; }
 
-  if(name == "stopTracks") options.stopTracks = (int) value; 
-
-  if(name == "synchRadOn") options.synchRadOn = (int) value;
-  if(name == "srMeanFreeFactor") options.synchMeanFreeFactor = (int) value;
-  if(name == "srRescale") options.synchRescale = (int) value;
-  if(name == "srLowX") options.synchLowX = value;
-  if(name == "srLowGamE") options.synchLowGamE = value;
-  if(name == "srMultiplicity") options.synchPhotonMultiplicity = (int) value;
-  if(name == "srTrackPhotons") options.synchTrackPhotons = (int) value;
-
-  if(name == "prodCutPhotons" ) options.prodCutPhotons = value;
-  if(name == "prodCutPhotonsP" ) options.prodCutPhotonsP = value;
-  if(name == "prodCutElectrons" ) options.prodCutElectrons = value;
-  if(name == "prodCutElectronsP" ) options.prodCutElectronsP = value;
-  if(name == "prodCutPositrons" ) options.prodCutPositrons = value;
-  if(name == "prodCutPositronsP" ) options.prodCutPositronsP = value;
+  if(name == "prodCutPhotons" ) { options.prodCutPhotons = value; return; }
+  if(name == "prodCutPhotonsP" ) { options.prodCutPhotonsP = value; return; }
+  if(name == "prodCutElectrons" ) { options.prodCutElectrons = value; return; }
+  if(name == "prodCutElectronsP" ) { options.prodCutElectronsP = value; return; }
+  if(name == "prodCutPositrons" ) { options.prodCutPositrons = value; return; }
+  if(name == "prodCutPositronsP" ) { options.prodCutPositronsP = value; return; }
 
   // twiss parameters
-  if(name == "betx" ) options.betx = value;
-  if(name == "bety" ) options.bety = value;
-  if(name == "alfx" ) options.alfx = value;
-  if(name == "alfy" ) options.alfy = value;
-  if(name == "emitx" ) options.emitx = value;
-  if(name == "emity" ) options.emity = value;
-  if(name == "doTwiss" ) options.doTwiss = (int) value;
+  if(name == "betx" ) { options.betx = value; return; }
+  if(name == "bety" ) { options.bety = value; return; }
+  if(name == "alfx" ) { options.alfx = value; return; }
+  if(name == "alfy" ) { options.alfy = value; return; }
+  if(name == "emitx" ) { options.emitx = value; return; }
+  if(name == "emity" ) { options.emity = value; return; }
+  if(name == "doTwiss" ) { options.doTwiss = (int) value; return; }
+  if(name == "doPlanckScattering" ) { options.doPlanckScattering = (int) value; return; }
 
-  if(name == "storeTrajectory") options.storeTrajectory = (int) value; 
-  if(name == "storeMuonTrajectory") options.storeMuonTrajectories = (int) value; 
-  if(name == "storeNeutronTrajectory") options.storeNeutronTrajectories = (int) value; 
+  if(name == "storeTrajectory") { options.storeTrajectory = (int) value; return; } 
+  if(name == "storeTrajectories") { options.storeTrajectory = (int) value; return; } 
+  if(name == "storeMuonTrajectory") { options.storeMuonTrajectories = (int) value; return; } 
+  if(name == "storeMuonTrajectories") { options.storeMuonTrajectories = (int) value; return; } 
+  if(name == "trajCutGTZ") { options.trajCutGTZ = (double) value; return; } 
+  if(name == "trajCutLTR") { options.trajCutLTR = (double) value; return; } 
+
+  if(name == "storeNeutronTrajectory") { options.storeNeutronTrajectories = (int) value; return; } 
+  if(name == "storeNeutronTrajectories") { options.storeNeutronTrajectories = (int) value; return; } 
 
 
   // options for generation and storage
-  if(name == "randomSeed") options.randomSeed = (int) value;
-  if(name == "ngenerate" ) options.numberToGenerate = (int)value;
-  if(name == "nperfile" ) options.numberOfEventsPerNtuple = (int)value;
-  if(name == "eventNumberOffset" ) options.eventNumberOffset = (int)value;
-  if(name == "nlinesIgnore") options.nlinesIgnore = (int) value;
+  if(name == "randomSeed") { options.randomSeed = (int) value; return; }
+  if(name == "ngenerate" ) { options.numberToGenerate = (int)value; return; }
+  if(name == "nperfile" ) { options.numberOfEventsPerNtuple = (int)value; return; }
+  if(name == "eventNumberOffset" ) { options.eventNumberOffset = (int)value; return; }
+  if(name == "nlinesIgnore") { options.nlinesIgnore = (int) value; return; }
 
   // options for neutrons
-  if(name=="refcopyno") options.refcopyno = (int) value;
+  if(name=="refcopyno") { options.refcopyno = (int) value; return; }
+  cerr << "Error: parser.h> unkown option \"" << name << "\"" << endl; 
+  exit(1);
 }
 
 
 void set_value(std::string name, std::string value )
 {
+#ifdef DEBUG
+  cout << "parser.h> Setting value " << name << ", " << value << endl; 
+#endif
   // 
   // string options for the "beam" command
   //
-  if(name == "particle") options.particleName = value;
-  if(name == "distrType" ) options.distribType = value;
-  if(name == "distrFile" ) options.distribFile = value;  
+  if(name == "particle") { options.particleName = value; return; }
+  if(name == "distrType" ) { options.distribType = value; return; }
+  if(name == "distrFile" ) { options.distribFile = value; return; }  
 
 
   //
@@ -1149,15 +1364,19 @@ void set_value(std::string name, std::string value )
   //
 
   // options which influence the geometry
-  if(name == "beampipeMaterial" ) options.pipeMaterial = value;
-  if(name == "vacMaterial" ) options.vacMaterial = value;
-
+  if(name == "beampipeMaterial" ) { options.pipeMaterial = value; return; }
+  if(name == "vacMaterial" ) { options.vacMaterial = value; return; }
+  if(name == "tunnelMaterial" ) { options.tunnelMaterial = value; return; }
+  if(name == "soilMaterial" ) { options.soilMaterial = value; return; }
+  
   // options which influence the tracking
-  if(name == "physicsList" ) options.physicsList = value; 
+  if(name == "physicsList" ) { options.physicsList = value; return; } 
 
   // options for external code interfaces
-  if(name == "fifo") options.fifo = value;
-  if(name == "refvolume") options.refvolume = value;
+  if(name == "fifo") { options.fifo = value; return; }
+  if(name == "refvolume") { options.refvolume = value; return; }
+  cerr << "Error: parser.h> unkown option \"" << name << "\"" << endl; 
+  exit(1);
 }
 
 double property_lookup(char *element_name, char *property_name)
@@ -1174,8 +1393,13 @@ double property_lookup(char *element_name, char *property_name)
    if(!strcmp(property_name,"k1")) return (*it).k1;
    if(!strcmp(property_name,"k2")) return (*it).k2;
    if(!strcmp(property_name,"k3")) return (*it).k3;
+   if(!strcmp(property_name,"angle")) return (*it).angle;
    if(!strcmp(property_name,"aper")) return (*it).aper;
+   if(!strcmp(property_name,"aperX")) return (*it).aperX;
+   if(!strcmp(property_name,"aperY")) return (*it).aperY;
    if(!strcmp(property_name,"outR")) return (*it).outR;
+   if(!strcmp(property_name,"inR")) return (*it).inR;
+   if(!strcmp(property_name,"bpRad")) return (*it).bpRad;
    if(!strcmp(property_name,"xsize")) return (*it).xsize;
    if(!strcmp(property_name,"ysize")) return (*it).ysize;
    if(!strcmp(property_name,"xdir")) return (*it).xdir;
@@ -1197,8 +1421,8 @@ double property_lookup(char *element_name, char *property_name)
    if(!strcmp(property_name,"T")) return (*it).temper;
    if(!strcmp(property_name,"P")) return (*it).pressure;
 
-   return 0;
-
+   cerr << "parser.h> Error: unkown property \"" << property_name << "\". Returning 0." <<endl; 
+   exit(1);
    //what about property_lookup for attributes of type string, like material?
 }
 

@@ -9,6 +9,8 @@ LOPT=-i
 YACC=bison
 YOPT=-d -v
 
+#CPPFLAGS=-DDEBUG
+
 OS        := $(shell uname)
 
 ifeq ($(OS),Linux)
@@ -30,23 +32,23 @@ endif
 #parsing library
 
 $(LIBNAME) : $(OBJ)
-	$(CC) $(LDFLAGS) -o $(LIBNAME) $(OBJ) $(LIB)
+	$(CC) $(CPPFLAGS) $(LDFLAGS) -o $(LIBNAME) $(OBJ) $(LIB)
 
 
 # gmad parser
 
 parser : parser.cc gmad.h $(LIBNAME)
-	$(CC) parser.cc -g -o parser -L. -lgmad 
+	$(CC) $(CPPFLAGS) parser.cc -g -o parser -L. -lgmad 
 
 
 gmad.o :gmad.cc gmad.h
-	$(CC) -Wall -fPIC -g -c gmad.cc
+	$(CC) $(CPPFLAGS) -Wall -fPIC -g -c gmad.cc
 
 lex.yy.o : lex.yy.c parser.tab.c parser.tab.h sym_table.h
-	$(CC) -Wall -fPIC -g -c  lex.yy.c
+	$(CC) $(CPPFLAGS) -Wall -fPIC -g -c  lex.yy.c
 
 parser.tab.o : parser.tab.h parser.tab.c sym_table.h 
-	$(CC) -Wall -fPIC -g -c $(INCL)  parser.tab.c
+	$(CC) $(CPPFLAGS) -Wall -fPIC -g -c $(INCL)  parser.tab.c
 
 lex.yy.c : parser.l parser.tab.h parser.y parser.h
 	$(LEX) $(LOPT) parser.l

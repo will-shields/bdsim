@@ -7,8 +7,6 @@
 
 extern G4double BDSLocalRadiusOfCurvature;
 
-const int DEBUG = 0;
-
 BDSRK4Stepper::BDSRK4Stepper(G4EquationOfMotion* EqRhs, G4int nvar) :
   G4MagIntegratorStepper(EqRhs,nvar)
 {
@@ -55,11 +53,15 @@ BDSRK4Stepper::AdvanceHelix( const G4double  yIn[],
 			     G4double  yOut[])
 {
 
-  if (DEBUG) G4cout<<"stepping by "<<h<<G4endl;
+#ifdef DEBUG
+  G4cout<<"stepping by "<<h<<G4endl;
+#endif
 
   const G4int nvar = this->GetNumberOfVariables();   //  fNumberOfVariables(); 
 
-  if (DEBUG) G4cout<<"nvar="<<nvar<<G4endl;
+#ifdef DEBUG
+  G4cout<<"nvar="<<nvar<<G4endl;
+#endif
 
   G4int i;
   G4double  hh = h*0.5 , h6 = h/6.0  ;
@@ -94,54 +96,54 @@ BDSRK4Stepper::AdvanceHelix( const G4double  yIn[],
   
   BDSLocalRadiusOfCurvature = (itsMomentum/GeV) / (0.299792458*Bmag/tesla)*m;
 
-  if (DEBUG) {
-    G4cout<<" Pos = ("<<Pos[0]/mm<<" "<<Pos[1]/mm<<" " <<Pos[2]/mm<<") mm"<<G4endl;
-    G4cout<<" Mtm = ("<<pIn[0]/GeV<<" "<<pIn[1]/GeV<<" " <<pIn[2]/GeV<<") GeV"<<G4endl;
-    G4cout<<" BField = ("<<BField[0]/tesla<<" "<<BField[1]/tesla<<" "<<BField[2]/tesla<<") T"<<G4endl;
-    G4cout<<" Local curvature radius = "<<BDSLocalRadiusOfCurvature/m<<" m"<<G4endl;
-  }
+#ifdef DEBUG 
+  G4cout<<" Pos = ("<<Pos[0]/mm<<" "<<Pos[1]/mm<<" " <<Pos[2]/mm<<") mm"<<G4endl;
+  G4cout<<" Mtm = ("<<pIn[0]/GeV<<" "<<pIn[1]/GeV<<" " <<pIn[2]/GeV<<") GeV"<<G4endl;
+  G4cout<<" BField = ("<<BField[0]/tesla<<" "<<BField[1]/tesla<<" "<<BField[2]/tesla<<") T"<<G4endl;
+  G4cout<<" Local curvature radius = "<<BDSLocalRadiusOfCurvature/m<<" m"<<G4endl;
+#endif
 
 
   //
   // Now do the stepping
   //
-  if (DEBUG) {
-    G4cout<<"===>RK Steps 1-2,  before, dydx : ";
-    for(i=0;i<nvar;i++) { 
-      G4cout<<dydx[i]<<" ";
-    }  
-    G4cout<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"===>RK Steps 1-2,  before, dydx : ";
+  for(i=0;i<nvar;i++) { 
+    G4cout<<dydx[i]<<" ";
+  }  
+  G4cout<<G4endl;
 
-    G4cout<<"yIn: ";
-    for(i=0;i<nvar;i++) { 
-     G4cout<<yIn[i]<<" ";
-    }  
-    G4cout<<G4endl;
-  }
+  G4cout<<"yIn: ";
+  for(i=0;i<nvar;i++) { 
+    G4cout<<yIn[i]<<" ";
+  }  
+  G4cout<<G4endl;
+#endif
 
   for(i=0;i<nvar;i++)
-  {
+    {
     yt[i] = yIn[i] + hh*dydx[i] ;             // 1st Step K1=h*dydx
   }
   RightHandSide(yt,dydxt) ;                   // 2nd Step K2=h*dydxt
 
-  if (DEBUG) {
-    G4cout<<"after, dydx: ";
-    for(i=0;i<nvar;i++) { 
-      G4cout<<dydxt[i]<<" ";
-    }  
-    G4cout<<G4endl;
-    
-    G4cout<<"after, yt: ";
-    for(i=0;i<nvar;i++) { 
-      G4cout<<yt[i]<<" ";
-    }  
-    G4cout<<G4endl;
-  }
+#ifdef DEBUG 
+  G4cout<<"after, dydx: ";
+  for(i=0;i<nvar;i++) { 
+    G4cout<<dydxt[i]<<" ";
+  }  
+  G4cout<<G4endl;
+  
+  G4cout<<"after, yt: ";
+  for(i=0;i<nvar;i++) { 
+    G4cout<<yt[i]<<" ";
+  }  
+  G4cout<<G4endl;
+#endif
 
-  if (DEBUG) {
-    G4cout<<"===>RK Steps 3-4"<<G4endl;
-  }
+#ifdef DEBUG 
+  G4cout<<"===>RK Steps 3-4"<<G4endl;
+#endif
 
   for(i=0;i<nvar;i++)
   { 

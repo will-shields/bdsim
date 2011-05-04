@@ -56,7 +56,7 @@ BDSSamplerHit::BDSSamplerHit(G4String aName,
 BDSSamplerHit::~BDSSamplerHit()
 {;}
 
-BDSSamplerHit::BDSSamplerHit(const BDSSamplerHit &right)
+BDSSamplerHit::BDSSamplerHit(const BDSSamplerHit &right):G4VHit()
 {
   itsName=right.itsName;
 

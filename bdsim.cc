@@ -1,4 +1,4 @@
-//   
+//  
 //   BDSIM, (C) 2001-2008 
 //   
 //   version 0.5-dev
@@ -14,10 +14,6 @@
 //     28 Mar 2006 by Agapov v.0.2
 //     
 //
-
-
-
-const int DEBUG = 0;
 
 #include "BDSGlobalConstants.hh" // global parameters
 
@@ -122,8 +118,12 @@ G4int nptwiss = 200; // number of particles for twiss parameters matching (by tr
 
 //=======================================================
 
-
 int main(int argc,char** argv) {
+
+#ifdef DEBUG
+  G4cout << "DEBUG mode is on." << G4endl;
+#endif  
+
 
   //
   // Parse the command line options 
@@ -299,16 +299,27 @@ int main(int argc,char** argv) {
   // to the BDSBunch instances
   //
 
+#ifdef DEBUG
+  G4cout << "Setting global constants." << G4endl;
+#endif  
+
   BDSGlobals = new BDSGlobalConstants(options);
   if (fifoName) {
     BDSGlobals->SetFifo(fifoName);
   }
+
+#ifdef DEBUG
+  G4cout << "Setting bunch options." << G4endl;
+#endif  
 
   theBunch.SetOptions(options);
 
   //
   // set default output formats:
   //
+#ifdef DEBUG
+  G4cout << "Setting op output." << G4endl;
+#endif  
   bdsOutput = new BDSOutput();
   bdsOutput->SetFormat(outputFormat);
   G4cout.precision(10);
@@ -319,22 +330,28 @@ int main(int argc,char** argv) {
   //
 
   // choose the Random engine
+#ifdef DEBUG
+  G4cout << "Initialising random number generator." << G4endl;
+#endif  
   HepRandom::setTheEngine(new RanecuEngine);
 
   long seed;
 
   // get the seed from options if positive, else
   // user time as a seed
-#include <ctime>
+#include <time.h>
   if(BDSGlobals->GetRandomSeed()>=0)
     seed = BDSGlobals->GetRandomSeed();
   else
     seed = time(NULL);
-
+  
   // set the seed
   HepRandom::setTheSeed(seed);
 
-  if(DEBUG) G4cout<<"Seed from BDSGlobals="<<BDSGlobals->GetRandomSeed()<<G4endl;
+#ifdef DEBUG
+  G4cout<<"Seed from BDSGlobals="<<BDSGlobals->GetRandomSeed()<<G4endl;
+#endif
+
   G4cout<<"Random number generator's seed="<<HepRandom::getTheSeed()<<G4endl;
 
 
@@ -343,20 +360,30 @@ int main(int argc,char** argv) {
   // set mandatory initialization classes
   //
 
-  if(DEBUG) G4cout<<"constructing run manager"<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"constructing run manager"<<G4endl;
+#endif
   BDSRunManager * runManager = new BDSRunManager;
   // runManager->SetNumberOfAdditionalWaitingStacks(1);
 
-  if(DEBUG) G4cout<<"constructing detector"<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"constructing detector"<<G4endl;
+#endif
   BDSDetectorConstruction* detector = new BDSDetectorConstruction;
  
-  if(DEBUG) G4cout<<"user init detector"<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"user init detector"<<G4endl;
+#endif
   runManager->SetUserInitialization(detector);
 
-  if(DEBUG) G4cout<<"constructing phys list"<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"constructing phys list"<<G4endl;
+#endif
   BDSPhysicsList* PhysList=new BDSPhysicsList;
   
-  if(DEBUG) G4cout<<"user init phys list"<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"user init phys list"<<G4endl;
+#endif
   runManager->SetUserInitialization(PhysList);
 
 
@@ -364,22 +391,34 @@ int main(int argc,char** argv) {
   // set user action classes
   //
 
-  if(DEBUG) G4cout<<"user action - detector"<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"user action - detector"<<G4endl;
+#endif
   runManager->SetUserAction(new BDSPrimaryGeneratorAction(detector));
 
-  if(DEBUG) G4cout<<"user action - runaction"<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"user action - runaction"<<G4endl;
+#endif
   runManager->SetUserAction(new BDSRunAction);
 
-  if(DEBUG) G4cout<<"user action - eventaction"<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"user action - eventaction"<<G4endl;
+#endif
   runManager->SetUserAction(new BDSEventAction());
 
-  if(DEBUG) G4cout<<"user action - steppingaction"<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"user action - steppingaction"<<G4endl;
+#endif
   runManager->SetUserAction(new BDSSteppingAction);
 
-  if(DEBUG) G4cout<<"user action - trackingaction"<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"user action - trackingaction"<<G4endl;
+#endif
   runManager->SetUserAction(new BDSUserTrackingAction);
 
-  if(DEBUG) G4cout<<"user action - stackingaction"<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"user action - stackingaction"<<G4endl;
+#endif
   runManager->SetUserAction(new BDSStackingAction);
   
 
@@ -387,7 +426,9 @@ int main(int argc,char** argv) {
   // initialize G4 kernel
   //
 
-  if(DEBUG) G4cout<<"init kernel"<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"init kernel"<<G4endl;
+#endif
   runManager->Initialize();
 
   //
@@ -410,14 +451,20 @@ int main(int argc,char** argv) {
   //
 
   if(outline) {
-    if(DEBUG) G4cout<<"contructing geometry interface"<<G4endl;
+#ifdef DEBUG 
+    G4cout<<"contructing geometry interface"<<G4endl;
+#endif
     BDSGeometryInterface* BDSGI = new BDSGeometryInterface(outlinefile);
 
-    if(DEBUG) G4cout<<"writing survey file"<<G4endl;
+#ifdef DEBUG 
+    G4cout<<"writing survey file"<<G4endl;
+#endif
     if(outlineType=="survey") BDSGI->Survey();
     if(outlineType=="optics") BDSGI->Optics();
 
-    if(DEBUG) G4cout<<"deleting geometry interface"<<G4endl;
+#ifdef DEBUG 
+    G4cout<<"deleting geometry interface"<<G4endl;
+#endif
     delete BDSGI;
   }
 
@@ -521,7 +568,9 @@ int main(int argc,char** argv) {
 #endif    
 
 #ifdef G4VIS_USE
-      if(DEBUG) G4cout<<"Initializing Visualisation Manager"<<G4endl;
+#ifdef DEBUG 
+      G4cout<<"Initializing Visualisation Manager"<<G4endl;
+#endif
       visManager = new BDSVisManager;
       visManager->Initialize();
 #endif
@@ -535,10 +584,12 @@ int main(int argc,char** argv) {
       delete session;
 
 #ifdef G4VIS_USE
-      if(DEBUG) G4cout<<"Visualisation Manager deleting..."<<G4endl;
-      delete visManager;
-    }
+#ifdef DEBUG 
+      G4cout<<"Visualisation Manager deleting..."<<G4endl;
 #endif
+      delete visManager;
+#endif
+    }
   else           // Batch mode
     { 
       runManager->BeamOn(BDSGlobals->GetNumberToGenerate());
@@ -549,14 +600,22 @@ int main(int argc,char** argv) {
   // job termination
   //
 
-  if(DEBUG) G4cout<<"BDSOutput deleting..."<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"BDSOutput deleting..."<<G4endl;
+#endif
   delete bdsOutput;
 
-  if(DEBUG) G4cout<<"BDSRunManager deleting..."<<G4endl;
-  delete runManager;
-
-  if(DEBUG) G4cout<<"BDSGlobals deleting..."<<G4endl;
+  
+#ifdef DEBUG 
+  G4cout<<"BDSGlobals deleting..."<<G4endl;
+#endif
   delete BDSGlobals;
-     
+  
+#ifdef DEBUG 
+  //G4cout<<"BDSRunManager deleting..."<<G4endl;
+#endif
+  //  delete runManager;
+
+   
   return 0;
 }

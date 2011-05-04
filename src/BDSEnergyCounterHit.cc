@@ -28,7 +28,7 @@ BDSEnergyCounterHit::BDSEnergyCounterHit()
 BDSEnergyCounterHit::~BDSEnergyCounterHit()
 {;}
 
-BDSEnergyCounterHit::BDSEnergyCounterHit(const BDSEnergyCounterHit &right)
+BDSEnergyCounterHit::BDSEnergyCounterHit(const BDSEnergyCounterHit &right):G4VHit()
 {
   itsEnergy = right.itsEnergy;
   itsCopyNumber = right.itsCopyNumber;

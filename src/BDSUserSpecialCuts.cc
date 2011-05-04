@@ -20,7 +20,9 @@
 // 15-04-98 first implementation, mma                   
 // --------------------------------------------------------------
 
+#include "BDSGlobalConstants.hh"
 #include "BDSUserSpecialCuts.hh"
+
 
 #include "G4Step.hh"
 #include "G4UserLimits.hh"
@@ -52,7 +54,7 @@ BDSUserSpecialCuts::BDSUserSpecialCuts(BDSUserSpecialCuts& right)
  
 G4double BDSUserSpecialCuts::PostStepGetPhysicalInteractionLength(
                              const G4Track& aTrack,
-			     G4double   previousStepSize,
+			     G4double,
 			     G4ForceCondition* condition
 			    )
 {
@@ -67,7 +69,7 @@ G4double BDSUserSpecialCuts::PostStepGetPhysicalInteractionLength(
        if (ProposedStep < 0.) return 0.;
        //max time limit
        G4double beta = (aTrack.GetDynamicParticle()->GetTotalMomentum())/(aTrack.GetTotalEnergy());
-       G4double dTime= (pUserLimits->GetUserMaxTime(aTrack) - aTrack.GetGlobalTime());
+       G4double dTime=(pUserLimits->GetUserMaxTime(aTrack) - aTrack.GetGlobalTime());
        G4double temp = beta*c_light*dTime;
        if (temp < 0.) return 0.;
        if (ProposedStep > temp) ProposedStep = temp;                  

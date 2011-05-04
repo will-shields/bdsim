@@ -4,8 +4,6 @@
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
 
-const int DEBUG = 0;
-
 #include "BDSGlobalConstants.hh"
 
 #include "BDSUserTrackingAction.hh"
@@ -20,8 +18,9 @@ void BDSUserTrackingAction::PreUserTrackingAction(const G4Track* aTrack)
   // store muon trajectories
   if(BDSGlobals->GetStoreMuonTrajectories())
     {
-      if (DEBUG) G4cout<<"STORING MUON TRAJECTORIES"<<G4endl;
-
+#ifdef DEBUG 
+      G4cout<<"STORING MUON TRAJECTORIES"<<G4endl;
+#endif
       if( abs(aTrack->GetDefinition()->GetPDGEncoding())==13)
 	{ fpTrackingManager->SetStoreTrajectory(true); }
       else
@@ -31,8 +30,9 @@ void BDSUserTrackingAction::PreUserTrackingAction(const G4Track* aTrack)
   // store neutron trajectories
   if(BDSGlobals->GetStoreNeutronTrajectories())
     {
-      if (DEBUG) G4cout<<"STORING NEUTRON TRAJECTORIES"<<G4endl;
-	
+#ifdef DEBUG 
+      G4cout<<"STORING NEUTRON TRAJECTORIES"<<G4endl;
+#endif
       if( abs(aTrack->GetDefinition()->GetPDGEncoding())==2112)
 	{ fpTrackingManager->SetStoreTrajectory(true); }
       else
@@ -43,8 +43,9 @@ void BDSUserTrackingAction::PreUserTrackingAction(const G4Track* aTrack)
   // store trajectories for primaries
   if(BDSGlobals->GetStoreTrajectory())
     { 
-      if (DEBUG) G4cout<<"STORING PRIMARY TRAJECTORIES"<<G4endl;
-
+#ifdef DEBUG 
+      G4cout<<"STORING PRIMARY TRAJECTORIES"<<G4endl;
+#endif
       if(aTrack->GetParentID()==0)
 	{ fpTrackingManager->SetStoreTrajectory(true); }
       else

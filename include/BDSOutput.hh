@@ -46,11 +46,12 @@ public:
   void WriteHits(BDSSamplerHitsCollection*);
   void WriteEnergyLoss(BDSEnergyCounterHitsCollection*);
   G4int WriteTrajectory(TrajectoryVector* TrajVec);
+  G4int WriteTrajectory(std::vector<G4VTrajectory*> TrajVec);
 
   void Echo(G4String str);
 
   G4int Commit(); //G4int FileNum);   // close the event
-  G4int Write();           // close the event
+  void Write();           // close the event
 
 
   // for root output
@@ -75,7 +76,7 @@ private:
 
 //#ifdef USE_ROOT
   float x0,xp0,y0,yp0,z0,zp0,E0,t0;
-  float x,xp,y,yp,z,zp,E,t;
+  float x,xp,y,yp,z,zp,E,Edep,t;
   float X,Xp,Y,Yp,Z,Zp,s,weight;
   int part,nev, pID, theID, track_id;
 //#endif

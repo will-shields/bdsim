@@ -26,18 +26,13 @@ extern BDSMaterials* theMaterials;
 //============================================================
 
 BDSLaserWire::BDSLaserWire (G4String aName,G4double aLength,
-G4double aWavelength, G4ThreeVector aDirection,
- G4ThreeVector aPosition, G4double xSigma, G4double ySigma):
+G4double aWavelength, G4ThreeVector aDirection):
   BDSAcceleratorComponent(
     aName,
     aLength,0,0,0,
     SetVisAttributes())
 {
   LaserWireLogicalVolume();
-  //  itsLaserCompton=new BDSLaserCompton(aWavelength, aDirection);
-
-  //  G4cout << "*****" << itsMarkerLogicalVolume->GetName() << "*****\n";
-
   BDSGlobals->
     SetLaserwireWavelength(itsMarkerLogicalVolume->GetName(),aWavelength);
   BDSGlobals->
@@ -65,17 +60,21 @@ void BDSLaserWire::LaserWireLogicalVolume()
       (*LogVolCount)[itsName]++;
       itsMarkerLogicalVolume=(*LogVol)[itsName];
     }
+  itsVisAttributes=this->SetVisAttributes();
+  itsMarkerLogicalVolume->SetVisAttributes(itsVisAttributes);
 }
 
 G4VisAttributes* BDSLaserWire::SetVisAttributes()
 {
-  itsVisAttributes=new G4VisAttributes(G4Colour(1.,0.,0.));
+  itsVisAttributes=new G4VisAttributes(G4Colour(0.,1.,0.));
+  itsVisAttributes->SetForceSolid(true);
+  itsVisAttributes->SetVisibility(true);
   return itsVisAttributes;
 }
 
 BDSLaserWire::~BDSLaserWire()
 {
   delete itsVisAttributes;
-  //  delete itsUserLimits;
-  //  delete itsLaserCompton;
+  delete itsUserLimits;
+  delete itsLaserCompton;
 }

@@ -29,7 +29,7 @@ void BDSDecMagField::GetFieldValue( const G4double Point[4],
   GlobalR.setX(Point[0]);
   GlobalR.setY(Point[1]);
   GlobalR.setZ(Point[2]);
-  //      LocalR = DecNavigator->GetCurrentLocalCoordinate();
+
   G4AffineTransform GlobalAffine=DecNavigator->GetGlobalToLocalTransform();
   LocalR=GlobalAffine.TransformPoint(GlobalR); 
   // gab_dec03<<

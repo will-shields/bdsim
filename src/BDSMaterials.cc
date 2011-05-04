@@ -14,7 +14,6 @@
    Cleanup in destructor
    Added ListMaterials function
 */
-const int DEBUG = 0;
 
 #include "BDSGlobalConstants.hh" // must be first in include list
 
@@ -34,114 +33,118 @@ void BDSMaterials::Initialise()
   //G4int iz, n;                       //iz=number of protons  in an isotope;
                                    // n=number of nucleons in an isotope;
 
+
   //G4double abundance;
   G4double fractionmass;
   //G4int ncomponents;
   G4double temperature, pressure;
 
-  G4Material* tmpMaterial;
-  G4Element* tmpElement;
-
   //
   // Define elements
   //
 
+  
   tmpElement = new G4Element
-    (name="Hydrogen"   , symbol="H" , z=  1., a=   1.00*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Hydrogen"   , symbol="H" , z=  1., a=   1.00*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Helium"     , symbol="He", z=  2., a=   4.0026*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Helium"     , symbol="He", z=  2., a=   4.0026*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Beryllium"  , symbol="Be", z=  4., a=   9.0122*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Beryllium"  , symbol="Be", z=  4., a=   9.0122*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Carbon"     , symbol="C" , z=  6., a=  12.00*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Boron"  , symbol="B", z=  5., a=   10.811*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Nitrogen"   , symbol="N" , z=  7., a=  14.01*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Carbon"     , symbol="C" , z=  6., a=  12.00*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Oxygen"     , symbol="O" , z=  8., a=  16.00*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Nitrogen"   , symbol="N" , z=  7., a=  14.01*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Aluminium"  , symbol="Al", z= 13., a=  26.98*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Oxygen"     , symbol="O" , z=  8., a=  16.00*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Silicon"    , symbol="Si", z= 14., a=  28.09*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Aluminium"  , symbol="Al", z= 13., a=  26.98*g/mole); elements[symbol] = tmpElement;
+
+  tmpElement =  new G4Element
+    (name="Silicon"    , symbol="Si", z= 14., a=  28.09*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Phosphorous", symbol="P" , z= 15., a=  30.973762*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Phosphorous", symbol="P" , z= 15., a=  30.973762*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Sulphur"    , symbol="S" , z= 16., a=  32.066*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Sulphur"    , symbol="S" , z= 16., a=  32.066*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Calcium"    , symbol="Ca", z= 20., a=  40.078*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Calcium"    , symbol="Ca", z= 20., a=  40.078*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Titanium"   , symbol="Ti", z= 22., a=  47.867*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Titanium"   , symbol="Ti", z= 22., a=  47.867*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Vanadium"   , symbol="V" , z= 23., a=  50.9415*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Zirkonium"   , symbol="Zr", z= 40., a=  91.224*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Manganese"  , symbol="Mn", z= 25., a=  54.93805*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Strontium"   , symbol="Sr", z= 38., a=  87.62*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Iron"       , symbol="Fe", z= 26., a=  55.847*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Magnesium"   , symbol="Mg", z= 12., a=  24.3050*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Cobalt"     , symbol="Co", z= 27., a=  58.93*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Potassium"   , symbol="K", z= 19., a=  39.0983*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Nickel"     , symbol="Ni", z= 28., a=  58.693*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Vanadium"   , symbol="V" , z= 23., a=  50.9415*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Copper"     , symbol="Cu", z= 29., a=  63.546*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Manganese"  , symbol="Mn", z= 25., a=  54.93805*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Niobium"    , symbol="Nb", z= 41., a=  92.906*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Iron"       , symbol="Fe", z= 26., a=  55.847*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Samarium"   , symbol="Sm", z= 62., a= 150.4*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Cobalt"     , symbol="Co", z= 27., a=  58.93*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Tungsten"   , symbol="W" , z= 74., a= 183.84*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Nickel"     , symbol="Ni", z= 28., a=  58.693*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Lead"       , symbol="Pb", z= 82., a= 207.2*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Copper"     , symbol="Cu", z= 29., a=  63.546*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Molybdenum"       , symbol="Mo", z= 42., a= 95.94*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Niobium"    , symbol="Nb", z= 41., a=  92.906*g/mole); elements[symbol] = tmpElement;
 
   tmpElement = new G4Element
-    (name="Chromium"       , symbol="Cr", z= 24., a= 51.9961*g/mole);
-  elements[symbol] = tmpElement;
+    (name="Samarium"   , symbol="Sm", z= 62., a= 150.4*g/mole); elements[symbol] = tmpElement;
 
+  tmpElement = new G4Element
+    (name="Tungsten"   , symbol="W" , z= 74., a= 183.84*g/mole); elements[symbol] = tmpElement;
+
+  tmpElement = new G4Element
+    (name="Lead"       , symbol="Pb", z= 82., a= 207.2*g/mole); elements[symbol] = tmpElement;
+
+  tmpElement = new G4Element
+    (name="Molybdenum"       , symbol="Mo", z= 42., a= 95.94*g/mole); elements[symbol] = tmpElement;
+
+  tmpElement = new G4Element
+    (name="Chromium"       , symbol="Cr", z= 24., a= 51.9961*g/mole); elements[symbol] = tmpElement;
+
+  tmpElement = new G4Element
+    (name="Sodium"       , symbol="Na", z= 11., a= 22.98976928*g/mole); elements[symbol] = tmpElement;
+
+  tmpElement = new G4Element
+    (name="Zinc"       , symbol="Zn", z= 30., a= 65.38*g/mole); elements[symbol] = tmpElement;
+
+  tmpElement = new G4Element
+    (name="Barium"       , symbol="Ba", z= 56., a= 137.327*g/mole); elements[symbol] = tmpElement;
+
+  tmpElement = new G4Element
+    (name="Europium"       , symbol="Eu", z= 63., a= 151.964*g/mole); elements[symbol] = tmpElement;
+
+  tmpElement = new G4Element
+    (name="Uranium"       , symbol="U", z= 92., a=  238.0289*g/mole); elements[symbol] = tmpElement;
 
   //
   // Define materials
@@ -155,68 +158,73 @@ void BDSMaterials::Initialise()
   tmpMaterial = new G4Material
     (name="aluminium"     , density=  2.700*g/cm3, 1, kStateSolid);
   tmpMaterial->AddElement(elements["Al"],1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
     (name="vanadium"      , density=  5.800*g/cm3, 1, kStateSolid);
   tmpMaterial->AddElement(elements["V"],1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
     (name="tungsten"      , density= 19.3  *g/cm3, 1, kStateSolid);
   tmpMaterial->AddElement(elements["W"],1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
-    (name="iron"          , density=  7.87 *g/cm3, 1, kStateSolid);
+    (name="iron"          , density=  7.874 *g/cm3, 1, kStateSolid);
   tmpMaterial->AddElement(elements["Fe"],1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
+
+  tmpMaterial = new G4Material
+    (name="uranium"          , density=  18.9 *g/cm3, 1, kStateSolid);
+  tmpMaterial->AddElement(elements["U"],1);
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
     (name="copper"        , density=  8.96 *g/cm3, 1, kStateSolid);
   tmpMaterial->AddElement(elements["Cu"],1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
     (name="weightiron"    , density=  7.87 *g/cm3, 1, kStateSolid);
   tmpMaterial->AddElement(elements["Fe"],1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
     (name="titanium"      , density=  4.54 *g/cm3, 1, kStateSolid);
   tmpMaterial->AddElement(elements["Ti"],1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
     (name="graphite"      , density=  2.265*g/cm3, 1, kStateSolid);
   tmpMaterial->AddElement(elements["C"],1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
     (name="lead"          , density= 11.35 *g/cm3, 1, kStateSolid);
   tmpMaterial->AddElement(elements["Pb"],1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
     (name="silicon"       , density=  2.33 *g/cm3, 1, kStateSolid);
   tmpMaterial->AddElement(elements["Si"],1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
     (name="beryllium"     , density=  1.848*g/cm3, 1, kStateSolid);
   tmpMaterial->AddElement(elements["Be"],1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
     (name="smco"          , density=  8.4  *g/cm3, 2, kStateSolid, 300*kelvin);
   tmpMaterial->AddElement(elements["Sm"],fractionmass=0.338);
   tmpMaterial->AddElement(elements["Co"],fractionmass=0.662);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
     (name="niobium"       , density=  8.57 *g/cm3, 1, kStateSolid, 2*kelvin);
   tmpMaterial->AddElement(elements["Nb"],1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   //Titanium alloy (BDS collimator material SLAC-TN-03-069 p25) deacon 15 Jun 2007
   tmpMaterial = new G4Material
@@ -224,7 +232,7 @@ void BDSMaterials::Initialise()
   tmpMaterial->AddElement(elements["V"],  fractionmass=0.025);
   tmpMaterial->AddElement(elements["Al"], fractionmass=0.03 );
   tmpMaterial->AddElement(elements["Ti"], fractionmass=0.945);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   //Carbon Steel (shell of cryomodule). LDeacon 21 Feb 2006
   tmpMaterial = new G4Material
@@ -234,7 +242,7 @@ void BDSMaterials::Initialise()
   tmpMaterial->AddElement(elements["P"], fractionmass=0.0004);
   tmpMaterial->AddElement(elements["S"], fractionmass=0.0005);
   tmpMaterial->AddElement(elements["Fe"], fractionmass=0.9929);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   //Stainless Steel 316L
   tmpMaterial = new G4Material
@@ -249,7 +257,7 @@ void BDSMaterials::Initialise()
   tmpMaterial->AddElement(elements["Ni"], fractionmass=0.12);
   tmpMaterial->AddElement(elements["N"], fractionmass=0.001);
   tmpMaterial->AddElement(elements["Fe"], fractionmass=0.65545);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   //Kapton polyimide film
   tmpMaterial = new G4Material
@@ -258,14 +266,14 @@ void BDSMaterials::Initialise()
   tmpMaterial->AddElement(elements["C"], fractionmass=0.691133);
   tmpMaterial->AddElement(elements["N"], fractionmass=0.073270);
   tmpMaterial->AddElement(elements["O"], fractionmass=0.209235);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
 
   tmpMaterial = new G4Material
     (name="nbti"          , density=  5.6  *g/cm3, 2, kStateSolid, 4*kelvin);
   tmpMaterial->AddElement(elements["Nb"], 1);
   tmpMaterial->AddElement(elements["Ti"], 1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
     (name="concrete"      , density=  2.3  *g/cm3, 6, kStateSolid, 300*kelvin);
@@ -275,14 +283,49 @@ void BDSMaterials::Initialise()
   tmpMaterial->AddElement(elements["Ca"], 0.04986);
   tmpMaterial->AddElement(elements["Al"], 0.014245);
   tmpMaterial->AddElement(elements["Fe"], 0.00285);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
+  
+  tmpMaterial = new G4Material(name="lhcconcrete", density= 2.42*g/cm3,
+                               20, kStateSolid, 300*kelvin);
+  tmpMaterial->AddElement(elements["H"], 0.59785345499811  *perCent);
+  tmpMaterial->AddElement(elements["C"], 5.59989402848226  *perCent);
+  tmpMaterial->AddElement(elements["O"], 49.1111702720319  *perCent);
+  tmpMaterial->AddElement(elements["Na"], 0.45137935852357 *perCent);
+  tmpMaterial->AddElement(elements["Mg"], 0.66062806777291 *perCent);
+  tmpMaterial->AddElement(elements["Al"], 2.05561946276849 *perCent);
+  tmpMaterial->AddElement(elements["Si"], 18.7995018924154 *perCent);
+  tmpMaterial->AddElement(elements["K"], 0.65365311079793  *perCent);
+  tmpMaterial->AddElement(elements["Ca"], 20.0191229406116 *perCent);
+  tmpMaterial->AddElement(elements["Fe"], 1.11400027114647 *perCent);
+  tmpMaterial->AddElement(elements["P"], 0.04782827639985  *perCent);
+  tmpMaterial->AddElement(elements["S"], 0.01195706909996  *perCent);
+  tmpMaterial->AddElement(elements["Ti"], 0.3457585814739  *perCent);
+  tmpMaterial->AddElement(elements["Mn"], 0.03856154784738 *perCent);
+  tmpMaterial->AddElement(elements["Zn"], 0.02401378044242 *perCent);
+  tmpMaterial->AddElement(elements["Zr"], 0.00737352594498 *perCent);
+  tmpMaterial->AddElement(elements["Ba"], 0.01783596140744 *perCent);
+  tmpMaterial->AddElement(elements["Pb"], 0.04623400051985 *perCent);
+  tmpMaterial->AddElement(elements["Sr"], 0.39757254757374 *perCent);
+  tmpMaterial->AddElement(elements["Eu"], 4.184974185E-05  *perCent);
+  materials[name] = tmpMaterial; 
+
+  
+  tmpMaterial = new G4Material
+    (name="bn5000"      , density=  1.925  *g/cm3, 5, kStateSolid, 300*kelvin);
+  tmpMaterial->AddElement(elements["B"], 0.383249242);//0.418535);
+  tmpMaterial->AddElement(elements["Ni"], 0.472071387);//0.515535);
+  tmpMaterial->AddElement(elements["O"], 0.0366276887);//0.04);
+  tmpMaterial->AddElement(elements["Ca"], 0.0228923054);//0.025);
+  tmpMaterial->AddElement(elements["Si"], 0.0851593762);//0.093);
+  materials[name] = tmpMaterial; 
+  
   //Invar.Temperature 2 kelvin. LDeacon 6th Feburary 2006
   tmpMaterial = new G4Material
     (name="invar"         , density=  8.1  *kg/m3, 2, kStateSolid, 2*kelvin);
   tmpMaterial->AddElement(elements["Ni"], fractionmass=0.35);
   tmpMaterial->AddElement(elements["Fe"], fractionmass=0.65);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   // "standard" soil (dry)
   tmpMaterial = new G4Material
@@ -291,14 +334,59 @@ void BDSMaterials::Initialise()
   tmpMaterial->AddElement(elements["O"], 0.57218543046357617);
   tmpMaterial->AddElement(elements["H"], 0.022516556291390728);
   tmpMaterial->AddElement(elements["Al"], 0.071523178807947022);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
+
+  //quartz
+  tmpMaterial = new G4Material
+    (name="quartz", density=  2.655  *g/cm3, 2, kStateSolid, 300*kelvin);
+  tmpMaterial->AddElement(elements["Si"],1);
+  tmpMaterial->AddElement(elements["O"], 2);
+  materials[name] = tmpMaterial; 
+
+  //Clay
+  tmpMaterial = new G4Material
+    (name="clay", density=  1746  *kg/m3, 4, kStateSolid, 300*kelvin);
+  tmpMaterial->AddElement(elements["Al"],1);
+  tmpMaterial->AddElement(elements["O"], 9);
+  tmpMaterial->AddElement(elements["Si"], 2);
+  tmpMaterial->AddElement(elements["H"], 4);
+  materials[name] = tmpMaterial; 
+
+  //Calcium carbonate
+  tmpMaterial = new G4Material
+    (name="calciumCarbonate", density=  1201  *kg/m3, 3, kStateSolid, 300*kelvin);
+  tmpMaterial->AddElement(elements["Ca"],1);
+  tmpMaterial->AddElement(elements["O"], 3);
+  tmpMaterial->AddElement(elements["C"], 1);
+  materials[name] = tmpMaterial; 
+
+  // marl
+  tmpMaterial = new G4Material
+    (name="marl"          , density=1474*kg/m3, 2, kStateSolid, 300*kelvin);
+  tmpMaterial->AddMaterial(materials["clay"], 0.5 );
+  tmpMaterial->AddMaterial(materials["calciumCarbonate"],0.5);
+  materials[name] = tmpMaterial; 
+
+  //clayousMarl
+  tmpMaterial = new G4Material
+    (name="clayousMarl"          , density=1555*kg/m3, 2, kStateSolid, 300*kelvin);
+  tmpMaterial->AddMaterial(materials["clay"], 0.65 );
+  tmpMaterial->AddMaterial(materials["calciumCarbonate"],0.35);
+  materials[name] = tmpMaterial; 
+
+  //limousMarl
+  tmpMaterial = new G4Material
+    (name="limousMarl"          , density=1392*kg/m3, 2, kStateSolid, 300*kelvin);
+  tmpMaterial->AddMaterial(materials["clay"], 0.35 );
+  tmpMaterial->AddMaterial(materials["calciumCarbonate"],0.65);
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
     (name="leadtungstate" , density=  8.27 *g/cm3, 3, kStateSolid);
   tmpMaterial->AddElement(elements["Pb"], 1);
   tmpMaterial->AddElement(elements["W"], 1);
   tmpMaterial->AddElement(elements["O"], 4);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
 	tmpMaterial = new G4Material 
 		(name="FusedSilica", density=1.032*g/cm3, 2, kStateSolid);
@@ -307,38 +395,27 @@ void BDSMaterials::Initialise()
 	const G4int FusedSilica_NUMENTRIES = 3; //Number of entries in the material properties table
   G4double FusedSilica_RIND[FusedSilica_NUMENTRIES]={1.49,1.49,1.49};
   G4double FusedSilica_AbsLength[FusedSilica_NUMENTRIES]={420.*cm,420.*cm,420.*cm};
-  G4MaterialPropertiesTable *FusedSilica_mt = new G4MaterialPropertiesTable();
-	G4double FusedSilica_Energy[FusedSilica_NUMENTRIES] = {2.0*eV,7.0*eV,7.14*eV};
-  FusedSilica_mt->AddProperty("ABSLENGTH",FusedSilica_Energy,FusedSilica_AbsLength,FusedSilica_NUMENTRIES);
-  FusedSilica_mt->AddProperty("RINDEX",FusedSilica_Energy,FusedSilica_RIND,FusedSilica_NUMENTRIES);
-  tmpMaterial->SetMaterialPropertiesTable(FusedSilica_mt);
-	materials[name] = tmpMaterial;
+  G4double FusedSilica_Energy[FusedSilica_NUMENTRIES] = {2.0*eV,7.0*eV,7.14*eV};
+  fsMaterialPropertiesTable= new G4MaterialPropertiesTable();
+  fsMaterialPropertiesTable->AddProperty("ABSLENGTH",FusedSilica_Energy,FusedSilica_AbsLength,FusedSilica_NUMENTRIES);
+  fsMaterialPropertiesTable->AddProperty("RINDEX",FusedSilica_Energy,FusedSilica_RIND,FusedSilica_NUMENTRIES);
+  tmpMaterial->SetMaterialPropertiesTable(fsMaterialPropertiesTable);
+  materials[name] = tmpMaterial; 
 
   // liquid materials
 
   tmpMaterial = new G4Material
     (name="liquidhelium"  , density=  0.12498*g/cm3, 1, kStateLiquid, 4.15*kelvin);
   tmpMaterial->AddElement(elements["He"],1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   tmpMaterial=new G4Material
     (name="water"         , density=  1.00 *g/cm3, 2, kStateLiquid, 300*kelvin);
   tmpMaterial->AddElement(elements["O"], 1);
   tmpMaterial->AddElement(elements["H"], 2);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
   // gaseous materials
-
-  pressure    = 1.e-9*(1.e-3*bar);
-  // include scaling so that statistics are more reasonable:
-  // (one bunch contains ~10^10 particles, so 1000 events (or whatever)
-  //  should represent this number of particles - hence ~10^7:
-  pressure*=BDSGlobals->GetBackgroundScaleFactor();
- 
-  // NB : temperature should be defined for individual elements
-  // setting temporarily to 300K
-  temperature = 300*kelvin;
-
   // For air: do we want it at p=1atm or at p inside beampipe?
   // 1st case:
   // tmpMaterial = new G4Material
@@ -348,62 +425,69 @@ void BDSMaterials::Initialise()
   //   1) density * temperature / pressure = constant
   //   2) at T=STP_Temperature, p=1*atmosphere, n=1mole occupies a volume
   //      V=22.4l=22.4e-3*m3 and therefore has density=molar weight/(22.4e-3*m3)
-  density = (STP_Temperature/temperature) * (pressure/(1.*atmosphere))
-    * 30*g/(22.4*1.e-3*m3) ;
+  
+  //Room temperature temperature and standard pressure
+  temperature = 300*kelvin;
+  pressure = 1.0*atmosphere;
+  //Air
+  density = (STP_Temperature/temperature) * (pressure/(1.*atmosphere))* 30*g/(22.4e-3*m3) ;
   tmpMaterial = new G4Material
-    (name="air"           , density, 2, kStateGas, temperature, pressure);
+    (name="air", density, 2, kStateGas, temperature, pressure);
   tmpMaterial->AddElement(elements["O"], fractionmass=0.2);
   tmpMaterial->AddElement(elements["N"], fractionmass=0.8);
-	G4MaterialPropertiesTable *Air_mt = new G4MaterialPropertiesTable(); //Material properties table for air
-	const G4int Air_NUMENTRIES = 3; //Number of entries in the material properties table
-	G4double Air_RIND[Air_NUMENTRIES] = {1.000292,1.000292,1.000292};//Source: NPL Tables of Physical & Chemical Constants
-	G4double Air_Energy[Air_NUMENTRIES] = {2.0*eV,7.0*eV,7.14*eV};
-	Air_mt->AddProperty("RINDEX",Air_Energy, Air_RIND, Air_NUMENTRIES);
-	tmpMaterial->SetMaterialPropertiesTable(Air_mt);
-  materials[name] = tmpMaterial;
+  const G4int Air_NUMENTRIES = 3; //Number of entries in the material properties table
+  G4double Air_RIND[Air_NUMENTRIES] = {1.000292,1.000292,1.000292};//Source: NPL Tables of Physical & Chemical Constants. Refractive indices at different energies.
+  G4double Air_Energy[Air_NUMENTRIES] = {2.0*eV,7.0*eV,7.14*eV}; //The energies.
+  airMaterialPropertiesTable=new G4MaterialPropertiesTable();
+  airMaterialPropertiesTable->AddProperty("RINDEX",Air_Energy, Air_RIND, Air_NUMENTRIES);
+  tmpMaterial->SetMaterialPropertiesTable(airMaterialPropertiesTable);
+  materials[name] = tmpMaterial; 
 
+  //Carbon monoxide
   density = (STP_Temperature/temperature) * (pressure/(1.*atmosphere))
     * (12.+16.)*g/(22.4*1.e-3*m3) ;
   tmpMaterial =  new G4Material
     (name="carbonmonoxide", density, 2, kStateGas, temperature, pressure);
   tmpMaterial->AddElement(elements["C"], 1);
   tmpMaterial->AddElement(elements["O"], 1);
-  materials[name] = tmpMaterial;
+  materials[name] = tmpMaterial; 
 
+  //Nitrogen
   density = (STP_Temperature/temperature) * (pressure/(1.*atmosphere))
-    // for H_2:
-    //* 2*g/(22.4*1.e-3*m3) ;
-    // for air:
-    * 30*g/(22.4*1.e-3*m3) ;
+    * (14.)*g/(22.4*1.e-3*m3) ;
+  tmpMaterial =  new G4Material
+    (name="nitrogen", density, 1, kStateGas, temperature, pressure);
+  tmpMaterial->AddElement(elements["N"], fractionmass=1.0);
+  materials[name] = tmpMaterial; 
+
+  //Vacuum (same composition as residual vacuum in warm sections of LHC).
+  pressure=BDSGlobals->GetVacuumPressure();
+  density = (STP_Temperature/temperature) * (pressure/(1.*atmosphere))  * 29*g/(22.4*1.e-3*m3) ;
+#ifdef DEBUG 
   G4cout<< " ***************** defining Vacuum"<<G4endl;
   G4cout<< "pressure="<<pressure/bar<<" bar"<<G4endl;
   G4cout<< "temp="<<temperature/kelvin<<" K"<<G4endl;
   G4cout<< "density="<<density/(g/m3)<<"g/m^3"<<G4endl;
+#endif
   tmpMaterial = new G4Material
-    (name="vacuum"        , density, 1, kStateGas, temperature, pressure);
-  tmpMaterial->AddMaterial(materials["air"], fractionmass=1.);
-	G4MaterialPropertiesTable *Vacuum_mt = new G4MaterialPropertiesTable(); //Material properties table for vacuum
-	const G4int Vacuum_NUMENTRIES = 3; //Number of entries in the material properties table
-	G4double Vacuum_RIND[Vacuum_NUMENTRIES] = {1.,1.,1.};
-	Vacuum_mt->AddProperty("RINDEX",Air_Energy, Vacuum_RIND, Air_NUMENTRIES);
-	tmpMaterial->SetMaterialPropertiesTable(Vacuum_mt);
-  materials[name] = tmpMaterial;
+    (name="vacuum", density, 3, kStateGas, temperature, pressure);
+  tmpMaterial->AddElement(elements["H"], fractionmass=0.482);
+  tmpMaterial->AddElement(elements["C"], fractionmass=0.221);
+  tmpMaterial->AddElement(elements["O"], fractionmass=0.297);
+  materials[name] = tmpMaterial; 
 
   tmpMaterial = new G4Material
     (name="laservac"      , density, 1, kStateGas, temperature, pressure);
-  tmpMaterial->AddMaterial(materials["air"], fractionmass=1.);
-  materials[name] = tmpMaterial;
+  tmpMaterial->AddMaterial(materials["vacuum"], fractionmass=1.);
+  materials[name] = tmpMaterial; 
 
-  density=37.403/10.*g/cm3;  //Choose such that 1mm length gives ~ one interaction
-  //  density=1*g/cm3;
+  //High density carbon monoxide, density chosen such that 1mm length gives ~ one interaction
+  density=37.403/10.*g/cm3;  
   tmpMaterial = new G4Material
-    (name="beamgasplugmat", density, 2);
-  //shouldn't it be a gas?
-  //(name="BeamGasPlugMat", density, 2, kStateGas);
-  tmpMaterial->AddElement(elements["C"], 1);
+    (name="beamgasplugmat", density, 2, kStateGas);
+   tmpMaterial->AddElement(elements["C"], 1);
   tmpMaterial->AddElement(elements["O"], 1);
-  materials[name] = tmpMaterial;
-
+  materials[name] = tmpMaterial; 
 }
 
 void BDSMaterials::AddMaterial(G4Material* aMaterial, G4String aName)
@@ -423,6 +507,7 @@ void BDSMaterials::AddMaterial(G4String aName, G4double itsZ, G4double itsA, G4d
   if(materials.insert(make_pair(aName,tmpMaterial)).second)
     G4cout << "New material : " << aName << " added to material table" << G4endl;
   else G4Exception("Material "+aName+" already exists\n");
+   
 }
 
 void BDSMaterials::AddMaterial(G4String aName, G4double itsDensity, G4State itsState,
@@ -443,6 +528,7 @@ list<char*> itsComponents, list<G4double> itsComponentsFractions)
   if(materials.insert(make_pair(aName,tmpMaterial)).second)
     G4cout << "New material : " << aName << " added to material table" << G4endl;
   else G4Exception("Material "+aName+" already exists\n");
+  
 }
 
 void BDSMaterials::AddMaterial(G4String aName, G4double itsDensity, G4State itsState,
@@ -450,7 +536,7 @@ G4double itsTemp, G4double itsPressure,
 list<char*> itsComponents, list<G4int> itsComponentsWeights)       
 {
   aName.toLower();
-  G4Material* tmpMaterial = new G4Material(aName, itsDensity*g/cm3, 
+G4Material*  tmpMaterial = new G4Material(aName, itsDensity*g/cm3, 
 		(G4int)itsComponents.size(),itsState, itsTemp*kelvin, itsPressure*atmosphere);
   list<char*>::iterator sIter;
   list<G4int>::iterator iIter;
@@ -463,6 +549,7 @@ list<char*> itsComponents, list<G4int> itsComponentsWeights)
   if(materials.insert(make_pair(aName,tmpMaterial)).second)
     G4cout << "New material : " << aName << " added to material table" << G4endl;
   else G4Exception("Material "+aName+" already exists\n");
+  
 }
 
 void BDSMaterials::AddElement(G4Element* aElement, G4String aSymbol)
@@ -503,6 +590,7 @@ G4Element* BDSMaterials::GetElement(G4String aSymbol)
 
 void BDSMaterials::ListMaterials(){
   G4cout << "Available elements are:" << G4endl;
+  G4cout << "Boron  - B" << G4endl;
   G4cout << "Aluminium  - Al" << G4endl;
   G4cout << "Calcium    - Ca" << G4endl;
   G4cout << "Carbon     - C" << G4endl;
@@ -520,10 +608,15 @@ void BDSMaterials::ListMaterials(){
   G4cout << "Silicon    - Si" << G4endl;
   G4cout << "Sulphur    - S" << G4endl;
   G4cout << "Titanium   - Ti" << G4endl;
+  G4cout << "Zirkonium   - Zr" << G4endl;
   G4cout << "Tungsten   - W" << G4endl;
   G4cout << "Vanadium   - V" << G4endl;
   G4cout << "Molybdenum   - Mo" << G4endl;
   G4cout << "Chromium   - Cr" << G4endl;
+  G4cout << "Sodium   - Na" << G4endl;
+  G4cout << "Barium   - Ba" << G4endl;
+  G4cout << "Zinc   - Zn" << G4endl;
+  G4cout << "Europium   - Eu" << G4endl;
   G4cout << "***************" << G4endl;
   G4cout << "Available materials are:" << G4endl;
   G4cout << "Air" << G4endl;
@@ -532,8 +625,10 @@ void BDSMaterials::ListMaterials(){
   G4cout << "CarbonMonoxide" << G4endl;
   G4cout << "CarbonSteel" << G4endl;
   G4cout << "Concrete" << G4endl;
+  G4cout << "LHCConcrete" << G4endl;
   G4cout << "Copper" << G4endl;
   G4cout << "Graphite" << G4endl;
+  G4cout << "BN5000" << G4endl;
   G4cout << "Invar" << G4endl;
   G4cout << "Iron" << G4endl;
   G4cout << "LaserVac" << G4endl;
@@ -565,4 +660,9 @@ BDSMaterials::~BDSMaterials(){
   for(eIter = elements.begin(); eIter!=elements.end(); eIter++)
     delete (*eIter).second;
   elements.clear();
+
+  delete tmpMaterial;
+  delete tmpElement;
+  delete airMaterialPropertiesTable;
+  delete fsMaterialPropertiesTable;
 }

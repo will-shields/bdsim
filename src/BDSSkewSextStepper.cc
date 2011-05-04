@@ -31,7 +31,7 @@ BDSSkewSextStepper::BDSSkewSextStepper(G4Mag_EqRhs *EqRhs)
 
 
 void BDSSkewSextStepper::AdvanceHelix( const G4double  yIn[],
-                                   G4ThreeVector Bfld,
+                                   G4ThreeVector,
 				   G4double  h,
 				   G4double  ySkewSext[])
 {  
@@ -162,7 +162,7 @@ void BDSSkewSextStepper::AdvanceHelix( const G4double  yIn[],
 }
 
 void BDSSkewSextStepper::Stepper( const G4double yInput[],
-		     const G4double dydx[],
+		     const G4double[],
 		     const G4double hstep,
 		     G4double yOut[],
 		     G4double yErr[]      )
@@ -172,7 +172,7 @@ void BDSSkewSextStepper::Stepper( const G4double yInput[],
    G4int i;
    for(i=0;i<nvar;i++) yErr[i]=0;
 
-   AdvanceHelix(yInput,0,hstep,yOut);
+   AdvanceHelix(yInput,(G4ThreeVector)0,hstep,yOut);
 
 
    return ;

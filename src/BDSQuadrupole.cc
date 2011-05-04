@@ -20,6 +20,7 @@
 #include "BDSQuadrupole.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
+#include "G4Trd.hh"
 #include "G4VisAttributes.hh"
 #include "G4LogicalVolume.hh"
 #include "G4VPhysicalVolume.hh"
@@ -28,7 +29,6 @@
 
 #include <map>
 
-const int DEBUG = 0;
 
 //============================================================
 
@@ -46,14 +46,19 @@ extern G4RotationMatrix* RotY90;
 BDSQuadrupole::BDSQuadrupole(G4String aName, G4double aLength, 
 			     G4double bpRad, G4double FeRad,
 			     G4double bGrad, G4double tilt, G4double outR,
-			     G4String aMaterial, G4String spec):
-  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), aMaterial),
+                             std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+			     G4String aTunnelMaterial, G4String aMaterial, G4String spec):
+  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), blmLocZ, blmLocTheta, aTunnelMaterial, aMaterial),
   itsBGrad(bGrad)
 {
-  if(DEBUG) G4cout<<"BDSQUADRUPOLE : SPEC : "<<spec<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"BDSQUADRUPOLE : SPEC : "<<spec<<G4endl;
+#endif
   // get specific quadrupole type
   G4String qtype = getParameterValueString(spec, "type");
-  if(DEBUG) G4cout<<"qtype : "<<qtype<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"qtype : "<<qtype<<G4endl;
+#endif
 
   SetOuterRadius(outR);
   itsTilt=tilt;
@@ -64,14 +69,33 @@ BDSQuadrupole::BDSQuadrupole(G4String aName, G4double aLength,
       //
       // build external volume
       // 
+#ifdef DEBUG
+      G4cout<<"Building marker volume "<<G4endl;
+#endif
       BuildDefaultMarkerLogicalVolume();
 
       //
+      //build tunnel
+      //
+      if(BDSGlobals->GetBuildTunnel()){
+        BuildTunnel();
+      }
+     
+      //
       // build beampipe (geometry + magnetic field)
       //
+#ifdef DEBUG
+      G4cout<<"Building beam pipe field and stepper "<<G4endl;
+#endif
       BuildBPFieldAndStepper();
+#ifdef DEBUG 
+      G4cout<<"Building beam pipe field manager "<<G4endl;
+#endif
       BuildBPFieldMgr(itsStepper,itsMagField);
-      BuildBeampipe(itsLength);
+#ifdef DEBUG 
+      G4cout<<"Building beam pipe "<<G4endl;
+#endif
+      BuildBeampipe();
 
       //
       // build magnet (geometry + magnetic field)
@@ -80,9 +104,12 @@ BDSQuadrupole::BDSQuadrupole(G4String aName, G4double aLength,
       if(qtype=="standard") 
 	BuildOuterLogicalVolume(); // standard - quad with poles and pockets
       else if(qtype=="cylinder")  
-	BuildDefaultOuterLogicalVolume(itsLength); // cylinder outer volume
-      else //default
-	BuildDefaultOuterLogicalVolume(itsLength); // cylinder outer volume
+        BuildDefaultOuterLogicalVolume(itsLength); // cylinder outer volume
+      //BuildEllipticalOuterLogicalVolume(itsLength); // cylinder outer volume
+      else //default - cylinder
+        BuildDefaultOuterLogicalVolume(itsLength); // cylinder outer volume
+      //BuildEllipticalOuterLogicalVolume(itsLength); // cylinder outer volume
+
       if(BDSGlobals->GetIncludeIronMagFields())
 	{
 	  G4double polePos[4];
@@ -106,13 +133,19 @@ BDSQuadrupole::BDSQuadrupole(G4String aName, G4double aLength,
 
 	  BuildOuterFieldManager(4, BFldIron,pi/4);
 	}
-
+      //Build the beam loss monitors
+      BuildBLMs();
       //
       // define sensitive volumes for hit generation
       //
-      SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
-      SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
-
+      if(BDSGlobals->GetSensitiveBeamPipe()){
+        G4cout << "BDSQuadrupole.cc:> setting sensitive beam pipe" << G4endl;
+        SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+      }
+      if(BDSGlobals->GetSensitiveComponents()){
+        G4cout << "BDSQuadrupole.cc:> setting sensitive outer volume" << G4endl;
+        SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      }
       //
       // set visualization attributes
       //
@@ -146,7 +179,7 @@ BDSQuadrupole::BDSQuadrupole(G4String aName, G4double aLength,
 	  //
 	  BuildBPFieldAndStepper();
 	  BuildBPFieldMgr(itsStepper,itsMagField);
-	  BuildBeampipe(itsLength);
+	  BuildBeampipe();
 
 	  //
 	  // build magnet (geometry + magnetic field)
@@ -155,9 +188,11 @@ BDSQuadrupole::BDSQuadrupole(G4String aName, G4double aLength,
 	  if(qtype=="standard") 
 	    BuildOuterLogicalVolume(); // standard - quad with poles and pockets
 	  else if(qtype=="cylinder")  
-	    BuildDefaultOuterLogicalVolume(itsLength); // cylinder outer volume
+            BuildDefaultOuterLogicalVolume(itsLength); // cylinder outer volume
+            //	    BuildEllipticalOuterLogicalVolume(itsLength); // cylinder outer volume
 	  else //default
-	    BuildDefaultOuterLogicalVolume(itsLength); // cylinder outer volume
+            BuildDefaultOuterLogicalVolume(itsLength); // cylinder outer volume
+          //BuildEllipticalOuterLogicalVolume(itsLength); // cylinder outer volume
 	  if(BDSGlobals->GetIncludeIronMagFields())
 	    {
 	      G4double polePos[4];
@@ -186,9 +221,15 @@ BDSQuadrupole::BDSQuadrupole(G4String aName, G4double aLength,
 	  //
 	  // define sensitive volumes for hit generation
 	  //
-	  SetSensitiveVolume(itsBeampipeLogicalVolume);// for synchrotron
-	  //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
-	  
+          if(BDSGlobals->GetSensitiveBeamPipe()){
+            G4cout << "BDSQuadrupole.cc:> setting sensitive beampipe 2" << G4endl;            
+            SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+          }
+          if(BDSGlobals->GetSensitiveComponents()){
+            G4cout << "BDSQuadrupole.cc:> setting sensitive outer volume 2" << G4endl;           
+            SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+          }
+		  
 	  //
 	  // set visualization attributes
 	  //
@@ -215,7 +256,9 @@ void BDSQuadrupole::SynchRescale(G4double factor)
 {
   itsStepper->SetBGrad(factor*itsBGrad);
   itsMagField->SetBGrad(factor*itsBGrad);
-  if(DEBUG) G4cout << "Quad " << itsName << " has been scaled" << G4endl;
+#ifdef DEBUG 
+  G4cout << "Quad " << itsName << " has been scaled" << G4endl;
+#endif
 }
 
 G4VisAttributes* BDSQuadrupole::SetVisAttributes()
@@ -238,6 +281,8 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 {
   G4double outerRadius = itsOuterR;
   if(itsOuterR==0) outerRadius = BDSGlobals->GetComponentBoxSize()/2;
+
+  outerRadius = outerRadius/sqrt(2.0);
 
   itsOuterLogicalVolume=
     new G4LogicalVolume(new G4Tubs(itsName+"_outer_solid",
@@ -299,13 +344,13 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 
 
   // yoke pieces
-  G4double rYoke = itsOuterR - poleR - itsBpRadius + poleR * cos(dPhi / 2);
+  G4double rYoke = outerRadius - poleR - itsBpRadius + poleR * cos(dPhi / 2);
 
   if(rYoke > 0 ) // place yoke
     {
 
       // random ...
-      G4double rYoke1 =  itsOuterR; // outer length
+      G4double rYoke1 =  outerRadius; // outer length
       G4double rYoke2 =  itsBpRadius;  // inner length 
 
       G4LogicalVolume* lYoke1 = 
@@ -354,13 +399,13 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
  
   G4VPhysicalVolume* itsPhysiQuadrant1;
   itsPhysiQuadrant1 = new G4PVPlacement(
-		      NULL,                  // rotation
-		      0,                     // its position
-		      lQuadrant,             // its logical volume
-		      itsName+"_solid",      // its name
-		      itsOuterLogicalVolume, // its mother volume
-		      false,                 // no boolean operation
-		      0);                    // copy number
+					(G4RotationMatrix*)0,                  // rotation
+					(G4ThreeVector)0,                     // its position
+					lQuadrant,             // its logical volume
+					itsName+"_solid",      // its name
+					itsOuterLogicalVolume, // its mother volume
+					false,                 // no boolean operation
+					0);                    // copy number
 
   G4RotationMatrix* rotQ2= new  G4RotationMatrix;
   rotQ2->rotateZ( pi / 2.);
@@ -368,7 +413,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   G4VPhysicalVolume* itsPhysiQuadrant2;
   itsPhysiQuadrant2 = new G4PVPlacement(
 		      rotQ2,                 // rotation
-		      0,                     // its position
+		      (G4ThreeVector)0,                     // its position
 		      lQuadrant,             // its logical volume
 		      itsName+"_solid",	     // its name
 		      itsOuterLogicalVolume, // its mother volume
@@ -381,7 +426,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   G4VPhysicalVolume* itsPhysiQuadrant3;
   itsPhysiQuadrant3 = new G4PVPlacement(
 		      rotQ3,                 // rotation
-		      0,                     // its position
+		      (G4ThreeVector)0,                     // its position
 		      lQuadrant,             // its logical volume
 		      itsName+"_solid",	     // its name
 		      itsOuterLogicalVolume, // its mother volume
@@ -395,7 +440,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   G4VPhysicalVolume* itsPhysiQuadrant4;
   itsPhysiQuadrant4 = new G4PVPlacement(
 		      rotQ4,                  // rotation
-		      0,                      // its position
+		      (G4ThreeVector)0,                      // its position
 		      lQuadrant,              // its logical volume
 		      itsName+"_solid",	      // its name
 		      itsOuterLogicalVolume,  // its mother volume
@@ -409,8 +454,8 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   // insert the outer volume into the marker volume
   itsPhysiComp = 
     new G4PVPlacement(
-		      0,                      // no rotation
-		      0,                      // its position
+		      (G4RotationMatrix*)0,                      // no rotation
+		      (G4ThreeVector)0,                      // its position
 		      itsOuterLogicalVolume,  // its logical volume
 		      itsName+"_outer_phys",  // its name
 		      itsMarkerLogicalVolume, // its mother  volume
@@ -559,7 +604,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   G4VPhysicalVolume* itsPhysiQuadrant1;
   itsPhysiQuadrant1 = new G4PVPlacement(
 		      NULL,                  // rotation
-		      0,                     // its position
+		      (G4ThreeVector)0,                     // its position
 		      lQuadrant,             // its logical volume
 		      itsName+"_solid",      // its name
 		      itsOuterLogicalVolume, // its mother volume
@@ -572,7 +617,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   G4VPhysicalVolume* itsPhysiQuadrant2;
   itsPhysiQuadrant2 = new G4PVPlacement(
 		      rotQ2,                 // rotation
-		      0,                     // its position
+		      (G4ThreeVector)0,                     // its position
 		      lQuadrant,             // its logical volume
 		      itsName+"_solid",	     // its name
 		      itsOuterLogicalVolume, // its mother volume
@@ -585,7 +630,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   G4VPhysicalVolume* itsPhysiQuadrant3;
   itsPhysiQuadrant3 = new G4PVPlacement(
 		      rotQ3,                 // rotation
-		      0,                     // its position
+		      (G4ThreeVector)0,                     // its position
 		      lQuadrant,             // its logical volume
 		      itsName+"_solid",	     // its name
 		      itsOuterLogicalVolume, // its mother volume
@@ -599,7 +644,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   G4VPhysicalVolume* itsPhysiQuadrant4;
   itsPhysiQuadrant4 = new G4PVPlacement(
 		      rotQ4,                  // rotation
-		      0,                      // its position
+		      (G4ThreeVector)0,                      // its position
 		      lQuadrant,              // its logical volume
 		      itsName+"_solid",	      // its name
 		      itsOuterLogicalVolume,  // its mother volume
@@ -617,7 +662,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   
   itsPhysiComp = new G4PVPlacement(
 		      Rot,                    // rotation
-		      0,                      // its position
+		      (G4ThreeVector)0,                      // its position
 		      itsOuterLogicalVolume,  // its logical volume
 		      itsName+"_solid",	      // its name
 		      itsMarkerLogicalVolume, // its mother  volume
@@ -642,3 +687,6 @@ BDSQuadrupole::~BDSQuadrupole()
   delete itsEqRhs;
   delete itsStepper;
 }
+
+
+#define DEBUG 0

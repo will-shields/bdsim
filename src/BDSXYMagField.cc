@@ -40,7 +40,9 @@ G4int BDSXYMagField::ReadFile(G4String fname)
       bmapif>>rec.x>>rec.y>>rec.Bx>>rec.By>>rec.Bz; 
       
       if(!bmapif.good()) break;
-      //if(DEBUG) G4cout<<"read: "<<x<<" "<<y<<" "<<z<<" "<<Bx<<" "<<By<<" "<<Bz<<" "<<G4endl;
+#ifdef DEBUG 
+      G4cout<<"read: "<<rec.x<<" "<<rec.y<<" "<<rec.Bx<<" "<<rec.By<<" "<<rec.Bz<<" "<<G4endl;
+#endif
       itsFieldValues.push_back(rec);
     }
   

@@ -118,7 +118,7 @@ void BDSHelixStepper::AdvanceHelix( const G4double  yIn[],
 
 
 void BDSHelixStepper::Stepper( const G4double yInput[],
-			     const G4double dydx[],
+			     const G4double[],
 			     const G4double hstep,
 			     G4double yOut[],
 			     G4double yErr[]      )

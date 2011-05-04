@@ -436,10 +436,6 @@ G4bool BDSConvParticleChange::CheckIt(const G4Track& aTrack)
   G4bool    exitWithError = false;
   G4double  accuracy;
 
-  // No check in case of "fStopAndKill" 
-  //if (GetStatusChange() ==   fStopAndKill )  {
-  //  return G4VParticleChange::CheckIt(aTrack);
-  //}
 
   // MomentumDirection should be unit vector
   G4bool itsOKforMomentum = true;  

@@ -30,7 +30,8 @@ BDSRunManager* BDSRunManager::GetRunManager()
 
 BDSRunManager::BDSRunManager(){ fRunManager = this;}
 
-BDSRunManager::~BDSRunManager(){ G4cout << "BDSRunManager deleting..." << G4endl; }
+BDSRunManager::~BDSRunManager(){
+}
 
 void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
 {
@@ -114,7 +115,7 @@ void BDSRunManager::DoEventLoop(G4int n_event,const char* macroFile,G4int n_sele
 
     AnalyzeEvent(currentEvent);
 
-    if(i_event<n_select) G4UImanager::GetUIpointer()->ApplyCommand(msg);
+    //    if(i_event<n_select) G4UImanager::GetUIpointer()->ApplyCommand(msg);
 
     // gab: the following commented out - this is the only
     // difference between this and the normal G4 class

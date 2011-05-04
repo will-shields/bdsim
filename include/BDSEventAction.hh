@@ -18,7 +18,10 @@
 #include "globals.hh"
 #include "BDSAcceleratorComponent.hh"
 #include "BDSEnergyCounterSD.hh"
+#include "G4Trajectory.hh"
+#include "G4TrajectoryContainer.hh"
 #include <list>
+#include <vector>
 
 
 
@@ -44,6 +47,13 @@ private:
   G4int printModulo;
   G4int itsOutputFileNumber;
   G4int itsRecordSize;
+
+  G4VTrajectory* Traj;
+  G4VTrajectoryPoint* trajEndPoint;
+  G4ThreeVector trajEndPointThreeVector;
+  //  G4TrajectoryContainer* interestingTrajectories;
+  std::vector<G4VTrajectory*> interestingTrajectories;
+  
 
   list<BDSAcceleratorComponent*>::const_iterator iBeam;
   list<BDSEnergyCounterSD*>::const_iterator iEC;

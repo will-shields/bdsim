@@ -4,8 +4,6 @@
    Copyright (c) 2004 by J.C.Carter.  ALL RIGHTS RESERVED. 
 */
 
-const int DEBUG = 0;
-
 #include "BDSGlobalConstants.hh" // must be first in include list
 #include "BDSElement.hh"
 #include "G4Box.hh"
@@ -51,11 +49,11 @@ extern G4RotationMatrix* RotY90;
 //============================================================
 
 BDSElement::BDSElement(G4String aName, G4String geometry, G4String bmap,
-		       G4double aLength, G4double bpRad, G4double outR):
+		       G4double aLength, G4double bpRad, G4double outR, G4String aTunnelMaterial):
   BDSAcceleratorComponent(
 			  aName,
 			  aLength,bpRad,0,0,
-			  SetVisAttributes()),
+			  SetVisAttributes(), aTunnelMaterial),
   itsField(NULL)
 {
   itsOuterR = outR;
@@ -68,13 +66,16 @@ BDSElement::BDSElement(G4String aName, G4String geometry, G4String bmap,
 
   if(!(*LogVolCount)[itsName])
     {
-      if(DEBUG) G4cout<<"BDSElement : starting build logical volume "<<
-		  itsName<<G4endl;
-
+#ifdef DEBUG 
+      G4cout<<"BDSElement : starting build logical volume "<<
+        itsName<<G4endl;
+#endif
       BuildGeometry(); // build element box
       
-      if(DEBUG) G4cout<<"BDSElement : end build logical volume "<<
-		  itsName<<G4endl;
+#ifdef DEBUG 
+      G4cout<<"BDSElement : end build logical volume "<<
+        itsName<<G4endl;
+#endif
 
       PlaceComponents(geometry,bmap); // place components (from file) and build filed maps
     }
@@ -92,29 +93,23 @@ void BDSElement::BuildGeometry()
 
   // Build the logical volume 
 
-  if(DEBUG) G4cout<<"BDSElement : creating logical volume"<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"BDSElement : creating logical volume"<<G4endl;
+#endif
   G4double elementSizeX=itsOuterR, elementSizeY = itsOuterR;
   
   
-  //if(itsOuterR==0)
-  //    {
-  //      elementSizeX =(BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()) / 2;   Offset parameters for tunnel - in development
-  //      elementSizeY = (BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()) / 2;
-  //    }
-
   if(itsOuterR==0)
       {
-        elementSizeX =BDSGlobals->GetTunnelRadius();
-        elementSizeY = BDSGlobals->GetTunnelRadius();
+        elementSizeX =(BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()) / 2;   
+        elementSizeY = (BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()) / 2;
       }
 
   
   itsMarkerLogicalVolume = 
     new G4LogicalVolume(new G4Box(itsName+"generic_element",
-                                  //			  elementSizeX+std::abs(BDSGlobals->GetTunnelOffsetX()),
-                                  //				  elementSizeY+std::abs(BDSGlobals->GetTunnelOffsetY()),   Offset parameters for tunnel - in development
-                                  elementSizeX,
-                                  elementSizeY,
+                                  elementSizeX+std::abs(BDSGlobals->GetTunnelOffsetX()),
+                                  elementSizeY+std::abs(BDSGlobals->GetTunnelOffsetY()),   
 				  itsLength/2),
 			theMaterials->GetMaterial("Vacuum"),
 			itsName);
@@ -125,8 +120,11 @@ void BDSElement::BuildGeometry()
   itsOuterUserLimits = new G4UserLimits();
   itsOuterUserLimits->SetMaxAllowedStep(itsLength);
   itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
- 
-  
+
+  //Build the tunnel
+  if(BDSGlobals->GetBuildTunnel()){
+    //BuildTunnel();
+  }
 }
 
 // place components 
@@ -315,7 +313,7 @@ void BDSElement::BuildMagField(G4int nvar, G4bool forceToAllDaughters)
 						      fStepper, 
 						      fStepper->GetNumberOfVariables() );
   
-  G4ChordFinder* fChordFinder = new G4ChordFinder(fIntgrDriver);
+  fChordFinder = new G4ChordFinder(fIntgrDriver);
 
   fChordFinder->SetDeltaChord(BDSGlobals->GetDeltaChord());
 
@@ -469,5 +467,6 @@ BDSElement::~BDSElement()
 {
 
   delete itsVisAttributes;
- 
+  delete itsMarkerLogicalVolume;
+  delete fChordFinder;
 }

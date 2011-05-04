@@ -32,8 +32,10 @@ extern BDSMaterials* theMaterials;
 
 BDSSkewSextupole::BDSSkewSextupole(G4String& aName,G4double aLength, 
 				   G4double bpRad,G4double FeRad,
+                                   std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+                                   G4String aTunnelMaterial, G4String aMaterial,
 				   G4double BDblPrime):
-  BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes()),
+  BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes(),blmLocZ, blmLocTheta, aTunnelMaterial,aMaterial),
   itsBDblPrime(BDblPrime)
 {
   if (!(*LogVolCount)[itsName])
@@ -42,12 +44,16 @@ BDSSkewSextupole::BDSSkewSextupole(G4String& aName,G4double aLength,
       BuildBPFieldMgr(itsStepper,itsMagField);
       BuildDefaultMarkerLogicalVolume();
 
-      BuildBeampipe(itsLength);
+      BuildBeampipe();
 
       BuildDefaultOuterLogicalVolume(itsLength);
 
-      SetSensitiveVolume(itsBeampipeLogicalVolume);// for synchrotron
-      //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
+      if(BDSGlobals->GetSensitiveBeamPipe()){
+        SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+      }
+      if(BDSGlobals->GetSensitiveComponents()){
+        SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      }
 
       if(BDSGlobals->GetIncludeIronMagFields())
 	{
@@ -89,11 +95,22 @@ BDSSkewSextupole::BDSSkewSextupole(G4String& aName,G4double aLength,
 	  BuildBPFieldMgr(itsStepper,itsMagField);
 	  BuildDefaultMarkerLogicalVolume();
 	  
-	  BuildBeampipe(itsLength);
+          if(BDSGlobals->GetBuildTunnel()){
+            BuildTunnel();
+          }
+          BuildBeampipe();
 	  BuildDefaultOuterLogicalVolume(itsLength);
 
-	  SetSensitiveVolume(itsBeampipeLogicalVolume);// for synchrotron
-	  //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire      
+          //Build the beam loss monitors
+          BuildBLMs();
+
+          if(BDSGlobals->GetSensitiveBeamPipe()){
+            SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+          }
+          if(BDSGlobals->GetSensitiveComponents()){
+            SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+          }
+
 	  (*LogVol)[itsName]=itsMarkerLogicalVolume;
 	}
       else

@@ -18,6 +18,10 @@
 #include <cstring>
 #include "parser.tab.h"
 #include "sym_table.h"
+
+
+#define MAXFILENAMELENGTH 200
+
   
 using namespace std;
  
@@ -33,14 +37,12 @@ extern int yyerror(char *s);
 
 #define MAX_INCLUDE_DEPTH 10
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
-char include_filename_stack[MAX_INCLUDE_DEPTH][32];
+char include_filename_stack[MAX_INCLUDE_DEPTH][MAXFILENAMELENGTH];
 int include_linenum_stack[MAX_INCLUDE_DEPTH];
 int include_stack_ptr = 0;
 
 int line_num = 1;
 char* yyfilename;
-
-
 
 %}
 
@@ -76,6 +78,7 @@ multipole { return MULTIPOLE; }
 solenoid { return SOLENOID; }
 rcol { return RCOL;}
 ecol { return ECOL; } 
+muspoiler { return MUSPOILER; } 
 element { return ELEMENT; }
 transform3d { return TRANSFORM3D ; }
 collimator { return COLLIMATOR; }
@@ -88,7 +91,7 @@ laser { return LASER; }
 
 line       { return LINE; } 
 
-apertr {return APERTURE; } // reserved keywords
+aperture {return APERTURE; } // reserved keywords
 filename { return FILENAME; }
 period { return PERIOD; }
 range { return RANGE; }
@@ -101,7 +104,7 @@ cut { return CUT; }
 "end" { return END; }
 
 
-include     BEGIN(incl);  //reserved commands
+include   BEGIN(incl);  //reserved commands
 
 beam { return BEAM; }
 option { return OPTION; }
@@ -156,10 +159,10 @@ dump  { return DUMP; }
           // save info to the stack and load new buffer
           include_linenum_stack[include_stack_ptr] = line_num;
           line_num = 1;
-          strncpy(include_filename_stack[include_stack_ptr], yyfilename, 32);
-          strncpy(yyfilename,yytext,32); 
+          strncpy(include_filename_stack[include_stack_ptr], yyfilename, MAXFILENAMELENGTH);
+          strncpy(yyfilename,yytext,MAXFILENAMELENGTH); 
 	  include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
-          strncpy(include_filename_stack[include_stack_ptr], yyfilename, 32);
+          strncpy(include_filename_stack[include_stack_ptr], yyfilename, MAXFILENAMELENGTH);
 	  yy_switch_to_buffer(yy_create_buffer( yyin, YY_BUF_SIZE ) );
 	  //printf("done saving to stack\n");
     	}
@@ -183,7 +186,7 @@ dump  { return DUMP; }
       //printf("switching to previous buffer with %s\n", include_filename_stack[include_stack_ptr]);
       yy_delete_buffer(YY_CURRENT_BUFFER);
       yy_switch_to_buffer(include_stack[include_stack_ptr]);
-      strncpy( yyfilename, include_filename_stack[include_stack_ptr], 32) ;
+      strncpy( yyfilename, include_filename_stack[include_stack_ptr], MAXFILENAMELENGTH) ;
       line_num = include_linenum_stack[include_stack_ptr];
       
     }
@@ -191,7 +194,6 @@ dump  { return DUMP; }
 
 [\n]  line_num++;
 %%
-
 
 struct symtab * symlook(char *s)
 {

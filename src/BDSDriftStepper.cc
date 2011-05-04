@@ -25,7 +25,7 @@ BDSDriftStepper::BDSDriftStepper(G4Mag_EqRhs *EqRhs)
 
 
 void BDSDriftStepper::AdvanceHelix( const G4double  yIn[],
-                                   G4ThreeVector Bfld,
+                                   G4ThreeVector,
 				   G4double  h,
 				   G4double  yDrift[])
 {
@@ -64,7 +64,7 @@ void BDSDriftStepper::AdvanceHelix( const G4double  yIn[],
 }
 
 void BDSDriftStepper::Stepper( const G4double yInput[],
-		     const G4double dydx[],
+		     const G4double[],
 		     const G4double hstep,
 		     G4double yOut[],
 		     G4double yErr[]      )
@@ -76,7 +76,7 @@ void BDSDriftStepper::Stepper( const G4double yInput[],
 
    //   G4cout<<G4endl;
    //     G4cout<<"yInput="<<yInput[0]<<" "<< yInput[1]<<" "<<yInput[2]<<G4endl;
-   AdvanceHelix(yInput,0,hstep,yOut);
+   AdvanceHelix(yInput,(G4ThreeVector)0,hstep,yOut);
 
    //     G4cout<<"yOut="<<yOut[0]<<" "<< yOut[1]<<" "<<yOut[2]<<G4endl;
 

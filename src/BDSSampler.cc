@@ -66,14 +66,12 @@ void BDSSampler::SamplerLogicalVolume()
   if(!(*LogVolCount)[itsName])
     {
 
-      G4double SampTransSize;
-      SampTransSize=2.*BDSGlobals->GetTunnelRadius();
 
       itsMarkerLogicalVolume=
 	new G4LogicalVolume(
 			    new G4Box(itsName+"_solid",
-				      SampTransSize,
-				      SampTransSize,
+				      BDSGlobals->GetSamplerDiameter()/2,
+				      BDSGlobals->GetSamplerDiameter()/2,
 				      itsLength/2.0),
 			    theMaterials->GetMaterial("Vacuum"),
 			    itsName);
@@ -118,4 +116,5 @@ BDSSampler::~BDSSampler()
   if(itsVisAttributes) delete itsVisAttributes;
   if(itsUserLimits) delete itsUserLimits;
   --nSamplers;
+  delete itsMarkerLogicalVolume;
 }

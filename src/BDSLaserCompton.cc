@@ -44,6 +44,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
  aParticleChange.Initialize(trackData);
  
  // ensure that Laserwire can only occur once in an event
+ G4cout << "FireLaserCompton == " << FireLaserCompton << G4endl;
  if(!FireLaserCompton){
 	 #if G4VERSION > 8
    return G4VDiscreteProcess::PostStepDoIt(trackData,stepData);
@@ -55,12 +56,8 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
  
  if(aMaterial==theMaterials->GetMaterial("LaserVac"))
    {
-     G4LogicalVolume* lVolume = (trackData.GetVolume())->GetLogicalVolume();
-     
-     //     itsLaserWavelength=BDSGlobals->GetLaserwireWavelength();
-     //     itsLaserDirection=BDSGlobals->GetLaserwireDir();
-     itsLaserWavelength=BDSGlobals->GetLaserwireWavelength(lVolume->GetName());
-     itsLaserDirection=BDSGlobals->GetLaserwireDir(lVolume->GetName());
+     itsLaserWavelength=BDSGlobals->GetLaserwireWavelength();
+     itsLaserDirection=BDSGlobals->GetLaserwireDir();
      
      //G4cout << "&&&&&" << itsLaserDirection << "&&&&&\n";
      if(itsLaserWavelength<=0.)
@@ -91,7 +88,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
 	 aParticleChange.SetNumberOfSecondaries(1);
 	 aParticleChange.AddSecondary(aGamma); 
 	 if(!BDSGlobals->GetLaserwireTrackElectrons())
-	   {
+	 	   {
 #if G4VERSION > 6
 	     aParticleChange.ProposeEnergy( 0. );
 	     aParticleChange.ProposeLocalEnergyDeposit (0.);

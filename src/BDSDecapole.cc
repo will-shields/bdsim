@@ -20,8 +20,6 @@
 
 #include <map>
 
-const int DEBUG = 0;
-
 //============================================================
 
 typedef std::map<G4String,int> LogVolCountMap;
@@ -36,8 +34,10 @@ extern BDSMaterials* theMaterials;
 BDSDecapole::BDSDecapole(G4String aName, G4double aLength, 
 			 G4double bpRad, G4double FeRad,
 			 G4double BQuadPrime, G4double tilt, 
-			 G4double outR, G4String aMaterial):
-  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), aMaterial),
+			 G4double outR, 
+                         std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+                         G4String aTunnelMaterial, G4String aMaterial):
+  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), blmLocZ, blmLocTheta, aTunnelMaterial, aMaterial),
   itsBQuadPrime(BQuadPrime)
 {
   SetOuterRadius(outR);
@@ -52,11 +52,18 @@ BDSDecapole::BDSDecapole(G4String aName, G4double aLength,
       BuildDefaultMarkerLogicalVolume();
 
       //
+      //build tunnel
+      //
+      if(BDSGlobals->GetBuildTunnel()){
+        BuildTunnel();
+      }
+
+      //
       // build beampipe (geometry + magnetic field)
       //
       BuildBPFieldAndStepper();
       BuildBPFieldMgr(itsStepper,itsMagField);
-      BuildBeampipe(itsLength);
+      BuildBeampipe();
 
       //
       // build magnet (geometry + magnetic field)
@@ -85,7 +92,8 @@ BDSDecapole::BDSDecapole(G4String aName, G4double aLength,
 
 	  BuildOuterFieldManager(10, BFldIron,pi/10);
 	}
-
+      //Build the beam loss monitors
+      BuildBLMs();
       //
       // define sensitive volumes for hit generation
       //
@@ -125,7 +133,7 @@ BDSDecapole::BDSDecapole(G4String aName, G4double aLength,
 	  //
 	  BuildBPFieldAndStepper();
 	  BuildBPFieldMgr(itsStepper,itsMagField);
-	  BuildBeampipe(itsLength);
+	  BuildBeampipe();
 
 	  //
 	  // build magnet (geometry + magnetic field)
@@ -159,9 +167,12 @@ BDSDecapole::BDSDecapole(G4String aName, G4double aLength,
 	  //
 	  // define sensitive volumes for hit generation
 	  //
-	  SetSensitiveVolume(itsBeampipeLogicalVolume);// for synchrotron
-	  //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
-	  
+          if(BDSGlobals->GetSensitiveBeamPipe()){
+            SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+          }
+          if(BDSGlobals->GetSensitiveComponents()){
+            SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+	  }
 	  //
 	  // set visualization attributes
 	  //
@@ -188,7 +199,9 @@ void BDSDecapole::SynchRescale(G4double factor)
 {
   itsStepper->SetBQuadPrime(factor*itsBQuadPrime);
   itsMagField->SetBQuadPrime(factor*itsBQuadPrime);
-  if(DEBUG) G4cout << "Dec " << itsName << " has been scaled" << G4endl;
+#ifdef DEBUG
+  G4cout << "Dec " << itsName << " has been scaled" << G4endl;
+#endif
 }
 
 G4VisAttributes* BDSDecapole::SetVisAttributes()

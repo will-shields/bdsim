@@ -9,10 +9,12 @@
 #include "G4LogicalVolume.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4PVPlacement.hh"               
+#include "G4SubtractionSolid.hh"
 #include "G4UserLimits.hh"
 #include "G4TransportationManager.hh"
 #include "G4SDManager.hh"
 #include "G4UserLimits.hh"
+#include "G4Tubs.hh"
 
 
 #include <map>
@@ -28,26 +30,41 @@ extern BDSMaterials* theMaterials;
 //============================================================
 
 BDSMuSpoiler::BDSMuSpoiler (G4String& aName,G4double aLength,G4double bpRad,
-			    G4double rOuter,G4double aBField):
+			    G4double rInner, G4double rOuter,G4double aBField, 
+                            std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+                            G4String aTunnelMaterial):
   BDSAcceleratorComponent(aName,
 			 aLength,bpRad,bpRad,bpRad,
-			 SetVisAttributes()),
-  itsInnerRadius(bpRad),
+                          SetVisAttributes(), blmLocZ, blmLocTheta, aTunnelMaterial),
+  itsBeampipeRadius(bpRad),
+  itsInnerRadius(rInner),
   itsOuterRadius(rOuter),
   itsBField(aBField)
 
 {
-  
+  itsType="muspoiler";
+  SetVisAttributes();
+  SetBPVisAttributes();
   if ( (*LogVolCount)[itsName]==0)
     {
-      itsMarkerLogicalVolume=
-	new G4LogicalVolume(
-			    new G4Box(itsName,
-				      itsOuterRadius,
-				      itsOuterRadius,
-				      itsLength/2),
-			    theMaterials->GetMaterial("Vacuum"),
-			    itsName);
+  G4double xLength, yLength;
+  G4double totalTunnelRadius = BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+std::max(BDSGlobals->GetTunnelOffsetX(),BDSGlobals->GetTunnelOffsetY());
+  
+  xLength = yLength = std::max(itsOuterRadius,BDSGlobals->GetComponentBoxSize()/2);
+  xLength = yLength = std::max(xLength,totalTunnelRadius);
+
+#ifdef DEBUG 
+  G4cout<<"marker volume : x/y="<<xLength/m<<
+    " m, l= "<<  (itsLength+BDSGlobals->GetLengthSafety())/2/m <<" m"<<G4endl;
+#endif
+
+  itsMarkerLogicalVolume=new G4LogicalVolume
+    (new G4Box( itsName+"_solid",
+                xLength,
+		yLength,
+		(itsLength+BDSGlobals->GetLengthSafety())/2), //z half length 
+     theMaterials->GetMaterial("vacuum"),
+     itsName+"_log");
 
   // now protect the fields inside the marker volume by giving the
   // marker a null magnetic field (otherwise G4VPlacement can
@@ -57,7 +74,10 @@ BDSMuSpoiler::BDSMuSpoiler (G4String& aName,G4double aLength,G4double bpRad,
   // latter 'true' over-writes all the other fields
       itsMarkerLogicalVolume->
 	SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
-	
+      
+      if(BDSGlobals->GetBuildTunnel()){
+        BuildTunnel();
+      }
       BuildMuSpoiler();
 
       (*LogVolCount)[itsName]=1;
@@ -69,7 +89,6 @@ BDSMuSpoiler::BDSMuSpoiler (G4String& aName,G4double aLength,G4double bpRad,
       itsMarkerLogicalVolume=(*LogVol)[itsName];
     }  
 }
-
 
 void BDSMuSpoiler::BuildMuSpoiler()
 {
@@ -91,6 +110,49 @@ void BDSMuSpoiler::BuildMuSpoiler()
 			theMaterials->GetMaterial("Vacuum"),
 			itsName+"_inner");
 
+  G4Material *bpMaterial = theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName() );
+
+  // build beampipe
+
+#ifdef DEBUG 
+  G4cout << "Outer pipe :"
+         << " r= " << itsBpRadius/m << " m"
+         << " l= " << itsLength/(2.)/m << " m"
+         << G4endl;
+#endif
+
+  itsBPTube=new G4Tubs(itsName+"_bmp_solid",
+		       itsBpRadius-BDSGlobals->GetBeampipeThickness(),
+		       itsBpRadius,
+		       itsLength/(2.),
+		       0,twopi*radian);
+
+#ifdef DEBUG
+  G4cout << "Inner pipe :"
+         << " r= " << (itsBpRadius-BDSGlobals->GetBeampipeThickness() )/m
+         << " m"
+         << " l= " << itsLength/(2.)/m << " m"
+         << G4endl;
+#endif
+  
+  itsInnerBPTube=new G4Tubs(itsName+"_inner_bmp_solid",
+				0.,
+				itsBpRadius-BDSGlobals->GetBeampipeThickness(),
+				itsLength/2,
+				0,twopi*radian);
+
+  itsBeampipeLogicalVolume=	
+    new G4LogicalVolume(itsBPTube,
+			bpMaterial,
+			itsName+"_bmp_log");
+
+  itsInnerBPLogicalVolume=	
+    new G4LogicalVolume(itsInnerBPTube,
+			theMaterials->GetMaterial("Vacuum"),
+			itsName+"_inner_bmp_log");
+
+
+
   G4UserLimits* AbsUserLimits =
     new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
 		     BDSGlobals->GetThresholdCutCharged());
@@ -102,6 +164,15 @@ void BDSMuSpoiler::BuildMuSpoiler()
     SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
 				       BDSGlobals->GetThresholdCutCharged()));
 
+  itsInnerBPLogicalVolume->SetUserLimits(AbsUserLimits);
+
+  itsBeampipeLogicalVolume->
+    SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
+				       BDSGlobals->GetThresholdCutCharged()));
+
+  itsSolidLogVol->SetVisAttributes(itsVisAttributes);
+  itsBeampipeLogicalVolume->SetVisAttributes(itsBPVisAttributes);
+
   if(itsBField)
     {
       itsMagField=new BDSMuSpoilerMagField(itsBField);
@@ -111,51 +182,112 @@ void BDSMuSpoiler::BuildMuSpoiler()
   
   itsPhysiComp2 = 
     new G4PVPlacement(
-		      0,		   // no rotation
-		      0,                   // its position
+		      (G4RotationMatrix*)0,		   // no rotation
+		      (G4ThreeVector)0,                   // its position
 		      itsInnerLogVol,      // its logical volume
 		      itsName+"_combined", // its name
 		      itsSolidLogVol,      // its mother  volume
 		      false,		   // no boolean operation
 		      0);		   // copy number 
 
-  SetSensitiveVolume(itsSolidLogVol);
+  if(BDSGlobals->GetSensitiveComponents()){
+    SetMultipleSensitiveVolumes(itsSolidLogVol);
+  }
+  if(BDSGlobals->GetSensitiveBeamPipe()){
+    SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+  }
+
+  BuildBLMs();
+
+  G4VPhysicalVolume* PhysiInnerBP;
+  PhysiInnerBP = new G4PVPlacement(
+				   (G4RotationMatrix*)0,		        // no rotation
+				   (G4ThreeVector)0,	                // at (0,0,0)
+		      itsInnerBPLogicalVolume,  // its logical volume
+		      itsName+"_inner_bmp_phys",// its name
+		      itsMarkerLogicalVolume,   // its mother  volume
+		      false,		        // no boolean operation
+		      0);		        // copy number
+    
+
+      G4VPhysicalVolume* PhysiBP;
+      PhysiBP = new G4PVPlacement(
+				  (G4RotationMatrix*)0,			     // no rotation
+				  (G4ThreeVector)0,	                     // at (0,0,0)
+			  itsBeampipeLogicalVolume,  // its logical volume
+			  itsName+"_bmp_phys",	     // its name
+			  itsMarkerLogicalVolume,    // its mother  volume
+			  false,		     // no boolean operation
+			  0);		             // copy number
 
   itsPhysiComp = 
     new G4PVPlacement(
-		      0,		     // no rotation
-		      0,                     // its position
+		      (G4RotationMatrix*)0,		     // no rotation
+		      (G4ThreeVector)0,                     // its position
 		      itsSolidLogVol,    // its logical volume
 		      itsName+"_solid",	     // its name
 		      itsMarkerLogicalVolume, // its mother  volume
 		      false,		     // no boolean operation
-		      0);		     // copy number   
+		      0);		     // copy number  
+
+  
 
 }
 
-
+void BDSMuSpoiler::BuildBLMs(){
+  itsBlmLocationR=itsOuterRadius;
+  BDSAcceleratorComponent::BuildBLMs();
+}
 
 
 G4VisAttributes* BDSMuSpoiler::SetVisAttributes()
 {
   itsVisAttributes=new G4VisAttributes(G4Colour(0.0,0.5,0.5));
+  itsVisAttributes->SetForceSolid(true);
+  itsVisAttributes->SetVisibility(true);
   return itsVisAttributes;
+}
+
+G4VisAttributes* BDSMuSpoiler::SetBPVisAttributes()
+{
+  itsBPVisAttributes=new G4VisAttributes(G4Colour(0.2,0.2,0.2));
+  itsBPVisAttributes->SetForceSolid(true);
+  itsBPVisAttributes->SetVisibility(true);
+  return itsBPVisAttributes;
 }
 
 
 BDSMuSpoiler::~BDSMuSpoiler()
 {
   if(itsVisAttributes) delete itsVisAttributes;
+  if(itsBPVisAttributes) delete itsBPVisAttributes;
   if(itsUserLimits) delete itsUserLimits;
+
+  if(itsInnerTunnelUserLimits) delete itsInnerTunnelUserLimits;
+  if(itsTunnelUserLimits) delete itsTunnelUserLimits;
+  if(itsSoilTunnelUserLimits) delete itsSoilTunnelUserLimits;
 
   if(itsMarkerLogicalVolume)delete itsMarkerLogicalVolume;
   if(itsSolidLogVol)delete itsSolidLogVol;
   if(itsInnerLogVol)delete itsInnerLogVol;
+  if(itsBeampipeLogicalVolume) delete itsBeampipeLogicalVolume;
+  if(itsInnerBPLogicalVolume) delete itsInnerBPLogicalVolume;
+  
+  if(itsBPTube) delete itsBPTube;
+  if(itsInnerBPTube) delete itsInnerBPTube;
 
   if(itsPhysiComp) delete itsPhysiComp;
   if(itsPhysiComp2) delete itsPhysiComp2;
+  if(itsPhysiInnerBP) delete itsPhysiInnerBP;
+  if(itsPhysiBP) delete itsPhysiBP;
+  if(itsPhysiCompSoil) delete itsPhysiCompSoil;
 
   if(itsMagField) delete itsMagField;
   if(itsFieldMgr) delete itsFieldMgr;
 
+  if(itsSoilTube) delete itsSoilTube;
+  if(itsTunnelTube) delete itsTunnelTube;
+  if(itsInnerTunnelTube) delete itsInnerTunnelTube;
+  if(itsInnerTunnelLogicalVolume) delete itsInnerTunnelLogicalVolume;
+  if(itsSoilTunnelLogicalVolume) delete itsSoilTunnelLogicalVolume;
 }

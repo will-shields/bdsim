@@ -16,7 +16,7 @@
 
 # Invoke the OGLSX driver 
 #  Create a scene handler and a viewer for the OGLSX driver
-/vis/open OGLIX
+/vis/open OGLSX
 #/vis/open DAWNFILE
 
 # Create an empty scene 
@@ -34,7 +34,8 @@
 #        since the C++ method DrawTrajectory() is 
 #        described in the event action.
 
-/vis/viewer/set/viewpointThetaPhi 80 80
+/vis/viewer/set/viewpointThetaPhi 90 45
+#/vis/viewer/scale 1 5
 # /vis/drawVolume
 #/vis/scene/add/trajectories
 # /tracking/storeTrajectory 0

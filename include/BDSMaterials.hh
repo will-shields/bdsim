@@ -56,7 +56,10 @@ protected:
   std::map<G4String,G4Material*> materials; //SPM
   std::map<G4String,G4Element*>  elements; //SPM
 private:
-
+  G4Material* tmpMaterial;
+  G4Element* tmpElement;
+  G4MaterialPropertiesTable* airMaterialPropertiesTable;
+  G4MaterialPropertiesTable* fsMaterialPropertiesTable;
 
 };
 

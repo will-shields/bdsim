@@ -18,8 +18,6 @@
 //
 
 
-const int DEBUG = 0;
-
 //=================================================================
 
 #include "BDSGlobalConstants.hh"
@@ -58,7 +56,7 @@ const int DEBUG = 0;
 #include "BDSEnergyCounterSD.hh"
 
 // elements
-#include "BDSBeamPipe.hh"
+//#include "BDSBeamPipe.hh"
 #include "BDSDrift.hh"
 #include "BDSSectorBend.hh"
 #include "BDSRBend.hh"
@@ -133,6 +131,13 @@ G4FieldManager* theOuterFieldManager;
 extern BDSOutput* bdsOutput;
 extern G4bool verbose;
 extern G4bool outline;
+
+#ifdef DEBUG
+bool debug = true;
+#else
+bool debug = false;
+#endif
+
 //=================================================================
 
 
@@ -157,11 +162,41 @@ G4VPhysicalVolume* BDSDetectorConstruction::Construct()
 
   theMaterials=new BDSMaterials();
 
-  if (verbose || DEBUG) G4cout << "-->starting BDS construction \n"<<G4endl;
+  if (verbose || debug) G4cout << "-->starting BDS construction \n"<<G4endl;
 
   return ConstructBDS(beamline_list);
 
 }
+
+int BDSDetectorConstruction::AddDriftToBeamline(G4String name, G4double l,std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double startAper, G4double endAper, G4bool added_drift, G4String aTunnelMaterial ){
+  if(added_drift){
+    if(l > 0) // skip zero-length elements                                                                                                         
+      {
+#ifdef DEBUG
+        G4cout << "---->adding Drift,"
+               << " name= " << name
+               << " l= " << l << "m"
+               << " startAper= " << startAper/m << "m"
+               << " endAper= " << endAper/m << "m"
+               << G4endl;
+#endif
+        
+        theBeamline.push_back(new BDSDrift( name,
+                                            l*m,
+                                            blmLocZ,
+                                            blmLocTheta,
+                                            startAper, endAper, aTunnelMaterial ) );
+      } else {
+      G4cerr << "---->NOT adding Drift,"
+             << " name= " << name
+             << ", TOO SHORT LENGTH:"
+             << " l= " << l << "m"
+             << G4endl;
+    }
+  }
+  return 0;
+}
+
 
 
 G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& beamline_list)
@@ -178,35 +213,38 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   list<struct Element>::iterator it;
 
 
-  if (verbose || DEBUG) G4cout << "parsing the atom list..."<< G4endl;
+  if (verbose || debug) G4cout << "parsing the atom list..."<< G4endl;
   for(it = atom_list.begin();it!=atom_list.end();it++)
   {
-    if (DEBUG) G4cout << "---->adding Atom, "
-		      << "name= " << (*it).name << " "
-		      << "symbol= " << (*it).symbol << " "
-		      << "Z= " << (*it).Z << " "
-		      << "A= " << (*it).A << "g/mole "
-		      << G4endl;
+#ifdef DEBUG
+    G4cout << "---->adding Atom, "
+           << "name= " << (*it).name << " "
+           << "symbol= " << (*it).symbol << " "
+           << "Z= " << (*it).Z << " "
+           << "A= " << (*it).A << "g/mole "
+           << G4endl;
+#endif
 
     theMaterials->AddElement((*it).name,(*it).symbol,(*it).Z,(*it).A);
   }
-  if (verbose || DEBUG) G4cout << "size of atom list: "<< atom_list.size() << G4endl;
+  if (verbose || debug) G4cout << "size of atom list: "<< atom_list.size() << G4endl;
 
 
   //
   // convert the parsed material list to list of Geant4 G4Materials
   //
-  if (verbose || DEBUG) G4cout << "parsing the material list..."<< G4endl;
+  if (verbose || debug) G4cout << "parsing the material list..."<< G4endl;
   for(it = material_list.begin();it!=material_list.end();it++)
   {
     if((*it).Z != 0) {
-      if (DEBUG) G4cout << "---->adding Material, "
-			<< "name= "<< (*it).name << " "
-			<< "Z= " << (*it).Z << " "
-			<< "A= " << (*it).A << "g/mole "
-			<< "density= "<< (*it).density << "g/cm3 "
-			<< G4endl;
-
+#ifdef DEBUG  
+      G4cout << "---->adding Material, "
+             << "name= "<< (*it).name << " "
+             << "Z= " << (*it).Z << " "
+             << "A= " << (*it).A << "g/mole "
+             << "density= "<< (*it).density << "g/cm3 "
+             << G4endl;
+#endif
       theMaterials->AddMaterial((*it).name,(*it).Z,(*it).A,(*it).density);
     }
     else if((*it).components.size() != 0){
@@ -227,14 +265,16 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
       if((*it).componentsWeights.size()==(*it).components.size()) {
 
-	if (DEBUG) G4cout << "---->adding Material, "
-			  << "name= "<< (*it).name << " "
-			  << "density= "<< (*it).density << "g/cm3 "
-			  << "state= " << (*it).state << " "
-			  << "T= " << (*it).temper << "K "
-			  << "P= " << (*it).pressure << "atm "
-			  << "ncomponents= " << (*it).components.size() << " "
-			  << G4endl;
+#ifdef DEBUG 
+        G4cout << "---->adding Material, "
+               << "name= "<< (*it).name << " "
+               << "density= "<< (*it).density << "g/cm3 "
+               << "state= " << (*it).state << " "
+               << "T= " << (*it).temper << "K "
+               << "P= " << (*it).pressure << "atm "
+               << "ncomponents= " << (*it).components.size() << " "
+               << G4endl;
+#endif
 
 	theMaterials->AddMaterial((*it).name,
 				  (*it).density,
@@ -246,15 +286,16 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       }
       else if((*it).componentsFractions.size()==(*it).components.size()) {
 
-	if (DEBUG) G4cout << "---->adding Material, "
-			  << "name= "<< (*it).name << " "
-			  << "density= "<< (*it).density << "g/cm3 "
-			  << "state= " << (*it).state << " "
-			  << "T= " << (*it).temper << "K "
-			  << "P= " << (*it).pressure << "atm "
-			  << "ncomponents= " << (*it).components.size() << " "
-			  << G4endl;
-
+#ifdef DEBUG 
+        G4cout << "---->adding Material, "
+        << "name= "<< (*it).name << " "
+        << "density= "<< (*it).density << "g/cm3 "
+        << "state= " << (*it).state << " "
+        << "T= " << (*it).temper << "K "
+        << "P= " << (*it).pressure << "atm "
+        << "ncomponents= " << (*it).components.size() << " "
+        << G4endl;
+#endif
         theMaterials->AddMaterial((*it).name,
 				  (*it).density,
 				  itsState,
@@ -273,7 +314,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       exit(1);
     }
   }
-  if (verbose || DEBUG) G4cout << "size of material list: "<< material_list.size() << G4endl;
+  if (verbose || debug) G4cout << "size of material list: "<< material_list.size() << G4endl;
 
 
   //
@@ -291,17 +332,18 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   // momentum (in GeV/c)
   G4double momentum = BDSGlobals->GetBeamMomentum()/GeV;
   // rigidity (in T*m)
-  G4double brho = ( momentum / (0.299792458 * charge));
+  G4double brho = BDSGlobals->GetFFact()*( momentum / (0.299792458 * charge));
+  
   // rigidity (in Geant4 units)
   brho *= (tesla*m);
-  if (verbose || DEBUG) G4cout << "Rigidity (Brho) : "<< fabs(brho)/(tesla*m) << " T*m"<<G4endl;
+  if (verbose || debug) G4cout << "Rigidity (Brho) : "<< fabs(brho)/(tesla*m) << " T*m"<<G4endl;
 
 
   //
   // beampipe default outer radius (if not overridden by "aper" option)
   //
   G4double bpRad=BDSGlobals->GetBeampipeRadius();
-  if (verbose || DEBUG) G4cout<<"Default pipe outer radius= "<<bpRad/m<< "m"
+  if (verbose || debug) G4cout<<"Default pipe outer radius= "<<bpRad/m<< "m"
 			      << G4endl;
 
 
@@ -309,7 +351,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   // of the iron in case it is different from the beampipe outer radius
   // Not done yet.
   G4double FeRad = bpRad;
-  if (verbose || DEBUG) G4cout<<"Default magnet inner radius= "<<FeRad/m<< "m"
+  if (verbose || debug) G4cout<<"Default magnet inner radius= "<<FeRad/m<< "m"
 			      << G4endl;
 
 
@@ -332,16 +374,23 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   // convert the parsed element list to list of BDS elements
   //
   G4bool added_comp = false;
-  if (verbose || DEBUG) G4cout << "parsing the beamline element list..."<< G4endl;
+  G4int addDriftReturn;
+  G4double driftLength = 0.0;
+  G4String driftName ;
+  G4double driftStartAper = bpRad;
+  G4double driftEndAper = bpRad;
+
+  if (verbose || debug) G4cout << "parsing the beamline element list..."<< G4endl;
   for(it = beamline_list.begin();it!=beamline_list.end();it++)
     {
       added_comp = false;
 
       if((*it).type==_SAMPLER ) {
-	if(DEBUG) G4cout << "---->adding Sampler,"
-			 << " name= " << (*it).name
-			 << G4endl;
-
+#ifdef DEBUG 
+        G4cout << "---->adding Sampler,"
+               << " name= " << (*it).name
+               << G4endl;
+#endif
 	theBeamline.push_back(new BDSSampler( (*it).name,
 					      samplerLength ) );
 	bdsOutput->nSamplers++;
@@ -354,12 +403,14 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	// replace short cylinders with 1 meter cylinders
 	if( (*it).l < 1.E-4 ) (*it).l = 1.0 ;
 
-	if(DEBUG) G4cout << "---->adding CSampler,"
-			 << " name= " << (*it).name
-			 << " l= " << (*it).l << "m"
-			 << " r= " << (*it).r << "m"
-			 << G4endl;
-
+#ifdef DEBUG 
+        G4cout << "---->adding CSampler,"
+               << " name= " << (*it).name
+               << " l= " << (*it).l << "m"
+               << " r= " << (*it).r << "m"
+               << G4endl;
+#endif
+        
 	theBeamline.push_back(new BDSSamplerCylinder( (*it).name,
 						      (*it).l * m,
 						      (*it).r * m ) );
@@ -369,58 +420,65 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       }
 
       if((*it).type==_DUMP ) {
-        if(DEBUG) G4cout << "---->adding Dump,"
-			 << " name= " << (*it).name
-			 << G4endl;
-
-        theBeamline.push_back(new BDSDump( (*it).name,
-					   samplerLength ) );
+#ifdef DEBUG 
+        G4cout << "---->adding Dump,"
+               << " name= " << (*it).name
+               << " tunnel material " << (*it).tunnelMaterial
+               << G4endl;
+#endif
+         theBeamline.push_back(new BDSDump( (*it).name,
+                                            samplerLength,(*it).tunnelMaterial ) );
 
 	added_comp=true;
       }
 
       if((*it).type==_DRIFT ) {
-	G4double aper = bpRad;
-	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
+        driftStartAper = bpRad;
+	driftEndAper = bpRad;
 
-	if((*it).l > 0) // skip zero-length elements
-	  {
-	    if(DEBUG) G4cout << "---->adding Drift,"
-			     << " name= " << (*it).name
-			     << " l= " << (*it).l << "m"
-			     << " aper= " << aper/m << "m"
-			     << G4endl;
+        if(it!=beamline_list.begin()){
+          it--;
+          if(((*it).type!=_ECOL)&&((*it).type!=_RCOL)&&((*it).type!=_MUSPOILER)){
+            if( (*it).aper > 1.e-10*m ) driftStartAper = (*it).aper * m;
+          }
+          it++;
+        }
 
-	    theBeamline.push_back(new BDSDrift( (*it).name,
-						(*it).l*m,
-						aper ) );
-	    added_comp=true;
-	  } else {
-	    G4cerr << "---->NOT adding Drift,"
-		   << " name= " << (*it).name
-		   << ", TOO SHORT LENGTH:"
-		   << " l= " << (*it).l << "m"
-		   << G4endl;
-	  }
+        driftLength = (*it).l;
+        driftName = (*it).name;
+
+        if(it!=beamline_list.end()){
+          it++;
+          if(((*it).type!=_ECOL)&&((*it).type!=_RCOL)&&((*it).type!=_MUSPOILER)){
+            if( (*it).aper > 1.e-10*m ) driftEndAper = (*it).aper * m;
+          }
+          it--;
+        } 
+        addDriftReturn = AddDriftToBeamline(driftName, driftLength, (it)->blmLocZ,
+                                            (it)->blmLocTheta, driftStartAper, driftEndAper, true , (*it).tunnelMaterial); 
+        added_comp = true;
       }
 
       if((*it).type==_RF ) {
 	G4double aper = bpRad;
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-
+        
 	if((*it).l > 0) // skip zero-length elements
 	  {
-	    if(DEBUG) G4cout << "---->adding RF,"
-			     << " name= " << (*it).name
-			     << " l= " << (*it).l << "m"
-			     << " aper= " << aper/m << "m"
-			     << " grad= " << (*it).gradient << "MV/m"
-			     << G4endl;
-
-	    theBeamline.push_back(new BDSRfCavity( (*it).name,
+#ifdef DEBUG 
+            G4cout << "---->adding RF,"
+                   << " name= " << (*it).name
+                   << " l= " << (*it).l << "m"
+                   << " aper= " << aper/m << "m"
+                   << " grad= " << (*it).gradient << "MV/m"
+                   << " tunnel material " << (*it).tunnelMaterial
+                   << G4endl;
+#endif
+	     theBeamline.push_back(new BDSRfCavity( (*it).name,
 						   (*it).l * m,
 						   aper,
 						   (*it).gradient,
+                                                    (*it).tunnelMaterial,
 						   (*it).material ) );
 	    added_comp=true;
 	  } else {
@@ -438,8 +496,10 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	// geometry
 	//
 	G4double aper = bpRad;
-	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-
+	if( (*it).aper > 0 ) aper = (*it).aper * m; //Set if aper specified for element
+        if( ((*it).aperX>0) || ((*it).aperY>0)){  //aperX or aperY override aper, aper set to the largest of aperX or aperY
+          aper=std::max((*it).aperX,(*it).aperY);
+        }
 	FeRad = aper;
 
 	if( (*it).outR < aper/m)
@@ -447,15 +507,15 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << "aper+22*cm"<<G4endl;
-	    (*it).outR = aper/m + 0.22;
+		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
 	  }
-
+	
 	// arc length
 	G4double length = (*it).l*m;
-	if((*it).angle !=0)
-	  length *= ((*it).angle/2.0) / sin((*it).angle/2.0); 
+        G4double magFieldLength = length;// * 0.999935999; //Small constant correction factor needed for sbend, ok to within a few picometres over 1 metre at 1.5 GeV, for any bend angle
 
+                
 	//
 	// magnetic field
 	//
@@ -467,57 +527,64 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	// positive charges
 	// CHECK SIGNS 
 	//
-	if((*it).B != 0){
-	  // angle = arc length/radius of curvature = L/rho = (B*L)/(B*rho)
-	  bField = (*it).B * tesla;
-	  (*it).angle  = - bField * length / brho;
-	}
-	else{
-	  (*it).angle *= -1;
-	  // B = Brho/rho = Brho/(arc length/angle)
-	  bField = - brho * (*it).angle / length;
-	  (*it).B = bField/tesla;
-	}
 
-	// synch factor??
+        if( fabs((*it).angle) < 1.e-7 * rad ) {
+          (*it).angle=1e-7 * rad;
+        }
+
+        if((*it).B != 0){
+          bField = (*it).B * tesla;
+	  G4double rho = brho/bField;
+	  (*it).angle  = - 2.0*asin(magFieldLength/2.0/rho);
+        }
+        else{
+            (*it).angle *= -1;
+            bField = - 2 * brho * sin((*it).angle/2.0) / magFieldLength;
+            (*it).B = bField/tesla;
+        }
+
+   	// synch factor??
 
 	// B' = dBy/dx = Brho * (1/Brho dBy/dx) = Brho * k1
 	// Brho is already in G4 units, but k1 is not -> multiply k1 by m^-2
 	bPrime = - brho * ((*it).k1 / (m*m)) * synch_factor;
 
-	if( fabs((*it).angle) < 1.e-7 * rad ) {
-	  if(DEBUG)
+        //Should keep the correct geometry, therefore keep dipole withe zero angle.
+        if( fabs((*it).angle) < 1.e-7 * rad ) {
+#ifdef DEBUG
 	  G4cerr << "---->NOT adding Sbend,"
-		 << " name= " << (*it).name
-		 << ", TOO SMALL ANGLE"
-		 << " angle= " << (*it).angle << "rad"
-		 << ": REPLACED WITH Drift,"
-		 << " l= " << length/m << "m"
-		 << " aper= " << aper/m << "m"
-		 << G4endl;
+        		 << " name= " << (*it).name
+        		 << ", TOO SMALL ANGLE"
+        		 << " angle= " << (*it).angle << "rad"
+        		 << ": REPLACED WITH Drift,"
+        		 << " l= " << length/m << "m"
+        		 << " aper= " << aper/m << "m"
+                         << " tunnel material " << (*it).tunnelMaterial
+        		 << G4endl;
+        #endif
+        	   theBeamline.push_back(new BDSDrift( (*it).name,
+                                                       (*it).l*m, (it)->blmLocZ, (it)->blmLocTheta,
+                                                       aper, aper, (*it).tunnelMaterial ) );
+        	}
+        	else {
+#ifdef DEBUG 
+          G4cout << "---->adding Sbend "
+                 << " name= " << (*it).name
+                 << " l= " << length/m << "m"
+                 << " angle= " << (*it).angle << "rad"
+                 << " B= " << bField/tesla << "T"
+                 << " B'= " << bPrime/(tesla/m) << "T/m"
+                 << " tilt= " << (*it).tilt << "rad"
+                 << " aper= " << aper/m << "m"
+                 << " outR= " << (*it).outR << "m"
+                 << " FeRad= " << FeRad/m << "m"
+                 << " tunnel material= " << (*it).tunnelMaterial
+                 << " material= " << (*it).material
+                 << G4endl;
+#endif
 
-	  theBeamline.push_back(new BDSDrift( (*it).name,
-					      (*it).l*m,
-					      aper ) );
-	}
-	else {
-	  if(DEBUG) G4cout << "---->adding Sbend "
-			   << " name= " << (*it).name
-			   << " l= " << length/m << "m"
-			   << " angle= " << (*it).angle << "rad"
-			   << " B= " << bField/tesla << "T"
-			   << " B'= " << bPrime/(tesla/m) << "T/m"
-			   << " tilt= " << (*it).tilt << "rad"
-			   << " aper= " << aper/m << "m"
-			   << " outR= " << (*it).outR << "m"
-			   << " FeRad= " << FeRad/m << "m"
-			   << " material= " << (*it).material
-			   << G4endl;
 
-
-	  // REPLACE WITH BDSRBend FOR THE MOMENT (UNTIL TOROIDAL GEOMETRY IS
-	  // IMPLEMENTED!
-
+	  /*
 	  theBeamline.push_back(new BDSRBend( (*it).name,
 						   (*it).l*m,
 						   aper,
@@ -525,46 +592,59 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						   bField,
 						   (*it).angle,
 						   (*it).outR * m,
+                                                   (it)->blmLocZ,
+                                                   (it)->blmLocTheta,
 						   (*it).tilt * rad,
 						   bPrime,
 						   (*it).material ) );
-/*	  
-	  theBeamline.push_back(new BDSSectorBend( (*it).name,
+	  
+          */
+          
+
+	   theBeamline.push_back(new BDSSectorBend( (*it).name,
 						   length,
 						   aper,
 						   FeRad,
 						   bField,
 						   (*it).angle,
 						   (*it).outR * m,
+                                                    (it)->blmLocZ,
+                                                    (it)->blmLocTheta,
 						   (*it).tilt,
-						   bPrime,
-						   (*it).material ) );
-*/	  
-	}
+                                                    bPrime,
+                                                    (*it).tunnelMaterial,
+                                                    (*it).material, (*it).aperX*m, (*it).aperY*m ) );
+          
+                 }
       
 	added_comp=true;
-      }
+    }
 
       if((*it).type==_RBEND ) {
 
 	//
 	// geometry
 	//
-        G4double aper = bpRad;
+        G4double aper = 2*bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-
         FeRad = aper;
 
-        if( (*it).outR < aper/m)
-          {
+	if( (*it).outR < aper/m)
+	  {
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << "aper+22*cm"<<G4endl;
-	    (*it).outR = aper/m + 0.22;
+		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
 	  }
 
 	G4double length = (*it).l*m; //geometrical length
+	G4double magFieldLength = 2*std::min ( //length of magnetic field
+					(((*it).l/(*it).angle)*sin((*it).angle/2)
+					 - fabs(cos((*it).angle/2))*(*it).outR*tan((*it).angle/2)/2), 
+					(((*it).l/(*it).angle)*sin((*it).angle/2)
+					 + fabs(cos((*it).angle/2))*(*it).outR*tan((*it).angle/2)/2)
+					)*m;
 
 	//
 	// magnetic field
@@ -582,7 +662,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	  (*it).angle *= -1;
 	  // arc length = radius*angle
 	  //            = (geometrical length/(2.0*sin(angle/2))*angle
-	  G4double arclength = 0.5*length * (*it).angle / sin((*it).angle/2.0);
+	  G4double arclength = 0.5*magFieldLength * (*it).angle / sin((*it).angle/2.0);
 	  // B = Brho/rho = Brho/(arc length/angle)
 	  bField = - brho * (*it).angle / arclength;
 	  (*it).B = bField/tesla;
@@ -595,43 +675,52 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	bPrime = - brho * ((*it).k1 / (m*m)) * synch_factor;
 
         if( fabs((*it).angle) < 1.e-7 * rad ) {
-	  if(DEBUG)
-	    G4cerr << "---->NOT adding Rbend,"
+#ifdef DEBUG
+          G4cerr << "---->NOT adding Rbend,"
 		 << " name= " << (*it).name
 		 << ", TOO SMALL ANGLE"
 		 << " angle= " << (*it).angle << "rad"
 		 << ": REPLACED WITH Drift,"
 		 << " l= " << length/m << "m"
 		 << " aper= " << aper/m << "m"
+		 << " tunnel material = " << (*it).tunnelMaterial
 		 << G4endl;
-	  
-          theBeamline.push_back(new BDSDrift( (*it).name,
-					      length,
-					      aper ) );
+#endif
+           theBeamline.push_back(new BDSDrift( (*it).name,
+					      length,                                            
+                                               (it)->blmLocZ,
+                                            (it)->blmLocTheta,
+                                               aper, aper, (*it).tunnelMaterial ) );
         }
         else {
-	  if(DEBUG) G4cout << "---->adding Rbend,"
-			   << " name= " << (*it).name 
-			   << " l= " << length/m << "m"
-			   << " angle= " << (*it).angle << "rad"
-			   << " B= " << bField/tesla << "T"
-			   << " B'= " << bPrime/(tesla/m) << "T/m"
-			   << " tilt= " << (*it).tilt << "rad"
-			   << " aper= " << aper/m << "m"
-			   << " outR= " << (*it).outR << "m"
-			   << " FeRad= " << FeRad/m << "m"
-			   << " material= " << (*it).material
-			   << G4endl;
+#ifdef DEBUG 
+          G4cout << "---->adding Rbend,"
+                 << " name= " << (*it).name 
+                 << " l= " << length/m << "m"
+                 << " angle= " << (*it).angle << "rad"
+                 << " B= " << bField/tesla << "T"
+                 << " B'= " << bPrime/(tesla/m) << "T/m"
+                 << " tilt= " << (*it).tilt << "rad"
+                 << " aper= " << aper/m << "m"
+                 << " outR= " << (*it).outR << "m"
+                 << " FeRad= " << FeRad/m << "m"
+                 << " tunnel material " << (*it).tunnelMaterial
+                 << " material= " << (*it).material
+                 << G4endl;
+#endif
 
-          theBeamline.push_back(new BDSRBend( (*it).name,
+           theBeamline.push_back(new BDSRBend( (*it).name,
 					      length,
 					      aper,
 					      FeRad,
 					      bField,
 					      (*it).angle,
 					      (*it).outR * m,
+                                               (it)->blmLocZ,
+                                               (it)->blmLocTheta,
 					      (*it).tilt * rad,
 					      bPrime,
+                                               (*it).tunnelMaterial,
 					      (*it).material ) );
         }
 
@@ -645,7 +734,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	//
 	G4double aper = bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-
 	FeRad = aper;
 
 	if( (*it).outR < aper/m)
@@ -653,8 +741,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << "aper+22*cm"<<G4endl;
-            (*it).outR = aper/m + 0.22;
+		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
 	  }
 	
 	G4double length = (*it).l*m;
@@ -687,27 +775,33 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 		 << ": REPLACED WITH Drift,"
 		 << " l= " << length/m << "m"
 		 << " aper= " << aper/m << "m"
+                 << " tunnel material " << (*it).tunnelMaterial
 		 << G4endl;
 
-	  theBeamline.push_back(new BDSDrift( (*it).name,
+	   theBeamline.push_back(new BDSDrift( (*it).name,
 					      length,
-					      aper ) );
+                 (it)->blmLocZ,
+                                            (it)->blmLocTheta,
+                                               aper, aper, (*it).tunnelMaterial ) );
 	} 
 	else {
-	  if(DEBUG) G4cout << "---->adding HKick,"
-			   << " name= " << (*it).name 
-			   << " l= " << length/m << "m"
-			   << " angle= " << (*it).angle << "rad"
-			   << " B= " << bField/tesla << "T"
-			   << " B'= " << bPrime/(tesla/m) << "T/m"
-			   << " tilt= " << (*it).tilt << "rad"
-			   << " aper= " << aper/m << "m"
-			   << " outR= " << (*it).outR << "m"
-			   << " FeRad= " << FeRad/m << "m"
-			   << " material= " << (*it).material
-			   << G4endl;
+#ifdef DEBUG 
+          G4cout << "---->adding HKick,"
+                 << " name= " << (*it).name 
+                 << " l= " << length/m << "m"
+                 << " angle= " << (*it).angle << "rad"
+                 << " B= " << bField/tesla << "T"
+                 << " B'= " << bPrime/(tesla/m) << "T/m"
+                 << " tilt= " << (*it).tilt << "rad"
+                 << " aper= " << aper/m << "m"
+                 << " outR= " << (*it).outR << "m"
+                 << " FeRad= " << FeRad/m << "m"
+                 << " tunnel material " << (*it).tunnelMaterial
+                 << " material= " << (*it).material
+                 << G4endl;
+#endif
 
-	  theBeamline.push_back(new BDSKicker( (*it).name,
+	   theBeamline.push_back(new BDSKicker( (*it).name,
 					       length,
 					       aper,
 					       FeRad,
@@ -716,6 +810,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 					       (*it).outR * m,
 					       (*it).tilt * rad,
 					       bPrime,
+                                                (*it).tunnelMaterial,
 					       (*it).material ) );
 	}
       
@@ -729,7 +824,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	//
         G4double aper = bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-
+        G4double 
 	FeRad = aper;
 
 	if( (*it).outR < aper/m)
@@ -737,8 +832,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << "aper+22*cm"<<G4endl;
-            (*it).outR = aper/m + 0.22;
+		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
 	  }
 
 	G4double length = (*it).l*m;
@@ -771,27 +866,32 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 		 << ": REPLACED WITH Drift,"
 		 << " l= " << (*it).l << "m"
 		 << " aper= " << aper/m << "m"
+                 << " tunnel material " << (*it).tunnelMaterial
 		 << G4endl;
 
-	  theBeamline.push_back(new BDSDrift( (*it).name,
+	   theBeamline.push_back(new BDSDrift( (*it).name,
 					      (*it).l * m,
-					      aper ) );
+                 (it)->blmLocZ,
+                                            (it)->blmLocTheta,
+                                               aper, aper, (*it).tunnelMaterial ) );
 	} 
 	else {
-	  if(DEBUG) G4cout << "---->adding VKick,"
-			   << " name= " << (*it).name 
-			   << " l= " << (*it).l << "m"
-			   << " angle= " << (*it).angle << "rad"
-			   << " B= " << bField/tesla << "T"
-			   << " B'= " << bPrime/(tesla/m) << "T/m"
-			   << " tilt= " << (*it).tilt << "rad"
-			   << " aper= " << aper/m << "m"
-			   << " outR= " << (*it).outR << "m"
-			   << " FeRad= " << FeRad/m << "m"
-			   << " material= " << (*it).material
-			   << G4endl;
+#ifdef DEBUG 
+          G4cout << "---->adding VKick,"
+                 << " name= " << (*it).name 
+                 << " l= " << (*it).l << "m"
+                 << " angle= " << (*it).angle << "rad"
+                 << " B= " << bField/tesla << "T"
+                 << " B'= " << bPrime/(tesla/m) << "T/m"
+                 << " tilt= " << (*it).tilt << "rad"
+                 << " aper= " << aper/m << "m"
+                 << " outR= " << (*it).outR << "m"
+                 << " FeRad= " << FeRad/m << "m"
+                 << " material= " << (*it).material
+                 << G4endl;
+#endif
 
-	  theBeamline.push_back(new BDSKicker( (*it).name,
+	   theBeamline.push_back(new BDSKicker( (*it).name,
 					       (*it).l * m,
 					       aper,
 					       FeRad,
@@ -800,6 +900,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 					       (*it).outR * m,
 					       ((*it).tilt+pi/2)*rad,
 					       bPrime,
+                                                (*it).tunnelMaterial,
 					       (*it).material ) );
 	}
       
@@ -814,7 +915,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	//
 	G4double aper = bpRad;
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-
+        
 	FeRad = aper;
 	
 	if( (*it).outR < aper/m)
@@ -822,8 +923,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << "aper+22*cm"<<G4endl;
-	    (*it).outR = aper/m + 0.22;
+		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
 	  }
 	
 	//
@@ -834,26 +935,47 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	// Brho is already in G4 units, but k1 is not -> multiply k1 by m^-2
 	bPrime = - brho * ((*it).k1 / (m*m)) * synch_factor;
 
-	if(DEBUG) G4cout << "---->adding Quadrupole,"
-			 << " name= " << (*it).name
-			 << " l= " << (*it).l << "m"
-			 << " k1= " << (*it).k1 << "m^-2"
-			 << " brho= " << fabs(brho)/(tesla*m) << "T*m"
-			 << " B'= " << bPrime/(tesla/m) << "T/m"
-                         << " tilt= " << (*it).tilt << "rad"
-			 << " aper= " << aper/m << "m"
-			 << " outR= " << (*it).outR << "m"
-			 << " FeRad= " << FeRad/m << "m"
-			 << " material= " << (*it).material
-			 << G4endl;
+#ifdef DEBUG 
+        G4cout << "---->adding Quadrupole,"
+               << " name= " << (*it).name
+               << " l= " << (*it).l << "m"
+               << " k1= " << (*it).k1 << "m^-2"
+               << " brho= " << fabs(brho)/(tesla*m) << "T*m"
+               << " B'= " << bPrime/(tesla/m) << "T/m"
+               << " tilt= " << (*it).tilt << "rad"
+               << " aper = " << aper/m << "m"
+               << " outR= " << (*it).outR << "m"
+               << " FeRad= " << FeRad/m << "m"
+               << " tunnel material " << (*it).tunnelMaterial
+               << " material= " << (*it).material
+               << G4endl;
+        
+	list<double>::iterator kit;
+        G4cout << " blmLocZ={ ";
+	for(kit=((it)->blmLocZ).begin();kit!=((it)->blmLocZ).end();kit++)
+	  {
+            G4cout<<(*kit)<<", ";
+	  }
+        G4cout << "}" << G4endl;
+
+        G4cout << " blmLocTheta={ ";
+	for(kit=((it)->blmLocTheta).begin();kit!=((it)->blmLocTheta).end();kit++)
+	  {
+            G4cout<<(*kit)<<", ";
+	  }
+        G4cout << "}" << G4endl;
+#endif
 	
-	theBeamline.push_back(new BDSQuadrupole( (*it).name,
+        theBeamline.push_back(new BDSQuadrupole( (*it).name,
 						 (*it).l * m,
 						 aper,
 						 FeRad,
 						 bPrime, 
 						 (*it).tilt * rad,
-						 (*it).outR * m, 
+                                                 (*it).outR * m, 
+                                                 (it)->blmLocZ,
+                                                 (it)->blmLocTheta,
+                                                 (*it).tunnelMaterial,
 						 (*it).material,
 						 (*it).spec ) );
 	
@@ -867,7 +989,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	//
 	G4double aper = bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-
 	FeRad = aper;
 
 	if( (*it).outR < aper/m)
@@ -875,8 +996,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << "aper+22*cm"<<G4endl;
-	    (*it).outR = aper/m + 0.22;
+		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
 	  }
 
 	//
@@ -887,26 +1008,32 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	// brho is in Geant4 units, but k2 is not -> multiply k2 by m^-3
 	bDoublePrime = - brho * ((*it).k2 / (m*m*m)) * synch_factor;
 
-	if(DEBUG) G4cout << "---->adding Sextupole,"
-			 << " name= " << (*it).name
-			 << " l= " << (*it).l << "m"
-			 << " k2= " << (*it).k2 << "m^-3"
-			 << " brho= " << fabs(brho)/(tesla*m) << "T*m"
-			 << " B''= " << bDoublePrime/(tesla/(m*m)) << "T/m^2"
-                         << " tilt= " << (*it).tilt << "rad"
-			 << " aper= " << aper/m << "m"
-			 << " outR= " << (*it).outR << "m"
-			 << " FeRad= " << FeRad/m << "m"
-			 << " material= " << (*it).material
-			 << G4endl;
+#ifdef DEBUG 
+        G4cout << "---->adding Sextupole,"
+               << " name= " << (*it).name
+               << " l= " << (*it).l << "m"
+               << " k2= " << (*it).k2 << "m^-3"
+               << " brho= " << fabs(brho)/(tesla*m) << "T*m"
+               << " B''= " << bDoublePrime/(tesla/(m*m)) << "T/m^2"
+               << " tilt= " << (*it).tilt << "rad"
+               << " aper= " << aper/m << "m"
+               << " outR= " << (*it).outR << "m"
+               << " FeRad= " << FeRad/m << "m"
+               << " tunnel material " << (*it).tunnelMaterial
+               << " material= " << (*it).material
+               << G4endl;
+#endif
 
-	theBeamline.push_back(new BDSSextupole( (*it).name,
+	 theBeamline.push_back(new BDSSextupole( (*it).name,
 						(*it).l * m,
 						aper,
 						FeRad,
 						bDoublePrime,
 						(*it).tilt * rad,
 						(*it).outR * m,
+                                                 (it)->blmLocZ,
+                                                 (it)->blmLocTheta,
+                                                 (*it).tunnelMaterial,
 						(*it).material ) );
       
 	added_comp=true;
@@ -919,7 +1046,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	//
 	G4double aper = bpRad;
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-
 	FeRad = aper;
 
 	if( (*it).outR < aper/m)
@@ -927,8 +1053,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << "aper+22*cm"<<G4endl;
-            (*it).outR = aper/m + 0.22;
+		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
 	  }
 
 	//
@@ -939,26 +1065,32 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	// brho is in Geant4 units, but k3 is not -> multiply k3 by m^-4
 	bTriplePrime = - brho * ((*it).k3 / (m*m*m*m)) * synch_factor;
 
-	if(DEBUG) G4cout << "---->adding Octupole,"
-			 << " name= " << (*it).name
-			 << " l= " << (*it).l << "m"
-			 << " k3= " << (*it).k3 << "m^-4"
-			 << " brho= " << fabs(brho)/(tesla*m) << "T*m"
-			 << " B'''= " << bTriplePrime/(tesla/(m*m*m)) << "T/m^3"
-                         << " tilt= " << (*it).tilt << "rad"
-			 << " aper= " << aper/m << "m"
-			 << " outR= " << (*it).outR << "m"
-			 << " FeRad= " << FeRad/m << "m"
-			 << " material= " << (*it).material
-			 << G4endl;
+#ifdef DEBUG 
+        G4cout << "---->adding Octupole,"
+               << " name= " << (*it).name
+               << " l= " << (*it).l << "m"
+               << " k3= " << (*it).k3 << "m^-4"
+               << " brho= " << fabs(brho)/(tesla*m) << "T*m"
+               << " B'''= " << bTriplePrime/(tesla/(m*m*m)) << "T/m^3"
+               << " tilt= " << (*it).tilt << "rad"
+               << " aper= " << aper/m << "m"
+               << " outR= " << (*it).outR << "m"
+               << " FeRad= " << FeRad/m << "m"
+               << " tunnel material " << (*it).tunnelMaterial
+               << " material= " << (*it).material
+               << G4endl;
+#endif
 
-	theBeamline.push_back(new BDSOctupole( (*it).name,
+	 theBeamline.push_back(new BDSOctupole( (*it).name,
 					       (*it).l * m,
 					       aper,
 					       FeRad,
 					       bTriplePrime,
 					       (*it).tilt * rad,
 					       (*it).outR * m,
+                                                (it)->blmLocZ,
+                                                 (it)->blmLocTheta,
+                                                (*it).tunnelMaterial,
 					       (*it).material ) );
       
 	added_comp=true;
@@ -971,58 +1103,77 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	//
 	G4double aper = bpRad;
 	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-
+        
 	FeRad = aper;
 
-        if( (*it).outR < aper/m)
-          {
+	if( (*it).outR < aper/m)
+	  {
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << "aper+22*cm"<<G4endl;
-            (*it).outR = aper/m + 0.22;
-          }
+		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
+	  }
 
-	if(DEBUG) G4cout << "---->adding Multipole,"
-			 << " name= " << (*it).name
-			 << " l= " << (*it).l << "m"
-                         << " tilt= " << (*it).tilt << "rad"
-			 << " aper= " << aper/m << "m"
-			 << " outR= " << (*it).outR << "m"
-			 << " FeRad= " << FeRad/m << "m"
-			 << " material= " << (*it).material
-			 << G4endl;
+#ifdef DEBUG 
+        G4cout << "---->adding Multipole,"
+               << " name= " << (*it).name
+               << " l= " << (*it).l << "m"
+               << " tilt= " << (*it).tilt << "rad"
+               << " aper= " << aper/m << "m"
+               << " outR= " << (*it).outR << "m"
+               << " FeRad= " << FeRad/m << "m"
+               << " tunnel material " << (*it).tunnelMaterial
+               << " material= " << (*it).material
+               << G4endl;
+#endif
 
 	//
 	// magnetic field
 	//
 	list<double>::iterator kit;
 	
-	if(DEBUG) G4cout << " knl={ ";
+#ifdef DEBUG 
+        G4cout << " knl={ ";
+#endif
 	for(kit=(it->knl).begin();kit!=(it->knl).end();kit++)
 	  {
-	    if(DEBUG) G4cout<<(*kit)<<", ";
+#ifdef DEBUG 
+            G4cout<<(*kit)<<", ";
+#endif
 	    (*kit) /= (*it).l; 
 	  }
-	if(DEBUG) G4cout << "}";
+#ifdef DEBUG 
+        G4cout << "}";
+#endif
 	
-	if(DEBUG) G4cout << " ksl={ ";
+#ifdef DEBUG 
+        G4cout << " ksl={ ";
+#endif
 	for(kit=(it->ksl).begin();kit!=(it->ksl).end();kit++)
 	  {
-	    if(DEBUG) G4cout<<(*kit)<<" ";
+#ifdef DEBUG 
+            G4cout<<(*kit)<<" ";
+#endif
 	    (*kit) /= (*it).l; 
 	  }
-	if(DEBUG) G4cout << "}" << G4endl;
+#ifdef DEBUG 
+        G4cout << "}" << G4endl;
+#endif
 	
-	theBeamline.push_back(new BDSTMultipole( (*it).name,
+	 theBeamline.push_back(new BDSTMultipole( (*it).name,
 						 (*it).l * m,
 						 aper,
 						 FeRad,
                                                  (*it).tilt * rad,
 						 (*it).outR * m,
-						 it->knl,
-						 it->ksl,
-						 (*it).material ) );
+                                                  it->knl,
+                                                  it->ksl,
+                                                  it->blmLocZ,
+                                                  it->blmLocTheta,
+                                                  (*it).tunnelMaterial, 
+                                                  (*it).material 
+                                                  ) );
 
 	added_comp=true;
       }
@@ -1034,7 +1185,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	//
         G4double aper = bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-
+        
 /* Fix for element volume overlaps - do not set default outR!
 	if( (*it).outR < aper/m)
 	  {
@@ -1042,23 +1193,26 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
 		   << "aper+22*cm"<<G4endl;
-	    (*it).outR = aper/m + 0.22;
+	    (*it).outR = 0.22;
 	  }
 */
-	if(DEBUG) G4cout << "---->adding Element,"
-			 << " name= " << (*it).name
-			 << " l= " << (*it).l << "m"
-			 << " aper= " << aper/m << "m"
-			 << " outR= " << (*it).outR << "m"
-			 << G4endl;
+#ifdef DEBUG 
+        G4cout << "---->adding Element,"
+               << " name= " << (*it).name
+               << " l= " << (*it).l << "m"
+               << " aper= " << aper/m << "m"
+               << " outR= " << (*it).outR << "m"
+               << " tunnel material " << (*it).tunnelMaterial
+               << G4endl;
+#endif
 	
 	theBeamline.push_back(new BDSElement( (*it).name,
 					      (*it).geometryFile,
 					      (*it).bmapFile,
 					      (*it).l * m,
 					      aper,
-					      (*it).outR * m ) );
-      
+					      (*it).outR * m , (*it).tunnelMaterial) );
+	
 	added_comp=true;
       }
 
@@ -1069,7 +1223,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	//
         G4double aper = bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-
+        
 	FeRad = aper;
 
 	if( (*it).outR < aper/m)
@@ -1077,8 +1231,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << "aper+22*cm"<<G4endl;
-	    (*it).outR = aper/m + 0.22;
+		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
 	  }
 
 	//
@@ -1096,26 +1250,31 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	  (*it).B = bField/tesla;
         }
 
-	if(DEBUG) G4cout << "---->adding Solenoid,"
-			 << " name= " << (*it).name
-			 << " l= " << (*it).l << "m"
-			 << " ks= " << (*it).ks << "m^-1"
-			 << " brho= " << fabs(brho)/(tesla*m) << "T*m"
-			 << " B= " << bField/tesla << "T"
-			 << " aper= " << aper/m << "m"
-			 << " outR= " << (*it).outR << "m"
-			 << " FeRad= " << FeRad/m << "m"
-			 << " material= " << (*it).material
-			 << G4endl;
-	
-	theBeamline.push_back(new BDSSolenoid( (*it).name,
+#ifdef DEBUG 
+        G4cout << "---->adding Solenoid,"
+               << " name= " << (*it).name
+               << " l= " << (*it).l << "m"
+               << " ks= " << (*it).ks << "m^-1"
+               << " brho= " << fabs(brho)/(tesla*m) << "T*m"
+               << " B= " << bField/tesla << "T"
+               << " aper= " << aper/m << "m"
+               << " outR= " << (*it).outR << "m"
+               << " FeRad= " << FeRad/m << "m"
+               << " tunnel material " << (*it).tunnelMaterial
+               << " material= " << (*it).material
+               << G4endl;
+#endif
+	 theBeamline.push_back(new BDSSolenoid( (*it).name,
 					       (*it).l * m,
 					       aper,
 					       FeRad,
 					       bField,
 					       (*it).outR*m,
-					       (*it).material,
-					       (*it).spec ) );
+                                                (it)->blmLocZ,
+                                                (it)->blmLocTheta,
+                                                (*it).tunnelMaterial,
+                                                (*it).material
+                                                ) );
 	
 	added_comp=true;
       }
@@ -1128,12 +1287,15 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	else
 	  theMaterial = theMaterials->GetMaterial( "Graphite" );
 
-	if(DEBUG) G4cout << "---->adding Ecol,"
-			 << " name= " << (*it).name 
-			 << " xaper= " << (*it).xsize <<"m"
-			 << " yaper= " << (*it).ysize <<"m"
-			 << " material= " << (*it).material
-			 << G4endl;
+#ifdef DEBUG 
+        G4cout << "---->adding Ecol,"
+               << " name= " << (*it).name 
+               << " xaper= " << (*it).xsize <<"m"
+               << " yaper= " << (*it).ysize <<"m"
+               << " material= " << (*it).material
+               << " tunnel material " << (*it).tunnelMaterial
+               << G4endl;
+#endif
 
 	theBeamline.push_back(new BDSCollimator((*it).name,
 						(*it).l * m,
@@ -1142,8 +1304,11 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						(*it).ysize * m,
 						_ECOL,
 						theMaterial,
-						(*it).outR*m) );
-      
+						(*it).outR*m,
+						(it)->blmLocZ,
+						(it)->blmLocTheta,
+						(*it).tunnelMaterial) );
+	
 	added_comp=true;
       }
 
@@ -1155,14 +1320,17 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	else
 	  theMaterial = theMaterials->GetMaterial( "Graphite" );
 
-	if(DEBUG) G4cout << "---->adding Rcol,"
-			 << " name= " << (*it).name 
-			 << " xaper= " << (*it).xsize <<"m"
-			 << " yaper= " << (*it).ysize <<"m"
-			 << " flatl= " << (*it).flatlength <<"m"
-			 << " taper= " << (*it).taperlength <<"m"
-			 << " material= " << (*it).material
-			 << G4endl;
+#ifdef DEBUG 
+        G4cout << "---->adding Rcol,"
+               << " name= " << (*it).name 
+               << " xaper= " << (*it).xsize <<"m"
+               << " yaper= " << (*it).ysize <<"m"
+               << " flatl= " << (*it).flatlength <<"m"
+               << " taper= " << (*it).taperlength <<"m"
+               << " material= " << (*it).material
+               << " tunnel material " << (*it).tunnelMaterial
+               << G4endl;
+#endif
 /*
 	theBeamline.push_back(new BDSRealisticCollimator(
 						(*it).name,
@@ -1176,58 +1344,108 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						(*it).outR*m) );
 
 */
-	theBeamline.push_back(new BDSCollimator( (*it).name,
-						 (*it).l * m,
-						 bpRad,
-						 (*it).xsize * m,
-						 (*it).ysize * m,
+        theBeamline.push_back(new BDSCollimator( (*it).name,
+                                                  (*it).l * m,
+                                                  bpRad,
+                                                  (*it).xsize * m,
+                                                  (*it).ysize * m,
 						 _RCOL,
-						 theMaterial,
-						 (*it).outR*m) );
+                                                  theMaterial,
+                                                  (*it).outR*m,
+                                                 (it)->blmLocZ,
+                                                 (it)->blmLocTheta,
+                                                  (*it).tunnelMaterial) );
       
 	added_comp=true;
       }
 
+
+      if((*it).type==_MUSPOILER ) {
+
+#ifdef DEBUG 
+        G4cout << "---->adding muspoiler,"
+               << " name= " << (*it).name 
+               << " length= " << (*it).l
+               << "B= " << (*it).B
+               << " tunnel material " << (*it).tunnelMaterial
+               << G4endl;
+#endif
+        G4String name = (*it).name;
+        G4double length = (*it).l*m;
+        G4double bField = (*it).B * tesla;
+        G4double beamPipeRadius;
+        //        if((*it).aperSet){
+        beamPipeRadius = (*it).aper*m;
+          //        } else {
+          //          beamPipeRadius = BDSGlobals->GetBeampipeRadius();
+          //        }
+        G4double innerRadius;
+        //        if ((*it).inRset){
+        innerRadius = (*it).inR*m;
+        //        } else {
+        //          innerRadius = beamPipeRadius;
+        //        }
+        G4double outerRadius = (*it).outR*m;
+        
+        G4cout << "BDSMuSpoiler: " << name << " " << length/m << " " << outerRadius/m << " " << innerRadius/m << " " << bField/tesla << " " << beamPipeRadius/m << G4endl;
+
+        theBeamline.push_back(new BDSMuSpoiler(name,
+                                               length,
+                                               beamPipeRadius,
+                                               innerRadius,
+                                               outerRadius,
+                                               bField, 
+                                               (it)->blmLocZ,
+                                               (it)->blmLocTheta,
+                                               (*it).tunnelMaterial));
+      
+	added_comp=true;
+      }
+
+
       if((*it).type==_LASER ) {
 	if((*it).l == 0) (*it).l = 1e-8;
 	
-	if(DEBUG) G4cout << "---->adding Laser,"
-			 << " name= "<< (*it).name
-			 << " l=" << (*it).l/m<<"m"
-			 << " lambda= " << (*it).waveLength/m << "m"
-			 << " xSigma= " << (*it).xsize/m << "m"
-			 << " ySigma= " << (*it).ysize/m << "m"
-			 << " xdir= " << (*it).xdir
-			 << " ydir= " << (*it).ydir
-			 << " zdir= " << (*it).zdir
-			 << G4endl;
+#ifdef DEBUG 
+        G4cout << "---->adding Laser,"
+               << " name= "<< (*it).name
+               << " l=" << (*it).l/m<<"m"
+               << " lambda= " << (*it).waveLength/m << "m"
+               << " xSigma= " << (*it).xsize/m << "m"
+               << " ySigma= " << (*it).ysize/m << "m"
+               << " xdir= " << (*it).xdir
+               << " ydir= " << (*it).ydir
+               << " zdir= " << (*it).zdir
+               << G4endl;
+#endif
 	
 	G4ThreeVector direction = 
 	  G4ThreeVector((*it).xdir,(*it).ydir,(*it).zdir);
 	G4ThreeVector position  = G4ThreeVector(0,0,0);
 	
-	theBeamline.push_back(new BDSLaserWire( (*it).name,
-						(*it).l * m,
-						(*it).waveLength * m,
-						direction,
-						position ) );
+	 theBeamline.push_back(new BDSLaserWire( (*it).name,
+						(*it).l,
+						(*it).waveLength,
+						direction) );
 	
 	added_comp=true;
       }
 
       if((*it).type==_TRANSFORM3D ) {
 	
-	if(DEBUG) G4cout << "---->adding Transform3d,"
-			 << " name= " << (*it).name
-			 << " xdir= " << (*it).xdir/m << "m"
-			 << " ydir= " << (*it).ydir/m << "m"
-			 << " zdir= " << (*it).zdir/m << "m"
-			 << " phi= " << (*it).phi/rad << "rad"
-			 << " theta= " << (*it).theta/rad << "rad"
-			 << " psi= " << (*it).psi/rad << "rad"
-			 << G4endl;
+#ifdef DEBUG 
+        G4cout << "---->adding Transform3d,"
+               << " name= " << (*it).name
+               << " xdir= " << (*it).xdir/m << "m"
+               << " ydir= " << (*it).ydir/m << "m"
+               << " zdir= " << (*it).zdir/m << "m"
+               << " phi= " << (*it).phi/rad << "rad"
+               << " theta= " << (*it).theta/rad << "rad"
+               << " psi= " << (*it).psi/rad << "rad"
+               << G4endl;
+#endif
 	
-	theBeamline.push_back(new BDSTransform3D( (*it).name,
+	 theBeamline.push_back(new BDSTransform3D( (*it).name,
 						  (*it).xdir *m,
 						  (*it).ydir *m,
 						  (*it).zdir *m,
@@ -1238,7 +1456,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       
 	added_comp=true;
       }
-
       if(added_comp)      //for BDSOutline
 	{
 	  list<BDSAcceleratorComponent*>::iterator curr = theBeamline.end();
@@ -1252,14 +1469,14 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
     }
   
   
-  if (verbose || DEBUG) G4cout << "size of beamline element list: "<< beamline_list.size() << G4endl;
+if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_list.size() << G4endl;
   
   
   //
   // construct the component list
   //
 
-  if (verbose || DEBUG) G4cout << "now constructing geometry" << G4endl;
+  if (verbose || debug) G4cout << "now constructing geometry" << G4endl;
   
   list<BDSAcceleratorComponent*>::const_iterator iBeam;
   
@@ -1278,10 +1495,12 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   for(iBeam=theBeamline.begin();iBeam!=theBeamline.end();iBeam++)
     {
 
-      if(DEBUG) G4cout << (*iBeam)->GetName() << "  "
-		       << (*iBeam)->GetLength() << "  "
-		       << (*iBeam)->GetAngle() << "  "
-		       << G4endl;
+#ifdef DEBUG 
+      G4cout << (*iBeam)->GetName() << "  "
+             << (*iBeam)->GetLength() << "  "
+             << (*iBeam)->GetAngle() << "  "
+             << G4endl;
+#endif
 
       (*iBeam)->SetSPos(s_tot+(*iBeam)->GetArcLength()/2.0);
 
@@ -1311,8 +1530,9 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 	  // advance the coordinate system translation
 	  rtot += localZ * (*iBeam)->GetZLength();
-	  if(DEBUG)
-	    G4cout << (*iBeam)->GetType() << " " << rtot << G4endl;
+#ifdef DEBUG
+          G4cout << (*iBeam)->GetType() << " " << rtot << G4endl;
+#endif
 	}
 
       if(rmax(0)<rtot(0)) rmax(0) = rtot(0);
@@ -1333,12 +1553,12 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   
   G4String LocalName="World";
   
-  G4double WorldSizeX = 1 * ( (fabs(rmin(0)) + fabs(rmax(0)) ) + 5*BDSGlobals->GetComponentBoxSize());
-  G4double WorldSizeY = 1 * ( (fabs(rmin(1)) + fabs(rmax(1)) ) + 5*BDSGlobals->GetComponentBoxSize());
-  G4double WorldSizeZ = 1 * ( (fabs(rmin(2)) + fabs(rmax(2)) ) + 5*BDSGlobals->GetComponentBoxSize());
+  G4double WorldSizeX = 1 * ( (fabs(rmin(0)) + fabs(rmax(0)) ) + 10*BDSGlobals->GetTunnelRadius());
+  G4double WorldSizeY = 1 * ( (fabs(rmin(1)) + fabs(rmax(1)) ) + 10*BDSGlobals->GetTunnelRadius());
+  G4double WorldSizeZ = 1 * ( (fabs(rmin(2)) + fabs(rmax(2)) ) + 10*BDSGlobals->GetTunnelRadius());
   
   //G4cout<<"world radius="<<WorldRadius/m<<" m"<<G4endl;
-  if(verbose || DEBUG)
+  if(verbose || debug)
     {
       G4cout<<"minX="<<rmin(0)/m<<" m"<<" maxX="<<rmax(0)/m<<" m"<<G4endl;
       G4cout<<"minY="<<rmin(1)/m<<" m"<<" maxY="<<rmax(1)/m<<" m"<<G4endl;
@@ -1358,7 +1578,9 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   
   logicWorld->SetVisAttributes (G4VisAttributes::Invisible);
   // set world volume visibility for debugging
-  if (DEBUG) logicWorld->SetVisAttributes(new G4VisAttributes(true));
+#ifdef DEBUG 
+  logicWorld->SetVisAttributes(new G4VisAttributes(true));
+#endif
 
   // set default max step length (only for particles which have the
   // G4StepLimiter process enabled)
@@ -1373,7 +1595,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
   G4cout<<"Creating regions..."<<G4endl;
   
-  G4Region* precisionRegion = new G4Region("precision");
+  precisionRegion = new G4Region("precision");
    
   G4ProductionCuts* theProductionCuts = new G4ProductionCuts();
   
@@ -1390,8 +1612,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
   // world
 
-  physiWorld = new G4PVPlacement(0,		// no rotation
-  				 0,             // at (0,0,0)
+  physiWorld = new G4PVPlacement((G4RotationMatrix*)0,		// no rotation
+  				 (G4ThreeVector)0,             // at (0,0,0)
                                  logicWorld,	// its logical volume
                                  LocalName,	// its name
                                  NULL,		// its mother  volume
@@ -1409,7 +1631,9 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   // set default output formats:
   G4cout.precision(15);
   
-  if(DEBUG) G4cout<<"total length="<<s_tot/m<<"m"<<G4endl;
+#ifdef DEBUG 
+  G4cout<<"total length="<<s_tot/m<<"m"<<G4endl;
+#endif
   
   // reset counters:
   for(iBeam=theBeamline.begin();iBeam!=theBeamline.end();iBeam++){
@@ -1422,7 +1646,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       }
   }
   
-  if (verbose || DEBUG) G4cout<<"starting placement procedure "<<G4endl;
+  if (verbose || debug) G4cout<<"starting placement procedure "<<G4endl;
   
   rtot = G4ThreeVector(0.,0.,0.);
   localX = G4ThreeVector(1.,0.,0.); 
@@ -1445,7 +1669,9 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       if( (*iBeam)->GetType() == "transform3d")
 	{
 
-	  if(DEBUG) G4cout<<"transform3d : "<<phi<<" "<<theta<<" "<<psi<<G4endl;
+#ifdef DEBUG 
+          G4cout<<"transform3d : "<<phi<<" "<<theta<<" "<<psi<<G4endl;
+#endif
 
 
 	  rtot(0) += (*iBeam)->GetXOffset(); 
@@ -1490,26 +1716,29 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       if((*iBeam)->GetType() == "sbend" || (*iBeam)->GetType() == "rbend")
 	zHalfAngle.rotate(angle/2,localY);
 
-      if(DEBUG)
-	{
-	  G4cout<<"zHalfAngle="<<zHalfAngle<<G4endl;
-	  G4cout<<"localZ="<<localZ<<G4endl;
-	  G4cout<<"localX="<<localX<<G4endl;
-	  G4cout<<"localY="<<localY<<G4endl;
-	  G4cout<<"rlast="<<rlast<<G4endl;
-	}
+#ifdef DEBUG
+      G4cout<<"zHalfAngle="<<zHalfAngle<<G4endl;
+      G4cout<<"localZ="<<localZ<<G4endl;
+      G4cout<<"localX="<<localX<<G4endl;
+      G4cout<<"localY="<<localY<<G4endl;
+      G4cout<<"rlast="<<rlast<<G4endl;
+#endif
       
       // target position
       TargetPos = rlast + zHalfAngle *  ( length/2 + BDSGlobals->GetLengthSafety()/2 ) ;
 
-      if(DEBUG) G4cout<<"TargetPos="<<TargetPos<<G4endl;
+#ifdef DEBUG 
+      G4cout<<"TargetPos="<<TargetPos<<G4endl;
+#endif
 
       // advance the coordinates, but not for cylindrical samplers 
       if( ( ( (*iBeam)->GetType() != "csampler") || ( length <= samplerLength ) )  && ( (*iBeam)->GetType()!=_ELEMENT ))
 	{
-	  if(DEBUG) G4cout << (*iBeam)->GetType() << " "
-			   << (*iBeam)->GetName() << " "
-			   << G4endl;
+#ifdef DEBUG 
+          G4cout << (*iBeam)->GetType() << " "
+                 << (*iBeam)->GetName() << " "
+                 << G4endl;
+#endif
 	  rtot = rlast + zHalfAngle * ( length/2 + BDSGlobals->GetLengthSafety()/2 );
 	  rlast = rtot + zHalfAngle * ( length/2 + BDSGlobals->GetLengthSafety()/2 );
 	}
@@ -1535,7 +1764,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	  localZ.rotate(theta,localX);
 	  
 	  // bend trapezoids defined along z-axis
-	  rotateComponent->rotateY(-pi/2-angle/2);
+	  rotateComponent->rotateY(-twopi/4-angle/2); 						
 	}
 
 
@@ -1554,7 +1783,9 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	// add the wolume to one of the regions
 	if((*iBeam)->GetType() == _ELEMENT)
 	  {
-	    //G4cout<<"ENCOUNTERED ELEMENT : "<<_ELEMENT<<" ADDING TO PRECISION REg\n";
+#ifdef DEBUG
+	    G4cout<<"ENCOUNTERED ELEMENT : "<<_ELEMENT<<" ADDING TO PRECISION REG\n";
+#endif
 	    LocalLogVol->SetRegion(precisionRegion);
 	    precisionRegion->AddRootLogicalVolume(LocalLogVol);
 	  }
@@ -1647,10 +1878,14 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 			    false,	      // no boolean operation
 			    nCopy);	      // copy number
 	
-	if(DEBUG) G4cout << "Volume name: " << LocalName << G4endl;
+#ifdef DEBUG 
+        G4cout << "Volume name: " << LocalName << G4endl;
+#endif
         if(BDSGlobals->GetRefVolume()+"_phys"==LocalName && 
-		BDSGlobals->GetRefCopyNo()==nCopy){
-	  if(DEBUG) G4cout << "Setting new transform" <<G4endl;
+           BDSGlobals->GetRefCopyNo()==nCopy){
+#ifdef DEBUG 
+          G4cout << "Setting new transform" <<G4endl;
+#endif
 	  G4AffineTransform tf(globalRotation,TargetPos-G4ThreeVector(0,0,length/2));
 	  BDSGlobals->SetRefTransform(tf);
         }
@@ -1660,8 +1895,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	if(use_graphics)
 	  {
 	    (*iBeam)->GetVisAttributes()->SetVisibility(false);
-	    //(*iBeam)->GetVisAttributes()->SetForceSolid(true);
-	    (*iBeam)->GetMarkerLogicalVolume()->
+            (*iBeam)->GetMarkerLogicalVolume()->
 	      SetVisAttributes((*iBeam)->GetVisAttributes());
 	  }
 	
@@ -1710,16 +1944,13 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   // free the parser list
   beamline_list.clear();
 
-  // theProductionCuts->SetProductionCut(1.e-6*m,"gamma");
-  // theProductionCuts->SetProductionCut(1.e-6*m,"e+");
-  // theProductionCuts->SetProductionCut(1.e-6*m,"e-");
-  // precisionRegion->SetProductionCuts(theProductionCuts);
+  if(verbose || debug) G4cout<<"end placement, size="<<theBeamline.size()<<G4endl;
   
-  if(verbose || DEBUG) G4cout<<"end placement, size="<<theBeamline.size()<<G4endl;
-  
-  if(verbose || DEBUG) G4cout<<"Detector Construction done"<<G4endl; 
+  if(verbose || debug) G4cout<<"Detector Construction done"<<G4endl; 
 
-  if(DEBUG) G4cout << *(G4Material::GetMaterialTable()) << G4endl;
+#ifdef DEBUG 
+  G4cout << *(G4Material::GetMaterialTable()) << G4endl;
+#endif
 
   return physiWorld;
 }
@@ -1759,7 +1990,13 @@ BDSDetectorConstruction::~BDSDetectorConstruction()
   LogVol->clear();
   delete LogVol;
 
-  delete theMaterials;
+  BDSBeamline::iterator iterbl;
+  for(iterbl=theBeamline.begin(); iterbl!=theBeamline.end();iterbl++){
+    delete *iterbl;
+  }
+  theBeamline.clear();
+
+  delete precisionRegion;
 }
 
 //=================================================================

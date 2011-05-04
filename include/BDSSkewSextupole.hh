@@ -28,8 +28,9 @@ class BDSSkewSextupole :public BDSMultipole
   public:
     BDSSkewSextupole(G4String& aName, G4double aLength,
 		     G4double bpRad,G4double FeRad,
-		     G4double BDblPrime);
-    ~BDSSkewSextupole();
+                     std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+                     G4String aTunnelMaterial, G4String aMaterial,		     G4double BDblPrime);
+  ~BDSSkewSextupole();
 
   protected:
 

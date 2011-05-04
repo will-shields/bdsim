@@ -89,15 +89,17 @@ void BDSSpoiler::BuildInnerSpoiler()
   
   itsPhysiComp2 = 
     new G4PVPlacement(
-		      0,		   // no rotation
-		      0,                   // its position
+		      (G4RotationMatrix*)0,		   // no rotation
+		      (G4ThreeVector)0,                   // its position
 		      itsInnerLogVol,      // its logical volume
 		      itsName+"_combined", // its name
 		      itsSolidLogVol,      // its mother  volume
 		      false,		   // no boolean operation
 		      0);		   // copy number 
 
-  SetSensitiveVolume(itsSolidLogVol);
+  if(BDSGlobals->GetSensitiveComponents()){
+    SetSensitiveVolume(itsSolidLogVol);
+  }
 
   itsSolidLogVol->
     SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
@@ -105,8 +107,8 @@ void BDSSpoiler::BuildInnerSpoiler()
   
   itsPhysiComp = 
     new G4PVPlacement(
-		      0,		     // no rotation
-		      0,                     // its position
+		      (G4RotationMatrix*)0,		     // no rotation
+		      (G4ThreeVector)0,                     // its position
 		      itsSolidLogVol,    // its logical volume
 		      itsName+"_solid",	     // its name
 		      itsMarkerLogicalVolume, // its mother  volume

@@ -126,7 +126,11 @@ private:
 
   // input filename
   G4String inputfile;
+  G4int nlinesIgnore;
   std::ifstream InputBunchFile;
+  template <typename Type> G4bool ReadValue(Type &value);
+  void OpenBunchFile();
+  void CloseBunchFile();
 
  // Gaussian Random number generator:
   RandGauss* GaussGen;

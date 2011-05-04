@@ -10,8 +10,6 @@
 //    beam dumper/reader for online exchange - Sensitive Detector
 //
 
-const int DEBUG = 0;
-
 #include "BDSGlobalConstants.hh" // must be first in include list
 
 #include "BDSDumpSD.hh"
@@ -42,20 +40,16 @@ extern G4double initial_x,initial_xp,initial_y,initial_yp,initial_z,initial_E;
 BDSDumpSD::BDSDumpSD(G4String name, G4String type)
   :G4VSensitiveDetector(name),StoreHit(true),itsType(type)
 {
-  //itsCollectionName="Dump_"+type;
-  //collectionName.insert(itsCollectionName);  
 }
 
 BDSDumpSD::~BDSDumpSD()
 {;}
 
-void BDSDumpSD::Initialize(G4HCofThisEvent*HCE)
+void BDSDumpSD::Initialize(G4HCofThisEvent*)
 {
-  //DumpCollection = 
-  //  new BDSDumpHitsCollection(SensitiveDetectorName,itsCollectionName);
 }
 
-G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
+G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
 {
   G4Track* theTrack=aStep->GetTrack();
 
@@ -63,14 +57,18 @@ G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
 //  if(theTrack->GetParentID() == 0){
   if(BDSGlobals->isReference){
     G4double referenceTime = theTrack->GetGlobalTime();
-    if(DEBUG) G4cout << "refTime= " << referenceTime <<G4endl;
-    if(DEBUG) G4cout << theTrack->GetVolume()->GetName() << G4endl;
+#ifdef DEBUG 
+    G4cout << "refTime= " << referenceTime <<G4endl;
+    G4cout << theTrack->GetVolume()->GetName() << G4endl;
+#endif
     if(lastVolume!=theTrack->GetVolume()->GetName())
       BDSGlobals->referenceQueue.at(nCounter++)[trackCounter] = referenceTime;
     
-    if(DEBUG) G4cout << "Track: " << trackCounter
-		     << " Dump : " << nCounter 
-		     << " Time: " << referenceTime << G4endl;
+#ifdef DEBUG 
+    G4cout << "Track: " << trackCounter
+           << " Dump : " << nCounter 
+           << " Time: " << referenceTime << G4endl;
+#endif
 	   
     if(nCounter==BDSDump::GetNumberOfDumps()){
       nCounter=0;
@@ -82,7 +80,9 @@ G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
     //    theTrack->SetGlobalTime(0);
   }
   else if(abs(theTrack->GetDefinition()->GetPDGEncoding()) == 11){
-    if(DEBUG) G4cout<<"Dump: postponing track..."<<G4endl;
+#ifdef DEBUG
+    G4cout<<"Dump: postponing track..."<<G4endl;
+#endif
     BDSGlobals->setWaitingForDump(true);
     theTrack->SetTrackStatus(fPostponeToNextEvent);
 
@@ -93,9 +93,8 @@ G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
   return true;
 }
 
-void BDSDumpSD::EndOfEvent(G4HCofThisEvent*HCE)
+void BDSDumpSD::EndOfEvent(G4HCofThisEvent*)
 {
-
 }
 
 void BDSDumpSD::clear(){} 

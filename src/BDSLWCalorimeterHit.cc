@@ -25,7 +25,7 @@ BDSLWCalorimeterHit::BDSLWCalorimeterHit()
 BDSLWCalorimeterHit::~BDSLWCalorimeterHit()
 {;}
 
-BDSLWCalorimeterHit::BDSLWCalorimeterHit(const BDSLWCalorimeterHit &right)
+BDSLWCalorimeterHit::BDSLWCalorimeterHit(const BDSLWCalorimeterHit &right):G4VHit()
 {
   itsEnergy = right.itsEnergy;
   itsCopyNumber = right.itsCopyNumber;

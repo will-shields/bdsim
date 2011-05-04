@@ -36,6 +36,8 @@ public:
 		                    // (NOT multiplied by multipole length)
 		list<G4double> aks, // list of skew multipole strengths
 		                    // (NOT multiplied by multipole length)
+               std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+                G4String aTunnelMaterial = "",
 		G4String aMaterial = "");
     ~BDSTMultipole();
 
