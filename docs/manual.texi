@@ -1,9 +1,9 @@
 \input texinfo @c -*-texinfo-*-
 @c %**staart of header0.4
 @setfilename bdsim.info
-@settitle BDSIM User's Manual v0.5
-@set lastupdate March 21, 2011
-@set revision 0.5
+@settitle BDSIM User's Manual v0.6-dev
+@set lastupdate May 4, 2011
+@set revision 0.6-dev
 @c %**end of header
 
 @setchapternewpage off
@@ -14,7 +14,7 @@
 
 
 @titlepage
-@title BDSIM User's Manual v0.5
+@title BDSIM User's Manual v0.6-dev
 @author L. C. Deacon, I. Agapov, S. Malton
 @author revision @value{revision}, last updated @value{lastupdate}
 @end titlepage
