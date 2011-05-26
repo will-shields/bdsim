@@ -9,8 +9,8 @@ option, beampipeRadius = 15 * cm,
         deltaIntersection = 0.00000001 * m,
 	deltaChord = 0.001 * m,
         lengthSafety = 0.00001 * m,
-        thresholdCutCharged = 10 * MeV,
-        thresholdCutPhotons = 10 * MeV;
+        thresholdCutCharged = 1 * GeV,
+        thresholdCutPhotons = 1 * GeV;
 
 ! beamline definiton
 
@@ -62,7 +62,6 @@ sample, range=endl;
 
 beam,  particle="e-",
        energy=10.0 * GeV,
-       nparticles=1e+3,
        distrType="gauss",
        sigmaX=0.0,
        sigmaXp=0.0,

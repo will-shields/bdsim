@@ -218,6 +218,9 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
     Mokka = new BDSGeometrySQL(gFile,itsLength);
     Mokka->Construct(itsMarkerLogicalVolume);
     vector<G4LogicalVolume*> SensComps = Mokka->SensitiveComponents;
+    for(G4int i=0; i<Mokka->GetMultiplePhysicalVolumes().size(); i++){
+      SetMultiplePhysicalVolumes(Mokka->GetMultiplePhysicalVolumes().at(i));
+    }
     for(G4int id=0; id<(G4int)SensComps.size(); id++)
       SetMultipleSensitiveVolumes(SensComps[id]);
     align_in_volume = Mokka->align_in_volume;

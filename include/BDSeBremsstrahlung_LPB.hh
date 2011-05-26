@@ -13,4 +13,12 @@ class eBremsstrahlung_LPB : public G4WrapperProcess {
   private:
 
 };
+
+class eBremsstrahlung_LPB_v2 : public G4WrapperProcess {
+  public:
+    G4VParticleChange* PostStepDoIt(const G4Track& track, const G4Step& step);
+
+  private:
+
+};
 #endif

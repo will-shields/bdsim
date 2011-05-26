@@ -54,7 +54,7 @@ G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
   G4double enrg;
 
   if(BDSGlobals->GetStopTracks())
-    enrg = aStep->GetTrack()->GetTotalEnergy() - aStep->GetDeltaEnergy();
+    enrg = (aStep->GetTrack()->GetTotalEnergy() - aStep->GetDeltaEnergy());
   else
     enrg = edep;
 

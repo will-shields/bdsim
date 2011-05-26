@@ -139,6 +139,10 @@ public:
 
   std::vector<G4LogicalVolume*> GetMultipleSensitiveVolumes();
 
+  void SetMultiplePhysicalVolumes(G4VPhysicalVolume* aPhysVol);
+
+  std::vector<G4VPhysicalVolume*> GetMultiplePhysicalVolumes();
+
   void SetInnerMostLogicalVolume(G4LogicalVolume* aLogVol);
   
   G4LogicalVolume* GetInnerMostLogicalVolume() const;
@@ -299,6 +303,8 @@ private:
   G4int itsCollectionID;
   G4LogicalVolume* itsSensitiveVolume;
   std::vector<G4LogicalVolume*> itsMultipleSensitiveVolumes;
+  //A vector containing the physical volumes in the accelerator component- to be used for geometric importance sampling etc.
+  std::vector<G4VPhysicalVolume*> itsMultiplePhysicalVolumes;
   G4double itsZLower;
   G4double itsZUpper;
   G4double itsSynchEnergyLoss;
@@ -499,6 +505,12 @@ inline void BDSAcceleratorComponent::SetMultipleSensitiveVolumes(G4LogicalVolume
 
 inline  std::vector<G4LogicalVolume*> BDSAcceleratorComponent::GetMultipleSensitiveVolumes()
 {return itsMultipleSensitiveVolumes;}
+
+inline void BDSAcceleratorComponent::SetMultiplePhysicalVolumes(G4VPhysicalVolume* aPhysVol)
+{ itsMultiplePhysicalVolumes.push_back(aPhysVol);}
+
+inline  std::vector<G4VPhysicalVolume*> BDSAcceleratorComponent::GetMultiplePhysicalVolumes()
+{return itsMultiplePhysicalVolumes;}
 
 inline  G4double BDSAcceleratorComponent::GetZLower()
 {return itsZLower;}

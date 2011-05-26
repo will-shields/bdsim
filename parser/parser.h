@@ -1263,6 +1263,17 @@ void set_value(std::string name, double value )
   if(name == "tunnelSoilThickness" ) { options.tunnelSoilThickness = value; return; }
   if(name == "tunnelFloorOffset" ) { options.tunnelFloorOffset = value; return; }
 
+  //geometry biasing
+  if(name == "geometryBias") {
+    if (value == 0) {
+      options.geometryBias = false;
+    } else {
+      options.geometryBias = true;
+    }
+    return;
+  }
+
+
   // options which influence tracking 
   if(name == "deltaChord") { options.deltaChord = value; return; }
   if(name == "deltaIntersection") { options.deltaIntersection = value; return; }

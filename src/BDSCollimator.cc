@@ -145,6 +145,7 @@ void BDSCollimator::BuildInnerCollimator()
 		      false,		   // no boolean operation
 		      0);		   // copy number 
 
+
   if(BDSGlobals->GetSensitiveComponents()){
     SetSensitiveVolume(itsSolidLogVol);
   }
@@ -162,6 +163,8 @@ void BDSCollimator::BuildInnerCollimator()
 		      itsMarkerLogicalVolume, // its mother  volume
 		      false,		     // no boolean operation
 		      0);		     // copy number  
+  SetMultiplePhysicalVolumes(itsPhysiComp);
+  SetMultiplePhysicalVolumes(itsPhysiComp2);
 }
 
 
@@ -178,7 +181,6 @@ BDSCollimator::~BDSCollimator()
   if(itsInnerLogVol)delete itsInnerLogVol;
 
   if(itsPhysiComp) delete itsPhysiComp;
-  if(itsPhysiCompSoil) delete itsPhysiCompSoil;
   if(itsPhysiComp2) delete itsPhysiComp2;
 
   if(itsSoilTube) delete itsSoilTube;

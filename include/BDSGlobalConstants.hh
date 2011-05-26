@@ -115,6 +115,8 @@ public:
   G4double GetAnnihiToMuFe();
   G4double GetEeToHadronsFe();
 
+  G4bool GetSampleDistRandomly();
+  G4bool GetGeometryBias();
   G4bool GetUseEMLPB();
   G4bool GetUseHadLPB();
 
@@ -286,6 +288,8 @@ private:
   G4double itsGammaToMuFe;
   G4double itsAnnihiToMuFe;
   G4double itsEeToHadronsFe;
+  G4bool itsSampleDistRandomly;
+  G4bool itsGeometryBias;
   G4bool itsUseEMLPB;
   G4bool itsUseHadLPB;
   G4double itsMinimumEpsilonStep;
@@ -515,8 +519,12 @@ inline G4double BDSGlobalConstants::GetAnnihiToMuFe()
 inline G4double BDSGlobalConstants::GetEeToHadronsFe()
 {return itsEeToHadronsFe;}
 
+inline G4bool BDSGlobalConstants::GetSampleDistRandomly(){
+  return itsSampleDistRandomly;}
+
 inline G4bool BDSGlobalConstants::GetUseEMLPB(){
   return itsUseEMLPB;}
+
 inline G4bool BDSGlobalConstants::GetUseHadLPB(){
   return itsUseHadLPB;}
 
@@ -566,7 +574,10 @@ inline G4double BDSGlobalConstants::GetTunnelOffsetY()
 
 inline G4bool BDSGlobalConstants::GetShowTunnel()
 {return itsShowTunnel;}
- 
+
+inline G4bool BDSGlobalConstants::GetGeometryBias()
+{return itsGeometryBias;}
+
 //Beam loss monitors
 
 inline G4double BDSGlobalConstants::GetBlmRad()

@@ -105,8 +105,10 @@ BDSAcceleratorComponent::~BDSAcceleratorComponent ()
 void BDSAcceleratorComponent::BuildTunnel()
 {
   //Make sure length is not zero
-  if(itsLength<BDSGlobals->GetLengthSafety()){
-    itsLength=pow(1.0,-20.0)+BDSGlobals->GetLengthSafety();
+  if(itsLength <= BDSGlobals->GetLengthSafety()){
+    G4cout << "BDSAcceleratorComponent::BuildTunnel() - WARNING - " << G4endl;
+    G4cout << "Components length, " << itsLength << ", less than or equal to safety length, " << BDSGlobals->GetLengthSafety() << ". Not building tunnel." << G4endl;
+    return;
   }
 
   std::string tunnelMaterialName;
@@ -155,7 +157,7 @@ void BDSAcceleratorComponent::BuildTunnel()
                                   itsName+"_bnd_sized_block_solid", 
                                   blockSize,
                                   blockSize,
-                                  (itsLength-BDSGlobals->GetLengthSafety())
+                                  (itsLength-BDSGlobals->GetLengthSafety()/2.0)
                                   );
 
    itsTunnelSolid=new G4Tubs(itsName+"_tun_solid",
@@ -341,6 +343,9 @@ void BDSAcceleratorComponent::BuildTunnel()
                                          true,		     // no boolean operation
                                          0);		             // copy number
   
+  
+  SetMultiplePhysicalVolumes(itsTunnelPhysiComp);
+
   G4cout << "Placing soil around tunnel" << G4endl;
   itsTunnelPhysiCompSoil = new G4PVPlacement(
                                              tunnelRot,		     // no rotation
@@ -351,7 +356,7 @@ void BDSAcceleratorComponent::BuildTunnel()
                                              true,		     // no boolean operation
                                              0);		             // copy number
   
-  
+  SetMultiplePhysicalVolumes(itsTunnelPhysiCompSoil);
   /*
     itsTunnelPhysiInner = new G4PVPlacement(
     tunnelRot,
@@ -587,7 +592,8 @@ void BDSAcceleratorComponent::BuildGate()
 						  false,
 						  0
 						  );
-
+  SetMultiplePhysicalVolumes(itsGatePhysi);
+  
   G4VisAttributes* VisAtt = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0));
   VisAtt->SetVisibility(true);
   VisAtt->SetForceSolid(true);

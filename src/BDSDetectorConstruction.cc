@@ -32,6 +32,7 @@
 #include "G4Tubs.hh"
 #include "G4Box.hh"
 #include "G4LogicalVolume.hh"
+#include "G4VPhysicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4UniformMagField.hh"
 #include "G4FieldManager.hh"
@@ -90,6 +91,10 @@
 #include "parser/gmad.h"
 #include "ggmad.hh"
 
+#include "G4VSampler.hh"
+#include "G4GeometrySampler.hh"
+#include "G4IStore.hh"
+ 
 using namespace std;
 
 
@@ -1621,6 +1626,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
                                  0);		// copy number
 
 
+
   // sensitive detectors
 
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
@@ -1820,16 +1826,16 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 	   }
 	
 	if((*iBeam)->GetType()=="sampler") {
-	  LocalName=(*iBeam)->GetName()+"_phys";
+	  LocalName=(*iBeam)->GetName()+"phys";
 	  bdsOutput->SampName.push_back(LocalName + "_" + BDSGlobals->StringFromInt(nCopy+1));
 	} 
 	else if((*iBeam)->GetType()=="csampler") {
-	  LocalName=(*iBeam)->GetName()+"_phys";
+	  LocalName=(*iBeam)->GetName()+"phys";
 	  bdsOutput->CSampName.push_back(LocalName + "_" + BDSGlobals->StringFromInt(nCopy+1));
 	} else {
 	  //it would be nice to set correctly names also for other elements...
 	  //but need to count them!
-	  LocalName=(*iBeam)->GetName()+"_phys";
+	  LocalName=(*iBeam)->GetName()+"phys";
 	}
 
 	/*
@@ -1877,7 +1883,13 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 			    physiWorld,	      // its mother  volume
 			    false,	      // no boolean operation
 			    nCopy);	      // copy number
-	
+
+	  fPhysicalVolumeVector.push_back(PhysiComponentPlace);
+	  vector<G4VPhysicalVolume*> MultiplePhysicalVolumes = (*iBeam)->GetMultiplePhysicalVolumes();
+	  for (G4int i=0;i<MultiplePhysicalVolumes.size(); i++) fPhysicalVolumeVector.push_back(MultiplePhysicalVolumes.at(i));
+					    
+
+	  
 #ifdef DEBUG 
         G4cout << "Volume name: " << LocalName << G4endl;
 #endif
@@ -1998,5 +2010,66 @@ BDSDetectorConstruction::~BDSDetectorConstruction()
 
   delete precisionRegion;
 }
+
+
+
+  //Set up geometric importance sampling.
+//  G4GeometrySampler importanceSampler(physiWorld,"electron");
+//  importanceSampler.SetParallel(false);
+//  G4VIStore* BDSDetectorConstruction:: = new G4IStore(*physiWorld);
+//  istore->AddImportanceGeometryCell(1, *physiWorld);
+  //importanceSampler.PrepareImportanceSampling(istore);
+  //  importanceSampler.Configure();
+G4VIStore *BDSDetectorConstruction::CreateImportanceStore(){
+//Create a geometry sampler  
+  G4GeometrySampler* itsGeometrySampler = new G4GeometrySampler(GetWorldVolume(),"electron");
+  itsGeometrySampler->SetParallel(false);
+
+
+   if (!fPhysicalVolumeVector.size())
+    {
+      G4Exception("B01-DetectorConstruction: no physical volumes created yet!");
+    }
+  
+  // creating and filling the importance store
+  
+  G4IStore *itsIStore = new G4IStore(*physiWorld);
+  
+  G4double imp =1;
+  G4int n=1;
+  itsIStore->AddImportanceGeometryCell(1,  *physiWorld);
+  
+  for (std::vector<G4VPhysicalVolume *>::iterator
+	 it =  fPhysicalVolumeVector.begin();
+       it != fPhysicalVolumeVector.end(); it++)
+    {
+    	  G4cout << "Going to assign importance: " << imp << ", to volume: "
+		 << (*it)->GetName() << G4endl;
+	  itsIStore->AddImportanceGeometryCell(imp, *(*it), (*it)->GetCopyNo());
+ 	  n++;
+	  imp=n;
+    }
+
+
+
+  //  for(  list<BDSAcceleratorComponent*>::const_iterator iBeam=theBeamline.begin();iBeam!=theBeamline.end();iBeam++){
+  // itsIStore->AddImportanceGeometryCell(imp, *fPhysicalVolumeVector.at(0));
+  //
+  //  vector<G4VPhysicalVolume*> MultiplePhysicalVolumes = (*iBeam)->GetMultiplePhysicalVolumes();
+  //  for (G4int i=0;i<MultiplePhysicalVolumes.size(); i++)
+  //    {
+  //G4cout << "Going to assign importance: " << imp << ", to accelerator component: "
+  //	       << MultiplePhysicalVolumes.at(i)->GetName() << G4endl;
+  //	G4cout << "Adding importance geometry cell: " << MultiplePhysicalVolumes.at(i)->GetName() << G4endl;       
+  //	itsIStore->AddImportanceGeometryCell(imp, *MultiplePhysicalVolumes.at(i));
+  //  }
+  //  imp++;
+  // }
+
+  return itsIStore;
+}
+
+
+  
 
 //=================================================================

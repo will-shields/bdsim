@@ -42,6 +42,12 @@ BDSMuSpoiler::BDSMuSpoiler (G4String& aName,G4double aLength,G4double bpRad,
   itsBField(aBField)
 
 {
+  G4double minInnRad =  itsBeampipeRadius + BDSGlobals->GetBeampipeThickness() + BDSGlobals->GetLengthSafety()/2.0;
+  if( itsInnerRadius < minInnRad ){
+    G4cout << "BDSMuSpoiler - WARNING - inner radius less than minimum. Changing inner radius from " << itsInnerRadius << " to " << minInnRad << G4endl;
+    itsInnerRadius = minInnRad;
+  }
+
   itsType="muspoiler";
   SetVisAttributes();
   SetBPVisAttributes();
@@ -62,7 +68,7 @@ BDSMuSpoiler::BDSMuSpoiler (G4String& aName,G4double aLength,G4double bpRad,
     (new G4Box( itsName+"_solid",
                 xLength,
 		yLength,
-		(itsLength+BDSGlobals->GetLengthSafety())/2), //z half length 
+		(itsLength-BDSGlobals->GetLengthSafety())/2), //z half length 
      theMaterials->GetMaterial("vacuum"),
      itsName+"_log");
 
@@ -94,9 +100,9 @@ void BDSMuSpoiler::BuildMuSpoiler()
 {
   itsSolidLogVol=
     new G4LogicalVolume(new G4Tubs(itsName+"_solid",
-				   itsInnerRadius,
-				   itsOuterRadius,
-				   itsLength/2,
+				   itsInnerRadius+BDSGlobals->GetLengthSafety()/2.0,
+				   itsOuterRadius-BDSGlobals->GetLengthSafety()/2.0,
+				   itsLength/2-BDSGlobals->GetLengthSafety()/2.0,
 				   0,twopi*radian),
 			theMaterials->GetMaterial("Iron"),
 			itsName+"_solid");
@@ -122,8 +128,8 @@ void BDSMuSpoiler::BuildMuSpoiler()
 #endif
 
   itsBPTube=new G4Tubs(itsName+"_bmp_solid",
-		       itsBpRadius-BDSGlobals->GetBeampipeThickness(),
-		       itsBpRadius,
+		       itsBpRadius+BDSGlobals->GetLengthSafety()/2.0,
+		       itsBpRadius+BDSGlobals->GetBeampipeThickness(),
 		       itsLength/(2.),
 		       0,twopi*radian);
 
@@ -137,8 +143,8 @@ void BDSMuSpoiler::BuildMuSpoiler()
   
   itsInnerBPTube=new G4Tubs(itsName+"_inner_bmp_solid",
 				0.,
-				itsBpRadius-BDSGlobals->GetBeampipeThickness(),
-				itsLength/2,
+				itsBpRadius,
+			    itsLength/2 - BDSGlobals->GetLengthSafety()/2.0,
 				0,twopi*radian);
 
   itsBeampipeLogicalVolume=	
@@ -190,6 +196,9 @@ void BDSMuSpoiler::BuildMuSpoiler()
 		      false,		   // no boolean operation
 		      0);		   // copy number 
 
+  //For geometric biasing etc.
+  SetMultiplePhysicalVolumes(itsPhysiComp2);
+
   if(BDSGlobals->GetSensitiveComponents()){
     SetMultipleSensitiveVolumes(itsSolidLogVol);
   }
@@ -199,8 +208,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
 
   BuildBLMs();
 
-  G4VPhysicalVolume* PhysiInnerBP;
-  PhysiInnerBP = new G4PVPlacement(
+  itsPhysiInnerBP = new G4PVPlacement(
 				   (G4RotationMatrix*)0,		        // no rotation
 				   (G4ThreeVector)0,	                // at (0,0,0)
 		      itsInnerBPLogicalVolume,  // its logical volume
@@ -208,10 +216,8 @@ void BDSMuSpoiler::BuildMuSpoiler()
 		      itsMarkerLogicalVolume,   // its mother  volume
 		      false,		        // no boolean operation
 		      0);		        // copy number
-    
-
-      G4VPhysicalVolume* PhysiBP;
-      PhysiBP = new G4PVPlacement(
+  
+      itsPhysiBP = new G4PVPlacement(
 				  (G4RotationMatrix*)0,			     // no rotation
 				  (G4ThreeVector)0,	                     // at (0,0,0)
 			  itsBeampipeLogicalVolume,  // its logical volume
@@ -230,7 +236,11 @@ void BDSMuSpoiler::BuildMuSpoiler()
 		      false,		     // no boolean operation
 		      0);		     // copy number  
 
-  
+  //For geometric biasing etc.
+  SetMultiplePhysicalVolumes(itsPhysiInnerBP);
+  SetMultiplePhysicalVolumes(itsPhysiBP);
+  SetMultiplePhysicalVolumes(itsPhysiComp);
+
 
 }
 

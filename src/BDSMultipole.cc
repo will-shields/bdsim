@@ -146,19 +146,19 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
 #endif
 
   G4EllipticalTube* tmp_tube =new G4EllipticalTube(itsName+"_bmp_solid_tmp",
-                                                 this->GetAperX(),
-                                                 this->GetAperY(),
-                                                 itsLength/2);
+						   this->GetAperX()+BDSGlobals->GetBeampipeThickness(),
+						   this->GetAperY()+BDSGlobals->GetBeampipeThickness(),
+						   itsLength/2);
   
   itsInnerBeampipeSolid=new G4EllipticalTube(itsName+"_inner_bmp_solid",
-                                                this->GetAperX()-BDSGlobals->GetBeampipeThickness(),
-                                                this->GetAperY()-BDSGlobals->GetBeampipeThickness(),
+					     this->GetAperX(),
+					     this->GetAperY(),
                                                 itsLength/2);
 
   G4EllipticalTube* largerInnerBeampipeSolid_tmp=new G4EllipticalTube(itsName+"larger_inner_bmp_solid",
-                                                this->GetAperX()-BDSGlobals->GetBeampipeThickness(),
-                                                this->GetAperY()-BDSGlobals->GetBeampipeThickness(),
-                                                itsLength);
+								      this->GetAperX()+BDSGlobals->GetLengthSafety()/2.0,
+								      this->GetAperY()+BDSGlobals->GetLengthSafety()/2.0,
+								      itsLength);
   
   itsBeampipeSolid = new G4SubtractionSolid(itsName + "_bmp_solid",
                                                tmp_tube,
@@ -175,8 +175,7 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
 			theMaterials->GetMaterial("Vacuum"),
 			itsName+"_inner_bmp_log");
   
-  G4VPhysicalVolume* PhysiInner;
-  PhysiInner = new G4PVPlacement(
+  itsPhysiInner = new G4PVPlacement(
                                  (G4RotationMatrix*)0,		        // no rotation
                                  (G4ThreeVector)0,	                // at (0,0,0)
                                  itsInnerBPLogicalVolume,  // its logical volume
@@ -184,9 +183,9 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
                                  itsMarkerLogicalVolume,   // its mother  volume
                                  false,		        // no boolean operation
                                  0);		        // copy number
-  
-  G4VPhysicalVolume* PhysiComp;
-  PhysiComp = new G4PVPlacement(
+ 
+
+  itsPhysiComp = new G4PVPlacement(
                                 (G4RotationMatrix*)0,			     // no rotation
                                 (G4ThreeVector)0,	                     // at (0,0,0)
                                 itsBeampipeLogicalVolume,  // its logical volume
@@ -194,7 +193,12 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
                                 itsMarkerLogicalVolume,    // its mother  volume
                                 false,		     // no boolean operation
                                 0);		             // copy number
+
+  //Add the physical volumes to a vector which can be used for e.g. geometrical biasing
+  SetMultiplePhysicalVolumes(itsPhysiInner);
+  SetMultiplePhysicalVolumes(itsPhysiComp);
   
+
   itsBeampipeUserLimits =
     new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());
@@ -298,8 +302,7 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
 			theMaterials->GetMaterial("Vacuum"),
 			itsName+"_inner_bmp_log");
   
-  G4VPhysicalVolume* PhysiInner;
-  PhysiInner = new G4PVPlacement(
+  itsPhysiInner = new G4PVPlacement(
 				 (G4RotationMatrix*)0,		        // no rotation
 				 (G4ThreeVector)0,	                // at (0,0,0)
 		      itsInnerBPLogicalVolume,  // its logical volume
@@ -309,8 +312,8 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
 		      0);		        // copy number
     
 
-      G4VPhysicalVolume* PhysiComp;
-      PhysiComp = new G4PVPlacement(
+  
+      itsPhysiComp = new G4PVPlacement(
 				    (G4RotationMatrix*)0,			     // no rotation
 				    (G4ThreeVector)0,	                     // at (0,0,0)
 			  itsBeampipeLogicalVolume,  // its logical volume
@@ -318,6 +321,10 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
 			  itsMarkerLogicalVolume,    // its mother  volume
 			  false,		     // no boolean operation
 			  0);		             // copy number
+
+  //Add the physical volumes to a vector which can be used for e.g. geometrical biasing
+  SetMultiplePhysicalVolumes(itsPhysiInner);
+  SetMultiplePhysicalVolumes(itsPhysiComp);
 
   itsBeampipeUserLimits =
      new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
@@ -454,13 +461,13 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
   itsOuterLogicalVolume=
     new G4LogicalVolume(  new G4SubtractionSolid(itsName+"_outer_solid",
                                                  new G4Tubs(itsName+"_outer_solid_tmp_1",
-                                                            itsInnerIronRadius+BDSGlobals->GetLengthSafety(),
+                                                            itsInnerIronRadius+BDSGlobals->GetLengthSafety()/2.0,
                                                             outerRadius,
                                                             aLength/2,
                                                             0,twopi*radian),
                                                  new G4EllipticalTube(itsName+"_outer_solid_tmp_2",
-                                                                      this->GetAperX()+BDSGlobals->GetLengthSafety(),
-                                                                      this->GetAperY()+BDSGlobals->GetLengthSafety(),
+                                                                      this->GetAperX()+BDSGlobals->GetBeampipeThickness()+BDSGlobals->GetLengthSafety()/2.0,
+                                                                      this->GetAperY()+BDSGlobals->GetBeampipeThickness()+BDSGlobals->GetLengthSafety()/2.0,
                                                                       itsLength)
                                                  ),
                           material,
@@ -475,6 +482,9 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
 		      itsMarkerLogicalVolume, // its mother  volume
 		      false,		      // no boolean operation
 		      0);		      // copy number
+  
+  //Add the physical volumes to a vector which can be used for e.g. geometrical biasing
+  SetMultiplePhysicalVolumes(itsPhysiComp);
 
   itsOuterUserLimits =
     new G4UserLimits("multipole cut",aLength,DBL_MAX,DBL_MAX,
@@ -527,6 +537,9 @@ G4LogicalVolume* itsOuterLogicalVolume=
 		      false,		      // no boolean operation
 		      0);		      // copy number
 
+  //Add the physical volumes to a vector which can be used for e.g. geometrical biasing
+  SetMultiplePhysicalVolumes(itsPhysiComp);
+
   itsOuterUserLimits =
     new G4UserLimits("multipole cut",aLength,DBL_MAX,DBL_MAX,
 		     BDSGlobals->GetThresholdCutCharged());
@@ -561,6 +574,7 @@ void BDSMultipole::BuildOuterFieldManager(G4int nPoles, G4double poleField,
 BDSMultipole::~BDSMultipole()
 {
   if(itsPhysiComp) delete itsPhysiComp;
+  if(itsPhysiInner) delete itsPhysiInner;
   if(itsBPFieldMgr) delete itsBPFieldMgr;
   if(itsBeampipeLogicalVolume) delete itsBeampipeLogicalVolume;
   if(itsChordFinder) delete itsChordFinder;

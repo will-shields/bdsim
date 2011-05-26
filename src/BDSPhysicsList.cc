@@ -408,14 +408,24 @@ void BDSPhysicsList::ConstructEM()
       // gamma         
       pmanager->AddDiscreteProcess(new G4PhotoElectricEffect);
       pmanager->AddDiscreteProcess(new G4ComptonScattering);
-      if (BDSGlobals->GetUseEMLPB()){ //added by M.D. Salt, R.B. Appleby, 15/10/09
-        G4GammaConversion* gammaconversion = new G4GammaConversion();
-        GammaConversion_LPB* gammaconversion_lpb = new GammaConversion_LPB();
-        gammaconversion_lpb->RegisterProcess(gammaconversion);
-        pmanager->AddDiscreteProcess(gammaconversion_lpb);
+
+      if(0){
+	G4GammaConversion* gammaconversion = new G4GammaConversion();
+	gammaconversion->SetLambdaFactor(1/1.0e-20);
+	BDSXSBias* gammaconversion_xsbias = new BDSXSBias();
+	gammaconversion_xsbias->RegisterProcess(gammaconversion);
+	gammaconversion_xsbias->SetEnhanceFactor(1e-20);
+	pmanager->AddDiscreteProcess(gammaconversion_xsbias);
+	
+      } else if (BDSGlobals->GetUseEMLPB()){ //added by M.D. Salt, R.B. Appleby, 15/10/09
+	  G4GammaConversion* gammaconversion = new G4GammaConversion();
+	  GammaConversion_LPB* gammaconversion_lpb = new GammaConversion_LPB();
+	  gammaconversion_lpb->RegisterProcess(gammaconversion);
+	  pmanager->AddDiscreteProcess(gammaconversion_lpb);
       } else {
-        pmanager->AddDiscreteProcess(new G4GammaConversion);
+	pmanager->AddDiscreteProcess(new G4GammaConversion);
       }
+    
       
     } else if (particleName == "e-") {
       //electron
@@ -425,7 +435,15 @@ void BDSPhysicsList::ConstructEM()
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
 #endif
       pmanager->AddProcess(new G4eIonisation,       -1, 2,2);
-      if(BDSGlobals->GetUseEMLPB()){ //added by M.D. Salt, R.B. Appleby, 15/10/09
+      if(0){
+	G4eBremsstrahlung* ebremsstrahlung = new G4eBremsstrahlung();
+	ebremsstrahlung->SetLambdaFactor(1/1.0e-20);
+	BDSXSBias* ebremsstrahlung_xsbias = new BDSXSBias();
+	ebremsstrahlung_xsbias->RegisterProcess(ebremsstrahlung);
+	ebremsstrahlung_xsbias->SetEnhanceFactor(1e-20);
+	pmanager->AddDiscreteProcess(ebremsstrahlung_xsbias);     
+      }	else if(BDSGlobals->GetUseEMLPB()){ //added by M.D. Salt, R.B. Appleby, 15/10/09
+	  
         G4eBremsstrahlung* ebremsstrahlung = new G4eBremsstrahlung();
         eBremsstrahlung_LPB* ebremsstrahlung_lpb = new eBremsstrahlung_LPB();
         ebremsstrahlung_lpb->RegisterProcess(ebremsstrahlung);
@@ -452,9 +470,16 @@ void BDSPhysicsList::ConstructEM()
       pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
 #endif
       pmanager->AddProcess(new G4eIonisation,       -1, 2,2);
-      if (BDSGlobals->GetUseEMLPB()){
-        G4eBremsstrahlung* ebremsstrahlung = new G4eBremsstrahlung();
-        eBremsstrahlung_LPB* ebremsstrahlung_lpb = new eBremsstrahlung_LPB();
+      if(0){
+	G4eBremsstrahlung* ebremsstrahlung = new G4eBremsstrahlung();
+	ebremsstrahlung->SetLambdaFactor(1/1.0e-20);
+	BDSXSBias* ebremsstrahlung_xsbias = new BDSXSBias();
+	ebremsstrahlung_xsbias->RegisterProcess(ebremsstrahlung);
+	ebremsstrahlung_xsbias->SetEnhanceFactor(1e-20);
+	pmanager->AddDiscreteProcess(ebremsstrahlung_xsbias);      
+      } else if (BDSGlobals->GetUseEMLPB()){
+	G4eBremsstrahlung* ebremsstrahlung = new G4eBremsstrahlung();
+	eBremsstrahlung_LPB* ebremsstrahlung_lpb = new eBremsstrahlung_LPB();
         ebremsstrahlung_lpb->RegisterProcess(ebremsstrahlung);
         pmanager->AddProcess(ebremsstrahlung_lpb,     -1,-1,3);
       } else {

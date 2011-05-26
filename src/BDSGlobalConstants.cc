@@ -42,6 +42,9 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
   else
     itsSoilMaterialName = opt.soilMaterial;
 
+ itsSampleDistRandomly = true;
+ itsGeometryBias = opt.geometryBias;
+
  itsShowTunnel=opt.showTunnel;
  itsSensitiveComponents=opt.sensitiveBeamlineComponents;
  itsSensitiveBeamPipe=opt.sensitiveBeamPipe;

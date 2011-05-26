@@ -99,7 +99,8 @@ protected:
     G4VisAttributes* itsVisAttributes;
   G4UserLimits* itsUserLimits;
   G4UserLimits* itsBeampipeUserLimits;
-  G4PVPlacement* itsPhysiComp;
+  G4VPhysicalVolume* itsPhysiComp;
+  G4VPhysicalVolume* itsPhysiInner;
   G4FieldManager* itsBPFieldMgr;
   G4FieldManager* itsOuterFieldMgr;
 

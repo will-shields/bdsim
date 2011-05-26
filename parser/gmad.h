@@ -146,7 +146,10 @@ struct Options {
    double tunnelThickness;
   double tunnelSoilThickness;
   double tunnelFloorOffset;
- 
+  
+  //Geometry biasing
+  bool geometryBias;
+
   //BLM geometry
   double blmRad;
   double blmLength;

@@ -46,6 +46,8 @@
 #include "G4EventManager.hh"
 #include "G4TrackingManager.hh"
 #include "G4SteppingManager.hh"
+#include "G4GeometrySampler.hh"
+#include "G4ImportanceAlgorithm.hh"
 
 #include "BDSGeometryInterface.hh"
 
@@ -366,6 +368,20 @@ int main(int argc,char** argv) {
   BDSRunManager * runManager = new BDSRunManager;
   // runManager->SetNumberOfAdditionalWaitingStacks(1);
 
+
+  //For geometry sampling, phys list must be initialized before detector.
+#ifdef DEBUG 
+  G4cout<<"constructing phys list"<<G4endl;
+#endif
+  BDSPhysicsList* PhysList=new BDSPhysicsList;
+  
+#ifdef DEBUG 
+  G4cout<<"user init phys list"<<G4endl;
+#endif
+  runManager->SetUserInitialization(PhysList);
+
+
+
 #ifdef DEBUG 
   G4cout<<"constructing detector"<<G4endl;
 #endif
@@ -376,15 +392,6 @@ int main(int argc,char** argv) {
 #endif
   runManager->SetUserInitialization(detector);
 
-#ifdef DEBUG 
-  G4cout<<"constructing phys list"<<G4endl;
-#endif
-  BDSPhysicsList* PhysList=new BDSPhysicsList;
-  
-#ifdef DEBUG 
-  G4cout<<"user init phys list"<<G4endl;
-#endif
-  runManager->SetUserInitialization(PhysList);
 
 
   //
@@ -442,6 +449,7 @@ int main(int argc,char** argv) {
     ->SetVerboseLevel(verboseTrackingLevel);
   G4EventManager::GetEventManager()->GetTrackingManager()->GetSteppingManager()
     ->SetVerboseLevel(verboseSteppingLevel);
+
 
   bdsOutput->Init(0); // activate the output - setting the first filename to 
                      // be appended with _0
@@ -504,7 +512,7 @@ int main(int argc,char** argv) {
 
       // do not need secondaries whatsoever
       BDSGlobals->SetStopTracks(true);
-      
+
       runManager->BeamOn(nptwiss);
 
       // Clear Stack
@@ -559,6 +567,24 @@ int main(int argc,char** argv) {
   G4UIsession* session=0;
   G4VisManager* visManager=0;
 
+ 
+  //Create a geometric importance sampling store
+  if(BDSGlobals->GetGeometryBias()){
+    G4VIStore *aIstore = 0;
+    aIstore = detector->CreateImportanceStore();
+    G4GeometrySampler mgs(detector->GetWorldVolume(),"mu+");
+    mgs.SetParallel(false);
+    mgs.PrepareImportanceSampling(aIstore,0);
+    mgs.Configure();
+    
+    G4GeometrySampler mgs_plus(detector->GetWorldVolume(),"mu-");
+    mgs_plus.SetParallel(false);
+    mgs_plus.PrepareImportanceSampling(aIstore,0);
+    mgs_plus.Configure();
+  }
+
+//G4VIStore* theVIStore = detector->CreateImportanceStore();
+
   if(!isBatch)   // Interactive mode
     {
 #ifdef G4UI_USE_TCSH
@@ -579,7 +605,6 @@ int main(int argc,char** argv) {
       G4UImanager* UI = G4UImanager::GetUIpointer();  
       
       UI->ApplyCommand("/control/execute " + visMacroFile);    
- 
       session->SessionStart();
       delete session;
 

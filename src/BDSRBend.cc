@@ -325,15 +325,15 @@ void BDSRBend::BuildRBBeampipe()
   // build beampipe
   //
   G4Tubs *pipeTubsEnv = new G4Tubs(itsName+"_pipe_outer_env",
-				   itsBpRadius-bpThickness, // inner R
-				   itsBpRadius,             // outer R
+				   itsBpRadius+BDSGlobals->GetLengthSafety()/2.0, // inner R
+				   itsBpRadius+bpThickness,             // outer R
 				   tubLen,                  // length
 				   0,                       // starting phi
 				   twopi * rad );           // delta phi
   
   G4Tubs *pipeInnerEnv = new G4Tubs(itsName+"_pipe_inner_env",
 				    0,                       // inner R
-				    itsBpRadius-bpThickness, // outer R
+				    itsBpRadius, // outer R
 				    tubLen,                  // length
 				    0,                       // starting phi
 				    twopi * rad );           // delta phi
@@ -443,7 +443,8 @@ void BDSRBend::BuildRBBeampipe()
 		      itsMarkerLogicalVolume,  // its mother volume
 		      false,		       // no booleanm operation
 		      0);		       // copy number
-  
+
+
   G4VPhysicalVolume* PhysiComp;
   PhysiComp =
     new G4PVPlacement(
@@ -455,7 +456,6 @@ void BDSRBend::BuildRBBeampipe()
 		      false,		        // no boolean operation
 		      0);		        // copy number
 
-  
   G4VPhysicalVolume* PhysiInnerEnds;
   PhysiInnerEnds = 
     new G4PVPlacement(
@@ -477,7 +477,11 @@ void BDSRBend::BuildRBBeampipe()
 		      itsMarkerLogicalVolume,   // its mother volume
 		      false,		        // no boolean operation
 		      0);		        // copy number
-
+  
+  SetMultiplePhysicalVolumes(PhysiInner);
+  SetMultiplePhysicalVolumes(PhysiComp);
+  SetMultiplePhysicalVolumes(PhysiInnerEnds);
+  SetMultiplePhysicalVolumes(PhysiCompEnds);
   
   //
   // set user limits for stepping, tracking and propagation in B field
@@ -545,7 +549,7 @@ void BDSRBend::BuildRBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
   
   G4Tubs *magTubsEnv =
     new G4Tubs(itsName+"_solid_env",
-	       itsInnerIronRadius+1*nm, // inner R + overlap safety
+	       itsInnerIronRadius+BDSGlobals->GetLengthSafety()/2.0, // inner R + overlap safety
 	       itsOuterR,          // outer R
 	       tubLen,             // length
 	       0,                  // starting phi
@@ -582,6 +586,8 @@ void BDSRBend::BuildRBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
                       itsMarkerLogicalVolume, // its mother  volume
                       false,                  // no boolean operation
                       0);                     // copy number
+
+  SetMultiplePhysicalVolumes(itsPhysiComp);
 
   itsOuterUserLimits =
     new G4UserLimits("multipole cut",DBL_MAX,DBL_MAX,DBL_MAX,

@@ -336,6 +336,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 		      false,		            // no boolean operation
 		      0);		            // copy number
   
+
   // color-coding for the pole
   G4VisAttributes* VisAtt = 
     new G4VisAttributes(G4Colour(1., 0., 0.));
@@ -381,6 +382,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 			  lQuadrant,                    // its mother volume
 			  false,                        // no boolean operation
 			  0);                           // copy number
+      SetMultiplePhysicalVolumes(itsPhysiQYoke1);
 
       // color-coding 
       G4VisAttributes* VisAtt1 = 
@@ -406,6 +408,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 					itsOuterLogicalVolume, // its mother volume
 					false,                 // no boolean operation
 					0);                    // copy number
+
 
   G4RotationMatrix* rotQ2= new  G4RotationMatrix;
   rotQ2->rotateZ( pi / 2.);
@@ -462,6 +465,13 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 		      false,                  // no boolean operation
 		      0);                     // copy number
   
+  SetMultiplePhysicalVolumes(itsPhysiQPole1);
+  SetMultiplePhysicalVolumes(itsPhysiQuadrant1);
+  SetMultiplePhysicalVolumes(itsPhysiQuadrant2);
+  SetMultiplePhysicalVolumes(itsPhysiQuadrant3);
+  SetMultiplePhysicalVolumes(itsPhysiQuadrant4);
+  SetMultiplePhysicalVolumes(itsPhysiComp);
+
   itsOuterUserLimits =
     new G4UserLimits("quadrupole cut",itsLength,DBL_MAX,DBL_MAX,
 		     BDSGlobals->GetThresholdCutCharged());
@@ -585,6 +595,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 			  lQuadrant,                    // its mother volume
 			  false,                        // no boolean operation
 			  0);                           // copy number
+      SetMultiplePhysicalVolumes(itsPhysiQYoke1);
 
       // color-coding 
       G4VisAttributes* VisAtt1 = 
@@ -669,6 +680,13 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 		      false,                  // no boolean operation
 		      0);                     // copy number
   
+  SetMultiplePhysicalVolumes(itsPhysiQPole1);
+  SetMultiplePhysicalVolumes(itsPhysiQuadrant1);
+  SetMultiplePhysicalVolumes(itsPhysiQuadrant2);
+  SetMultiplePhysicalVolumes(itsPhysiQuadrant3);
+  SetMultiplePhysicalVolumes(itsPhysiQuadrant4);
+  SetMultiplePhysicalVolumes(itsPhysiComp);
+
   itsOuterUserLimits =
     new G4UserLimits("quadrupole cut",itsLength,DBL_MAX,DBL_MAX,
 		     BDSGlobals->GetThresholdCutCharged());

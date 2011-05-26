@@ -1103,7 +1103,7 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
 			  VOL_LIST[PARENTID],
 			  false,
 			  0);
-
+      SetMultiplePhysicalVolumes(PhysiComp);
       if(align_in)
 	{
 	  // Make sure program stops and informs user if more than one alignment vol.

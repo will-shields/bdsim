@@ -39,7 +39,6 @@ private:
   // Geometrical objects:
 
   G4VPhysicalVolume* itsPhysiComp;
-  G4VPhysicalVolume* itsPhysiCompSoil;
   G4VPhysicalVolume* itsPhysiComp2;
   G4LogicalVolume* itsSolidLogVol;
   G4LogicalVolume* itsInnerLogVol;

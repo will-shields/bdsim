@@ -345,12 +345,12 @@ void BDSSectorBend::BuildSBBeampipe()
   //
   G4VSolid *pipeTubsEnv = new G4SubtractionSolid("_pipe_outer_env",
                                                new G4EllipticalTube(itsName+"_pipe_outer_tmp_1",
-                                                                    this->GetAperX(), 
-                                                                    this->GetAperY(),          
+                                                                    this->GetAperX()+BDSGlobals->GetBeampipeThickness(), 
+                                                                    this->GetAperY()+BDSGlobals->GetBeampipeThickness(),          
                                                                     tubLen),
                                                new G4EllipticalTube(itsName+"_pipe_outer_tmp_2",
-                                                                    this->GetAperX()-BDSGlobals->GetBeampipeThickness()+BDSGlobals->GetLengthSafety()/2.0, 
-                                                                    this->GetAperY()-BDSGlobals->GetBeampipeThickness()+BDSGlobals->GetLengthSafety()/2.0,          
+                                                                    this->GetAperX()+BDSGlobals->GetLengthSafety()/2.0, 
+                                                                    this->GetAperY()+BDSGlobals->GetLengthSafety()/2.0,          
                                                                     tubLen*2)
                                                );
 
@@ -358,8 +358,8 @@ void BDSSectorBend::BuildSBBeampipe()
 
   
   G4VSolid *pipeInnerEnv = new G4EllipticalTube(itsName+"_pipe_outer_tmp_2",
-                                                this->GetAperX()-BDSGlobals->GetBeampipeThickness()+BDSGlobals->GetLengthSafety()/2.0, 
-                                                this->GetAperY()-BDSGlobals->GetBeampipeThickness()+BDSGlobals->GetLengthSafety()/2.0,          
+                                                this->GetAperX(), 
+                                                this->GetAperY(),          
                                                 tubLen);
 
   G4IntersectionSolid *pipeTubs =
@@ -397,6 +397,8 @@ void BDSSectorBend::BuildSBBeampipe()
 		      false,		       // no booleanm operation
 		      0);		       // copy number
   
+  SetMultiplePhysicalVolumes(PhysiInner);
+
   G4VPhysicalVolume* PhysiComp;
   PhysiComp =
     new G4PVPlacement(
@@ -408,6 +410,8 @@ void BDSSectorBend::BuildSBBeampipe()
 		      false,		        // no boolean operation
 		      0);		        // copy number
   
+  SetMultiplePhysicalVolumes(PhysiComp);
+
   //
   // set user limits for stepping, tracking and propagation in B field
   //
@@ -469,14 +473,14 @@ void BDSSectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
   
   G4VSolid *magTubsEnv = new G4SubtractionSolid(itsName+"_solid_env",
                                                 new G4Tubs(itsName+"_solid_tmp_1",
-                                                           0,//           itsInnerIronRadius + BDSGlobals->GetLengthSafety(), // inner R + overlap safety
+                                                           itsInnerIronRadius + BDSGlobals->GetLengthSafety()/2.0, // inner R + overlap safety
                                                            itsOuterR,          // outer R
                                                            tubLen,             // length
                                                            0,                  // starting phi
                                                            twopi * rad ),      // delta phi
                                                 new G4EllipticalTube(itsName+"_pipe_outer_tmp_2",
-                                                                     this->GetAperX()+BDSGlobals->GetLengthSafety()/2.0, 
-                                                                     this->GetAperY()+BDSGlobals->GetLengthSafety()/2.0,          
+                                                                     this->GetAperX()+BDSGlobals->GetBeampipeThickness()+BDSGlobals->GetLengthSafety()/2.0, 
+                                                                     this->GetAperY()+BDSGlobals->GetBeampipeThickness()+BDSGlobals->GetLengthSafety()/2.0,          
                                                                      tubLen*2)
                                                 );
   
@@ -511,6 +515,8 @@ void BDSSectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
                       itsMarkerLogicalVolume, // its mother  volume
                       false,                  // no boolean operation
                       0);                     // copy number
+
+SetMultiplePhysicalVolumes(itsPhysiComp);
 
   itsOuterUserLimits =
     new G4UserLimits("multipole cut",DBL_MAX,DBL_MAX,DBL_MAX,

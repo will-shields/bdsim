@@ -95,6 +95,7 @@ void init()
   options.tunnelOffsetY = 0;
   options.tunnelSoilThickness = 0;
   options.tunnelThickness = 0;
+  options.geometryBias = false;
   options.ffact = 1.0;
   options.elossHistoBinWidth = 1.0;
   options.defaultRangeCut = 7e-4;
