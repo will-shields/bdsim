@@ -1867,16 +1867,16 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 	   }
 	
 	if((*iBeam)->GetType()=="sampler") {
-	  LocalName=(*iBeam)->GetName()+"phys";
+	  LocalName=(*iBeam)->GetName()+"_phys";
 	  bdsOutput->SampName.push_back(LocalName + "_" + BDSGlobals->StringFromInt(nCopy+1));
 	} 
 	else if((*iBeam)->GetType()=="csampler") {
-	  LocalName=(*iBeam)->GetName()+"phys";
+	  LocalName=(*iBeam)->GetName()+"_phys";
 	  bdsOutput->CSampName.push_back(LocalName + "_" + BDSGlobals->StringFromInt(nCopy+1));
 	} else {
 	  //it would be nice to set correctly names also for other elements...
 	  //but need to count them!
-	  LocalName=(*iBeam)->GetName()+"phys";
+	  LocalName=(*iBeam)->GetName()+"_phys";
 	}
 
 	/*
