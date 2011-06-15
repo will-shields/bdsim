@@ -145,6 +145,9 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
          << G4endl;
 #endif
 
+  G4cout << "Drift aperX: " << this->GetAperX()/m << " m" << G4endl;
+  G4cout << "Drift aperY: " << this->GetAperY()/m << " m" << G4endl;
+
   G4EllipticalTube* tmp_tube =new G4EllipticalTube(itsName+"_bmp_solid_tmp",
 						   this->GetAperX()+BDSGlobals->GetBeampipeThickness(),
 						   this->GetAperY()+BDSGlobals->GetBeampipeThickness(),

@@ -4,6 +4,7 @@
 #include "globals.hh"
 #include <cmath>
 
+
 using namespace std;
 
 extern G4bool verbose;      // run options
@@ -243,8 +244,7 @@ void BDSBunch::SetOptions(struct Options& opt)
 		
 		fields.push_back(sd);
 	      }
-	    }
-	    if(token.substr(0,1)=="t") {
+	    } else if(token.substr(0,1)=="t") {
 #ifdef DEBUG 
               G4cout<< "BDSBunch : " <<"t!"<<G4endl;
 #endif
@@ -271,10 +271,9 @@ void BDSBunch::SetOptions(struct Options& opt)
 		if(fmt=="nm/c") sd.unit=(nm/c_light)/s;
                 
 		fields.push_back(sd);
-
+		
 	      }
-	    }
-	    if( (token.substr(0,1)=="x") && (token.substr(1,1)!="p") ) {
+	    } else if( (token.substr(0,1)=="x") && (token.substr(1,1)!="p") ) {
 #ifdef DEBUG 
               G4cout<< "BDSBunch : " <<"x!"<<G4endl;
 #endif
@@ -302,8 +301,7 @@ void BDSBunch::SetOptions(struct Options& opt)
 		fields.push_back(sd);
 		
 	      }
-	    }
-	    if(token.substr(0,1)=="y" && token.substr(1,1)!="p" ) {
+	    }else if(token.substr(0,1)=="y" && token.substr(1,1)!="p" ) {
 #ifdef DEBUG 
               G4cout<< "BDSBunch : " <<"y!"<<G4endl;
 #endif
@@ -330,8 +328,7 @@ void BDSBunch::SetOptions(struct Options& opt)
 		
 		fields.push_back(sd);
 	      }
-	    }
-	    if(token.substr(0,1)=="z" && token.substr(1,1)!="p" ) {
+	    }else if(token.substr(0,1)=="z" && token.substr(1,1)!="p" ) {
 #ifdef DEBUG 
               G4cout<< "BDSBunch : " <<"z!"<<G4endl;
 #endif
@@ -358,8 +355,7 @@ void BDSBunch::SetOptions(struct Options& opt)
 		
 		fields.push_back(sd);
 	      }
-	    }
-	    if(token.substr(0,2)=="xp") {
+	    }else if(token.substr(0,2)=="xp") {
 #ifdef DEBUG 
               G4cout<< "BDSBunch : " <<"xp!"<<G4endl;
 #endif
@@ -385,8 +381,7 @@ void BDSBunch::SetOptions(struct Options& opt)
 		fields.push_back(sd);
 		
 	      }
-	    }
-	    if(token.substr(0,2)=="yp") {
+	    }else if(token.substr(0,2)=="yp") {
 #ifdef DEBUG 
               G4cout<< "BDSBunch : " <<"yp!"<<G4endl;
 #endif
@@ -411,8 +406,7 @@ void BDSBunch::SetOptions(struct Options& opt)
 		
 		fields.push_back(sd);
 	      }
-	    }
-	    if(token.substr(0,2)=="zp") {
+	    } else if(token.substr(0,2)=="zp") {
 #ifdef DEBUG 
               G4cout<< "BDSBunch : " <<"zp!"<<G4endl;
 #endif
@@ -438,21 +432,25 @@ void BDSBunch::SetOptions(struct Options& opt)
 		fields.push_back(sd);
 	      }
 	    }
-	  }
-	  else
-	    if(token=="pt") {
+	  } else if(token.substr(0,2)=="pt") {
 #ifdef DEBUG 
               G4cout<< "BDSBunch : " <<"pt!"<<G4endl;
 #endif
               sd.name="pt";
 	      sd.unit=1;
 	      fields.push_back(sd);
-	    }
-            else {
+	  } else if(token.substr(0,1)=="w") {
+#ifdef DEBUG 
+	    G4cout<< "BDSBunch : " <<"weight!"<<G4endl;
+#endif
+              sd.name="weight";
+	      sd.unit=1;
+	      fields.push_back(sd);
+	  }
+	  else {
 	    G4cerr << "Cannot determine bunch data format" << G4endl; exit(1);
-            }
-	  
-	}
+	  }
+	} 
       OpenBunchFile();
     }
   }
@@ -523,7 +521,7 @@ G4double BDSBunch::GetNextT()
 
 void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 			       G4double& xp,G4double& yp,G4double& zp,
-			       G4double& t, G4double& E)
+			       G4double& t, G4double& E, G4double &weight)
 {
 
 #ifdef DEBUG 
@@ -807,6 +805,7 @@ case _RING:
           yp*=radian;
           zp=sqrt(1.-xp*xp -yp*yp);  
           t=0; 
+	  weight=1;
           // use the Kinetic energy:
           E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
         }
@@ -814,7 +813,7 @@ case _RING:
         InputBunchFile.clear();
         InputBunchFile.seekg(0);
         _skip(nlinesIgnore * 6);
-        GetNextParticle(x0,y0,z0,xp,yp,zp,t,E);
+        GetNextParticle(x0,y0,z0,xp,yp,zp,t,E,weight);
       }
       break;
     }
@@ -1035,8 +1034,8 @@ case _RING:
          
          E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
          G4cout << "******** Particle Energy = " << E << G4endl;
-
-           G4cout<< "BDSBunch : " << E <<G4endl;
+	 
+	 G4cout<< "BDSBunch : " << E <<G4endl;
 #endif
          }
          if(it->name=="t") { ReadValue(t); t *= ( s * it->unit ); tdef = true; }
@@ -1074,14 +1073,19 @@ case _RING:
                }
            }
          }
-         
-         // compute zp from xp and yp if it hasn't been read from file
-         if (!zpdef) zp=sqrt(1.-xp*xp -yp*yp);
-         // compute t from z0 if it hasn't been read from file
-         if (!tdef) t=0; 
-         // use the Kinetic energy:
-         //          if(BDSGlobals->GetParticleDefinition()->GetPDGEncoding() != 22){
-         //}
+	 if(it->name=="weight") {ReadValue(weight);
+#ifdef DEBUG 
+	 G4cout<< "BDSBunch : " << weight <<G4endl;
+#endif
+}
+
+	 // compute zp from xp and yp if it hasn't been read from file
+	 if (!zpdef) zp=sqrt(1.-xp*xp -yp*yp);
+	 // compute t from z0 if it hasn't been read from file
+	 if (!tdef) t=0; 
+	 // use the Kinetic energy:
+	 //          if(BDSGlobals->GetParticleDefinition()->GetPDGEncoding() != 22){
+	 //}
        }
      break;
     }

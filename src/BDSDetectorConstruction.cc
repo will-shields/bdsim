@@ -438,38 +438,80 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       }
 
       if((*it).type==_DRIFT ) {
-        driftStartAper = bpRad;
-	driftEndAper = bpRad;
+	double aper=0;
+	double aperX=0;
+	double aperY=0;
+	
 
-        if(it!=beamline_list.begin()){
-          it--;
-          if(((*it).type!=_ECOL)&&((*it).type!=_RCOL)&&((*it).type!=_MUSPOILER)){
-            if( (*it).aper > 1.e-10*m ) driftStartAper = (*it).aper * m;
-          }
-          it++;
+	if( (*it).aper > 0 ) aper = (*it).aper * m; //Set if aper specified for element
+        if( ((*it).aperX>0) || ((*it).aperY>0)){  //aperX or aperY override aper, aper set to the largest of aperX or aperY
+          aper=std::max((*it).aperX,(*it).aperY);
         }
 
-        driftLength = (*it).l;
-        driftName = (*it).name;
 
-        if(it!=beamline_list.end()){
-          it++;
-          if(((*it).type!=_ECOL)&&((*it).type!=_RCOL)&&((*it).type!=_MUSPOILER)){
-            if( (*it).aper > 1.e-10*m ) driftEndAper = (*it).aper * m;
-          }
-          it--;
-        } 
-        addDriftReturn = AddDriftToBeamline(driftName, driftLength, (it)->blmLocZ,
-                                            (it)->blmLocTheta, driftStartAper, driftEndAper, true , (*it).tunnelMaterial); 
-        added_comp = true;
+	if ( ((*it).aperX !=0) || ((*it).aperY != 0) || ((*it).aper != 0)){
+	  if((*it).l > BDSGlobals->GetLengthSafety()) // skip too short elements                                                                                                         
+	    {
+#if 1
+	      	      G4cout << "---->adding Drift,"
+	      		     << " name= " << (*it).name
+	      		     << " l= " << (*it).l << "m"
+			     << " aperX= " << (*it).aperX << "m"
+	      		     << " aperY= " << (*it).aperY << "m"
+	      		     << G4endl;
+#endif
+	      G4bool aperset=true;
+
+	      theBeamline.push_back(new BDSDrift( (*it).name,
+						  (*it).l*m,
+						  (*it).blmLocZ,
+						  (*it).blmLocTheta,
+						  (*it).aperX*m, (*it).aperY*m, (*it).tunnelMaterial, aperset, aper) );
+	    } else {
+	    /*
+	    G4cerr << "---->NOT adding Drift,"
+		   << " name= " << name
+		   << ", TOO SHORT LENGTH:"
+		   << " l= " << l << "m"
+		   << G4endl;
+	    */
+	   } 
+	  
+	  //Build beam pipe to specified apertures.
+	} else {
+	  //Taper circular beam pipe between elements.
+	  driftStartAper = bpRad;
+	  driftEndAper = bpRad;
+	  
+	  if(it!=beamline_list.begin()){
+	    it--;
+	    if(((*it).type!=_ECOL)&&((*it).type!=_RCOL)&&((*it).type!=_MUSPOILER)){
+	      if( (*it).aper > 1.e-10*m ) driftStartAper = (*it).aper * m;
+	    }
+	    it++;
+	  }
+	  
+	  driftLength = (*it).l;
+	  driftName = (*it).name;
+	  
+	  if(it!=beamline_list.end()){
+	    it++;
+	    if(((*it).type!=_ECOL)&&((*it).type!=_RCOL)&&((*it).type!=_MUSPOILER)){
+	      if( (*it).aper > 1.e-10*m ) driftEndAper = (*it).aper * m;
+	    }
+	    it--;
+	  } 
+	  addDriftReturn = AddDriftToBeamline(driftName, driftLength, (it)->blmLocZ,
+					      (it)->blmLocTheta, driftStartAper, driftEndAper, true , (*it).tunnelMaterial); 
+	  added_comp = true;
+	}
       }
-
-      if((*it).type==_RF ) {
-	G4double aper = bpRad;
-	if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-        
-	if((*it).l > 0) // skip zero-length elements
-	  {
+	if((*it).type==_RF ) {
+	  G4double aper = bpRad;
+	  if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
+	  
+	  if((*it).l > 0) // skip zero-length elements
+	    {
 #ifdef DEBUG 
             G4cout << "---->adding RF,"
                    << " name= " << (*it).name
@@ -519,7 +561,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	// arc length
 	G4double length = (*it).l*m;
         G4double magFieldLength = length;// * 0.999935999; //Small constant correction factor needed for sbend, ok to within a few picometres over 1 metre at 1.5 GeV, for any bend angle
-
                 
 	//
 	// magnetic field

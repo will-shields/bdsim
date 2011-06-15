@@ -1,4 +1,4 @@
-//  
+   
 //   BDSIM, (C) 2001-2007 
 //    
 //   version 0.4 
@@ -277,6 +277,7 @@ void BDSPhysicsList::ConstructProcess()
     }
     
     if(BDSGlobals->GetPhysListName() == "hadronic_FTFP_BERT_muon"){
+      G4cout << "BDSPhysicsList: Using hadronic_FTFP_BERT_muon" << G4endl;
       ConstructEM();
       ConstructMuon();
       HadronPhysicsFTFP_BERT *myHadPhysList = new HadronPhysicsFTFP_BERT;
@@ -537,19 +538,19 @@ void BDSPhysicsList::ConstructMuon()
       gammaconversiontomuon_xsbias->SetEnhanceFactor(BDSGlobals->GetGammaToMuFe());
       pmanager->AddDiscreteProcess(gammaconversiontomuon_xsbias);
 #ifdef DEBUG
-      G4cout << "BDSPhysicsList> GammaRoMuFe = " << BDSGlobals->GetGammaToMuFe() << G4endl;
+      G4cout << "BDSPhysicsList> GammaToMuFe = " << BDSGlobals->GetGammaToMuFe() << G4endl;
 #endif
     } else if (particleName == "e+") {
       //positron
       //===========ee to hadrons in development================
-      //      G4eeToHadrons* eetohadrons = new G4eeToHadrons();
+      G4eeToHadrons* eetohadrons = new G4eeToHadrons();
       // BDSXSBias* eetohadrons_xsbias = new BDSXSBias();
-      //G4cout << "eeToHadronsXSBias = " << BDSGlobals->GetEeToHadronsFe() << G4endl;
-      //eetohadrons->SetCrossSecFactor(BDSGlobals->GetEeToHadronsFe());
+      // G4cout << "eeToHadronsXSBias = " << BDSGlobals->GetEeToHadronsFe() << G4endl;
+      eetohadrons->SetCrossSecFactor(BDSGlobals->GetEeToHadronsFe());
       //eetohadrons_xsbias->RegisterProcess(eetohadrons);
       //eetohadrons_xsbias->SetEnhanceFactor(BDSGlobals->GetEeToHadronsFe());
       //pmanager->AddDiscreteProcess(eetohadrons_xsbias);
-      //pmanager->AddDiscreteProcess(eetohadrons_xsbias);
+      pmanager->AddDiscreteProcess(eetohadrons);
       //-------------------------------------------------------
       G4AnnihiToMuPair* annihitomupair = new G4AnnihiToMuPair();
       BDSXSBias* annihitomupair_xsbias = new BDSXSBias();

@@ -5,6 +5,7 @@
 #include "BDSGlobalConstants.hh"
 #include "G4SteppingManager.hh"
 
+
 BDSXSBias::BDSXSBias(const G4String& aName,
                                          G4ProcessType   aType)
   : G4WrapperProcess(aName, aType), eFactor(1.0)
@@ -58,7 +59,9 @@ G4VParticleChange* BDSXSBias::PostStepDoIt(
   G4bool gammaInPionEvent= false;
   for (G4int i = 0; i < iNSec; i++) {
     pChange->GetSecondary(i)->SetWeight(ws); 
-    if(std::abs(pChange->GetSecondary(i)->GetDefinition()->GetPDGEncoding())==211) pionEvent=true;
+    if(std::abs(pChange->GetSecondary(i)->GetDefinition()->GetPDGEncoding())==211) {
+      pionEvent=true;
+    }
     if(std::abs(pChange->GetSecondary(i)->GetDefinition()->GetPDGEncoding())==22){
       if (pionEvent=true){
         gammaInPionEvent = true;
@@ -67,6 +70,7 @@ G4VParticleChange* BDSXSBias::PostStepDoIt(
   }
   
   if(pionEvent){
+    G4cout << "Pion event" << G4endl;
     if(gammaInPionEvent){
 #ifdef DEBUG      
       G4cout << "gammaInPionEvent" << G4endl;
@@ -78,7 +82,7 @@ G4VParticleChange* BDSXSBias::PostStepDoIt(
 #endif
     }
   }
-
+  
   if (pionEvent){
     G4Track* secTrack[100];
     for (G4int i = 0; i < iNSec; i++) {

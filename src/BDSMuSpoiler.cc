@@ -104,7 +104,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
 				   itsOuterRadius-BDSGlobals->GetLengthSafety()/2.0,
 				   itsLength/2-BDSGlobals->GetLengthSafety()/2.0,
 				   0,twopi*radian),
-			theMaterials->GetMaterial("Iron"),
+			theMaterials->GetMaterial("Iron"), 
 			itsName+"_solid");
 
   itsInnerLogVol=

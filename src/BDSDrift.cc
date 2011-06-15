@@ -28,13 +28,15 @@ extern BDSMaterials* theMaterials;
 //============================================================
 
 BDSDrift::BDSDrift (G4String aName, G4double aLength, 
-                    std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double startAper, G4double endAper, G4String tunnelMaterial):
-  BDSMultipole(aName, aLength, (startAper+endAper)/2, (startAper+endAper)/2, SetVisAttributes(),  blmLocZ, blmLocTheta, tunnelMaterial, "")
+                    std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double aperX, G4double aperY, G4String tunnelMaterial, G4bool aperset, G4double aper):
+  BDSMultipole(aName, aLength, aper, aper, SetVisAttributes(),  blmLocZ, blmLocTheta, tunnelMaterial, "", aperX, aperY)
 {
-  itsStartOuterR=startAper + BDSGlobals->GetBeampipeThickness();
-  itsEndOuterR=endAper + BDSGlobals->GetBeampipeThickness();
-  SetStartOuterRadius(itsStartOuterR);
-  SetEndOuterRadius(itsEndOuterR);
+  if(!aperset){
+    itsStartOuterR=aperX + BDSGlobals->GetBeampipeThickness();
+    itsEndOuterR=aperY + BDSGlobals->GetBeampipeThickness();
+    SetStartOuterRadius(itsStartOuterR);
+    SetEndOuterRadius(itsEndOuterR);
+  }
   itsType="drift";
 
   if (!(*LogVolCount)[itsName])
@@ -51,8 +53,11 @@ BDSDrift::BDSDrift (G4String aName, G4double aLength,
       if(BDSGlobals->GetBuildTunnel()){
         BuildTunnel();
       }
-      //      BuildTaperedBeampipe(startAper, endAper);
-      BuildBeampipe();
+      if (aperset){
+	BuildBeampipe();
+      } else {
+	BuildBeampipe(aperX, aperY);
+      }
       BuildBLMs();
   
       //
@@ -78,6 +83,9 @@ BDSDrift::BDSDrift (G4String aName, G4double aLength,
       itsMarkerLogicalVolume=(*LogVol)[itsName];
     }
 }
+
+
+
 
 G4VisAttributes* BDSDrift::SetVisAttributes()
 {
