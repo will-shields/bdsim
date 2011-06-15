@@ -155,12 +155,12 @@ int main(int argc,char** argv) {
   
   int OptionIndex = 0;
   int c;
-  int ThisOptionId;
+//   int ThisOptionId;
   
   for(;;)
     {
       
-      ThisOptionId = optind ? optind : 1;
+//       ThisOptionId = optind ? optind : 1;
       OptionIndex = 0;
       
       c = getopt_long(argc, argv, "Vv",

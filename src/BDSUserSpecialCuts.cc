@@ -28,6 +28,7 @@
 #include "G4UserLimits.hh"
 #include "G4VParticleChange.hh"
 #include "G4EnergyLossTables.hh"
+#include "G4Version.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -111,7 +112,7 @@ G4VParticleChange* BDSUserSpecialCuts::PostStepDoIt(
 {
    aParticleChange.Initialize(aTrack);
 
-#if G4VERSION > 6
+#if G4VERSION_NUMBER > 699
    aParticleChange.ProposeEnergy(0.) ;
    aParticleChange.ProposeLocalEnergyDeposit (aTrack.GetKineticEnergy()) ;
 #else

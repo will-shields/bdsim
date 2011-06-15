@@ -21,7 +21,7 @@ public:
   BDSSamplerCylinder(G4String aName,G4double aLength, G4double aRadius);
   ~BDSSamplerCylinder();
 
-  static const int GetNSamplers();
+  static int GetNSamplers();
   static void AddExternalSampler();
 
 protected:

@@ -55,7 +55,7 @@ BDSSectorBend::BDSSectorBend(G4String aName, G4double aLength,
       //
       // build tunnel
       //
-      G4double oldTunnelRad=      BDSGlobals->GetTunnelRadius();
+//       G4double oldTunnelRad=      BDSGlobals->GetTunnelRadius();
          
       if(BDSGlobals->GetBuildTunnel()){
 	BuildTunnel(); 
@@ -250,7 +250,7 @@ void BDSSectorBend::BuildBPFieldAndStepper()
 void BDSSectorBend::BuildSBMarkerLogicalVolume()
 {
 
-  G4double xLength, yLength;
+//   G4double xLength, yLength;
   G4double aThickness=std::min(1*cm,BDSGlobals->GetTunnelSoilThickness());
   G4double totalTunnelRadius = BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness()+aThickness+std::max(BDSGlobals->GetTunnelOffsetX(),BDSGlobals->GetTunnelOffsetY());
  
@@ -444,6 +444,17 @@ void BDSSectorBend::BuildSBBeampipe()
   VisAtt1->SetVisibility(true);
   VisAtt1->SetForceSolid(true);
   itsBeampipeLogicalVolume->SetVisAttributes(VisAtt1);
+}
+
+
+G4double BDSSectorBend::GetArcLength()
+{
+  // arc length = radius*angle
+  //            = (geometrical length/(2.0*sin(angle/2))*angle
+  if (itsAngle == 0.0)
+    return itsLength;
+  else
+    return (itsLength * (0.5*itsAngle) / sin(0.5*itsAngle));
 }
 
 void BDSSectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){

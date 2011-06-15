@@ -11,7 +11,7 @@
 #include "G4ios.hh"
 #include "G4UnitsTable.hh"
 
-#if G4VERSION > 8
+#if G4VERSION_NUMBER > 899
 BDSPlanckScatter::BDSPlanckScatter():G4VEnergyLossProcess("PlanckScatt")
 #else
 BDSPlanckScatter::BDSPlanckScatter():G4VeEnergyLoss("PlanckScatt")
@@ -85,7 +85,7 @@ G4VParticleChange* BDSPlanckScatter::PostStepDoIt(const G4Track& trackData,
   
   G4LorentzVector ScatEl=itsComptonEngine->GetScatteredElectron();
   
-#if G4VERSION > 6
+#if G4VERSION_NUMBER > 699
   if (NewKinEnergy > 0.)
     {
       aParticleChange.ProposeMomentumDirection(ScatEl.vect().unit());
@@ -122,7 +122,7 @@ G4VParticleChange* BDSPlanckScatter::PostStepDoIt(const G4Track& trackData,
   return G4VContinuousDiscreteProcess::PostStepDoIt(trackData,stepData);
 }
 
-#if G4VERSION > 8
+#if G4VERSION_NUMBER > 899
 void BDSPlanckScatter::InitialiseEnergyLossProcess(const G4ParticleDefinition*, const G4ParticleDefinition*)
 {
 }

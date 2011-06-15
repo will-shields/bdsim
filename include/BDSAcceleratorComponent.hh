@@ -68,26 +68,26 @@ public:
   void BuildGate();
 
   // angle - for bends etc.
-  const G4double GetAngle () const;
+  G4double GetAngle ();
 
   // geometry length of the component.
   void SetLength(G4double aLength); 
-  virtual const G4double GetLength () const;
-  virtual const G4double GetZLength () const;
-  virtual const G4double GetArcLength () const;
+  virtual G4double GetLength ();
+  virtual G4double GetZLength ();
+  virtual G4double GetArcLength ();
 
-  const G4double GetPhi () const; //polar angle with respect to original frame
+  G4double GetPhi (); //polar angle with respect to original frame
   void SetPhi (G4double val);
 
-  const G4double GetTheta () const; //azimuthal angle with respect to original frame
+  G4double GetTheta (); //azimuthal angle with respect to original frame
   void SetTheta(G4double val);
 
-  const G4double GetPsi () const; //azimuthal angle with respect to original frame
+  G4double GetPsi (); //azimuthal angle with respect to original frame
   void SetPsi(G4double val);
 
-  const G4double GetXOffset() const;  // frame offset 
-  const G4double GetYOffset() const;
-  const G4double GetZOffset() const;
+  G4double GetXOffset();  // frame offset 
+  G4double GetYOffset();
+  G4double GetZOffset();
   
   G4double GetAperX();
   G4double GetAperY();
@@ -105,7 +105,7 @@ public:
   G4ThreeVector GetPosition();
   void SetPosition(G4ThreeVector);
   
-  const G4double GetTilt() const;  // component tilt 
+  G4double GetTilt();  // component tilt 
   
   
   
@@ -369,31 +369,31 @@ BDSAcceleratorComponent (
   }
 }
 
-inline const G4double BDSAcceleratorComponent::GetLength () const
+inline G4double BDSAcceleratorComponent::GetLength ()
 {return itsLength;}
 
-inline const G4double BDSAcceleratorComponent::GetArcLength () const
+inline G4double BDSAcceleratorComponent::GetArcLength ()
 {return itsLength;}
 
-inline const G4double BDSAcceleratorComponent::GetZLength () const
+inline G4double BDSAcceleratorComponent::GetZLength ()
 {return itsLength;}
 
-inline const G4double BDSAcceleratorComponent::GetAngle () const
+inline G4double BDSAcceleratorComponent::GetAngle ()
 {return itsAngle;}
 
-inline const G4double BDSAcceleratorComponent::GetPhi () const
+inline G4double BDSAcceleratorComponent::GetPhi ()
 {return itsPhi;}
 
 inline void BDSAcceleratorComponent::SetPhi (G4double val)
 {itsPhi = val;}
 
-inline const G4double BDSAcceleratorComponent::GetTheta () const
+inline G4double BDSAcceleratorComponent::GetTheta ()
 {return itsTheta;}
 
 inline void BDSAcceleratorComponent::SetTheta (G4double val)
 {itsTheta = val;}
 
-inline const G4double BDSAcceleratorComponent::GetPsi () const
+inline G4double BDSAcceleratorComponent::GetPsi ()
 {return itsPsi;}
 
 inline void BDSAcceleratorComponent::SetPsi (G4double val)
@@ -534,16 +534,16 @@ inline  G4double BDSAcceleratorComponent::GetSynchEnergyLoss()
 inline  G4UserLimits* BDSAcceleratorComponent::GetInnerBPUserLimits()
   {return itsInnerBeampipeUserLimits;}
 
-inline  const G4double BDSAcceleratorComponent::GetXOffset() const
+inline  G4double BDSAcceleratorComponent::GetXOffset()
 {return itsXOffset;}
 
-inline  const G4double BDSAcceleratorComponent::GetYOffset() const
+inline G4double BDSAcceleratorComponent::GetYOffset() 
 {return itsYOffset;}
 
-inline  const G4double BDSAcceleratorComponent::GetZOffset() const
+inline G4double BDSAcceleratorComponent::GetZOffset()
 {return itsZOffset;}
 
-inline  const G4double BDSAcceleratorComponent::GetTilt() const
+inline G4double BDSAcceleratorComponent::GetTilt()
 {return itsTilt;}
 
 

@@ -431,7 +431,7 @@ void BDSAcceleratorComponent::BuildBLMs()
    G4RotationMatrix blmRot = G4RotationMatrix();
    G4ThreeVector blmTrans;
    G4double blmYRot;
-   G4double blmXRot;
+//    G4double blmXRot;
    G4double blmYTrans;
    G4double blmXTrans;
    G4double blmCaseThickness;

@@ -52,7 +52,7 @@ char* yyfilename;
 
 [\t ]+     //ignore whitespaces
 
-(([0-9]+)|([0-9]*\.[0-9]*))(e[+|-]?[0-9]+)? { yylval.dval=atof(yytext); return NUMBER; }
+(([0-9]+)|([0-9]*\.[0-9]*))((e|E)[+|-]?[0-9]+)? { yylval.dval=atof(yytext); return NUMBER; }
 
 
 "<=" { return LE; }

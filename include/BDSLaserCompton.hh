@@ -9,7 +9,8 @@
 #include "G4ios.hh" 
 #include "globals.hh"
 #include "Randomize.hh" 
-#if G4VERSION > 8
+#include "G4Version.hh"
+#if G4VERSION_NUMBER > 899
 #include "G4VDiscreteProcess.hh"
 #else
 #include "G4VeEnergyLoss.hh"
@@ -31,7 +32,7 @@ extern BDSMaterials* theMaterials;
 // flag initiated in BDSEventAction
 extern G4bool FireLaserCompton;
 
-#if G4VERSION > 8
+#if G4VERSION_NUMBER > 899
 class BDSLaserCompton : public G4VDiscreteProcess
 #else
 class BDSLaserCompton : public G4VeEnergyLoss
@@ -43,7 +44,7 @@ class BDSLaserCompton : public G4VeEnergyLoss
   
   ~BDSLaserCompton();
 
-#if G4VERSION > 8  
+#if G4VERSION_NUMBER > 899  
 //  virtual void PrintInfo();
 #endif
 
@@ -71,7 +72,7 @@ protected:
   virtual G4double SecondaryEnergyThreshold(size_t index);
 
 protected:
-#if G4VERSION > 8
+#if G4VERSION_NUMBER > 899
   G4bool isInitialised;  
   const G4ParticleDefinition* particle;
 

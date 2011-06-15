@@ -32,7 +32,7 @@ extern BDSMaterials* theMaterials;
 
 int BDSSamplerCylinder::nSamplers = 0;
 
-const int BDSSamplerCylinder::GetNSamplers() { return nSamplers; }
+int BDSSamplerCylinder::GetNSamplers() { return nSamplers; }
 
 void BDSSamplerCylinder::AddExternalSampler() { nSamplers++; }
 

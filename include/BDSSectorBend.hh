@@ -50,7 +50,7 @@ public:
 
   void SynchRescale(G4double factor);
 
-  virtual const G4double GetArcLength() const;
+  virtual G4double GetArcLength();
 
 protected:
 
@@ -75,14 +75,5 @@ private:
   G4double itsSegmentAngle;
 };
 
-inline const G4double BDSSectorBend::GetArcLength() const
-{
-  // arc length = radius*angle
-  //            = (geometrical length/(2.0*sin(angle/2))*angle
-  if (itsAngle == 0.0)
-    return itsLength;
-  else
-    return (itsLength * (0.5*itsAngle) / sin(0.5*itsAngle));
-}
 
 #endif

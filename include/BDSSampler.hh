@@ -25,7 +25,7 @@ public:
   BDSSampler(G4String aName,G4double aLength);
   ~BDSSampler();
 
-  static const int GetNSamplers();
+  static int GetNSamplers();
   static void AddExternalSampler();
 
 protected:

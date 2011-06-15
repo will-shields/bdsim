@@ -11,7 +11,7 @@
 #include "G4ios.hh"
 #include "G4UnitsTable.hh"
 
-#if G4VERSION > 8
+#if G4VERSION_NUMBER > 899
 BDSLaserCompton::BDSLaserCompton(const G4String& processName)
   :  G4VDiscreteProcess(processName),isInitialised(false)
 #else
@@ -46,7 +46,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
  // ensure that Laserwire can only occur once in an event
  G4cout << "FireLaserCompton == " << FireLaserCompton << G4endl;
  if(!FireLaserCompton){
-	 #if G4VERSION > 8
+	 #if G4VERSION_NUMBER > 899
    return G4VDiscreteProcess::PostStepDoIt(trackData,stepData);
    #else
 	 return G4VContinuousDiscreteProcess::PostStepDoIt(trackData,stepData);
@@ -89,7 +89,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
 	 aParticleChange.AddSecondary(aGamma); 
 	 if(!BDSGlobals->GetLaserwireTrackElectrons())
 	 	   {
-#if G4VERSION > 6
+#if G4VERSION_NUMBER > 699
 	     aParticleChange.ProposeEnergy( 0. );
 	     aParticleChange.ProposeLocalEnergyDeposit (0.);
 	     aParticleChange.ProposeTrackStatus(fStopAndKill);
@@ -102,7 +102,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
        }
      else
        {
-#if G4VERSION > 6
+#if G4VERSION_NUMBER > 699
 	 aParticleChange.SetNumberOfSecondaries(0);
      	 aParticleChange.ProposeLocalEnergyDeposit (0.);
 #else
@@ -126,7 +126,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
      
      if (NewKinEnergy > 0.)
        {
-#if G4VERSION > 6
+#if G4VERSION_NUMBER > 699
 	 aParticleChange.ProposeMomentumDirection(ScatEl.vect().unit());
 	 aParticleChange.ProposeEnergy(NewKinEnergy);
 	 aParticleChange.ProposeLocalEnergyDeposit (0.); 
@@ -139,7 +139,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
      else
        { 
 
-#if G4VERSION > 6
+#if G4VERSION_NUMBER > 699
 	 aParticleChange.ProposeEnergy( 0. );
 	 aParticleChange.ProposeLocalEnergyDeposit (0.);
 	 G4double charge= aDynamicParticle->GetCharge();
@@ -159,14 +159,14 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
  //commented to allow multiple laserwires in beamline - Steve
  // FireLaserCompton=false;
  
- #if G4VERSION > 8
+ #if G4VERSION_NUMBER > 899
  return G4VDiscreteProcess::PostStepDoIt(trackData,stepData);
  #else
  return G4VContinuousDiscreteProcess::PostStepDoIt(trackData,stepData);
  #endif
 }
 
-#if G4VERSION > 8
+#if G4VERSION_NUMBER > 899
 /*
 #include "G4LossTableManager.hh"
 #include "G4eBremsstrahlungModel.hh"
