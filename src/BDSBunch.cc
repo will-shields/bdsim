@@ -127,10 +127,6 @@ void BDSBunch::SetOptions(struct Options& opt)
 
   case _GAUSSIAN_TWISS:
     {
-      SetSigmaX(sqrt(opt.betx*opt.emitx)); 
-      SetSigmaY(sqrt(opt.bety*opt.emity)); 
-      SetSigmaXp(sqrt(opt.emitx/opt.betx));
-      SetSigmaYp(sqrt(opt.emity/opt.bety));
       SetSigmaT(opt.sigmaT);
       energySpread = opt.sigmaE;
       break;
@@ -624,21 +620,24 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
             <<" sigmaT= "<<sigmaT<<"s"<<G4endl
             <<" relative energy spread= "<<energySpread<<G4endl;
 #endif
-      
       G4double phiX= twopi * G4UniformRand();
       G4double phiY= twopi * G4UniformRand();
       G4double ex=-log(G4UniformRand())*emitX;
       G4double ey=-log(G4UniformRand())*emitY;
       x0=sqrt(2*ex*betaX)*sin(phiX)*m;
-      xp=sqrt(2*ex/betaX)*(cos(phiX)-alphaX*sin(phiX));
+      xp=sqrt(2*ex/betaX)*(cos(phiX)-alphaX*sin(phiX))*rad;
       y0=sqrt(2*ey*betaY)*sin(phiY)*m;
-      yp=sqrt(2*ey/betaY)*(cos(phiY)-alphaY*sin(phiY));
-      
+      yp=sqrt(2*ey/betaY)*(cos(phiY)-alphaY*sin(phiY))*rad;      
+      z0 = Z0 * m + (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * c_light * s;
+     
       if(sigmaX !=0) x0 = (X0 + sigmaX * GaussGen->shoot()) * m;
       if(sigmaY !=0) y0 = (Y0 + sigmaY * GaussGen->shoot()) * m;
-      z0 = Z0 * m + (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * c_light * s;
       if(sigmaXp !=0) xp = Xp0 + sigmaXp * GaussGen->shoot();
       if(sigmaYp !=0) yp = Yp0 + sigmaYp * GaussGen->shoot();
+
+  
+      z0 = Z0 * m + (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * c_light * s;
+
       if (Zp0<0)
         zp = -sqrt(1.-xp*xp -yp*yp);
       else
@@ -650,7 +649,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
   case _GAUSSIAN_TWISS:
     {
 #ifdef DEBUG 
-      G4cout<<"GAUSSIAN: "<<G4endl
+      G4cout<<"GAUSSIAN_TWISS: "<<G4endl
             <<" X0= "<<X0<<" m"<<G4endl
             <<" Y0= "<<Y0<<" m"<<G4endl
             <<" Z0= "<<Z0<<" m"<<G4endl
@@ -658,10 +657,12 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
             <<" Xp0= "<<Xp0<<G4endl
             <<" Yp0= "<<Yp0<<G4endl
             <<" Zp0= "<<Zp0<<G4endl
-            <<" sigmaX= "<<sigmaX<<" m"<<G4endl
-            <<" sigmaY= "<<sigmaY<<" m"<<G4endl
-            <<" sigmaXp= "<<sigmaXp<<G4endl
-            <<" sigmaYp= "<<sigmaYp<<G4endl
+            <<" alphaX= "<<alphaX<<" m"<<G4endl
+            <<" alphaY= "<<alphaY<<" m"<<G4endl
+            <<" betaX= "<<betaX<<G4endl
+            <<" betaY= "<<betaY<<G4endl
+	    <<" emitX= "<<emitX<<G4endl
+            <<" emitY= "<<emitY<<G4endl
             <<" sigmaT= "<<sigmaT<<"s"<<G4endl
             <<" relative energy spread= "<<energySpread<<G4endl;
 #endif
@@ -670,16 +671,11 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       G4double phiY= twopi * G4UniformRand();
       G4double ex=-log(G4UniformRand())*emitX;
       G4double ey=-log(G4UniformRand())*emitY;
-      x0=sqrt(2*ex*betaX)*sin(phiX);
-      xp=sqrt(2*ex/betaX)*(cos(phiX)-alphaX*sin(phiX));
-      y0=sqrt(2*ey*betaY)*sin(phiY);
-      yp=sqrt(2*ey/betaY)*(cos(phiY)-alphaY*sin(phiY));
-
-      if(sigmaX !=0) x0 = (X0 + sigmaX * GaussGen->shoot()) * m;
-      if(sigmaY !=0) y0 = (Y0 + sigmaY * GaussGen->shoot()) * m;
+      x0=sqrt(2*ex*betaX)*sin(phiX)*m;
+      xp=sqrt(2*ex/betaX)*(cos(phiX)-alphaX*sin(phiX))*rad;
+      y0=sqrt(2*ey*betaY)*sin(phiY)*m;
+      yp=sqrt(2*ey/betaY)*(cos(phiY)-alphaY*sin(phiY))*rad;
       z0 = Z0 * m + (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * c_light * s;
-      if(sigmaXp !=0) xp = Xp0 + sigmaXp * GaussGen->shoot();
-      if(sigmaYp !=0) yp = Yp0 + sigmaYp * GaussGen->shoot();
 
       if (Zp0<0)
         zp = -sqrt(1.-xp*xp -yp*yp);
