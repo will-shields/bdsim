@@ -51,7 +51,9 @@ public:
                 G4String aMaterial="",
 		G4double aXAper=0.,
 		G4double aYAper=0.,
-		G4double angle=0.);
+		G4double angle=0.,
+		G4double tunnelRadius=0.,
+		G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX());
 
 
   //Contructor for components with blms and tunnel material added
@@ -65,7 +67,9 @@ public:
                 G4String aMaterial="",
 		G4double aXAper=0.,
 		G4double aYAper=0.,
-		G4double angle=0.);
+		G4double angle=0.,
+		G4double tunnelRadius=0.,
+		G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX());
 
   virtual ~BDSMultipole();
 
@@ -96,6 +100,17 @@ public:
 protected:
   G4LogicalVolume* itsBeampipeLogicalVolume;
   G4LogicalVolume* itsInnerBPLogicalVolume;
+
+  //=======For the PCL drift=====
+  G4LogicalVolume* itsUpperBeamPipeLogicalVolume;
+  G4LogicalVolume* itsMiddleBeamPipeLogicalVolume;
+  G4LogicalVolume* itsLowerBeamPipeLogicalVolume;
+
+  G4LogicalVolume* itsUpperInnerBeamPipeLogicalVolume;
+  G4LogicalVolume* itsMiddleInnerBeamPipeLogicalVolume;
+  G4LogicalVolume* itsLowerInnerBeamPipeLogicalVolume;
+  //-----------------------------
+
     G4VisAttributes* itsVisAttributes;
   G4UserLimits* itsUserLimits;
   G4UserLimits* itsBeampipeUserLimits;

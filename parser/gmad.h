@@ -27,6 +27,7 @@ enum {
   _NONE = -1,
   _MARKER = 1,
   _DRIFT = 2,
+  _PCLDRIFT = 63,
   _RF = 3,
   _SBEND = 4, 
   _QUAD  = 5,
@@ -46,7 +47,7 @@ enum {
   _RBEND=17,
   _ATOM = 18,
   _SEQUENCE = 19,
-
+    
   _VKICK=31,
   _HKICK=32,
   
@@ -218,8 +219,10 @@ struct Element {
   double xdir, ydir, zdir, waveLength; // for laser wire and 3d transforms
   double flatlength,taperlength; //for realistic collimators
   double gradient; // for rf cavities
-
+  double aperYUp, aperYDown, aperDy;  //pcldrift
   double phi, theta, psi; // for 3d transforms
+  double tunnelRadius;
+  double tunnelOffsetX;
 
   std::list<double> knl;
   std::list<double> ksl;
@@ -294,7 +297,16 @@ struct Parameters {
   double aperY; int aperYset;   
   double phi, theta, psi; // for 3d transforms
   int phiset, thetaset, psiset;
+  double tunnelRadius;
+  int tunnelRadiusset;
+  double tunnelOffsetX;
+  int tunnelOffsetXset;
 
+
+  double aperYUp; int aperYUpset;  
+  double aperYDown; int aperYDownset; 
+  double aperDy; int aperDyset;
+  
   double flatlength; int flatlengthset;
   double taperlength; int taperlengthset;
   double gradient; int gradientset;
@@ -367,9 +379,18 @@ struct Parameters {
     theta = 0; thetaset = 0;
     psi = 0; psiset = 0;
 
+    tunnelRadius = 0; tunnelRadiusset = 0;
+    tunnelOffsetX = 0; tunnelOffsetXset = 0;
+
     aper = 0; aperset = 0;
     outR = 0; outRset = 0;
     tilt = 0; tiltset = 0;
+
+    aperX = 0; aperXset = 0;
+    aperY = 0; aperYset = 0;
+    aperYUp = 0; aperYUp = 0;
+    aperYDown = 0; aperYDownset = 0;
+    aperDy=0; aperDyset = 0;
 
     B  = 0; Bset  = 0;
     k0 = 0; k0set = 0;

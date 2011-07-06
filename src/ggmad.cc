@@ -42,7 +42,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
   G4double FieldX, FieldY, FieldZ;
   FieldX = FieldY = FieldZ = 0.0;
 
-  G4Material *theMaterial = theMaterials->GetMaterial("Vacuum");
+  G4Material *theMaterial = theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial());
 
   G4Box *aBox;
   G4Tubs *aTubs;

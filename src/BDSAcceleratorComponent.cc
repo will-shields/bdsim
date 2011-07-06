@@ -1,4 +1,4 @@
-//  
+ //  
 //   BDSIM, (C) 2001-2006 
 //   
 //   version 0.3
@@ -17,6 +17,7 @@
 //
 //
 
+#define DEBUG 1
 
 #include "BDSGlobalConstants.hh" // must be first in include list
 
@@ -128,17 +129,17 @@ void BDSAcceleratorComponent::BuildTunnel()
 
   #ifdef DEBUG
   G4cout << "Soil :"
-         << " r= " << (BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness())/m + BDSGlobals->GetTunnelSoilThickness()/m<< " m"
+         << " r= " << (itsTunnelRadius+BDSGlobals->GetTunnelThickness())/m + BDSGlobals->GetTunnelSoilThickness()/m<< " m"
          << " l= " << itsLength/m << " m"
          << " material = " << soilMaterialName << " m"
          << G4endl;
   G4cout << "Outer tunnel :"
-         << " r= " << (BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness())/m << " m"
+         << " r= " << (itsTunnelRadius+BDSGlobals->GetTunnelThickness())/m << " m"
          << " l= " << itsLength/m << " m"
          << " material = " << tunnelMaterialName << " m"
          << G4endl;
   G4cout << "Inner tunnel :"
-         << " r= " << BDSGlobals->GetTunnelRadius()/m << " m"
+         << " r= " << itsTunnelRadius/m << " m"
          << " l= " << itsLength/m << " m"
          << G4endl;
 #endif
@@ -146,7 +147,7 @@ void BDSAcceleratorComponent::BuildTunnel()
   G4RotationMatrix *tunnelRot=new G4RotationMatrix();
   G4ThreeVector tunnelTrans;
   G4ThreeVector floorOffsetThreeVector;
-  G4double blockSize = 4*BDSGlobals->GetTunnelRadius();
+  G4double blockSize = 4*itsTunnelRadius;
   G4ThreeVector nullThreeVector = G4ThreeVector(0,0,0);
   G4RotationMatrix *nullRotationMatrix = new G4RotationMatrix();
 
@@ -162,29 +163,29 @@ void BDSAcceleratorComponent::BuildTunnel()
 
    itsTunnelSolid=new G4Tubs(itsName+"_tun_solid",
                              0,
-                             BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness(),
+                             itsTunnelRadius+BDSGlobals->GetTunnelThickness(),
                              (itsLength-BDSGlobals->GetLengthSafety())/2.0,
                              0,twopi*radian);
    
    itsSoilSolid=new G4Tubs(itsName+"_tun_soil_solid",
-                           BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetLengthSafety(),
-                           BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetLengthSafety()+BDSGlobals->GetTunnelSoilThickness(),	
+                           itsTunnelRadius+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetLengthSafety(),
+                           itsTunnelRadius+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetLengthSafety()+BDSGlobals->GetTunnelSoilThickness(),	
                            (itsLength-BDSGlobals->GetLengthSafety())/2.0,
                            0,twopi*radian);
    
    itsInnerTunnelSolid=new G4Tubs(itsName+"_inner_tun_solid",
                                   0.,
-                                  BDSGlobals->GetTunnelRadius(),
+                                  itsTunnelRadius,
                                   (itsLength-BDSGlobals->GetLengthSafety())/2,
                                   0,twopi*radian);
    
    itsLargerInnerTunnelSolid=new G4Tubs(itsName+"_inner_tun_solid",
 					0.,
-					BDSGlobals->GetTunnelRadius()+BDSGlobals->GetLengthSafety(),
+					itsTunnelRadius+BDSGlobals->GetLengthSafety(),
 					(itsLength-BDSGlobals->GetLengthSafety()),
 					0,twopi*radian);
    
-   tunnelTrans.setX(BDSGlobals->GetTunnelOffsetX());
+   tunnelTrans.setX(itsTunnelOffsetX);
    tunnelTrans.setY(BDSGlobals->GetTunnelOffsetY());
    tunnelTrans.setZ(0);
    floorOffsetThreeVector = G4ThreeVector(0,-blockSize-BDSGlobals->GetTunnelFloorOffset(),0);
@@ -211,11 +212,11 @@ void BDSAcceleratorComponent::BuildTunnel()
 
     G4double xHalfLengthPlus, xHalfLengthMinus, tunHalfLen;
     xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
-      - fabs(cos(itsAngle/2)) * (BDSGlobals->GetTunnelRadius() + BDSGlobals->GetTunnelThickness()) * tan(itsAngle/2)/2
+      - fabs(cos(itsAngle/2)) * (itsTunnelRadius + BDSGlobals->GetTunnelThickness()) * tan(itsAngle/2)/2
       + BDSGlobals->GetLengthSafety()/2;
     
     xHalfLengthPlus = (itsLength/itsAngle)*sin(itsAngle/2)
-      + fabs(cos(itsAngle/2)) * (BDSGlobals->GetTunnelRadius() + BDSGlobals->GetTunnelThickness()) * tan(itsAngle/2)/2
+      + fabs(cos(itsAngle/2)) * (itsTunnelRadius + BDSGlobals->GetTunnelThickness()) * tan(itsAngle/2)/2
       + BDSGlobals->GetLengthSafety()/2;
     
     tunHalfLen = std::max(xHalfLengthPlus,xHalfLengthMinus);
@@ -235,7 +236,7 @@ void BDSAcceleratorComponent::BuildTunnel()
                                              new G4Tubs(
                                                         itsName+"_temp_tun_solid",
                                                         0,
-                                                        BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness(),
+                                                        itsTunnelRadius+BDSGlobals->GetTunnelThickness(),
                                                         tunHalfLen,
                                                         0,twopi*radian),			    
                                              itsMarkerLogicalVolume->GetSolid(),
@@ -248,8 +249,8 @@ void BDSAcceleratorComponent::BuildTunnel()
                                            itsName+"_soil_solid",
                                            new G4Tubs(
                                                       itsName+"_temp_soil_solid",
-                                                      BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetLengthSafety(),
-                                                      BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetLengthSafety()+BDSGlobals->GetTunnelSoilThickness(),
+                                                      itsTunnelRadius+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetLengthSafety(),
+                                                      itsTunnelRadius+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetLengthSafety()+BDSGlobals->GetTunnelSoilThickness(),
                                                       tunHalfLen,
                                                       0,twopi*radian),
                                            itsMarkerLogicalVolume->GetSolid(),
@@ -262,7 +263,7 @@ void BDSAcceleratorComponent::BuildTunnel()
                                                 itsName+"_inner_tun_solid",
                                                 new G4Tubs(itsName+"_temp_inner_tun_solid",
                                                            0.,
-                                                           BDSGlobals->GetTunnelRadius(),
+                                                           itsTunnelRadius,
                                                            tunHalfLen,
                                                            0,twopi*radian),
                                                 itsMarkerLogicalVolume->GetSolid(),
@@ -273,12 +274,12 @@ void BDSAcceleratorComponent::BuildTunnel()
     G4cout << "Building larger inner tunnel solid" << G4endl;
     itsLargerInnerTunnelSolid= new G4Tubs(itsName+"_temp_inner_tun_solid",
                                           0.,
-                                          BDSGlobals->GetTunnelRadius()+BDSGlobals->GetLengthSafety(),
+                                          itsTunnelRadius+BDSGlobals->GetLengthSafety(),
                                           2*tunHalfLen,
                                           0,twopi*radian);
                                                        
     
-    tunnelTrans.setX(BDSGlobals->GetTunnelOffsetX());
+    tunnelTrans.setX(itsTunnelOffsetX);
     tunnelTrans.setY(BDSGlobals->GetTunnelOffsetY());
     tunnelTrans.setZ(0);
     floorOffsetThreeVector = G4ThreeVector(0,-blockSize-BDSGlobals->GetTunnelFloorOffset(),0);

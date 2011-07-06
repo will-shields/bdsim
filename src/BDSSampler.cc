@@ -73,7 +73,7 @@ void BDSSampler::SamplerLogicalVolume()
 				      BDSGlobals->GetSamplerDiameter()/2,
 				      BDSGlobals->GetSamplerDiameter()/2,
 				      itsLength/2.0),
-			    theMaterials->GetMaterial("Vacuum"),
+			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			    itsName);
 
       (*LogVolCount)[itsName]=1;

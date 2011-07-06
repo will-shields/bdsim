@@ -28,8 +28,8 @@ extern BDSMaterials* theMaterials;
 //============================================================
 
 BDSDrift::BDSDrift (G4String aName, G4double aLength, 
-                    std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double aperX, G4double aperY, G4String tunnelMaterial, G4bool aperset, G4double aper):
-  BDSMultipole(aName, aLength, aper, aper, SetVisAttributes(),  blmLocZ, blmLocTheta, tunnelMaterial, "", aperX, aperY)
+                    std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double aperX, G4double aperY, G4String tunnelMaterial, G4bool aperset, G4double aper, G4double tunnelOffsetX):
+  BDSMultipole(aName, aLength, aper, aper, SetVisAttributes(),  blmLocZ, blmLocTheta, tunnelMaterial, "", aperX, aperY, 0, 0, tunnelOffsetX)
 {
   if(!aperset){
     itsStartOuterR=aperX + BDSGlobals->GetBeampipeThickness();

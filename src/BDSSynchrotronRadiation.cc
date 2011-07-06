@@ -50,7 +50,9 @@ BDSSynchrotronRadiation::PostStepDoIt(const G4Track& trackData,
   G4cout << "BDSSynchrotronRadiation::PostStepDoIt" << G4endl;
 #endif
   aParticleChange.Initialize(trackData);
-  
+  //Allow reweight of the synchrotron photons
+  aParticleChange.SetSecondaryWeightByProcess(true);
+
   G4double eEnergy=trackData.GetTotalEnergy();
   
   //G4double R=BDSLocalRadiusOfCurvature;
@@ -124,7 +126,8 @@ G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nParticle charge != 0.0" << G4e
 #ifdef DEBUG 
           G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nperpB>0.0" << G4endl;
 #endif
-          for (int i=0; i<BDSGlobals->GetSynchPhotonMultiplicity(); i++){
+          //Loop over multiplicity
+	  for (int i=0; i<BDSGlobals->GetSynchPhotonMultiplicity(); i++){
 #ifdef DEBUG 
             G4cout  << "BDSSynchrotronRadiation::PostStepDoIt\nSynchPhotonMultiplicity" << G4endl;
 #endif
@@ -183,15 +186,23 @@ G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nParticle charge != 0.0" << G4e
 	      }
 	  }
 	  aParticleChange.SetNumberOfSecondaries(listOfSecondaries.size());
+
 	  for(int n=0;n<(int)listOfSecondaries.size();n++){
 #ifdef DEBUG 
             G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nAdding secondaries" << G4endl;
 #endif
+              
             aParticleChange.AddSecondary(listOfSecondaries.front()); 
 	    listOfSecondaries.pop_front();
 #ifdef DEBUG 
             G4cout << "Adding secondary particle...\n";
 #endif
+	  }
+	  //Find out the weight of the gammas
+	  G4double gammaWeight = aParticleChange.GetParentWeight()/BDSGlobals->GetSynchPhotonMultiplicity();
+	  //Set the weights of the gammas
+	  for(int n=0;n<(int)listOfSecondaries.size();n++){
+	    aParticleChange.GetSecondary(n)->SetWeight(gammaWeight);
 	  }
 	}
     }

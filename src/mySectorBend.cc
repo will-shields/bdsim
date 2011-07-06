@@ -213,7 +213,7 @@ void mySectorBend::BuildSBMarkerLogicalVolume()
 				    rho,             // swept R
 				    0,               // starting phi
 				    fabs(itsAngle)), // delta phi
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_marker");
 
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX);
@@ -265,7 +265,7 @@ void mySectorBend::BuildSBBeampipe()
   
   itsInnerBPLogicalVolume=	
     new G4LogicalVolume(pipeInner,
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_bmp_Inner_log");
 
 
@@ -346,7 +346,7 @@ void mySectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum)
 				      rho,                // swept R
 				      0,                  // starting phi
 				      fabs(itsAngle) ),   // delta phi
-                          theMaterials->GetMaterial("Vacuum"),
+                          theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
                           itsName+"_outer");
     }
 

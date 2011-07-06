@@ -438,6 +438,18 @@ int main(int argc,char** argv) {
 #endif
   runManager->Initialize();
 
+  //Create a geometric importance sampling store
+  if(BDSGlobals->GetGeometryBias()){
+    G4VIStore *aIstore = 0;
+    aIstore = detector->CreateImportanceStore();
+    G4GeometrySampler mgs(detector->GetWorldVolume(),"neutron");
+    mgs.SetParallel(false);
+    G4ImportanceAlgorithm* importanceAlgorithm = new G4ImportanceAlgorithm();
+    mgs.PrepareImportanceSampling(aIstore, 0);//,0);
+    mgs.Configure();
+  }
+
+
   //
   // set verbosity levels
   //
@@ -568,23 +580,6 @@ int main(int argc,char** argv) {
   G4VisManager* visManager=0;
 
  
-  //Create a geometric importance sampling store
-  if(BDSGlobals->GetGeometryBias()){
-    G4VIStore *aIstore = 0;
-    aIstore = detector->CreateImportanceStore();
-    G4GeometrySampler mgs(detector->GetWorldVolume(),"mu+");
-    mgs.SetParallel(false);
-    mgs.PrepareImportanceSampling(aIstore,0);
-    mgs.Configure();
-    
-    G4GeometrySampler mgs_plus(detector->GetWorldVolume(),"mu-");
-    mgs_plus.SetParallel(false);
-    mgs_plus.PrepareImportanceSampling(aIstore,0);
-    mgs_plus.Configure();
-  }
-
-//G4VIStore* theVIStore = detector->CreateImportanceStore();
-
   if(!isBatch)   // Interactive mode
     {
 #ifdef G4UI_USE_TCSH

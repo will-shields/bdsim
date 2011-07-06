@@ -17,7 +17,7 @@ class BDSEnergyCounterHit :public G4VHit
   public:
    BDSEnergyCounterHit();
    BDSEnergyCounterHit(G4int nCopy, G4double Energy=0, G4double EnWeightZ=0.,
-	G4int partID=0, G4int parentID=0);
+		       G4int partID=0, G4int parentID=0, G4double weight=1);
 
   ~BDSEnergyCounterHit();
 
@@ -31,10 +31,12 @@ class BDSEnergyCounterHit :public G4VHit
    inline G4int GetCopyNumber();
    inline G4int GetPartID();
    inline G4int GetParentID();
+   inline G4double GetWeight();
    inline void SetEnergy(G4double Energy);
    inline void AddEnergy(G4double Energy);
    inline void AddEnergyWeightedPosition(G4double EnergyWeightedPosition);
    G4double GetEnergyWeightedPosition(); 
+  inline void SetWeight(G4double weight);
 
   private:
    G4double itsEnergy;
@@ -43,6 +45,7 @@ class BDSEnergyCounterHit :public G4VHit
    G4int itsPartID;
    G4int itsParentID;
    G4double itsEnergyWeightedPosition;
+   G4double itsWeight;
 };
 
     inline G4double BDSEnergyCounterHit::GetEnergy()
@@ -60,8 +63,15 @@ class BDSEnergyCounterHit :public G4VHit
     inline G4int BDSEnergyCounterHit::GetParentID()
     {return itsParentID;}
 
+inline G4double BDSEnergyCounterHit::GetWeight()
+{return itsWeight;}
+
    inline void BDSEnergyCounterHit::SetEnergy(G4double Energy)
     {itsEnergy=Energy;}   
+
+   inline void BDSEnergyCounterHit::SetWeight(G4double weight)
+    {itsWeight=weight;}   
+
    inline void BDSEnergyCounterHit::AddEnergy(G4double Energy)
     {
 itsEnergy+=Energy;}   

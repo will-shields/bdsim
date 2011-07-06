@@ -274,12 +274,12 @@ void BDSRBend::BuildRBMarkerLogicalVolume()
   
   itsMarkerLogicalVolume=    
     new G4LogicalVolume(markerSolidVolume,
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			LocalLogicalName+"_marker");
 
   rbendRectangleLogicalVolume=    
     new G4LogicalVolume(rbendRectangleSolidVolume,
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			LocalLogicalName+"_rbend_rectangle");
 
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX);
@@ -401,7 +401,7 @@ void BDSRBend::BuildRBBeampipe()
   
   itsInnerBPLogicalVolume=	
     new G4LogicalVolume(pipeInner,
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_bmp_Inner_log");
 
   middleBeampipeLogicalVolume=	
@@ -411,7 +411,7 @@ void BDSRBend::BuildRBBeampipe()
   
  middleInnerBPLogicalVolume=	
     new G4LogicalVolume(pipeMiddleInner,
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_bmp_Inner_log_middle");
 
  endsBeampipeLogicalVolume=	
@@ -421,7 +421,7 @@ void BDSRBend::BuildRBBeampipe()
   
  endsInnerBPLogicalVolume=	
     new G4LogicalVolume(pipeEndsInner,
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_bmp_Inner_log_ends");
 
 
@@ -566,7 +566,7 @@ void BDSRBend::BuildRBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
     {
       itsOuterLogicalVolume = 
 	new G4LogicalVolume(magTubs,
-			    theMaterials->GetMaterial("Vacuum"),
+			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			    itsName+"_outer");
     }
   else

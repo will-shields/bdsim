@@ -212,7 +212,7 @@ void BDSGeometrySQL::BuildEllipticalCone(BDSMySQLTable* aSQLTable)
       lengthZ = 10.*mm;
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobals->GetVacuumMaterial();
 
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
@@ -300,7 +300,7 @@ void BDSGeometrySQL::BuildPolyCone(BDSMySQLTable* aSQLTable)
       numZplanes = 0;
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobals->GetVacuumMaterial();
 
       if(aSQLTable->GetVariable("NZPLANES")!=NULL)
 	numZplanes = aSQLTable->GetVariable("NZPLANES")->GetIntValue(k);
@@ -409,7 +409,7 @@ void BDSGeometrySQL::BuildBox(BDSMySQLTable* aSQLTable)
       lengthX = lengthY = lengthZ = 10.*mm;
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobals->GetVacuumMaterial();
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
       if(aSQLTable->GetVariable("BLUE")!=NULL)
@@ -489,7 +489,7 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
     {
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobals->GetVacuumMaterial();
       if(aSQLTable->GetVariable("TRAPTHETA")!=NULL)
 	trapTheta = aSQLTable->GetVariable("TRAPTHETA")->GetDblValue(k);
       if(aSQLTable->GetVariable("RED")!=NULL)
@@ -587,7 +587,7 @@ void BDSGeometrySQL::BuildTorus(BDSMySQLTable* aSQLTable)
       dphi=2*pi*radian;
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobals->GetVacuumMaterial();
 
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
@@ -676,7 +676,7 @@ void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
       rInnerStart = rInnerEnd = 0.0;
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobals->GetVacuumMaterial();
 
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
@@ -782,7 +782,7 @@ void BDSGeometrySQL::BuildTube(BDSMySQLTable* aSQLTable)
       dphi=2*pi*radian;
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobals->GetVacuumMaterial();
 
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
@@ -871,7 +871,7 @@ void BDSGeometrySQL::BuildEllipticalTube(BDSMySQLTable* aSQLTable)
       lengthZ = 200.*mm;
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobals->GetVacuumMaterial();
 
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);

@@ -117,7 +117,7 @@ void BDSCollimator::BuildInnerCollimator()
 				      itsXAper,
 				      itsYAper,
 				      itsLength/2),
-			    theMaterials->GetMaterial("Vacuum"),
+			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			    itsName+"_inner");
     }
   
@@ -128,7 +128,7 @@ void BDSCollimator::BuildInnerCollimator()
 				      itsXAper,
 				      itsYAper,
 				      itsLength/2),
-			    theMaterials->GetMaterial("Vacuum"),
+			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			    itsName+"_inner");
     }
 

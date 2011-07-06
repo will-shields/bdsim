@@ -55,6 +55,8 @@ const char *typestr(int type) {
     return "marker";
   case _DRIFT :
     return "drift";
+  case _PCLDRIFT :
+    return "pcldrift";
   case _RF :
    return "rf";
   case _SBEND : 
@@ -143,6 +145,9 @@ void flush(struct Element& e )
   e.aper = 0;
   e.aperX = 0;
   e.aperY = 0;
+  e.aperYUp = 0;
+  e.aperYDown = 0;
+  e.aperDy = 0;
   e.inR = 0;
   e.bpRad = 0;
   e.outR = 0;
@@ -175,6 +180,8 @@ void flush(struct Element& e )
   e.spec = "";
   e.material="";
   e.tunnelMaterial="";
+  e.tunnelRadius=0;
+  e.tunnelOffsetX=1e6;
 };
 
 void copy_properties(std::list<struct Element>::iterator dest, std::list<struct Element>::iterator src)
@@ -203,7 +210,10 @@ void copy_properties(std::list<struct Element>::iterator dest, std::list<struct 
   (*dest).taperlength = (*src).taperlength;
   (*dest).aper = (*src).aper; 
   (*dest).aperX = (*src).aperX; 
-  (*dest).aperY = (*src).aperY; 
+  (*dest).aperY = (*src).aperY;
+  (*dest).aperYUp = (*src).aperYUp;
+  (*dest).aperYDown = (*src).aperYDown;
+  (*dest).aperDy = (*src).aperDy; 
   (*dest).inR = (*src).inR; 
   (*dest).bpRad = (*src).bpRad ;
   (*dest).outR = (*src).outR; 
@@ -240,6 +250,9 @@ void copy_properties(std::list<struct Element>::iterator dest, std::list<struct 
   (*dest).material = (*src).material;
 
   (*dest).tunnelMaterial = (*src).tunnelMaterial;
+
+  (*dest).tunnelRadius = (*src).tunnelRadius;
+  (*dest).tunnelOffsetX = (*src).tunnelOffsetX;
 
   (*dest).spec = (*src).spec;
 
@@ -291,6 +304,9 @@ void inherit_properties(struct Element e)
   if(!params.aperset) { params.aper = e.aper; params.aperset = 1; }
   if(!params.aperXset) { params.aperX = e.aperX; params.aperXset = 1; }
   if(!params.aperYset) { params.aperY = e.aperY; params.aperYset = 1; }
+  if(!params.aperYUpset) { params.aperYUp = e.aperYUp; params.aperYUpset = 1; }
+  if(!params.aperYDownset) { params.aperYDown = e.aperYDown; params.aperYDownset = 1; }
+  if(!params.aperDyset) { params.aperDy = e.aperDy; params.aperDyset = 1; }
   if(!params.inRset) { params.inR = e.inR; params.inRset = 1; }
   if(!params.bpRadset) { params.bpRad = e.bpRad; params.bpRadset = 1; }
   if(!params.outRset) { params.outR = e.outR; params.outRset = 1; }
@@ -307,6 +323,8 @@ void inherit_properties(struct Element e)
   if(!params.specset) { strncpy(params.spec,e.spec.c_str(),1024); params.specset = 1; }
   if(!params.materialset) { strncpy(params.material,e.spec.c_str(),64); params.materialset = 1; }
   if(!params.tunnelMaterialset) { strncpy(params.tunnelMaterial,e.spec.c_str(),64); params.tunnelMaterialset = 1; }
+  if(!params.tunnelRadiusset) { params.tunnelRadius = e.tunnelRadius; params.tunnelRadiusset = 1; }
+  if(!params.tunnelOffsetXset) { params.tunnelOffsetX = e.tunnelOffsetX; params.tunnelOffsetXset = 1; }
 
 
 
@@ -413,6 +431,8 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
   e.ysize = params.ysize;
   e.material = params.material;  
   e.tunnelMaterial = params.tunnelMaterial;  
+  e.tunnelRadius = params.tunnelRadius;
+  e.tunnelOffsetX = params.tunnelOffsetX;
   
   //specific parameters
   switch(type) {
@@ -428,6 +448,16 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
       e.blmLocZ = params.blmLocZ;
     if(params.blmLocThetaset)
       e.blmLocTheta = params.blmLocTheta;
+    break;
+
+  case _PCLDRIFT:
+    e.type = _PCLDRIFT;
+    e.l = params.l;
+    if(params.blmLocZset) e.blmLocZ = params.blmLocZ;
+    if(params.blmLocThetaset) e.blmLocTheta = params.blmLocTheta;
+    if(params.aperYUpset) e.aperYUp = params.aperYUp;	
+    if(params.aperYDownset) e.aperYDown = params.aperYDown;
+    if(params.aperDyset) e.aperDy = params.aperDy;
     break;
 
   case _RF:
@@ -1102,6 +1132,7 @@ void print(std::list<struct Element> l, int ident)
 
       switch((*it).type) {
       case _DRIFT:
+	  case _PCLDRIFT:
       case _SBEND:
       case _RBEND:
       case _QUAD:
@@ -1408,6 +1439,9 @@ double property_lookup(char *element_name, char *property_name)
    if(!strcmp(property_name,"aper")) return (*it).aper;
    if(!strcmp(property_name,"aperX")) return (*it).aperX;
    if(!strcmp(property_name,"aperY")) return (*it).aperY;
+   if(!strcmp(property_name,"aperYUp")) return (*it).aperYUp;
+   if(!strcmp(property_name,"aperYDown")) return (*it).aperYDown;
+   if(!strcmp(property_name,"aperDy")) return (*it).aperDy;
    if(!strcmp(property_name,"outR")) return (*it).outR;
    if(!strcmp(property_name,"inR")) return (*it).inR;
    if(!strcmp(property_name,"bpRad")) return (*it).bpRad;

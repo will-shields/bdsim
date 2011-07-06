@@ -51,6 +51,7 @@ G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
   G4double edep = aStep->GetTotalEnergyDeposit();
   G4int partID = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
   G4int parentID = aStep->GetTrack()->GetParentID();
+  G4double weight = aStep->GetTrack()->GetWeight();
   G4double enrg;
 
   if(BDSGlobals->GetStopTracks())
@@ -79,7 +80,7 @@ G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
   if (HitID[nCopy]==-1)
     { 
       BDSEnergyCounterHit* ECHit= 
-	new BDSEnergyCounterHit(nCopy,enrg,zpos*enrg,partID,parentID);
+	new BDSEnergyCounterHit(nCopy,enrg,zpos*enrg,partID,parentID, weight);
       HitID[nCopy]= BDSEnergyCounterCollection->insert(ECHit)-1;
     }
   else

@@ -80,7 +80,7 @@ void BDSDump::DumpLogicalVolume()
 				      SampTransSize,
 				      SampTransSize,
 				      itsLength/2.0),
-			    theMaterials->GetMaterial("Vacuum"),
+			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			    itsName);
 
       (*LogVolCount)[itsName]=1;

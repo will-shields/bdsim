@@ -133,9 +133,9 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
   
   G4String pName=ThisTrack->GetDefinition()->GetParticleName();
 
-  if(ThisTrack->GetProperTime() > 1e-4*second)
+  if(ThisTrack->GetProperTime() > 1e-2*second)
     {
-      G4cout << "WARNING: ProperTime > 1.e-4 seconds!" << G4endl;
+      G4cout << "WARNING: ProperTime > 1.e-2 seconds!" << G4endl;
       G4cout<<" Killing the particle"<<G4endl;
       ThisTrack->SetTrackStatus(fStopAndKill);
     }

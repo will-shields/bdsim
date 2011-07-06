@@ -49,11 +49,11 @@ extern G4RotationMatrix* RotY90;
 //============================================================
 
 BDSElement::BDSElement(G4String aName, G4String geometry, G4String bmap,
-		       G4double aLength, G4double bpRad, G4double outR, G4String aTunnelMaterial):
+		       G4double aLength, G4double bpRad, G4double outR, G4String aTunnelMaterial, G4double aTunnelRadius, G4double aTunnelOffsetX):
   BDSAcceleratorComponent(
 			  aName,
 			  aLength,bpRad,0,0,
-			  SetVisAttributes(), aTunnelMaterial),
+			  SetVisAttributes(), aTunnelMaterial, "", 0., 0., 0., 0., aTunnelRadius*m, aTunnelOffsetX*m),
   itsField(NULL)
 {
   itsOuterR = outR;
@@ -101,17 +101,17 @@ void BDSElement::BuildGeometry()
   
   if(itsOuterR==0)
       {
-        elementSizeX =(BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()) / 2;   
-        elementSizeY = (BDSGlobals->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()) / 2;
+        elementSizeX =(this->GetTunnelRadius()+std::abs(this->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()) / 2;   
+        elementSizeY = (this->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()) / 2;
       }
 
   
   itsMarkerLogicalVolume = 
     new G4LogicalVolume(new G4Box(itsName+"generic_element",
-                                  elementSizeX+std::abs(BDSGlobals->GetTunnelOffsetX()),
+                                  elementSizeX+std::abs(this->GetTunnelOffsetX()),
                                   elementSizeY+std::abs(BDSGlobals->GetTunnelOffsetY()),   
 				  itsLength/2),
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName);
   
   (*LogVolCount)[itsName] = 1;
@@ -123,7 +123,7 @@ void BDSElement::BuildGeometry()
 
   //Build the tunnel
   if(BDSGlobals->GetBuildTunnel()){
-    //BuildTunnel();
+    BuildTunnel();
   }
 }
 

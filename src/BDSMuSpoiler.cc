@@ -113,7 +113,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
 				   itsInnerRadius,
 				   itsLength/2,
 				   0,twopi*radian),
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_inner");
 
   G4Material *bpMaterial = theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName() );
@@ -154,7 +154,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
 
   itsInnerBPLogicalVolume=	
     new G4LogicalVolume(itsInnerBPTube,
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_inner_bmp_log");
 
 

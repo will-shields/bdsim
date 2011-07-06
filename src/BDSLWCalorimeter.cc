@@ -67,7 +67,7 @@ void BDSLWCalorimeter::LWCalorimeterLogicalVolume()
 				      SampTransSize,
 				      SampTransSize,
 				      itsLength/2),
-			    theMaterials->GetMaterial("Vacuum"),
+			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			    itsName);
 
       (*LogVolCount)[itsName]=1;
@@ -138,7 +138,7 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
   
   itsInnerBPLogicalVolume=	
     new G4LogicalVolume(itsInnerBPTube,
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_bmp_Inner_log");
   
   G4VPhysicalVolume* PhysiInner;

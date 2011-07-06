@@ -9,6 +9,7 @@ Last modified 15.11.2005 by Ilya Agapov
 #ifndef BDSDetectorConstruction_h
 #define BDSDetectorConstruction_h 
 
+#include "BDSGlobalConstants.hh"
 #include "G4VUserDetectorConstruction.hh"
 #include "globals.hh"
 
@@ -76,7 +77,7 @@ public:
 
   void DefineMaterials();
 
-  int AddDriftToBeamline(G4String name, G4double l,std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double startAper, G4double endAper, G4bool added_drift, G4String aTunnelMaterial="" );
+  int AddDriftToBeamline(G4String name, G4double l,std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double startAper, G4double endAper, G4bool added_drift, G4String aTunnelMaterial="", G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX() );
   G4VPhysicalVolume* ConstructBDS(std::list<struct Element>& beamline_list);
   G4UniformMagField* magField;      //pointer to the magnetic field
   G4UserLimits* BDSUserLimits;

@@ -290,7 +290,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 				   outerRadius * sqrt(2.0),
 				   itsLength/2,
 				   0,twopi*radian),
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_outer");
   
   // create one quadrant of the quadrupole
@@ -300,7 +300,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 				   outerRadius * sqrt(2.0),
 				   itsLength/2,
 				   0,pi/ 2 *radian),
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_outer");
   
   // pole 
@@ -504,7 +504,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 				   outerRadius * sqrt(2.0),
 				   itsLength/2,
 				   0,twopi*radian),
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_outer");
   
   // create one quadrant of the quadrupole
@@ -514,7 +514,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 				   outerRadius * sqrt(2.0),
 				   itsLength/2,
 				   0,pi/ 2 *radian),
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_outer");
   
   // pole 

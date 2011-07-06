@@ -47,7 +47,7 @@ BDSSpoiler::BDSSpoiler (G4String& aName,G4double aLength,G4double bpRad,
 				      BDSGlobals->GetComponentBoxSize()/2,
 				      BDSGlobals->GetComponentBoxSize()/2,
 				      itsLength/2),
-			    theMaterials->GetMaterial("Vacuum"),
+			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			    itsName);
       BuildInnerSpoiler();
 
@@ -84,7 +84,7 @@ void BDSSpoiler::BuildInnerSpoiler()
 				  itsXAper,
 				  itsYAper,
 				  itsLength/2),
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_inner");
   
   itsPhysiComp2 = 

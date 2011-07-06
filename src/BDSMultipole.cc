@@ -79,7 +79,9 @@ BDSMultipole::BDSMultipole( G4String aName,
                             G4String aMaterial,
 			    G4double aXAper,
 			    G4double aYAper,
-			    G4double angle):
+			    G4double angle,
+			    G4double tunnelRadius,
+			    G4double tunnelOffsetX):
   BDSAcceleratorComponent(
 			 aName, 
 			 aLength,
@@ -91,7 +93,12 @@ BDSMultipole::BDSMultipole( G4String aName,
 			 blmLocTheta,
                          aTunnelMaterial,
 			 aMaterial,
-			 angle),
+			 angle,
+			 0.,
+			 0.,
+			 0.,
+			 tunnelRadius,
+			 tunnelOffsetX),
   itsInnerIronRadius(aInnerIronRadius)
 {}
 
@@ -104,7 +111,9 @@ BDSMultipole::BDSMultipole( G4String aName,
                             G4String aMaterial,
 			    G4double aXAper,
 			    G4double aYAper,
-			    G4double angle):
+			    G4double angle,
+			    G4double tunnelRadius,
+			    G4double tunnelOffsetX):
   BDSAcceleratorComponent(
 			 aName, 
 			 aLength,
@@ -114,7 +123,12 @@ BDSMultipole::BDSMultipole( G4String aName,
 			 aVisAtt,
                          aTunnelMaterial,
 			 aMaterial,
-			 angle),
+			 angle,
+			 0.,
+			 0.,
+			 0.,
+			 tunnelRadius,
+			 tunnelOffsetX),
   itsInnerIronRadius(aInnerIronRadius)
 {}
 
@@ -175,7 +189,7 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
   
   itsInnerBPLogicalVolume=	
     new G4LogicalVolume(itsInnerBeampipeSolid,
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_inner_bmp_log");
   
   itsPhysiInner = new G4PVPlacement(
@@ -239,7 +253,9 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
 
   G4VisAttributes* VisAtt1 = new G4VisAttributes(G4Colour(0.4, 0.4, 0.4));
   VisAtt1->SetForceSolid(true);
+  VisAtt1->SetVisibility(true);
   itsBeampipeLogicalVolume->SetVisAttributes(VisAtt1);
+
 }
 
 
@@ -302,7 +318,7 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
 
   itsInnerBPLogicalVolume=	
     new G4LogicalVolume(itsInnerBeampipeSolid,
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_inner_bmp_log");
   
   itsPhysiInner = new G4PVPlacement(
@@ -366,6 +382,7 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
 
   G4VisAttributes* VisAtt1 = new G4VisAttributes(G4Colour(0.4, 0.4, 0.4));
   VisAtt1->SetForceSolid(true);
+  VisAtt->SetVisibility(true);
   itsBeampipeLogicalVolume->SetVisAttributes(VisAtt1);
 }
 
@@ -400,7 +417,7 @@ void BDSMultipole::BuildBPFieldMgr(G4MagIntegratorStepper* aStepper,
 void BDSMultipole::BuildDefaultMarkerLogicalVolume()
 {
   G4double xLength, yLength;
-  G4double totalTunnelRadius = BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+std::max(BDSGlobals->GetTunnelOffsetX(),BDSGlobals->GetTunnelOffsetY());
+  G4double totalTunnelRadius = this->GetTunnelRadius()+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+std::max(this->GetTunnelOffsetX(),BDSGlobals->GetTunnelOffsetY());
   
   xLength = yLength = std::max(itsOuterR,BDSGlobals->GetComponentBoxSize()/2);
   xLength = yLength = std::max(xLength,totalTunnelRadius);
@@ -433,7 +450,7 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
 						  G4bool OuterMaterialIsVacuum)
 {
   //OuterMaterialIsVacuum parameter is useless: one can set
-  //itsMaterial = "Vacuum" and obtain the same result. Or cannot?
+  //itsMaterial = BDSGlobals->GetVacuumMaterial() and obtain the same result. Or cannot?
 
   G4Material* material;
   if(itsMaterial != "") material = theMaterials->GetMaterial(itsMaterial);
@@ -457,7 +474,7 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
 #endif
 
   if(OuterMaterialIsVacuum){
-    material=  theMaterials->GetMaterial("Vacuum");
+    material=  theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial());
   }
    
 
@@ -503,12 +520,12 @@ void BDSMultipole::BuildEllipticalOuterLogicalVolume(G4double aLength,
 						  G4bool OuterMaterialIsVacuum)
 {
   //OuterMaterialIsVacuum parameter is useless: one can set
-  //itsMaterial = "Vacuum" and obtain the same result. Or cannot?
+  //itsMaterial = BDSGlobals->GetVacuumMaterial() and obtain the same result. Or cannot?
 
   G4Material* material;
   if(itsMaterial != "") material = theMaterials->GetMaterial(itsMaterial);
   else material = theMaterials->GetMaterial("Iron");
-  if(OuterMaterialIsVacuum) material = theMaterials->GetMaterial("Vacuum");
+  if(OuterMaterialIsVacuum) material = theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial());
   G4double outerRadius = itsOuterR;
   if(itsOuterR==0) outerRadius = BDSGlobals->GetComponentBoxSize()/2;
 

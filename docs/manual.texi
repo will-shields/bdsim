@@ -1178,7 +1178,7 @@ The following options influence the geometry:
 @item @code{beampipeThickness} @tab default beampipe thickness [m]
 @item @code{pipeMaterial} @tab default beampipe material
 @item @code{boxSize} @tab default accelerator component size [m]
-@item @code{vacMaterial} @tab the beam pipe gas material (default air)
+@item @code{vacMaterial} @tab the beam pipe gas material (default ``Vacuum'', which is composed of 48.2\% H, 22.1\% C and 29.7 \% O, and has a temperature of 300K)
 @item @code{vacuumPressure} @tab the pressure of the beam pipe gas in bar (default 1e-12)
 @item @code{buildTunnel} @tab whether to build a tunnel (default=0)
 @item @code{buildTunnelFloor} @tab whether to add a floor to the tunnel (default=0)
@@ -1212,7 +1212,6 @@ The following options influence the tracking:
 @item @code{deltaOneStep}         @tab set position error acceptable in an integration steps
 @c @item @code{doTwiss}              @tab calculate twiss parameters if set. Not set by default
 @c @item @code{synchRescale}         @tab if @code{doTwiss} is set, then the magnets are rescaled to account for energy loss by synchrotron radiation
-@item @code{synchPhotonMultiplicity} @tab multiplies the number of synchrotron radiation photons
 @end multitable
 @*
 
@@ -1228,7 +1227,7 @@ The following options influence the physics:
 @item @code{srTrackPhotons}      @tab whether to track the SR photons
 @item @code{srLowX}              @tab sets lowest energy of SR to X*E_critical
 @item @code{srLowGamE}           @tab lowest energy of propagating SR photons
-@item @code{synchPhotonMultiplicity}         @tab a factor multiplying the number of synchrotron radiation photons
+@item @code{srMultiplicity}         @tab a factor multiplying the number of synchrotron radiation photons
 @item @code{prodCutPhotons}      @tab standard overall production cuts for photons
 @item @code{prodCutPhotonsP}     @tab precision production cuts for photons in @code{element}
 @item @code{prodCutElectrons}    @tab standard overall production cuts for electrons

@@ -59,6 +59,7 @@
 // elements
 //#include "BDSBeamPipe.hh"
 #include "BDSDrift.hh"
+#include "BDSPCLDrift.hh"
 #include "BDSSectorBend.hh"
 #include "BDSRBend.hh"
 #include "BDSKicker.hh"
@@ -96,7 +97,6 @@
 #include "G4IStore.hh"
  
 using namespace std;
-
 
 //====================================
 
@@ -173,7 +173,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::Construct()
 
 }
 
-int BDSDetectorConstruction::AddDriftToBeamline(G4String name, G4double l,std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double startAper, G4double endAper, G4bool added_drift, G4String aTunnelMaterial ){
+int BDSDetectorConstruction::AddDriftToBeamline(G4String name, G4double l,std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double startAper, G4double endAper, G4bool added_drift, G4String aTunnelMaterial, G4double tunnelOffsetX ){
   if(added_drift){
     if(l > 0) // skip zero-length elements                                                                                                         
       {
@@ -185,12 +185,19 @@ int BDSDetectorConstruction::AddDriftToBeamline(G4String name, G4double l,std::l
                << " endAper= " << endAper/m << "m"
                << G4endl;
 #endif
-        
-        theBeamline.push_back(new BDSDrift( name,
-                                            l*m,
-                                            blmLocZ,
-                                            blmLocTheta,
-                                            startAper, endAper, aTunnelMaterial ) );
+	if(!(tunnelOffsetX<1e6)){
+	  theBeamline.push_back(new BDSDrift( name,
+					      l*m,
+					      blmLocZ,
+					      blmLocTheta,
+					      startAper, endAper, aTunnelMaterial));
+	} else {
+	  theBeamline.push_back(new BDSDrift( name,
+					      l*m,
+					      blmLocZ,
+					      blmLocTheta,
+					      startAper, endAper, aTunnelMaterial, tunnelOffsetX ) );
+	}
       } else {
       G4cerr << "---->NOT adding Drift,"
              << " name= " << name
@@ -461,12 +468,19 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	      		     << G4endl;
 #endif
 	      G4bool aperset=true;
-
-	      theBeamline.push_back(new BDSDrift( (*it).name,
-						  (*it).l*m,
-						  (*it).blmLocZ,
-						  (*it).blmLocTheta,
-						  (*it).aperX*m, (*it).aperY*m, (*it).tunnelMaterial, aperset, aper) );
+	      if(!((*it).tunnelOffsetX)<1e6){
+		theBeamline.push_back(new BDSDrift( (*it).name,
+						    (*it).l*m,
+						    (*it).blmLocZ,
+						    (*it).blmLocTheta,
+						    (*it).aperX*m, (*it).aperY*m, (*it).tunnelMaterial, aperset, aper));
+	      } else {
+		theBeamline.push_back(new BDSDrift( (*it).name,
+						    (*it).l*m,
+						    (*it).blmLocZ,
+						    (*it).blmLocTheta,
+						    (*it).aperX*m, (*it).aperY*m, (*it).tunnelMaterial, aperset, aper,(*it).tunnelOffsetX*m) );
+	      }
 	    } else {
 	    /*
 	    G4cerr << "---->NOT adding Drift,"
@@ -502,11 +516,69 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    it--;
 	  } 
 	  addDriftReturn = AddDriftToBeamline(driftName, driftLength, (it)->blmLocZ,
-					      (it)->blmLocTheta, driftStartAper, driftEndAper, true , (*it).tunnelMaterial); 
+					      (it)->blmLocTheta, driftStartAper, driftEndAper, true , (*it).tunnelMaterial, (*it).tunnelOffsetX); 
 	  added_comp = true;
 	}
       }
-	if((*it).type==_RF ) {
+
+
+      if((*it).type==_PCLDRIFT ) {
+	G4double aper;
+	//Check all apertures are set.
+	if ((*it).aperY>BDSGlobals->GetLengthSafety()){
+	  (*it).aperYUp = (*it).aperY;
+	  (*it).aperYDown = (*it).aperY;
+	}
+
+	if ((*it).aperX<BDSGlobals->GetLengthSafety()){
+	  G4cerr << "Error: BDSDetectorConstruction.cc, in building PCLDrift, aperX = " << (*it).aperX << " is less than lengthSafety." << G4endl;
+          exit(1);
+	} 
+	if ((*it).aperYUp<BDSGlobals->GetLengthSafety()){
+	  G4cerr << "Error: BDSDetectorConstruction.cc, in building PCLDrift, aperYUp = " << (*it).aperYUp << " is less than lengthSafety." << G4endl;
+          exit(1);
+	} 
+	if ((*it).aperYDown<BDSGlobals->GetLengthSafety()){
+	  G4cerr << "Error: BDSDetectorConstruction.cc, in building PCLDrift, aperYDown = " << (*it).aperYDown << " is less than lengthSafety." << G4endl;
+          exit(1);
+	} 
+
+        if( ((*it).aperX>0) || ((*it).aperY>0)){  //aperX or aperY override aper, aper set to the largest of aperX or aperY
+          aper=std::max((*it).aperX,(*it).aperYUp+(*it).aperDy);
+	  aper=std::max(aper,(*it).aperYDown+(*it).aperDy);
+        }
+
+	if((*it).l > BDSGlobals->GetLengthSafety()) // skip too short elements                                                                                                         
+	  {
+#if 1
+	    G4cout << "---->adding PCLDrift,"
+		   << " name= " << (*it).name
+		   << " l= " << (*it).l << "m"
+		   << " aperX= " << (*it).aperX << "m"
+		   << " aperYUp= " << (*it).aperYUp << "m"
+		   << " aperYDown= " << (*it).aperYDown << "m"
+		   << " aperDy= " << (*it).aperDy << "m"
+		   << " tunnelRadius= " << (*it).tunnelRadius << "m"
+		   << G4endl;
+#endif
+	      G4bool aperset=true;
+	      if(!((*it).tunnelOffsetX<1e6)){
+		theBeamline.push_back(new BDSPCLDrift( (*it).name,
+						       (*it).l*m,
+						       (*it).blmLocZ,
+						       (*it).blmLocTheta,
+						       (*it).aperX*m, (*it).aperYUp*m, (*it).aperYDown*m,(*it).aperDy*m, (*it).tunnelMaterial, aperset, aper, (*it).tunnelRadius*m));
+	      } else {
+		theBeamline.push_back(new BDSPCLDrift( (*it).name,
+						       (*it).l*m,
+						       (*it).blmLocZ,
+						       (*it).blmLocTheta,
+						       (*it).aperX*m, (*it).aperYUp*m, (*it).aperYDown*m,(*it).aperDy*m, (*it).tunnelMaterial, aperset, aper, (*it).tunnelRadius*m, (*it).tunnelOffsetX*m) );
+	      }
+	  }
+      }
+      
+      if((*it).type==_RF ) {
 	  G4double aper = bpRad;
 	  if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
 	  
@@ -1251,13 +1323,21 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
                << " tunnel material " << (*it).tunnelMaterial
                << G4endl;
 #endif
-	
-	theBeamline.push_back(new BDSElement( (*it).name,
-					      (*it).geometryFile,
-					      (*it).bmapFile,
-					      (*it).l * m,
-					      aper,
-					      (*it).outR * m , (*it).tunnelMaterial) );
+	if((*it).tunnelOffsetX<1e6){
+	  theBeamline.push_back(new BDSElement( (*it).name,
+						(*it).geometryFile,
+						(*it).bmapFile,
+						(*it).l * m,
+						aper,
+						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (*it).tunnelOffsetX ));
+	} else {
+	  theBeamline.push_back(new BDSElement( (*it).name,
+						(*it).geometryFile,
+						(*it).bmapFile,
+						(*it).l * m,
+						aper,
+						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius));
+	}
 	
 	added_comp=true;
       }
@@ -1619,7 +1699,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
   solidWorld = new G4Box("World", WorldSizeX, WorldSizeY, WorldSizeZ);
     
   logicWorld = new G4LogicalVolume(solidWorld,	       //its solid
-				   theMaterials->GetMaterial("Vacuum"), //its material
+				   theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()), //its material
 				   "World");	       //its name
   
   logicWorld->SetVisAttributes (G4VisAttributes::Invisible);
@@ -1815,11 +1895,8 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 	}
 
 
-      //(*iBeam)->SetZUpper(rtot.z());
-      
       // zero length components not placed (transform3d)
       if(length!=0.){
-	
 	G4LogicalVolume* LocalLogVol=(*iBeam)->GetMarkerLogicalVolume();
 	
 	G4String LogVolName=LocalLogVol->GetName();
@@ -1838,6 +1915,9 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 	  }
 
 	
+#ifdef DEBUG
+	G4cout<<"SETTING UP SENSITIVE VOLUME..."<< G4endl;
+#endif	
 	// set up the sensitive volumes for energy counting:
 	(*iBeam)->SetCopyNumber(nCopy);
 	G4LogicalVolume* SensVol=(*iBeam)->GetSensitiveVolume();
@@ -1851,20 +1931,24 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 	    theECList->push_back(ECounter);
 	  }
 
+
+#ifdef DEBUG
+	G4cout<<"SETTING UP MULTIPLE SENSITIVE VOLUMES..."<< G4endl;
+#endif	
 	vector<G4LogicalVolume*> MultipleSensVols = (*iBeam)->GetMultipleSensitiveVolumes();
 	if( ( (*iBeam)->GetType()!="sampler" && (*iBeam)->GetType()!="csampler" )
-		&& MultipleSensVols.size()>0)
-	   {
-	     for(G4int i=0; i<(G4int)MultipleSensVols.size(); i++)
-	       {
-		 BDSEnergyCounterSD* ECounter=
-		   new BDSEnergyCounterSD(LogVolName+BDSGlobals->StringFromInt(i));
-		 (*iBeam)->SetBDSEnergyCounter(ECounter);
-		 MultipleSensVols.at(i)->SetSensitiveDetector(ECounter);
-		 SDman->AddNewDetector(ECounter);
-		 theECList->push_back(ECounter);	     
-	       }
-	   }
+	    && MultipleSensVols.size()>0)
+	  {
+	    for(G4int i=0; i<(G4int)MultipleSensVols.size(); i++)
+	      {
+		BDSEnergyCounterSD* ECounter=
+		  new BDSEnergyCounterSD(LogVolName+BDSGlobals->StringFromInt(i));
+		(*iBeam)->SetBDSEnergyCounter(ECounter);
+		MultipleSensVols.at(i)->SetSensitiveDetector(ECounter);
+		SDman->AddNewDetector(ECounter);
+		theECList->push_back(ECounter);	     
+	      }
+	  }
 	
 	if((*iBeam)->GetType()=="sampler") {
 	  LocalName=(*iBeam)->GetName()+"_phys";
@@ -1901,6 +1985,9 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 	}
 	*/
 
+#ifdef DEBUG
+	G4cout<<"ALIGNING COMPONENT..."<< G4endl;
+#endif	
 	// Align Component - most cases does nothing. 
 	// Currently only used for BDSElement	
 	// For other elements stores global position and rotation,
@@ -1915,6 +2002,9 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 				 localY,
 				 localZ);
 
+#ifdef DEBUG
+	G4cout<<"Placing PHYSICAL COMPONENT..."<< G4endl;
+#endif	
 	G4PVPlacement* PhysiComponentPlace = 
 	  new G4PVPlacement(
 			    rotateComponent,  // its rotation
@@ -2076,7 +2166,7 @@ G4VIStore *BDSDetectorConstruction::CreateImportanceStore(){
   
   G4IStore *itsIStore = new G4IStore(*physiWorld);
   
-  G4double imp =1;
+  G4double imp =1.0;
   G4int n=1;
   itsIStore->AddImportanceGeometryCell(1,  *physiWorld);
   
@@ -2088,7 +2178,7 @@ G4VIStore *BDSDetectorConstruction::CreateImportanceStore(){
 		 << (*it)->GetName() << G4endl;
 	  itsIStore->AddImportanceGeometryCell(imp, *(*it), (*it)->GetCopyNo());
  	  n++;
-	  imp=n;
+	  imp=imp+1.0;
     }
 
 

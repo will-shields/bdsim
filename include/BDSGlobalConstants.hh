@@ -367,7 +367,7 @@ public:
   G4double GetLWCalWidth();
   G4double GetLWCalOffset();
   G4String GetPipeMaterialName();
-  G4String GetVacMaterialName();
+  G4String GetVacuumMaterial();
   G4String GetSoilMaterialName();
   G4String GetTunnelMaterialName();
 
@@ -776,7 +776,7 @@ inline  G4double BDSGlobalConstants::GetLWCalOffset()
 inline G4String BDSGlobalConstants::GetPipeMaterialName()
 {return itsPipeMaterial;}
 
-inline G4String BDSGlobalConstants::GetVacMaterialName()
+inline G4String BDSGlobalConstants::GetVacuumMaterial()
 {return itsVacMaterial;}
 
 inline G4String BDSGlobalConstants::GetSoilMaterialName()

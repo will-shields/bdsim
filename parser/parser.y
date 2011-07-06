@@ -43,7 +43,7 @@
 %token <dval> NUMBER
 %token <symp> VARIABLE VECVAR FUNC 
 %token <str> STR
-%token MARKER ELEMENT DRIFT RF DIPOLE RBEND SBEND QUADRUPOLE SEXTUPOLE OCTUPOLE MULTIPOLE 
+%token MARKER ELEMENT DRIFT PCLDRIFT RF DIPOLE RBEND SBEND QUADRUPOLE SEXTUPOLE OCTUPOLE MULTIPOLE 
 %token SOLENOID COLLIMATOR RCOL ECOL LINE SEQUENCE SPOILER ABSORBER LASER TRANSFORM3D MUSPOILER
 %token VKICK HKICK KICK
 %token PERIOD APERTURE FILENAME GAS PIPE TUNNEL MATERIAL ATOM
@@ -114,6 +114,15 @@ decl : VARIABLE ':' marker
 	   if(ECHO_GRAMMAR) printf("decl -> VARIABLE (%s) : drift\n",$1->name);
 	   // check parameters and write into element table
 	   write_table(params,$1->name,_DRIFT);
+	   params.flush();
+	 }
+       }
+     | VARIABLE ':' pcldrift
+       {
+	 if(execute) {
+	   if(ECHO_GRAMMAR) printf("decl -> VARIABLE (%s) : pcldrift\n",$1->name);
+	   // check parameters and write into element table
+	   write_table(params,$1->name,_PCLDRIFT);
 	   params.flush();
 	 }
        } 
@@ -370,6 +379,9 @@ marker : MARKER ;
 drift : DRIFT ',' parameters
 ;
 
+pcldrift : PCLDRIFT ',' parameters
+;
+
 rf : RF ',' parameters
 ;
 
@@ -478,7 +490,7 @@ parameters:
 #ifdef DEBUG 
                   printf("parameters, VARIABLE(%s) = aexpr(%.10g)\n",$1->name,$3);
 #endif
-if(!strcmp($1->name,"l")) { params.l = $3; params.lset = 1;} // length
+		  if(!strcmp($1->name,"l")) { params.l = $3; params.lset = 1;} // length
 		    else
 	          if(!strcmp($1->name,"B")) { params.B = $3; params.Bset = 1;} // dipole field
 		    else 
@@ -495,14 +507,26 @@ if(!strcmp($1->name,"l")) { params.l = $3; params.lset = 1;} // length
 		  if(!strcmp($1->name,"angle")) { params.angle = $3; params.angleset = 1;} // dipole bending angle
 		    else
 		  if(!strcmp($1->name,"aper") ||!strcmp($1->name,"aperture") ) 
-			      { params.aper = $3; params.aperset = 1;}
+		      { params.aper = $3; params.aperset = 1;}
+		    else
 		  if(!strcmp($1->name,"aperX") ||!strcmp($1->name,"apertureX") ) 
-			      { params.aperX = $3; params.aperXset = 1;}
+		      { params.aperX = $3; params.aperXset = 1;}
+		    else
 		  if(!strcmp($1->name,"aperY") ||!strcmp($1->name,"apertureY") ) 
-			      { params.aperY = $3; params.aperXset = 1;}
+		      { params.aperY = $3; params.aperYset = 1;}
+		    else
+		  if(!strcmp($1->name,"aperYUp") ||!strcmp($1->name,"apertureYUp") ) 
+		      { params.aperYUp = $3; params.aperYUpset = 1;}
+		    else
+		  if(!strcmp($1->name,"aperYDown") ||!strcmp($1->name,"apertureYDown") ) 
+		      { params.aperYDown = $3; params.aperYDownset = 1;}
+		    else
+		  if(!strcmp($1->name,"aperDy") ||!strcmp($1->name,"apertureDy") ) 
+		    { params.aperDy = $3; params.aperDyset = 1;}
 		    else
 		  if(!strcmp($1->name,"outR") ) { params.outR = $3; params.outRset = 1;}
-		  if(!strcmp($1->name,"inR") ) { params.inR = $3; params.inRset = 1;}
+		    else
+                  if(!strcmp($1->name,"inR") ) { params.inR = $3; params.inRset = 1;}
 		    else
 		  if(!strcmp($1->name,"xsize") ) { params.xsize = $3; params.xsizeset = 1;}
 		    else
@@ -524,11 +548,15 @@ if(!strcmp($1->name,"l")) { params.l = $3; params.lset = 1;} // length
 		  if(!strcmp($1->name,"psi"))  {params.psi = $3; params.psiset = 1;} // 3rd  angle
 		  else
 		  if(!strcmp($1->name,"gradient"))  {params.gradient = $3; params.gradientset = 1;} // rf voltage
-		    else
+		  else
 		  if(!strcmp($1->name,"fint")) {;} // fringe field parameters
-		    else
+		  else
 		  if(!strcmp($1->name,"fintx")) {;}  //
-                    else
+		  else
+		  if(!strcmp($1->name,"tunnelRadius")) { params.tunnelRadius = $3; params.tunnelRadiusset = 1;} // tunnel radius
+		  else
+		  if(!strcmp($1->name,"tunnelOffsetX")) { params.tunnelOffsetX = $3; params.tunnelOffsetXset = 1;} // tunnel offset
+		  else
 		  if(!strcmp($1->name,"e1")) {;}  //
                     else
 		  if(!strcmp($1->name,"e2")) {;}  //
@@ -728,9 +756,13 @@ if(!strcmp($1->name,"l")) { params.l = $3; params.lset = 1;} // length
 		  if(!strcmp($1->name,"gradient"))  {params.gradient = $3; params.gradientset = 1;} // rf voltage
 		    else
 		  if(!strcmp($1->name,"fint")) {;} // fringe field parameters
-		    else
+		  else
 		  if(!strcmp($1->name,"fintx")) {;}  //
-                    else
+		  else
+		  if(!strcmp($1->name,"tunnelRadius")) { params.tunnelRadius = $3; params.tunnelRadiusset = 1;} // tunnel radius
+		  else
+		  if(!strcmp($1->name,"tunnelOffsetX")) { params.tunnelOffsetX = $3; params.tunnelOffsetXset = 1;} // tunnel offset
+		    else
 		  if(!strcmp($1->name,"e1")) {;}  //
                     else
 		  if(!strcmp($1->name,"e2")) {;}  //

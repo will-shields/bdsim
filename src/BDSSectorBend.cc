@@ -292,7 +292,7 @@ void BDSSectorBend::BuildSBMarkerLogicalVolume()
   
   itsMarkerLogicalVolume=    
     new G4LogicalVolume(itsMarkerSolidVolume,
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			LocalLogicalName+"_marker");
 
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX, BDSGlobals->GetThresholdCutCharged());
@@ -315,7 +315,7 @@ void BDSSectorBend::BuildSBBeampipe()
   // use default beampipe material
   //
     G4Material *material =  theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName());
-    //  G4Material *material =  theMaterials->GetMaterial("Vacuum"); //LD 8/11/10 
+    //  G4Material *material =  theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()); //LD 8/11/10 
   
   //
   // compute some geometrical parameters
@@ -383,7 +383,7 @@ void BDSSectorBend::BuildSBBeampipe()
   
   itsInnerBPLogicalVolume=	
     new G4LogicalVolume(pipeInner,
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_bmp_Inner_log");
 
   G4VPhysicalVolume* PhysiInner;
@@ -506,7 +506,7 @@ void BDSSectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
     {
       itsOuterLogicalVolume = 
 	new G4LogicalVolume(magTubs,
-			    theMaterials->GetMaterial("Vacuum"),
+			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			    itsName+"_outer");
     }
   else

@@ -23,6 +23,8 @@
 #ifndef __BDSACCELERATORCOMPONENT_H
 #define __BDSACCELERATORCOMPONENT_H
 
+#include "BDSGlobalConstants.hh" // must be first in include list
+
 #include <cstring>
 #include "G4LogicalVolume.hh"
 #include "G4VisAttributes.hh"
@@ -88,6 +90,9 @@ public:
   G4double GetXOffset();  // frame offset 
   G4double GetYOffset();
   G4double GetZOffset();
+
+  G4double GetTunnelRadius();
+  G4double GetTunnelOffsetX();
   
   G4double GetAperX();
   G4double GetAperY();
@@ -194,7 +199,9 @@ public:
                           //G4double theta=0.,
 			  G4double XOffset=0.,
 			  G4double YOffset=0.,
-			  G4double ZOffset=0.);
+			  G4double ZOffset=0.,
+			  G4double tunnelRadius=0.,
+			  G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX());
 
   BDSAcceleratorComponent (
 			  G4String& aName, 
@@ -209,7 +216,9 @@ public:
                           //G4double theta=0.,
 			  G4double XOffset=0.,
 			  G4double YOffset=0.,
-			  G4double ZOffset=0.);
+			  G4double ZOffset=0.,
+			  G4double tunnelRadius=0.,
+			  G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX());
 
 
 
@@ -285,7 +294,10 @@ protected:
   G4UserLimits* itsTunnelUserLimits;
   G4UserLimits* itsSoilTunnelUserLimits;
   G4UserLimits* itsInnerTunnelUserLimits;
-  
+  //Tunnel geom
+  G4double itsTunnelRadius;  
+  G4double itsTunnelOffsetX;  
+
   G4double itsXOffset;
   G4double itsYOffset;
   G4double itsZOffset;
@@ -320,11 +332,11 @@ BDSAcceleratorComponent (
 			G4VisAttributes* aVisAtt,
                         G4String aTunnelMaterial,
                         G4String aMaterial,G4double angle,
-			G4double XOffset, G4double YOffset,G4double ZOffset):
+			G4double XOffset, G4double YOffset,G4double ZOffset, G4double tunnelRadius, G4double tunnelOffsetX):
   itsName(aName),itsLength(aLength),itsBpRadius(aBpRadius),
   itsXAper(aXAper),itsYAper(aYAper),itsAngle(angle),
   itsMaterial(aMaterial),itsVisAttributes(aVisAtt),itsTunnelMaterial(aTunnelMaterial),
-  itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset) 
+  itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset), itsTunnelRadius(tunnelRadius), itsTunnelOffsetX(tunnelOffsetX)
 {
   itsSensitiveVolume=NULL;
   itsInnerBeampipeUserLimits =new G4UserLimits();
@@ -333,7 +345,9 @@ BDSAcceleratorComponent (
   itsPsi = 0;
   itsTilt = 0;
   itsMagScaleFactor = 1;
-
+  if (itsTunnelRadius<=BDSGlobals->GetLengthSafety()){
+    itsTunnelRadius=BDSGlobals->GetTunnelRadius();
+  }
 }
 
 inline BDSAcceleratorComponent::
@@ -344,12 +358,12 @@ BDSAcceleratorComponent (
 			std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
                         G4String aTunnelMaterial,
                         G4String aMaterial,G4double angle,
-			G4double XOffset, G4double YOffset,G4double ZOffset):
+			G4double XOffset, G4double YOffset,G4double ZOffset, G4double tunnelRadius, G4double tunnelOffsetX):
   itsName(aName),itsLength(aLength),itsBpRadius(aBpRadius),
   itsXAper(aXAper),itsYAper(aYAper),itsAngle(angle),
   itsMaterial(aMaterial),itsVisAttributes(aVisAtt), itsBlmLocZ(blmLocZ), itsBlmLocTheta(blmLocTheta),
   itsTunnelMaterial(aTunnelMaterial),
-  itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset) 
+  itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset), itsTunnelRadius(tunnelRadius), itsTunnelOffsetX(tunnelOffsetX) 
 {
   itsSensitiveVolume=NULL;
   itsInnerBeampipeUserLimits =new G4UserLimits();
@@ -366,6 +380,9 @@ BDSAcceleratorComponent (
     G4cerr << "blmLocZ.size() = " << blmLocZ.size() << G4endl;
     G4cerr << "blmLocTheta.size() = " << blmLocTheta.size() << G4endl;
     exit(1);
+  }
+  if (itsTunnelRadius<=BDSGlobals->GetLengthSafety()){
+    itsTunnelRadius=BDSGlobals->GetTunnelRadius();
   }
 }
 
@@ -542,6 +559,12 @@ inline G4double BDSAcceleratorComponent::GetYOffset()
 
 inline G4double BDSAcceleratorComponent::GetZOffset()
 {return itsZOffset;}
+
+inline G4double BDSAcceleratorComponent::GetTunnelRadius()
+{return itsTunnelRadius;}
+
+inline G4double BDSAcceleratorComponent::GetTunnelOffsetX()
+{return itsTunnelOffsetX;}
 
 inline G4double BDSAcceleratorComponent::GetTilt()
 {return itsTilt;}

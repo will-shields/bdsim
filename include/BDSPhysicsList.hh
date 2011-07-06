@@ -21,6 +21,12 @@ public:
   virtual ~BDSPhysicsList();
 
 public:
+
+ void AddParallelWorldName(G4String& pname)
+         {paraWorldName.push_back(pname);}
+
+
+  void AddScoringProcess();
   
   void ConstructParticle();
   void ConstructProcess();
@@ -49,11 +55,14 @@ public:
 
   void ConstructHadronic();
 
+  void ConstructHad();
+
   void ConstructQGSP();
 
   void ConstructDecay();
 
-
+private:
+    std::vector<G4String>  paraWorldName;
 };
 
 #endif
