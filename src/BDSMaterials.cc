@@ -452,6 +452,16 @@ void BDSMaterials::Initialise()
   tmpMaterial->AddElement(elements["O"], 1);
   materials[name] = tmpMaterial; 
 
+  //Carbon monoxide beam pipe gas
+  double bp_pressure=0.0133e-9*bar; //10 nTorr pressure
+  density = (STP_Temperature/temperature) * (bp_pressure/(1.*atmosphere))
+    * (12.+16.)*g/(22.4*1.e-3*m3) ;
+  tmpMaterial =  new G4Material
+    (name="bp_carbonmonoxide", density, 2, kStateGas, temperature, bp_pressure);
+  tmpMaterial->AddElement(elements["C"], 1);
+  tmpMaterial->AddElement(elements["O"], 1);
+  materials[name] = tmpMaterial; 
+
   //Nitrogen
   density = (STP_Temperature/temperature) * (pressure/(1.*atmosphere))
     * (14.)*g/(22.4*1.e-3*m3) ;
