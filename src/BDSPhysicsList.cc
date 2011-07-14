@@ -26,6 +26,7 @@
 #include "G4MaterialTable.hh"
 #include "G4ios.hh"
 #include <iomanip>   
+#include "QGSP_BERT.hh"
 #include "HadronPhysicsQGSP_BERT.hh"
 #include "HadronPhysicsQGSP_BERT_HP.hh"
 #include "HadronPhysicsFTFP_BERT.hh"
@@ -196,7 +197,9 @@ void BDSPhysicsList::ConstructProcess()
     setenv("SwitchLeadBiasOn","1",1); 
   }
   //Synchrotron radiation
-  if(BDSGlobals->GetSynchRadOn()) ConstructSR();
+  if(BDSGlobals->GetSynchRadOn()) {
+    ConstructSR();
+  }
   //Particle decay
   if(BDSGlobals->GetDecayOn()) ConstructDecay();
   //============================================
@@ -254,7 +257,7 @@ void BDSPhysicsList::ConstructProcess()
       hadPhysList -> ConstructProcess();
       return;
     }
-    
+
     if(BDSGlobals->GetPhysListName() == "hadronic_QGSP_BERT_muon") {
       ConstructEM();
       ConstructMuon();
@@ -273,6 +276,8 @@ void BDSPhysicsList::ConstructProcess()
     if(BDSGlobals->GetPhysListName() == "hadronic_QGSP_BERT_HP_muon"){
       ConstructEM();
       ConstructMuon();
+      ConstructHadronic();
+      //      ConstructPhotolepton_Hadron();
       HadronPhysicsQGSP_BERT_HP *myHadPhysList = new HadronPhysicsQGSP_BERT_HP;
       myHadPhysList->ConstructProcess();
       return;
@@ -284,6 +289,7 @@ void BDSPhysicsList::ConstructProcess()
       ConstructMuon();
       HadronPhysicsFTFP_BERT *myHadPhysList = new HadronPhysicsFTFP_BERT;
       myHadPhysList->ConstructProcess();
+
       return;
     }
     // physics list for laser wire - standard em stuff +
@@ -1138,6 +1144,49 @@ void BDSPhysicsList::ConstructHad()
          pmanager->AddDiscreteProcess(theInelasticProcess);
       }
    }
+}
+
+void BDSPhysicsList::ConstructPhotolepton_Hadron(){
+  G4TheoFSGenerator * theModel;
+  G4GeneratorPrecompoundInterface * theCascade;
+  G4QGSModel< G4GammaParticipants > * theStringModel;
+  G4QGSMFragmentation * theFragmentation;
+  G4ExcitedStringDecay * theStringDecay;
+
+  G4PhotoNuclearProcess * thePhotoNuclearProcess;
+  G4ElectronNuclearProcess * theElectronNuclearProcess;
+  G4PositronNuclearProcess * thePositronNuclearProcess;
+  G4ElectroNuclearReaction * theElectroReaction;
+  G4GammaNuclearReaction * theGammaReaction;  
+
+  theModel = new G4TheoFSGenerator;
+  
+  theStringModel = new G4QGSModel< G4GammaParticipants >;
+  theStringDecay = new G4ExcitedStringDecay(theFragmentation=new G4QGSMFragmentation);
+  theStringModel->SetFragmentationModel(theStringDecay);
+  
+  theCascade = new G4GeneratorPrecompoundInterface;
+  
+  theModel->SetTransport(theCascade);
+  theModel->SetHighEnergyGenerator(theStringModel);
+
+  G4ProcessManager * aProcMan = 0;
+  
+  aProcMan = G4Gamma::Gamma()->GetProcessManager();
+  theGammaReaction->SetMaxEnergy(3.5*GeV);
+  thePhotoNuclearProcess->RegisterMe(theGammaReaction);
+  theModel->SetMinEnergy(3.*GeV);
+  theModel->SetMaxEnergy(100*TeV);
+  thePhotoNuclearProcess->RegisterMe(theModel);
+  aProcMan->AddDiscreteProcess(thePhotoNuclearProcess);
+
+  aProcMan = G4Electron::Electron()->GetProcessManager();
+  theElectronNuclearProcess->RegisterMe(theElectroReaction);
+  aProcMan->AddDiscreteProcess(theElectronNuclearProcess);
+  
+  aProcMan = G4Positron::Positron()->GetProcessManager();
+  thePositronNuclearProcess->RegisterMe(theElectroReaction);
+  aProcMan->AddDiscreteProcess(thePositronNuclearProcess);
 }
 
 

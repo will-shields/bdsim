@@ -55,6 +55,8 @@ public:
 
   void ConstructHadronic();
 
+  void ConstructPhotolepton_Hadron();
+
   void ConstructHad();
 
   void ConstructQGSP();

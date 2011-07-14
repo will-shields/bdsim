@@ -184,10 +184,10 @@ struct Options {
   double maximumEpsilonStep;
   double deltaOneStep;
   bool turnOnCerenkov;
-  int synchRadOn;
-  int decayOn;
-  int synchRescale;
-  int synchTrackPhotons;
+  bool synchRadOn;
+  bool decayOn;
+  bool synchRescale;
+  bool synchTrackPhotons;
   double synchLowX;
   double synchLowGamE;
   int synchPhotonMultiplicity;

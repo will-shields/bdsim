@@ -36,6 +36,7 @@
 
 #include "BDSDetectorConstruction.hh"   // Geant4 includes
 #include "BDSPhysicsList.hh"
+#include "QGSP_BERT.hh"
 #include "BDSPrimaryGeneratorAction.hh"
 #include "BDSRunAction.hh"
 #include "BDSEventAction.hh"

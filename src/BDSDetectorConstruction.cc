@@ -1679,9 +1679,9 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
   
   G4String LocalName="World";
   
-  G4double WorldSizeX = 1 * ( (fabs(rmin(0)) + fabs(rmax(0)) ) + 10*BDSGlobals->GetTunnelRadius());
-  G4double WorldSizeY = 1 * ( (fabs(rmin(1)) + fabs(rmax(1)) ) + 10*BDSGlobals->GetTunnelRadius());
-  G4double WorldSizeZ = 1 * ( (fabs(rmin(2)) + fabs(rmax(2)) ) + 10*BDSGlobals->GetTunnelRadius());
+  G4double WorldSizeX = 1 * ( (fabs(rmin(0)) + fabs(rmax(0)) ) + BDSGlobals->GetTunnelRadius() + BDSGlobals->GetTunnelThickness() + BDSGlobals->GetTunnelSoilThickness());
+  G4double WorldSizeY = 1 * ( (fabs(rmin(1)) + fabs(rmax(1)) )  + BDSGlobals->GetTunnelRadius() + BDSGlobals->GetTunnelThickness() + BDSGlobals->GetTunnelSoilThickness());
+  G4double WorldSizeZ = 1 * ( (fabs(rmin(2)) + fabs(rmax(2)) ) + BDSGlobals->GetTunnelRadius() + BDSGlobals->GetTunnelThickness() + BDSGlobals->GetTunnelSoilThickness());
   
   //G4cout<<"world radius="<<WorldRadius/m<<" m"<<G4endl;
   if(verbose || debug)

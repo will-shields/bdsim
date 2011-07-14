@@ -107,7 +107,7 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
   itsDoPlanckScattering = opt.doPlanckScattering;
   itsTurnOnCerenkov = opt.turnOnCerenkov;
   itsSynchRadOn = opt.synchRadOn;
-  itsSynchRadOn = opt.decayOn;
+  itsDecayOn = opt.decayOn;
   itsSynchRescale = opt.synchRescale; // rescale due to synchrotron
   itsSynchTrackPhotons= opt.synchTrackPhotons;
   itsSynchLowX = opt.synchLowX;

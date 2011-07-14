@@ -107,6 +107,7 @@ void init()
   options.sensitiveBLMs = 1;
   options.turnOnCerenkov = 1;
   options.decayOn = 1;
+  options.synchRadOn = 0;
 }
 
 int gmad_parser(FILE *f)

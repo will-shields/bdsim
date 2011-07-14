@@ -1287,6 +1287,24 @@ void set_value(std::string name, double value )
     return;
   }
 
+  if(name == "synchRadOn") { 
+    if (value == 0){
+    options.synchRadOn = false; 
+    } else {
+    options.synchRadOn = true; 
+    }
+    return; 
+  }
+
+  if(name == "decayOn") { 
+    if (value == 0){
+      options.decayOn = false; 
+    } else {
+      options.decayOn = true; 
+    }
+    return; 
+  }
+  
   if(name == "tunnelOffsetX" ) { options.tunnelOffsetX = value; return; }
   if(name == "tunnelOffsetY" ) { options.tunnelOffsetY = value; return; }
   if(name == "samplerDiameter" ) { options.samplerDiameter = value; return; }
@@ -1323,6 +1341,28 @@ void set_value(std::string name, double value )
       return;
     }
   }
+
+  if(name == "srRescale") {
+    if(value != 0) { 
+      options.synchRescale = true;
+    } else{
+      options.synchRescale = false;
+      return;
+    }
+  }
+
+  if(name == "srTrackPhotons") {
+    if(value != 0) { 
+      options.synchTrackPhotons = true;
+    } else{
+      options.synchTrackPhotons = false;
+      return;
+    }
+  }
+
+
+
+
   if(name == "useEMLPB") { options.useEMLPB = value; return; }
   if(name == "useHadLPB") { options.useHadLPB = value; return; }
   if(name == "sensitiveBeamlineComponents") { options.sensitiveBeamlineComponents = value; return; }
@@ -1337,14 +1377,10 @@ void set_value(std::string name, double value )
   if(name == "vacuumPressure") { options.vacuumPressure = (double)value; return; }
   if(name == "planckScatterFe") { options.planckScatterFe = (double)value; return; }
   if(name == "stopTracks") { options.stopTracks = (int) value; return; } 
-  if(name == "synchRadOn") { options.synchRadOn = (int) value; return; }
-  if(name == "decayOn") { options.decayOn = (int) value; return; }
-  if(name == "srRescale") { options.synchRescale = (int) value; return; }
   if(name == "srLowX") { options.synchLowX = value; return; }
   if(name == "srLowGamE") { options.synchLowGamE = value; return; }
   if(name == "srMultiplicity") { options.synchPhotonMultiplicity = (int) value; return; }
   if(name == "srMeamFreeFactor") { options.synchMeanFreeFactor = (int) value; return; }
-  if(name == "srTrackPhotons") { options.synchTrackPhotons = (int) value; return; }
 
   if(name == "prodCutPhotons" ) { options.prodCutPhotons = value; return; }
   if(name == "prodCutPhotonsP" ) { options.prodCutPhotonsP = value; return; }
