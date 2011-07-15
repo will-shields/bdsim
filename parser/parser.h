@@ -1338,8 +1338,8 @@ void set_value(std::string name, double value )
       options.turnOnCerenkov = true;
     } else{
       options.turnOnCerenkov = false;
-      return;
     }
+    return;
   }
 
   if(name == "srRescale") {
@@ -1347,8 +1347,8 @@ void set_value(std::string name, double value )
       options.synchRescale = true;
     } else{
       options.synchRescale = false;
-      return;
     }
+    return;
   }
 
   if(name == "srTrackPhotons") {
@@ -1356,12 +1356,9 @@ void set_value(std::string name, double value )
       options.synchTrackPhotons = true;
     } else{
       options.synchTrackPhotons = false;
-      return;
     }
+    return;
   }
-
-
-
 
   if(name == "useEMLPB") { options.useEMLPB = value; return; }
   if(name == "useHadLPB") { options.useHadLPB = value; return; }

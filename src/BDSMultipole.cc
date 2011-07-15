@@ -227,7 +227,7 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
   itsBeampipeUserLimits->SetMaxAllowedStep(itsLength/2.0);
   itsBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
   
-  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength/1000);
+  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength/2.0);
   itsInnerBPLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
   
   itsBeampipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
@@ -356,7 +356,7 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
   itsBeampipeUserLimits->SetMaxAllowedStep(itsLength/2);
   itsBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
 
-  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength/1000);
+  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength/2.0);
   itsInnerBPLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
 
   itsBeampipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
