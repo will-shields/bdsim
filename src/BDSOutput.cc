@@ -156,8 +156,13 @@ void BDSOutput::Init(G4int FileNum)
   G4int nBins = G4int(zMax/(BDSGlobals->GetElossHistoBinWidth()*m));
 
   EnergyLossHisto = new TH1F("ElossHisto", "Energy Loss",nBins,0.,zMax/m);
-  EnergyLossNtuple= new TNtuple("ElossNtuple", "Energy Loss","z:E:partID:parentID:weight");
-
+  EnergyLossTree= new TTree("ElossTree", "Energy Loss");//"z:E:partID:parentID:weight:volumeName");
+  EnergyLossTree->Branch("z",&z,"z/F");
+  EnergyLossTree->Branch("E",&E,"E/F");
+  EnergyLossTree->Branch("partID",&part,"partID/F");
+  EnergyLossTree->Branch("parentID",&pID,"parentID/F");
+  EnergyLossTree->Branch("weight",&weight,"weight/F");
+  EnergyLossTree->Branch("volumeName",&volumeName,"volumeName/C");
 #endif
 }
 
@@ -368,16 +373,18 @@ void BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
     
     for (G4int i=0;i<n_hit;i++)
       {
-	G4double weight = (*hc)[i]->GetWeight();
-        G4double Energy=(*hc)[i]->GetEnergy();
-	G4double EWeightZ=(*hc)[i]->
-	  GetEnergyWeightedPosition()/Energy;
-	G4int partID = (*hc)[i]->GetPartID();
-	G4int parentID = (*hc)[i]->GetParentID();
-	EnergyLossHisto->Fill(EWeightZ/m,weight*Energy/GeV);
+	weight = (*hc)[i]->GetWeight();
+        E=(*hc)[i]->GetEnergy()/GeV;
+	z=((*hc)[i]->GetEnergyWeightedPosition()/E)/(m*1000.0);
+	//	cout << "E = " << E << " z = " << z << endl;
+	part = (*hc)[i]->GetPartID();
+	pID = (*hc)[i]->GetParentID();
+	G4String temp = (*hc)[i]->GetVolumeName()+'\0';
 
-	EnergyLossNtuple->Fill(EWeightZ/m,Energy/GeV,partID,parentID,weight);
-
+	strcpy(volumeName,temp.c_str());
+	EnergyLossHisto->Fill(z,weight*E);
+	EnergyLossTree->Fill();
+	//EWeightZ/m,Energy/GeV,partID,parentID,weight,volumeName);
       }
 #endif
   }

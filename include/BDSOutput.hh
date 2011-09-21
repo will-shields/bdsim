@@ -61,7 +61,7 @@ public:
   TTree *theLWCalorimeterTree;
 
   TH1F *EnergyLossHisto;
-  TNtuple *EnergyLossNtuple;
+  TTree *EnergyLossTree;
 #endif
 
   G4int nSamplers;
@@ -77,8 +77,9 @@ private:
 //#ifdef USE_ROOT
   float x0,xp0,y0,yp0,z0,zp0,E0,t0;
   float x,xp,y,yp,z,zp,E,Edep,t;
-  float X,Xp,Y,Yp,Z,Zp,s,weight;
+  float X,Xp,Y,Yp,Z,Zp,s,weight,EWeightZ;
   int part,nev, pID, theID, track_id;
+  char volumeName[100];
 //#endif
 
 };

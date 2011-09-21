@@ -33,7 +33,7 @@ public:
 			G4State  itsState, 
 			G4double itsTemp, 
 			G4double itsPressure,
-			std::list<char*> itsComponents,
+			std::list<const char*> itsComponents,
 			std::list<G4double> itsComponentsFractions); //SPM
 
   void AddMaterial(     G4String aName, 
@@ -41,7 +41,7 @@ public:
                         G4State  itsState, 
                         G4double itsTemp,
                         G4double itsPressure,
-                        std::list<char*> itsComponents,
+                        std::list<const char*> itsComponents,
                         std::list<G4int> itsComponentsWeights); //SPM
 
   void AddElement(G4Element* aElement,G4String aName); //SPM
@@ -51,6 +51,10 @@ public:
 
   G4Material* GetMaterial(G4String aMaterial); //SPM
   G4Element*  GetElement(G4String aSymbol); //SPM
+  G4Element* GetElement(const char* aSymbol);
+
+  G4bool CheckMaterial(G4String aMaterial); 
+  G4bool CheckElement(G4String aSymbol); 
 
 protected:
   std::map<G4String,G4Material*> materials; //SPM

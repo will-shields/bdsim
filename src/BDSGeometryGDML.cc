@@ -36,6 +36,21 @@ void BDSGeometryGDML::Construct(G4LogicalVolume *marker){
   parser->Read(itsGDMLfile);
   
   G4LogicalVolume* topvol = parser->GetWorldVolume()->GetLogicalVolume();
+
+  G4VisAttributes* VisAtt = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
+  VisAtt->SetVisibility(true);
+  VisAtt->SetForceSolid(true);
+
+  G4VisAttributes* VisAtt2 = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
+  VisAtt2->SetVisibility(false);
+  VisAtt2->SetForceSolid(true);
+
+    for (int i=0; i<topvol->GetNoDaughters(); i++){
+    topvol->GetDaughter(i)->GetLogicalVolume()->SetVisAttributes(VisAtt);
+   }
+
+    topvol->SetVisAttributes(VisAtt2);
+  
   new G4PVPlacement(NULL,
                     G4ThreeVector(0.,0.,0.),
                     topvol,
@@ -43,6 +58,6 @@ void BDSGeometryGDML::Construct(G4LogicalVolume *marker){
                     itsMarkerVol,
                     false,
                     0);
-    
-}
+
+  }
 #endif

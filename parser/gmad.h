@@ -239,7 +239,7 @@ struct Element {
   double pressure;
   std::string state;
   std::string symbol;
-  std::list<char*> components;
+  std::list<const char*> components;
   std::list<double> componentsFractions;
   std::list<int> componentsWeights;
 
@@ -341,7 +341,7 @@ struct Parameters {
   double pressure; int pressureset;
   char state[64]; int stateset;
   char symbol[64]; int symbolset;
-  std::list<char*> components; int componentsset;
+  std::list<const char*> components; int componentsset;
   std::list<double> componentsFractions; int componentsFractionsset;
   std::list<int> componentsWeights; int componentsWeightsset;
 

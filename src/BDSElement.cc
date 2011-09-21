@@ -251,7 +251,7 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
     GDML->Construct(itsMarkerLogicalVolume);
 #else
     G4cout << "GDML support not selected during BDSIM configuration" << G4endl;
-    G4Exception("Please re-compile BDSIM with USE_LCDD flag in Makefile");
+    G4Exception("Please re-compile BDSIM with USE_GDML flag in Makefile");
 #endif
   }
   else {

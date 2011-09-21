@@ -17,8 +17,8 @@ endif
 
 CXX           = g++
 LD            = g++
-CXXFLAGS      = $(shell $(ROOTSYS)/bin/root-config --cflags) -I../..
-LDFLAGS       =
+CXXFLAGS      = $(shell $(ROOTSYS)/bin/root-config --cflags) -I../.. -fPIC
+LDFLAGS       = 
 
 ROOTLIBS      = $(shell $(ROOTSYS)/bin/root-config --libs)
 LIBS          = $(ROOTLIBS) -L../../parser -lgmad

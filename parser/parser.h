@@ -358,6 +358,33 @@ void set_vector(std::list<char*>& dst, struct Array *src)
 #endif
 };
 
+void set_vector(std::list<const char*>& dst, struct Array *src)
+{
+  for(int i=0; i< src->size;i++){
+    dst.push_back(src->symbols[i]);
+#ifdef DEBUG 
+    std::cout << src->symbols[i] << " ";
+#endif
+  }
+#ifdef DEBUG 
+  std::cout << std::endl;
+#endif
+};
+
+void set_vector(std::list<string>& dst, struct Array *src)
+{
+  for(int i=0; i< src->size;i++){
+    dst.push_back((string)src->symbols[i]);
+#ifdef DEBUG 
+    std::cout << (string)src->symbols[i] << " ";
+#endif
+  }
+#ifdef DEBUG 
+  std::cout << std::endl;
+#endif
+};
+
+
 void set_vector(std::list<int>& dst, struct Array *src)
 {
   for(int i=0; i< src->size;i++){
@@ -1103,7 +1130,7 @@ void add_dump(char *name, char *before, int before_count)
 }
 
 // insert beam gas                                             
-void add_gas(char *name, const char *before, int before_count, const char *material)
+void add_gas(char *name, const char *before, int before_count,  const char* material)
 {
   printf("gas %s will be inserted into %s number %d\n",material,before,before_count);
   struct Element e;

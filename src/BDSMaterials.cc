@@ -522,18 +522,21 @@ void BDSMaterials::AddMaterial(G4String aName, G4double itsZ, G4double itsA, G4d
 
 void BDSMaterials::AddMaterial(G4String aName, G4double itsDensity, G4State itsState,
 G4double itsTemp, G4double itsPressure,
-list<char*> itsComponents, list<G4double> itsComponentsFractions)
+list<const char*> itsComponents, list<G4double> itsComponentsFractions)
 {
   aName.toLower();
   G4Material* tmpMaterial = new G4Material(aName, itsDensity*g/cm3, 
 		(G4int)itsComponents.size(),itsState, itsTemp*kelvin, itsPressure*atmosphere);
-  list<char*>::iterator sIter;
+  list<const char*>::iterator sIter;
   list<G4double>::iterator dIter;
   for(sIter = itsComponents.begin(), dIter = itsComponentsFractions.begin();
-        sIter != itsComponents.end();
-        sIter++, dIter++)
+      sIter != itsComponents.end();
+      sIter++, dIter++)
   {
-    tmpMaterial->AddElement(GetElement(*sIter),(*dIter));
+    G4cout << "BDSMaterials::AddMaterial - Adding element: " << (G4String)*sIter << G4endl;
+    if(CheckElement((G4String)*sIter)){
+      tmpMaterial->AddElement(GetElement((G4String)*sIter),(*dIter));
+    } else tmpMaterial->AddMaterial(GetMaterial((G4String)*sIter),(*dIter));
   }
   if(materials.insert(make_pair(aName,tmpMaterial)).second)
     G4cout << "New material : " << aName << " added to material table" << G4endl;
@@ -543,18 +546,21 @@ list<char*> itsComponents, list<G4double> itsComponentsFractions)
 
 void BDSMaterials::AddMaterial(G4String aName, G4double itsDensity, G4State itsState,
 G4double itsTemp, G4double itsPressure,      
-list<char*> itsComponents, list<G4int> itsComponentsWeights)       
+list<const char*> itsComponents, list<G4int> itsComponentsWeights)       
 {
   aName.toLower();
-G4Material*  tmpMaterial = new G4Material(aName, itsDensity*g/cm3, 
-		(G4int)itsComponents.size(),itsState, itsTemp*kelvin, itsPressure*atmosphere);
-  list<char*>::iterator sIter;
+  G4Material*  tmpMaterial = new G4Material(aName, itsDensity*g/cm3, 
+     (G4int)itsComponents.size(),itsState, itsTemp*kelvin, itsPressure*atmosphere);
+  list<const char*>::iterator sIter;
   list<G4int>::iterator iIter;
   for(sIter = itsComponents.begin(), iIter = itsComponentsWeights.begin(); 
 	sIter != itsComponents.end();
 	sIter++, iIter++)
   {
-    tmpMaterial->AddElement(GetElement(*sIter),(*iIter));
+    G4cout << "BDSMaterials::AddMaterial - Adding element: " << (G4String)*sIter << G4endl;
+    if(CheckElement((G4String)*sIter)){
+      tmpMaterial->AddElement(GetElement((G4String)*sIter),(*iIter));
+    } else tmpMaterial->AddMaterial(GetMaterial((G4String)*sIter),(*iIter));
   }     
   if(materials.insert(make_pair(aName,tmpMaterial)).second)
     G4cout << "New material : " << aName << " added to material table" << G4endl;
@@ -583,7 +589,7 @@ G4Material* BDSMaterials::GetMaterial(G4String aMaterial)
   map<G4String,G4Material*>::iterator iter = materials.find(aMaterial);
   if(iter != materials.end()) return (*iter).second;
   else{
-    G4Exception("Material "+aMaterial+" not known. Aborting.");
+    G4Exception("BDSMaterials::GetMaterial - Material "+aMaterial+" not known. Aborting.");
     exit(1);
   }
 }
@@ -593,9 +599,29 @@ G4Element* BDSMaterials::GetElement(G4String aSymbol)
   map<G4String,G4Element*>::iterator iter = elements.find(aSymbol);
   if(iter != elements.end()) return (*iter).second;
   else{
-    G4Exception("Element "+aSymbol+" not known. Aborting.");
+    G4Exception("BDSMaterials::GetElement - Element "+aSymbol+" not known. Aborting.");
     exit(1);
   }
+}
+
+G4Element* BDSMaterials::GetElement(const char* aSymbol)
+{
+  return GetElement((G4String)aSymbol);
+}
+
+G4bool BDSMaterials::CheckMaterial(G4String aMaterial)
+{
+  aMaterial.toLower();
+  map<G4String,G4Material*>::iterator iter = materials.find(aMaterial);
+  if(iter != materials.end()) return true;
+  else return false;
+}
+
+G4bool BDSMaterials::CheckElement(G4String aSymbol)
+{
+  map<G4String,G4Element*>::iterator iter = elements.find(aSymbol);
+  if(iter != elements.end()) return true;
+  else return false;
 }
 
 void BDSMaterials::ListMaterials(){

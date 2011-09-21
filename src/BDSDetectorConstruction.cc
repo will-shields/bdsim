@@ -288,13 +288,13 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
                << G4endl;
 #endif
 
-	theMaterials->AddMaterial((*it).name,
-				  (*it).density,
-				  itsState,
-				  (*it).temper,
-				  (*it).pressure,
-				  (*it).components,
-				  (*it).componentsWeights);
+	theMaterials->AddMaterial((G4String)(*it).name,
+				  (G4double)(*it).density,
+				  (G4State)itsState,
+				  (G4double)(*it).temper,
+				  (G4double)(*it).pressure,
+				  (std::list<const char*>)(*it).components,
+				  (std::list<G4int>)(*it).componentsWeights);
       }
       else if((*it).componentsFractions.size()==(*it).components.size()) {
 
@@ -2092,8 +2092,10 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
   if(verbose || debug) G4cout<<"Detector Construction done"<<G4endl; 
 
 #ifdef DEBUG 
-  G4cout << *(G4Material::GetMaterialTable()) << G4endl;
+    G4cout << *(G4Material::GetMaterialTable()) << G4endl;
 #endif
+
+    if(verbose || debug) G4cout<<"Finished listing materials, returning physiWorld"<<G4endl; 
 
   return physiWorld;
 }

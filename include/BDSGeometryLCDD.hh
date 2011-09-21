@@ -20,8 +20,10 @@
 #include "G4Cons.hh"
 #include "G4Tubs.hh"
 #include "G4Polycone.hh"
+#include "G4Polyhedra.hh"
 #include "G4SubtractionSolid.hh"
 #include "G4Box.hh"
+#include "G4Trd.hh"
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 #include "BDSMySQLTable.hh"
@@ -38,9 +40,9 @@
 #include "BDSMagFieldSQL.hh"
 
 // Headers required for XML parsing
-#include <libxml/xmlmemory.h>
-#include <libxml/parser.h>
-#include <libxml/xpath.h>
+#include "/usr/include/libxml2/libxml/xmlmemory.h"
+#include "/usr/include/libxml2/libxml/parser.h"
+#include "/usr/include/libxml2/libxml/xpath.h"
 
 
 extern BDSMaterials* theMaterials;
@@ -77,6 +79,7 @@ public:
 
   void parseDoc();
   void parseLCDD(xmlNodePtr cur);
+  void parseHEADER(xmlNodePtr cur);
   void parseDISPLAY(xmlNodePtr cur);
   void parseVIS(xmlNodePtr cur);
   void parseDEFINE(xmlNodePtr cur);
@@ -85,6 +88,7 @@ public:
   void parseSTRUCTURE(xmlNodePtr cur);
   void parseVOLUME(xmlNodePtr cur);
   void parsePHYSVOL(xmlNodePtr cur, G4String volume_name);
+  void parseFIELDS(xmlNodePtr cur);
 
   G4RotationMatrix* RotateComponent(G4ThreeVector rotvalues);
 
@@ -114,12 +118,16 @@ private:
   G4RotationMatrix* GetRotation(G4String name);
   G4RotationMatrix* GetRotation(xmlNodePtr cur, G4double aunit=0.0);
 
-
+  //Reference to world logical volume
+  G4String itsWorldRef;
+  
   //Solid Builders
 
   void BuildBox(xmlNodePtr cur);
+  void BuildTrd(xmlNodePtr cur);
   void BuildTube(xmlNodePtr cur);
   void BuildPolycone(xmlNodePtr cur);
+  void BuildPolyhedra(xmlNodePtr cur);
   void BuildSubtraction(xmlNodePtr cur);
 
   G4String itsLCDDfile;
@@ -557,7 +565,7 @@ inline void BDSGeometryLCDD::BuildBox(xmlNodePtr cur)
   G4double z = parseDblChar(xmlGetProp(cur,(const xmlChar*)"z")); 
   
   G4double lunit = parseDblChar(xmlGetProp(cur,(const xmlChar*)"lunit"));
-  G4double aunit = parseDblChar(xmlGetProp(cur,(const xmlChar*)"launit"));
+  G4double aunit = parseDblChar(xmlGetProp(cur,(const xmlChar*)"aunit"));
   
   if(aunit!=0) {}
   if(lunit!=0) 
@@ -573,6 +581,38 @@ inline void BDSGeometryLCDD::BuildBox(xmlNodePtr cur)
 				 z/2.0)
 		       );
 }
+
+inline void BDSGeometryLCDD::BuildTrd(xmlNodePtr cur)
+{
+  G4String name = parseStrChar(xmlGetProp(cur,(const xmlChar*)"name"));
+  G4double x1 = parseDblChar(xmlGetProp(cur,(const xmlChar*)"x1")); 
+  G4double y1 = parseDblChar(xmlGetProp(cur,(const xmlChar*)"y1")); 
+  G4double x2 = parseDblChar(xmlGetProp(cur,(const xmlChar*)"x2")); 
+  G4double y2 = parseDblChar(xmlGetProp(cur,(const xmlChar*)"y2")); 
+  G4double z = parseDblChar(xmlGetProp(cur,(const xmlChar*)"z")); 
+  
+  G4double lunit = parseDblChar(xmlGetProp(cur,(const xmlChar*)"lunit"));
+  G4double aunit = parseDblChar(xmlGetProp(cur,(const xmlChar*)"launit"));
+  
+  if(aunit!=0) {}
+  if(lunit!=0) 
+    {
+      x1*=lunit;
+      x2*=lunit;
+      y1*=lunit;
+      y2*=lunit;
+      z*=lunit;
+    }
+  
+  SOLID_LIST.push_back(new G4Trd(name,
+				 x1/2.0,
+				 x2/2.0,
+				 y1/2.0,
+				 y2/2.0,
+				 z/2.0)
+		       );
+}
+
 inline void BDSGeometryLCDD::BuildTube(xmlNodePtr cur)
 {
   G4String name = parseStrChar(xmlGetProp(cur,(const xmlChar*)"name"));
@@ -649,6 +689,60 @@ inline void BDSGeometryLCDD::BuildPolycone(xmlNodePtr cur)
   delete [] zPlanes;
   zPlanes = NULL;
 }
+
+inline void BDSGeometryLCDD::BuildPolyhedra(xmlNodePtr cur)
+{
+  xmlNodePtr tempcur = cur->xmlChildrenNode;
+  
+  G4int numZPlanes = 0;
+  while(tempcur!=NULL)
+    {
+      if ((!xmlStrcmp(tempcur->name, (const xmlChar *)"zplane")))
+	numZPlanes++;
+      tempcur = tempcur->next;
+    }
+  
+  G4double* zPlanes = NULL;
+  G4double* rInner = NULL;
+  G4double* rOuter = NULL;
+  zPlanes = new G4double[numZPlanes];
+  rInner = new G4double[numZPlanes];
+  rOuter = new G4double[numZPlanes];
+  
+  tempcur = cur->xmlChildrenNode;
+  G4int i=0;
+  while(tempcur!=NULL)
+    {
+      if ((!xmlStrcmp(tempcur->name, (const xmlChar *)"zplane")))
+	{
+	  zPlanes[i] = parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"z"));
+	  rInner[i] = parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"rmin"));
+	  rOuter[i] = parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"rmax"));
+	  i++;
+	}
+      tempcur = tempcur->next;
+    }
+  
+  SOLID_LIST.push_back(new G4Polyhedra((parseStrChar(xmlGetProp(cur,(const xmlChar*)"name"))),
+				       parseDblChar(xmlGetProp(cur,(const xmlChar*)"startphi")),
+				       parseDblChar(xmlGetProp(cur,(const xmlChar*)"deltaphi")),
+				       parseDblChar(xmlGetProp(cur,(const xmlChar*)"numsides")),
+				       numZPlanes,
+				       zPlanes,
+				       rInner,
+				       rOuter)
+		       );
+  
+  delete [] rInner;
+  rInner = NULL;
+  delete [] rOuter;
+  rOuter = NULL;
+  delete [] zPlanes;
+  zPlanes = NULL;
+}
+
+
+
 inline void BDSGeometryLCDD::BuildSubtraction(xmlNodePtr cur)
 {
   
@@ -703,7 +797,7 @@ inline void BDSGeometryLCDD::BuildSubtraction(xmlNodePtr cur)
     }
   
   
-  if(componentRotation==0 && PlacementPoint==0)
+  if(componentRotation==0 && PlacementPoint.x()==0 && PlacementPoint.y()==0 && PlacementPoint.z()==0)
     {
       SOLID_LIST.push_back(new G4SubtractionSolid(name,
 						  GetSolidByName(firstname),
