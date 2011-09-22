@@ -90,6 +90,8 @@ public:
   void parsePHYSVOL(xmlNodePtr cur, G4String volume_name);
   void parseFIELDS(xmlNodePtr cur);
 
+  BDSField* GetField();
+  
   G4RotationMatrix* RotateComponent(G4ThreeVector rotvalues);
 
   void Construct(G4LogicalVolume *marker);
@@ -141,6 +143,8 @@ private:
 
   G4double visRed, visGreen, visBlue;
 
+  //The magnetic field
+  BDSField* itsField;
 
 protected:
 };

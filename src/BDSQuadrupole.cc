@@ -707,4 +707,3 @@ BDSQuadrupole::~BDSQuadrupole()
 }
 
 
-#define DEBUG 0

@@ -16,6 +16,8 @@
 #include "G4PVPlacement.hh"
 #include "G4UserLimits.hh"
 #include "G4Mag_UsualEqRhs.hh"
+#include "BDSHelixStepper.hh"
+#include "G4HelixImplicitEuler.hh"
 
 #include "BDSAcceleratorComponent.hh"
 
@@ -208,6 +210,9 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
 #ifdef USE_LCDD
     LCDD = new BDSGeometryLCDD(gFile);
     LCDD->Construct(itsMarkerLogicalVolume);
+    SetMultipleSensitiveVolumes(itsMarkerLogicalVolume);
+    itsField=LCDD->GetField();
+    BuildMagField();
 #else
     G4cout << "LCDD support not selected during BDSIM configuration" << G4endl;
     G4Exception("Please re-compile BDSIM with USE_LCDD flag in Makefile");
@@ -301,10 +306,9 @@ void BDSElement::BuildMagField(G4int nvar, G4bool forceToAllDaughters)
 
   // Create an equation of motion for this field
   G4EqMagElectricField* fEquation = new G4EqMagElectricField(itsField);
-
   G4MagIntegratorStepper* fStepper = new G4ClassicalRK4( fEquation, nvar );
-  //G4MagIntegratorStepper* fStepper = new BDSRK4Stepper( fEquation, nvar );
-
+  //  G4MagIntegratorStepper* fStepper = new BDSRK4Stepper( fEquation, nvar );
+  
   // create a field manager
   G4FieldManager* fieldManager = new G4FieldManager();
   fieldManager->SetDetectorField(itsField );
@@ -328,7 +332,8 @@ void BDSElement::BuildMagField(G4int nvar, G4bool forceToAllDaughters)
     new G4UserLimits("element cuts",DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());
   
-  fUserLimits->SetMaxAllowedStep(1e-2 * m);
+  //  fUserLimits->SetMaxAllowedStep(1e-2 * m);
+  fUserLimits->SetMaxAllowedStep(itsLength);
   
   itsMarkerLogicalVolume->SetUserLimits(fUserLimits);
   

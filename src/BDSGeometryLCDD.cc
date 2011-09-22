@@ -21,7 +21,9 @@
 #include "BDSOutput.hh"
 #include "BDSDetectorSolenoidMagField.hh"
 #include "G4Mag_UsualEqRhs.hh"
+#include "G4EqMagElectricField.hh"
 #include "G4NystromRK4.hh"
+#include "G4ChordFinder.hh"
 
 #include <vector>
 #include <map>
@@ -123,6 +125,11 @@ void BDSGeometryLCDD::Construct(G4LogicalVolume *marker)
 
 }
 
+BDSField* BDSGeometryLCDD::GetField()
+{
+  return itsField;
+}
+
 void BDSGeometryLCDD::parseDoc()
 {
   const char* docname = itsLCDDfile.c_str();
@@ -186,7 +193,7 @@ void BDSGeometryLCDD::parseDoc()
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"fields")))
 	 {
 	   G4cout << "Importing LCDD fields" << G4endl;
-	   //	   parseFIELDS(cur);
+	   parseFIELDS(cur);
 	 }
        cur = cur->next;
      }
@@ -376,24 +383,7 @@ void BDSGeometryLCDD::parseFIELDS(xmlNodePtr cur)
       G4double zmin = parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"zmin")) * lunit;
 
       //Make the magnetic field
-      BDSDetectorSolenoidMagField* magField = new BDSDetectorSolenoidMagField(inner_field, outer_field, inner_radius, outer_radius, zmin, zmax);
-      G4Mag_UsualEqRhs* eqRhs = new G4Mag_UsualEqRhs(magField);
-      G4MagIntegratorStepper* stepper = new G4NystromRK4(eqRhs);
-      G4ChordFinder* chordFinder = new G4ChordFinder(magField, BDSGlobals->GetChordStepMinimum(), stepper);
-      chordFinder->SetDeltaChord(BDSGlobals->GetDeltaChord());
-      G4FieldManager* fieldManager = new G4FieldManager();
-      fieldManager->SetDetectorField(magField);
-      fieldManager->SetChordFinder(chordFinder);
-      fieldManager->SetDeltaIntersection(BDSGlobals->GetDeltaIntersection());
-      if(BDSGlobals->GetMinimumEpsilonStep()>0)
-	fieldManager->SetMinimumEpsilonStep(BDSGlobals->GetMinimumEpsilonStep());
-      if(BDSGlobals->GetMaximumEpsilonStep()>0)
-	fieldManager->SetMaximumEpsilonStep(BDSGlobals->GetMaximumEpsilonStep());
-      if(BDSGlobals->GetDeltaOneStep()>0)
-	fieldManager->SetDeltaOneStep(BDSGlobals->GetDeltaOneStep());
-      
-      GetLogVolByName(itsWorldRef)->SetFieldManager(fieldManager,false) ;
-
+      itsField = new BDSDetectorSolenoidMagField(inner_field, outer_field, inner_radius, outer_radius, zmin, zmax);
     }  else if ((!xmlStrcmp(tempcur->name, (const xmlChar *)"text"))){
     }  else {
       G4cout << tempcur->name << G4endl;
@@ -683,8 +673,6 @@ void BDSGeometryLCDD::parseSOLID(xmlNodePtr cur)
 	 {
 	   BuildTrd(cur);
 	 }
-	   
-
        cur = cur->next;
      }
   

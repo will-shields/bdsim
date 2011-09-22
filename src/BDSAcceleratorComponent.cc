@@ -17,8 +17,6 @@
 //
 //
 
-#define DEBUG 1
-
 #include "BDSGlobalConstants.hh" // must be first in include list
 
 #include "BDSAcceleratorComponent.hh"

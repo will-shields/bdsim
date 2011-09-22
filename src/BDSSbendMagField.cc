@@ -10,8 +10,6 @@
 #include "geomdefs.hh"
 #include "BDSSbendMagField.hh"
 
-#define DEBUG 1
-
 BDSSbendMagField::BDSSbendMagField(const G4ThreeVector& aField,
 			       const G4double length,
 			       const G4double angle) 
