@@ -211,8 +211,14 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
     LCDD = new BDSGeometryLCDD(gFile);
     LCDD->Construct(itsMarkerLogicalVolume);
     SetMultipleSensitiveVolumes(itsMarkerLogicalVolume);
-    itsField=LCDD->GetField();
-    BuildMagField();
+    if(bFormat=="XY"){
+      itsField = new BDSXYMagField(bFile);
+      // build the magnetic field manager and transportation
+      BuildMagField();
+    } else if ( bFormat == "none" ){
+      itsField=LCDD->GetField();
+      BuildMagField();
+    }
 #else
     G4cout << "LCDD support not selected during BDSIM configuration" << G4endl;
     G4Exception("Please re-compile BDSIM with USE_LCDD flag in Makefile");
