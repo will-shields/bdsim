@@ -38,6 +38,9 @@
 #include <vector>
 #include <map>
 #include "BDSMagFieldSQL.hh"
+#include "G4TessellatedSolid.hh"
+#include "G4TriangularFacet.hh"
+#include "G4QuadrangularFacet.hh"
 
 // Headers required for XML parsing
 #include "/usr/include/libxml2/libxml/xmlmemory.h"
@@ -131,6 +134,7 @@ private:
   void BuildPolycone(xmlNodePtr cur);
   void BuildPolyhedra(xmlNodePtr cur);
   void BuildSubtraction(xmlNodePtr cur);
+  void BuildTessellated(xmlNodePtr cur);
 
   G4String itsLCDDfile;
   G4LogicalVolume* itsMarkerVol;
@@ -747,6 +751,7 @@ inline void BDSGeometryLCDD::BuildPolyhedra(xmlNodePtr cur)
 
 
 
+
 inline void BDSGeometryLCDD::BuildSubtraction(xmlNodePtr cur)
 {
   
@@ -821,6 +826,48 @@ inline void BDSGeometryLCDD::BuildSubtraction(xmlNodePtr cur)
     
 }
 
+inline void BDSGeometryLCDD::BuildTessellated(xmlNodePtr cur){
+  G4TessellatedSolid* tessellatedSolid = new G4TessellatedSolid(parseStrChar(xmlGetProp(cur,(const xmlChar*)"name")));
+
+  xmlNodePtr tempcur = cur->xmlChildrenNode;
+
+  G4int numTriFacets = 0;
+  G4int numQuadFacets = 0;
+  G4String sType; 
+  G4FacetVertexType iType;
+  G4ThreeVector vertex[4];
+
+  while(tempcur!=NULL) {
+    
+    if ((!xmlStrcmp(tempcur->name, (const xmlChar *)"triangular")) || (!xmlStrcmp(tempcur->name, (const xmlChar *)"quadrangular"))){
+      sType = parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"type"));
+      if(sType.compare("ABSOLUTE")){
+	iType=ABSOLUTE;
+      } else if (sType.compare("RELATIVE")){
+	iType=RELATIVE;
+      } else {
+	G4cerr << "BDSGeometryLCDD::BuildTessellateSolid -> error, unknown type " << sType << ". Valid options are ABSOLUTE or RELATIVE." << G4endl;   
+      }
+      vertex[0]=GetPosition(parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"vertex1")));
+      vertex[1]=GetPosition(parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"vertex2")));
+      vertex[2]=GetPosition(parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"vertex3")));
+    
+      if(!xmlStrcmp(tempcur->name, (const xmlChar *)"triangular")){
+	tessellatedSolid->AddFacet((G4VFacet*)(new G4TriangularFacet(vertex[0], vertex[1], vertex[2], iType)));	
+	numTriFacets++;
+      } else {
+	vertex[2]=GetPosition(parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"vertex4")));
+	tessellatedSolid->AddFacet((G4VFacet*)(new G4QuadrangularFacet(vertex[0], vertex[1], vertex[2], vertex[3], iType)));	
+	numQuadFacets++;
+      }
+    }
+    tempcur = tempcur->next;
+  }
+
+  tessellatedSolid->SetSolidClosed(true);
+  
+  SOLID_LIST.push_back(tessellatedSolid);
+}
 
 #endif
 

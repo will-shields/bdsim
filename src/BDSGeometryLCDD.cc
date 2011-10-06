@@ -24,6 +24,7 @@
 #include "G4EqMagElectricField.hh"
 #include "G4NystromRK4.hh"
 #include "G4ChordFinder.hh"
+#include "G4TessellatedSolid.hh"
 
 #include <vector>
 #include <map>
@@ -672,6 +673,10 @@ void BDSGeometryLCDD::parseSOLID(xmlNodePtr cur)
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"trd")))
 	 {
 	   BuildTrd(cur);
+	 }
+       else if ((!xmlStrcmp(cur->name, (const xmlChar *)"tessellated")))
+	 {
+	   BuildTessellated(cur);
 	 }
        cur = cur->next;
      }
