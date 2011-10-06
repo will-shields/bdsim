@@ -138,7 +138,7 @@ void BDSEventAction::BeginOfEventAction(const G4Event* evt)
          }
      }
    
-   if(verboseEvent) G4cout<<"Begin of event: "<<event_number<<G4endl ;
+   if(verboseEvent || verboseEventNumber == event_number) G4cout<<"Begin of event: "<<event_number<<G4endl ;
    
    
    G4SDManager * SDman = G4SDManager::GetSDMpointer();

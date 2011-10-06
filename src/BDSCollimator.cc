@@ -150,10 +150,15 @@ void BDSCollimator::BuildInnerCollimator()
     SetSensitiveVolume(itsSolidLogVol);
   }
 
-  itsSolidLogVol->
-    SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
-				       BDSGlobals-> GetThresholdCutCharged()));
-  
+#ifdef USERLIMITS
+  G4double tcut = BDSGlobals->GetThresholdCutCharged();
+  if(tcut > 0){
+    itsSolidLogVol->
+      SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
+				     BDSGlobals-> GetThresholdCutCharged()));
+  }
+#endif
+
   itsPhysiComp = 
     new G4PVPlacement(
 		      nullRotationMatrix,   // no rotation

@@ -25,6 +25,8 @@
 #include "G4ClassicalRK4.hh"
 #include "BDSRK4Stepper.hh"
 
+#include "ggmad.hh"
+#include "BDSGeometrySQL.hh"
 
 class BDSElement :public BDSAcceleratorComponent
 {
@@ -54,6 +56,9 @@ protected:
   G4VisAttributes* SetVisAttributes();  
 
 private:
+  BDSGeometrySQL* Mokka;
+  GGmadDriver* ggmad;
+
   G4ChordFinder* fChordFinder;
 
 

@@ -98,7 +98,6 @@ void init()
   options.geometryBias = false;
   options.ffact = 1.0;
   options.elossHistoBinWidth = 1.0;
-  options.defaultRangeCut = 7e-4;
   //Beam loss monitors geometry
   options.blmRad = 0.05;
   options.blmLength = 0.18;
@@ -108,6 +107,9 @@ void init()
   options.turnOnCerenkov = 1;
   options.decayOn = 1;
   options.synchRadOn = 0;
+#ifndef USERLIMITS
+  options.defaultRangeCut=0.0007;
+#endif
 }
 
 int gmad_parser(FILE *f)

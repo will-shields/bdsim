@@ -1571,7 +1571,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
                << G4endl;
 #endif
 	
-	 theBeamline.push_back(new BDSTransform3D( (*it).name,
+	theBeamline.push_back(new BDSTransform3D( (*it).name,
 						  (*it).xdir *m,
 						  (*it).ydir *m,
 						  (*it).zdir *m,
@@ -1708,12 +1708,13 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
   logicWorld->SetVisAttributes(new G4VisAttributes(true));
 #endif
 
+#ifdef ULIMITS
   // set default max step length (only for particles which have the
   // G4StepLimiter process enabled)
   G4UserLimits* WorldUserLimits =new G4UserLimits();
   WorldUserLimits->SetMaxAllowedStep(100*m);
   logicWorld->SetUserLimits(WorldUserLimits);
-
+#endif
 
   G4cout<<"Charged Thresholdcut="<<BDSGlobals->GetThresholdCutCharged()/GeV<<" GeV"<<G4endl;
   G4cout<<"Photon Thresholdcut="<<BDSGlobals->GetThresholdCutPhotons()/GeV<<" GeV"<<G4endl;
@@ -1725,16 +1726,30 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
    
   G4ProductionCuts* theProductionCuts = new G4ProductionCuts();
   
+  theProductionCuts->SetProductionCut(BDSGlobals->GetDefaultRangeCut()*m);//Set the default production cuts in the precision region
+
   if(BDSGlobals->GetProdCutPhotonsP()>0)
     theProductionCuts->SetProductionCut(BDSGlobals->GetProdCutPhotonsP(),"gamma");
-
+  
   if(BDSGlobals->GetProdCutElectronsP()>0)
     theProductionCuts->SetProductionCut(BDSGlobals->GetProdCutElectronsP(),"e-");
-
+  
   if(BDSGlobals->GetProdCutPositronsP()>0)
     theProductionCuts->SetProductionCut(BDSGlobals->GetProdCutPositronsP(),"e+");
   
   precisionRegion->SetProductionCuts(theProductionCuts);
+
+  /*
+    G4Region*  worldRegion = new G4Region("world");
+    
+    G4UserLimits* worldUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX, BDSGlobals->GetThresholdCutCharged());
+    
+    worldRegion->SetUserLimits(worldUserLimits);
+    
+    logicWorld->SetRegion(worldRegion);
+    worldRegion->AddRootLogicalVolume(logicWorld);
+    
+  */
 
   // world
 
@@ -2135,10 +2150,6 @@ BDSDetectorConstruction::~BDSDetectorConstruction()
   LogVol->clear();
   delete LogVol;
 
-  BDSBeamline::iterator iterbl;
-  for(iterbl=theBeamline.begin(); iterbl!=theBeamline.end();iterbl++){
-    delete *iterbl;
-  }
   theBeamline.clear();
 
   delete precisionRegion;

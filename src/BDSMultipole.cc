@@ -9,6 +9,8 @@
    Removed StringFromInt function
 */
 
+#define USERLIMITS 1
+
 #include "BDSGlobalConstants.hh" // must be first in include list
 
 #include <cstdlib>
@@ -215,24 +217,21 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
   SetMultiplePhysicalVolumes(itsPhysiInner);
   SetMultiplePhysicalVolumes(itsPhysiComp);
   
-
-  itsBeampipeUserLimits =
-    new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
+#ifdef USERLIMITS
+  G4cout << "BDSMultipole::BuildBeamPipe() Using user limits." << G4endl;
+  itsBeampipeUserLimits = new G4UserLimits("beampipe cuts");
+  itsInnerBeampipeUserLimits = new G4UserLimits("inner beampipe cuts");
   
-  itsInnerBeampipeUserLimits =
-    new G4UserLimits("inner beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
-  
-  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength/2.0);
+  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength*5);
   itsBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
   
-  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength/2.0);
+  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength*5);
   itsInnerBPLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
   
   itsBeampipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
   itsInnerBPLogicalVolume->SetFieldManager(itsBPFieldMgr,false) ;
-  
+#endif
+
   // now protect the fields inside the marker volume by giving the
   // marker a null magnetic field (otherwise G4VPlacement can
   // over-ride the already-created fields, by calling 
@@ -345,6 +344,7 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
   SetMultiplePhysicalVolumes(itsPhysiInner);
   SetMultiplePhysicalVolumes(itsPhysiComp);
 
+#ifdef USERLIMITS
   itsBeampipeUserLimits =
      new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());
@@ -358,6 +358,7 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
 
   itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength/2.0);
   itsInnerBPLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
+#endif
 
   itsBeampipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
   itsInnerBPLogicalVolume->SetFieldManager(itsBPFieldMgr,false) ;
@@ -438,11 +439,13 @@ void BDSMultipole::BuildDefaultMarkerLogicalVolume()
      theMaterials->GetMaterial("vacuum"),
      itsName+"_log");
 
+#ifdef USERLIMITS
    itsMarkerUserLimits =
      new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());     
    itsMarkerUserLimits->SetMaxAllowedStep(itsLength/2);
    itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
+#endif
 
 }
 
@@ -506,11 +509,13 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
   //Add the physical volumes to a vector which can be used for e.g. geometrical biasing
   SetMultiplePhysicalVolumes(itsPhysiComp);
 
+#ifdef USERLIMITS
   itsOuterUserLimits =
     new G4UserLimits("multipole cut",aLength,DBL_MAX,DBL_MAX,
 		     BDSGlobals->GetThresholdCutCharged());
   itsOuterUserLimits->SetMaxAllowedStep(itsLength/2);
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
+#endif
 
  
 
@@ -560,11 +565,13 @@ G4LogicalVolume* itsOuterLogicalVolume=
   //Add the physical volumes to a vector which can be used for e.g. geometrical biasing
   SetMultiplePhysicalVolumes(itsPhysiComp);
 
+#ifdef USERLIMITS
   itsOuterUserLimits =
     new G4UserLimits("multipole cut",aLength,DBL_MAX,DBL_MAX,
 		     BDSGlobals->GetThresholdCutCharged());
   itsOuterUserLimits->SetMaxAllowedStep(itsLength/2);
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
+#endif
 
  
 

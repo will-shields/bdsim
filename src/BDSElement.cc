@@ -119,9 +119,12 @@ void BDSElement::BuildGeometry()
   (*LogVolCount)[itsName] = 1;
   (*LogVol)[itsName] = itsMarkerLogicalVolume;
   
+#ifdef USERLIMITS
   itsOuterUserLimits = new G4UserLimits();
-  itsOuterUserLimits->SetMaxAllowedStep(itsLength);
+  itsOuterUserLimits->SetMaxAllowedStep(itsLength*5);
   itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
+#endif
+  
 
   //Build the tunnel
   if(BDSGlobals->GetBuildTunnel()){
@@ -172,9 +175,6 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
   // get the geometry for the driver
   // different drivers may interpret the fieldmap differently
   // so a field map without geometry is not allowed
-
-  GGmadDriver *ggmad;
-  BDSGeometrySQL *Mokka;
 
 #ifdef USE_LCDD
   BDSGeometryLCDD *LCDD;
@@ -319,8 +319,10 @@ void BDSElement::BuildMagField(G4int nvar, G4bool forceToAllDaughters)
   G4FieldManager* fieldManager = new G4FieldManager();
   fieldManager->SetDetectorField(itsField );
 
-
   G4double fMinStep  = BDSGlobals->GetChordStepMinimum(); 
+
+  fieldManager->SetMinimumEpsilonStep(BDSGlobals->GetChordStepMinimum());
+  fieldManager->SetMaximumEpsilonStep(itsLength*5);
   
   G4MagInt_Driver* fIntgrDriver = new G4MagInt_Driver(fMinStep, 
 						      fStepper, 
@@ -334,15 +336,18 @@ void BDSElement::BuildMagField(G4int nvar, G4bool forceToAllDaughters)
 
   itsMarkerLogicalVolume->SetFieldManager(fieldManager,forceToAllDaughters);
   
-  G4UserLimits* fUserLimits =
-    new G4UserLimits("element cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
+#ifdef USERLIMITS
+  G4UserLimits* fUserLimits = new G4UserLimits();
+  
+  if(BDSGlobals->GetThresholdCutCharged()>0){
+    fUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+  }
   
   //  fUserLimits->SetMaxAllowedStep(1e-2 * m);
-  fUserLimits->SetMaxAllowedStep(itsLength);
+  fUserLimits->SetMaxAllowedStep(itsLength*5);
   
   itsMarkerLogicalVolume->SetUserLimits(fUserLimits);
-  
+#endif
 }
 
 // creates a field mesh in the reference frame of a physical volume
@@ -483,4 +488,6 @@ BDSElement::~BDSElement()
   delete itsVisAttributes;
   delete itsMarkerLogicalVolume;
   delete fChordFinder;
+  delete Mokka;
+  delete ggmad;
 }

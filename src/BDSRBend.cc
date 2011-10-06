@@ -282,11 +282,12 @@ void BDSRBend::BuildRBMarkerLogicalVolume()
 			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			LocalLogicalName+"_rbend_rectangle");
 
+#ifdef USERLIMITS
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX);
   itsMarkerUserLimits->SetMaxAllowedStep(itsMagFieldLength);
   itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
   rbendRectangleLogicalVolume->SetUserLimits(itsMarkerUserLimits);
-
+#endif
   //
   // zero field in the marker volume
   //

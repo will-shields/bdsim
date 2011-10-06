@@ -158,7 +158,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
 			itsName+"_inner_bmp_log");
 
 
-
+#ifdef USERLIMITS
   G4UserLimits* AbsUserLimits =
     new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
 		     BDSGlobals->GetThresholdCutCharged());
@@ -175,7 +175,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
   itsBeampipeLogicalVolume->
     SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
 				       BDSGlobals->GetThresholdCutCharged()));
-
+#endif
   itsSolidLogVol->SetVisAttributes(itsVisAttributes);
   itsBeampipeLogicalVolume->SetVisAttributes(itsBPVisAttributes);
 

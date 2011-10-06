@@ -71,6 +71,9 @@ static void usage()
   G4cout<<"        http://www.pp.rhul.ac.uk/twiki/bin/view/JAI/simulation"<<G4endl;
   G4cout<<G4endl;
 
+  G4cout<<"This is the edited version." << G4endl;
+  G4cout<<G4endl;
+
   G4cout<<"Usage: bdsim [options]"<<G4endl;
   G4cout<<"Options:"<<G4endl;
   G4cout<<"--file=<filename>     : specify the lattice file "<<G4endl
@@ -631,7 +634,8 @@ int main(int argc,char** argv) {
   G4cout<<"BDSGlobals deleting..."<<G4endl;
 #endif
   delete BDSGlobals;
-  
+
+
 #ifdef DEBUG 
   //G4cout<<"BDSRunManager deleting..."<<G4endl;
 #endif
