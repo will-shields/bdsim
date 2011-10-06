@@ -216,11 +216,9 @@ void mySectorBend::BuildSBMarkerLogicalVolume()
 			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_marker");
 
-#ifdef USERLIMITS
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX);
   itsMarkerUserLimits->SetMaxAllowedStep(itsLength);
   itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
-#endif
 }
 
 
@@ -297,7 +295,6 @@ void mySectorBend::BuildSBBeampipe()
 		      false,		       // no boolean operation
 		      0);		             // copy number
   
-#ifdef USERLIMITS
   itsBeampipeUserLimits =
     new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());
@@ -317,7 +314,6 @@ void mySectorBend::BuildSBBeampipe()
   
   itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength);
   itsInnerBPLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
-#endif
 
   // zero field in the marker volume
   itsMarkerLogicalVolume->
@@ -378,13 +374,11 @@ void mySectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum)
                       false,                    // no boolean operation
                       0);                       // copy number
 
-#ifdef USERLIMITS
   itsOuterUserLimits =
     new G4UserLimits("multipole cut",itsLength,DBL_MAX,DBL_MAX,
                      BDSGlobals->GetThresholdCutCharged());
   //  itsOuterUserLimits->SetMaxAllowedStep(aLength);
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
-#endif
 
 }
 

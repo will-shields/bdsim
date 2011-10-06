@@ -125,29 +125,27 @@ extern G4double htot;
 
 void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 { 
-  G4Track* ThisTrack=ThisStep->GetTrack();
+  // G4cout<<"user stepping action called"<<G4endl;
 
-  /*
-  if(ThisTrack->GetProperTime() > 1e-6*second)
+  G4Track* ThisTrack=ThisStep->GetTrack();
+  
+  //G4int TrackID=ThisTrack->GetTrackID();
+  
+  G4String pName=ThisTrack->GetDefinition()->GetParticleName();
+
+  if(ThisTrack->GetProperTime() > 1e-2*second)
     {
-      G4cout << "WARNING: ProperTime > 1.e-6 seconds!" << G4endl;
+      G4cout << "WARNING: ProperTime > 1.e-2 seconds!" << G4endl;
       G4cout<<" Killing the particle"<<G4endl;
       ThisTrack->SetTrackStatus(fStopAndKill);
     }
-  */
-  /*
-  if(ThisTrack->GetKineticEnergy()<10*keV){
-    G4cout<<"Energy too low. Killing the particle"<<G4endl;
-    ThisTrack->SetTrackStatus(fStopAndKill);
-  }
-  */
 
-  if(BDSGlobals->DoTwiss()){
-    G4String pName=ThisTrack->GetDefinition()->GetParticleName();
-    const  CLHEP::Hep3Vector theParticlePosition = ThisTrack->GetPosition();
-    // check that there actually is a next volume as it may be the end of the optics line
-    if(ThisTrack->GetNextVolume() && ThisTrack->GetParentID() <= 0) {
-      
+  const  CLHEP::Hep3Vector theParticlePosition = ThisTrack->GetPosition();
+  
+  // check that there actually is a next volume as it may be the end of the optics line
+  if(BDSGlobals->DoTwiss() && ThisTrack->GetNextVolume() && ThisTrack->GetParentID() <= 0) 
+    {
+
 #ifdef DEBUG
 	G4cout <<" ***"<< ThisTrack->GetVolume()->GetName()<<G4endl;
 	G4cout <<" +++"<< ThisStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() << G4endl;      
@@ -212,16 +210,17 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 	  return;
 	}
     }
-  }
+
   
   // ------------  output in case of verbose step ---------------------
 
 
-  if((verboseStep || verboseEventNumber == event_number) && (!BDSGlobals->GetSynchRescale()) )
+  if(verboseStep && (!BDSGlobals->GetSynchRescale()) )
     {
 
-      int ID=ThisTrack->GetTrackID();
-      
+	int ID=ThisTrack->GetTrackID();
+
+
 	G4cout.precision(10);
 	G4cout<<"This volume="<< ThisTrack->GetVolume()->GetName()<<G4endl;
 	
@@ -253,6 +252,34 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 
        	  if(proc)G4cout<<" pre-step process="<<proc->GetProcessName()<<G4endl<<G4endl;
     }
+
+
+  // -------------  kill tracks according to cuts -------------------
+  
+  
+  // this cuts apply to default region
+  if(pName=="gamma"){
+    G4double photonCut = BDSGlobals->GetThresholdCutPhotons();
+    
+    if(ThisTrack->GetKineticEnergy()<photonCut)
+      {
+	
+	ThisTrack->SetTrackStatus(fStopAndKill);
+	
+      }
+  }  
+    
+  //  if(pName=="e-"||pName=="e+")
+  if(pName!="gamma")
+    {
+      if(ThisTrack->GetKineticEnergy()<BDSGlobals->GetThresholdCutCharged())
+        {
+          
+          ThisTrack->SetTrackStatus(fStopAndKill);
+	  
+        }
+    }
+
     
 }
 

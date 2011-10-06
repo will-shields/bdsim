@@ -11,7 +11,6 @@ extern G4bool verbose;      // run options
 extern G4bool verboseStep;
 extern G4bool verboseEvent;
 extern G4int verboseEventNumber;
-extern G4int event_number;
 extern G4bool isBatch;
 
 extern G4int nptwiss;
@@ -524,7 +523,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 #ifdef DEBUG 
   G4cout<< "BDSBunch : " <<"Twiss: "<<betaX<<" "<<betaY<<" "<<alphaX<<" "<<alphaY<<" "<<emitX<<" "<<emitY<<G4endl;
 #endif
-  if(verboseStep || verboseEventNumber == event_number) G4cout<< "BDSBunch : " <<"distribution type: "<<distribType<<G4endl;
+  if(verboseStep) G4cout<< "BDSBunch : " <<"distribution type: "<<distribType<<G4endl;
 
   double r, phi;
   // Rescale must be at the top of GetNextParticle
@@ -1228,4 +1227,4 @@ void BDSBunch::CloseBunchFile(){
 }
 
 
-
+#undef DEBUG

@@ -222,7 +222,7 @@ void BDSMagFieldSQL::GetFieldValue( const G4double Point[4],
   */
   
   
-#if 0 
+#ifdef DEBUG 
   LocalB.rotateY(10e-3); //to track from incoming beamline perspective
   // this needs the be the crossing angle plus any marker rotation applied
   // for IR solenoid case

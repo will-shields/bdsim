@@ -8,9 +8,8 @@ option, beampipeRadius = 10 * cm,
         deltaIntersection = 0.00000001 * m,
         deltaChord = 0.001 * m,
         lengthSafety = 0.00001 * m,
-!        thresholdCutCharged = 100 * MeV,
-!        thresholdCutPhotons = 1000 * KeV;
-	defaultRangeCut=1*mm;
+        thresholdCutCharged = 100 * MeV,
+        thresholdCutPhotons = 1000 * KeV;
 
 
 option,physicsList="standard";

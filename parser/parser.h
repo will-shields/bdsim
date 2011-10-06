@@ -1396,24 +1396,8 @@ void set_value(std::string name, double value )
   if(name == "annihiToMuFe") { options.annihiToMuFe = value; return; }
   if(name == "gammaToMuFe") { options.gammaToMuFe = value; return; }
   if(name == "eeToHadronsFe") { options.eeToHadronsFe = value; return; }
-#ifndef USERLIMITS
-  if(name == "thresholdCutCharged" || name == "thresholdCutPhotons") {   
-    cerr << "Error: thresholdCutCharged and thresholdCutPhotons are not longer used. For speed and coherence in all materials, range cuts are used instead. Secondaries up to the energy corresponding to a given range in a material are produced. All particles are tracked to zero energy or until they reach the edge of the world. Please use the following options: " << endl;
-    cerr << "          defaultRangeCut = range in metres for all particles (default 0.7mm)" << endl;
-    cerr << "defaultRangeCut is overridden by the following options if specified:" << endl;
-    cerr << "          prodCutPositrons = range in metres for positrons" << endl;
-    cerr << "          prodCutElectrons = range in metres for electrons" << endl;
-    cerr << "          prodCutPhotons   = range in metres for photons" << endl;
-    cerr << "          prodCutPositronsP = range in metres in the precision region (user-defined elements) for positrons" << endl;
-    cerr << "          prodCutElectronsP = range in metres in the precision region (user-defined elements) for electrons" << endl;
-    cerr << "          prodCutPhotonsP   = range in metres in the precision region (user-defined elements) for photons" << endl;
-    exit(1); 
-  }
-#endif
-#ifdef USERLIMITS
-  if(name == "thresholdCutCharged"){options.thresholdCutCharged = (double)value; return; }
-  if(name == "thresholdCutPhotons"){options.thresholdCutPhotons = (double)value; return; }
-#endif
+  if(name == "thresholdCutCharged" ) { options.thresholdCutCharged = value; return; }
+  if(name == "thresholdCutPhotons" ) { options.thresholdCutPhotons = value; return; }
   if(name == "vacuumPressure") { options.vacuumPressure = (double)value; return; }
   if(name == "planckScatterFe") { options.planckScatterFe = (double)value; return; }
   if(name == "stopTracks") { options.stopTracks = (int) value; return; } 

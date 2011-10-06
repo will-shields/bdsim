@@ -294,11 +294,10 @@ void BDSSectorBend::BuildSBMarkerLogicalVolume()
     new G4LogicalVolume(itsMarkerSolidVolume,
 			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			LocalLogicalName+"_marker");
-#ifdef USERLIMITS
+
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX, BDSGlobals->GetThresholdCutCharged());
   itsMarkerUserLimits->SetMaxAllowedStep(itsLength);
   itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
-#endif
   
 
   //
@@ -416,7 +415,6 @@ void BDSSectorBend::BuildSBBeampipe()
   //
   // set user limits for stepping, tracking and propagation in B field
   //
-#ifdef USERLIMITS
   itsBeampipeUserLimits =
     new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());
@@ -428,7 +426,6 @@ void BDSSectorBend::BuildSBBeampipe()
   		     BDSGlobals->GetThresholdCutCharged());
   itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength);
   itsInnerBPLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
-#endif
 
   //
   // set magnetic field inside beampipe
@@ -531,13 +528,12 @@ void BDSSectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
                       0);                     // copy number
 
 SetMultiplePhysicalVolumes(itsPhysiComp);
-#ifdef USERLIMITS
+
   itsOuterUserLimits =
     new G4UserLimits("multipole cut",DBL_MAX,DBL_MAX,DBL_MAX,
                      BDSGlobals->GetThresholdCutCharged());
   itsOuterUserLimits->SetMaxAllowedStep(itsLength);
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
-#endif 
 }
 
 BDSSectorBend::~BDSSectorBend()

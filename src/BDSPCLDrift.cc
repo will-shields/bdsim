@@ -326,7 +326,7 @@ void BDSPCLDrift::BuildBeampipe(){
   SetMultiplePhysicalVolumes(itsPhysiLowerInner);
   SetMultiplePhysicalVolumes(itsPhysiLower);
 
-#ifdef USERLIMITS
+  
    itsBeampipeUserLimits =
    new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());
@@ -338,20 +338,16 @@ void BDSPCLDrift::BuildBeampipe(){
 
    itsUpperBeamPipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
    itsUpperInnerBeamPipeLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
-   itsMiddleBeamPipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
-   itsMiddleInnerBeamPipeLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
-   itsLowerBeamPipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
-   itsLowerInnerBeamPipeLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
-#endif
-
-
    itsUpperBeamPipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
    itsUpperInnerBeamPipeLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
    //---
-
+   itsMiddleBeamPipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
+   itsMiddleInnerBeamPipeLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
    itsMiddleBeamPipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
    itsMiddleInnerBeamPipeLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
    //---
+   itsLowerBeamPipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
+   itsLowerInnerBeamPipeLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
    itsLowerBeamPipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
    itsLowerInnerBeamPipeLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
    
@@ -366,9 +362,6 @@ void BDSPCLDrift::BuildBeampipe(){
   itsMarkerLogicalVolume->
     SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
   
-  //clean up
-  delete nullrot;
-
   G4cout << "Finished making beam pipe..." << G4endl;
 }
 

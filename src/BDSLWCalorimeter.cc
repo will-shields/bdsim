@@ -72,11 +72,10 @@ void BDSLWCalorimeter::LWCalorimeterLogicalVolume()
 
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
-#ifdef USERLIMITS
+
       itsOuterUserLimits =new G4UserLimits();
       itsOuterUserLimits->SetMaxAllowedStep(itsLength);
       itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
-#endif
 
     }
   else
@@ -166,15 +165,13 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
 		       false,		     // no boolean operation
 		       0);		             // copy number
    
-
-   itsBeampipeUserLimits =  new G4UserLimits("beampipe cuts");
-   itsInnerBeampipeUserLimits = new G4UserLimits("inner beamipe cuts");
+   itsBeampipeUserLimits =
+     new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
+		      BDSGlobals->GetThresholdCutCharged());
    
-   G4double tcut = BDSGlobals->GetThresholdCutCharged();
-   if(tcut>0){
-     itsBeampipeUserLimits->SetUserMinEkine(tcut);
-     itsInnerBeampipeUserLimits->SetUserMinEkine(tcut);
-   }
+   itsInnerBeampipeUserLimits =
+     new G4UserLimits("inner beamipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
+		      BDSGlobals->GetThresholdCutCharged());
    
    itsBeampipeUserLimits->SetMaxAllowedStep(itsLength);
    

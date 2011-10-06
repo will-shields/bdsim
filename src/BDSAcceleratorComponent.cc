@@ -98,6 +98,7 @@ BDSAcceleratorComponent::~BDSAcceleratorComponent ()
   delete itsTunnelUserLimits;
   delete itsSoilTunnelUserLimits;
   delete itsInnerTunnelUserLimits;
+  
 }
 
 void BDSAcceleratorComponent::BuildTunnel()
@@ -366,21 +367,17 @@ void BDSAcceleratorComponent::BuildTunnel()
     0);		        // copy number
   */
   
-#ifdef ULIMITS
     G4cout << "Setting user limits" << G4endl;
-    G4double tcut = BDSGlobals->GetThresholdCutCharged();
-    if(tcut > 0){
-      itsTunnelUserLimits =
-	new G4UserLimits("tunnel cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-			 tcut);
-      itsSoilTunnelUserLimits =
-	new G4UserLimits("tunnel soil cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-			 tcut);
-      itsInnerTunnelUserLimits =
-	new G4UserLimits("inner tunnel cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-			 tcut);
-    }
-
+    itsTunnelUserLimits =
+      new G4UserLimits("tunnel cuts",DBL_MAX,DBL_MAX,DBL_MAX,
+                       BDSGlobals->GetThresholdCutCharged());
+    itsSoilTunnelUserLimits =
+      new G4UserLimits("tunnel soil cuts",DBL_MAX,DBL_MAX,DBL_MAX,
+                       BDSGlobals->GetThresholdCutCharged());
+    itsInnerTunnelUserLimits =
+      new G4UserLimits("inner tunnel cuts",DBL_MAX,DBL_MAX,DBL_MAX,
+                       BDSGlobals->GetThresholdCutCharged());
+    
     itsTunnelUserLimits->SetMaxAllowedStep(itsLength);
     itsSoilTunnelUserLimits->SetMaxAllowedStep(itsLength);
     itsInnerTunnelUserLimits->SetMaxAllowedStep(itsLength);
@@ -388,7 +385,6 @@ void BDSAcceleratorComponent::BuildTunnel()
     itsTunnelMinusCavityLogicalVolume->SetUserLimits(itsTunnelUserLimits);
     itsSoilTunnelLogicalVolume->SetUserLimits(itsSoilTunnelUserLimits);
     itsTunnelCavityLogicalVolume->SetUserLimits(itsInnerTunnelUserLimits);
-#endif
 
     G4cout << "Setting vis attributes" << G4endl;
     //
@@ -414,12 +410,6 @@ void BDSAcceleratorComponent::BuildTunnel()
   itsTunnelMinusCavityLogicalVolume->SetVisAttributes(VisAtt1);
   itsMarkerLogicalVolume->SetVisAttributes(VisAtt);
   itsTunnelCavityLogicalVolume->SetVisAttributes(VisAtt2);
-
-  //Free memory
-  delete nullRotationMatrix;
-  delete VisAtt1;
-  delete VisAtt2;
-  delete VisAtt3;
 }
 
 void BDSAcceleratorComponent::BuildBLMs()

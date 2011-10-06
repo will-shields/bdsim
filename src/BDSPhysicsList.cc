@@ -161,8 +161,8 @@ extern G4bool verbose;
 BDSPhysicsList::BDSPhysicsList():  G4VUserPhysicsList()
 {
   // construct particles
-  //0.7*mm
-  //  defaultCutValue = 100*m;  
+
+  //defaultCutValue = 0.7*mm;  
   defaultCutValue = BDSGlobals->GetDefaultRangeCut()*m;  
 
   SetVerboseLevel(1);
@@ -181,8 +181,6 @@ void BDSPhysicsList::ConstructProcess()
   theParticleIterator->reset();
   while( (*theParticleIterator)() ){
     G4ParticleDefinition* particle = theParticleIterator->value();
-    //Set to apply cuts to all particles
-    if(particle->GetParticleName()=="gamma" || particle->GetParticleName()=="e-" || particle->GetParticleName()=="e+" || particle->GetParticleName()=="proton") particle->SetApplyCutsFlag(true);//Apply the range cut
     G4ProcessManager *pmanager = particle->GetProcessManager();
     pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
   }
@@ -206,16 +204,13 @@ void BDSPhysicsList::ConstructProcess()
   if(BDSGlobals->GetDecayOn()) ConstructDecay();
   //============================================
 
-  G4cout << "Physics list name = " << BDSGlobals->GetPhysListName() << G4endl;
 
   if (BDSGlobals->GetPhysListName() != "standard"){ // register physics processes here
     
     // standard e+/e-/gamma electromagnetic interactions
     if(BDSGlobals->GetPhysListName() == "em_standard") 
       {
-	G4cout << "Constructing em standard physics list." << G4endl;
         ConstructEM();
-	SetCuts();
         return;
       }
     
@@ -229,7 +224,6 @@ void BDSPhysicsList::ConstructProcess()
     if(BDSGlobals->GetPhysListName() == "em_low") 
       {
         ConstructEM_Low_Energy();
-	SetCuts();
         return;
       }
     
@@ -238,7 +232,6 @@ void BDSPhysicsList::ConstructProcess()
       {
         ConstructEM();
         ConstructMuon();
-	SetCuts();
         return;
       }
     // standard hadronic - photo-nuclear etc.
@@ -246,7 +239,6 @@ void BDSPhysicsList::ConstructProcess()
       {
 	ConstructEM();
         ConstructHadronic();
-	SetCuts();
         return;
       }
     
@@ -256,7 +248,6 @@ void BDSPhysicsList::ConstructProcess()
         ConstructEM();
         ConstructMuon();
         ConstructHadronic();
-	SetCuts();
         return;
       }
     
@@ -264,7 +255,6 @@ void BDSPhysicsList::ConstructProcess()
       ConstructEM();
       G4VPhysicsConstructor* hadPhysList = new HadronPhysicsQGSP_BERT("hadron");
       hadPhysList -> ConstructProcess();
-      SetCuts();
       return;
     }
 
@@ -273,7 +263,6 @@ void BDSPhysicsList::ConstructProcess()
       ConstructMuon();
       G4VPhysicsConstructor* hadPhysList = new HadronPhysicsQGSP_BERT("hadron");
       hadPhysList -> ConstructProcess();
-      SetCuts();
       return;
     }
     
@@ -281,7 +270,6 @@ void BDSPhysicsList::ConstructProcess()
       ConstructEM();
       HadronPhysicsFTFP_BERT *myHadPhysList = new HadronPhysicsFTFP_BERT;
       myHadPhysList->ConstructProcess();
-      SetCuts();
       return;
     }
     
@@ -292,7 +280,6 @@ void BDSPhysicsList::ConstructProcess()
       //      ConstructPhotolepton_Hadron();
       HadronPhysicsQGSP_BERT_HP *myHadPhysList = new HadronPhysicsQGSP_BERT_HP;
       myHadPhysList->ConstructProcess();
-      SetCuts();
       return;
     }
     
@@ -302,7 +289,7 @@ void BDSPhysicsList::ConstructProcess()
       ConstructMuon();
       HadronPhysicsFTFP_BERT *myHadPhysList = new HadronPhysicsFTFP_BERT;
       myHadPhysList->ConstructProcess();
-      SetCuts();
+
       return;
     }
     // physics list for laser wire - standard em stuff +
@@ -310,7 +297,6 @@ void BDSPhysicsList::ConstructProcess()
     if(BDSGlobals->GetPhysListName() == "lw") {
       ConstructEM();
       ConstructLaserWire();
-      SetCuts();
       return;
     } 
     //default - standard (only transportation)
@@ -396,19 +382,21 @@ void BDSPhysicsList::SetCuts()
   }
   
   SetCutsWithDefault();   
+
+
   
     if(BDSGlobals->GetProdCutPhotons()>0)
     SetCutValue(BDSGlobals->GetProdCutPhotons(),"gamma");
   
-    if(BDSGlobals->GetProdCutElectrons()>0)
-      SetCutValue(BDSGlobals->GetProdCutElectrons(),"e-");
+   if(BDSGlobals->GetProdCutElectrons()>0)
+   SetCutValue(BDSGlobals->GetProdCutElectrons(),"e-");
   
-    if(BDSGlobals->GetProdCutPositrons()>0)
-      SetCutValue(BDSGlobals->GetProdCutPositrons(),"e+");
+  if(BDSGlobals->GetProdCutPositrons()>0)
+    SetCutValue(BDSGlobals->GetProdCutPositrons(),"e+");
   
 
     
-    //    if(verbose)
+  if(verbose)
     DumpCutValuesTable(); 
 
 }

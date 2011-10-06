@@ -291,7 +291,6 @@ decl : VARIABLE ':' marker
 	     //  list<struct Element>* tmp_list = new list<struct Element>;
 	     write_table(params,$1->name,_LINE,new list<struct Element>(tmp_list));
 	     // write_table(params,$1->name,_LINE,tmp_list);
-	     tmp_list.clear();
 	      tmp_list.erase(tmp_list.begin(), tmp_list.end());
 	      tmp_list.~list<struct Element>();
 	   }
