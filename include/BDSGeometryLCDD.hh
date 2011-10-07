@@ -841,9 +841,9 @@ inline void BDSGeometryLCDD::BuildTessellated(xmlNodePtr cur){
     
     if ((!xmlStrcmp(tempcur->name, (const xmlChar *)"triangular")) || (!xmlStrcmp(tempcur->name, (const xmlChar *)"quadrangular"))){
       sType = parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"type"));
-      if(sType.compare("ABSOLUTE")){
+      if(!sType.compare("ABSOLUTE")){
 	iType=ABSOLUTE;
-      } else if (sType.compare("RELATIVE")){
+      } else if (!sType.compare("RELATIVE")){
 	iType=RELATIVE;
       } else {
 	G4cerr << "BDSGeometryLCDD::BuildTessellateSolid -> error, unknown type " << sType << ". Valid options are ABSOLUTE or RELATIVE." << G4endl;   
@@ -853,17 +853,27 @@ inline void BDSGeometryLCDD::BuildTessellated(xmlNodePtr cur){
       vertex[2]=GetPosition(parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"vertex3")));
     
       if(!xmlStrcmp(tempcur->name, (const xmlChar *)"triangular")){
+	G4cout << "BDSGeometryLCDD adding triangular facet, vertices: "<< G4endl;
+	G4cout << "vertex1: " << vertex[0].x() << " " << vertex[0].y() << " " << vertex[0].z() << G4endl;
+	G4cout << "vertex2: " << vertex[1].x() << " " << vertex[1].y() << " " << vertex[1].z() << G4endl;
+	G4cout << "vertex3: " << vertex[2].x() << " " << vertex[2].y() << " " << vertex[2].z() << G4endl;
+
 	tessellatedSolid->AddFacet((G4VFacet*)(new G4TriangularFacet(vertex[0], vertex[1], vertex[2], iType)));	
 	numTriFacets++;
       } else {
-	vertex[2]=GetPosition(parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"vertex4")));
+	vertex[3]=GetPosition(parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"vertex4")));
+	G4cout << "BDSGeometryLCDD adding quadrangular facet, vertices: "<< G4endl;
+	G4cout << "vertex1: " << vertex[0].x() << " " << vertex[0].y() << " " << vertex[0].z() << G4endl;
+	G4cout << "vertex2: " << vertex[1].x() << " " << vertex[1].y() << " " << vertex[1].z() << G4endl;
+	G4cout << "vertex3: " << vertex[2].x() << " " << vertex[2].y() << " " << vertex[2].z() << G4endl;
+	G4cout << "vertex4: " << vertex[3].x() << " " << vertex[3].y() << " " << vertex[3].z() << G4endl;
 	tessellatedSolid->AddFacet((G4VFacet*)(new G4QuadrangularFacet(vertex[0], vertex[1], vertex[2], vertex[3], iType)));	
 	numQuadFacets++;
       }
     }
     tempcur = tempcur->next;
   }
-
+  G4cout << "BDSGeometryLCDD closing the solid... "<< G4endl;
   tessellatedSolid->SetSolidClosed(true);
   
   SOLID_LIST.push_back(tessellatedSolid);
