@@ -28,8 +28,9 @@ G4bool  BDSXYMagField::DoesFieldChangeEnergy() const
 
 G4int BDSXYMagField::ReadFile(G4String fname)
 {
+#ifdef DEBUG
   G4cout<<"reading file "<<fname<<G4endl;
-
+#endif
   struct XYFieldRecord rec;
   
   ifstream bmapif;
@@ -47,9 +48,9 @@ G4int BDSXYMagField::ReadFile(G4String fname)
     }
   
   bmapif.close();
-
+#ifdef DEBUG
   G4cout<<"done"<<G4endl;
-
+#endif
   return 0;
 
 }
@@ -57,8 +58,9 @@ G4int BDSXYMagField::ReadFile(G4String fname)
 // create a field mesh in the "world" coordinates from list of field values
 void BDSXYMagField::Prepare(G4VPhysicalVolume *referenceVolume)
 {
+#ifdef DEBUG
   G4cout<<"BDSElement:: create XY field mesh"<<G4endl;
-
+#endif
   ReadFile(itsFileName);
 
   if( itsFieldValues.size() == 0 )
@@ -100,8 +102,9 @@ void BDSXYMagField::Prepare(G4VPhysicalVolume *referenceVolume)
       
       for(itt=itsFieldValues.begin();itt!=itsFieldValues.end();itt++)
 	{
-	  
-	  //G4cout<<(*it).x<<" "<<(*it).y<<" "<<(*it).z<<" "<<(*it).Bx<<G4endl;
+#ifdef DEBUG
+	  G4cout<<(*it).x<<" "<<(*it).y<<" "<<(*it).z<<" "<<(*it).Bx<<G4endl;
+#endif
 	  hxold = fabs((*it).x - (*itt).x);
 	  if( (hxold > 1.0e-11*m)&&(hxold<hx) ) hx = hxold;
 	  
@@ -144,8 +147,11 @@ void BDSXYMagField::Prepare(G4VPhysicalVolume *referenceVolume)
 	
 	G4double dist = GetNearestValue(itsFieldValues,x,y,bx,by,bz);
 	
-	G4double tol = 10 * hx;// dummy
+	G4double tol = 100 * hx;// dummy
 	
+	G4cout << "dist, tol: " << dist << " " << tol << G4endl;
+
+
 	if(dist < tol) {
 	  SetBx(i,j,bx * tesla);
 	  SetBy(i,j,by * tesla);
@@ -188,7 +194,7 @@ void BDSXYMagField::GetFieldValue(const G4double Point[4], G4double *Bfield ) co
 
   if( (nX <= 0) || (nY<=0) )
     {
-      G4cout<<"no mesh"<<G4endl;
+      G4cerr<<"BDSXYMagField::GetFieldValue> Error: no mesh"<<G4endl;
       bx = by = 0;
     }
   else
@@ -202,9 +208,21 @@ void BDSXYMagField::GetFieldValue(const G4double Point[4], G4double *Bfield ) co
       i = (G4int)(nX/2.0 + nX * local[0] / (2.0 * xHalf));
       j = (G4int)(nY/2.0 + nY * local[1] / (2.0 * yHalf));
 
-      bx = Bx[i][j];
-      by = By[i][j];
-      bz = Bz[i][j];
+      if( (i>=nX) || (j>=nY) || (i<0) || (j<0)){
+	bx=0;
+	by=0;
+	bz=0;
+      } else {
+#if DEBUG
+	G4cout << "Bx[" << i << "][" << j << "]=" << Bx[i][j] << G4endl;
+	G4cout << "By[" << i << "][" << j << "]=" << By[i][j] << G4endl;
+	G4cout << "Bz[" << i << "][" << j << "]=" << Bz[i][j] << G4endl;
+	G4cout << "nX = " << nX << ", nY = " << nY << G4endl;
+#endif
+	bx = Bx[i][j];
+	by = By[i][j];
+	bz = Bz[i][j];
+      }
     }
 
   // b-field
@@ -216,9 +234,10 @@ void BDSXYMagField::GetFieldValue(const G4double Point[4], G4double *Bfield ) co
   Bfield[4] = 0;
   Bfield[5] = 0;
 
-  //G4cout<<" field value requested : "<<Point[0]<<" , "<<Point[1]<<" , "<<Point[2]<<" , "<<Point[3]<<" : "<<
-  //  i<<" , "<<j<<" , "<<k<<"    "<<local[0]<<" "<<local[1]<<" "<<local[2]<<" "<<bx<<" "<<by<<" "<<bz<<G4endl;
-
+#ifdef DEBUG
+  G4cout<<" field value requested : "<<Point[0]<<" , "<<Point[1]<<" , "<<Point[2]<<" , "<<Point[3]<<" : "<<
+    i<<" , "<<j<<" , "<<k<<"    "<<local[0]<<" "<<local[1]<<" "<<local[2]<<" "<<bx<<" "<<by<<" "<<bz<<G4endl;
+#endif
 }
 
 int BDSXYMagField::AllocateMesh(int nx, int ny) 
