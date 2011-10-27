@@ -363,7 +363,7 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
   // G4LogicalVolume::AddDaughter, which calls 
   // pDaughterLogical->SetFieldManager(fFieldManager, true) - the
   // latter 'true' over-writes all the other fields
-
+#endif
   itsMarkerLogicalVolume->
     SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
   
@@ -436,6 +436,7 @@ void BDSMultipole::BuildDefaultMarkerLogicalVolume()
    itsMarkerUserLimits->SetMaxAllowedStep(itsLength);
    itsMarkerUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
    itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
+#endif
 
 }
 
@@ -504,7 +505,7 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
   itsOuterUserLimits->SetUserMinEkine( BDSGlobals->GetThresholdCutCharged());
   itsOuterUserLimits->SetMaxAllowedStep(itsLength);
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
-
+#endif
  
 
 }
@@ -558,7 +559,7 @@ void BDSMultipole::BuildEllipticalOuterLogicalVolume(G4double aLength,
   itsOuterUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
   itsOuterUserLimits->SetMaxAllowedStep(itsLength);
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
-
+#endif
  
 
   }

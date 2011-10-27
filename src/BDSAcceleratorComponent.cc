@@ -412,7 +412,6 @@ void BDSAcceleratorComponent::BuildTunnel()
   itsTunnelUserLimits = new G4UserLimits("tunnel cuts");
   itsSoilTunnelUserLimits = new G4UserLimits("tunnel soil cuts");
   itsInnerTunnelUserLimits = new G4UserLimits("inner tunnel cuts");
-  
   G4double tcut = BDSGlobals->GetThresholdCutCharged();
   if(tcut>0){
     itsTunnelUserLimits->SetUserMinEkine(tcut);
@@ -427,6 +426,7 @@ void BDSAcceleratorComponent::BuildTunnel()
   itsTunnelMinusCavityLogicalVolume->SetUserLimits(itsTunnelUserLimits);
   itsSoilTunnelLogicalVolume->SetUserLimits(itsSoilTunnelUserLimits);
   itsTunnelCavityLogicalVolume->SetUserLimits(itsInnerTunnelUserLimits);
+#endif
   
 #ifdef DEBUG
   G4cout << "Setting vis attributes" << G4endl;
