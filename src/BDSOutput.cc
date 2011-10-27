@@ -436,9 +436,7 @@ void BDSOutput::Write()
     if(theRootOutputFile->IsOpen())
       {
 	theRootOutputFile->Write();
-        while(theRootOutputFile->IsOpen()){
-                theRootOutputFile->Close();
-              }
+	theRootOutputFile->Close();
 	delete theRootOutputFile;
       }
   }

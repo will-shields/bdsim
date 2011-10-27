@@ -819,8 +819,14 @@ parameters:
 		   else
 		   if(!strcmp($1->name,"tunnelMaterial")) 
 		       {
-			 params.tunnelMaterialset = 1;
+			 params.tunnelmaterialset = 1;
 			 strcpy(params.tunnelMaterial, $3);
+		       }
+		   else 
+		   if(!strcmp($1->name,"tunnelCavityMaterial")) 
+		       {
+			 params.tunnelcavitymaterialset = 1;
+			 strcpy(params.tunnelCavityMaterial, $3);
 		       }
 		   else 
 		   if(!strcmp($1->name,"spec")) 
@@ -876,8 +882,14 @@ parameters:
                        else
                          if(!strcmp($1->name,"tunnelMaterial")) 
 		       {	 
-			 params.tunnelMaterialset = 1;
+			 params.tunnelmaterialset = 1;
 			 strcpy(params.tunnelMaterial, $3);
+		       }
+			 else
+                         if(!strcmp($1->name,"tunnelCavityMaterial")) 
+		       {	 
+			 params.tunnelcavitymaterialset = 1;
+			 strcpy(params.tunnelCavityMaterial, $3);
 		       }
                      else
                    if(!strcmp($1->name,"spec")) 

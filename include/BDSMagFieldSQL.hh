@@ -11,30 +11,55 @@
 #include "G4MagneticField.hh"
 
 #include "G4VPhysicalVolume.hh"
-#include "BDSField.hh"
+#include "G4Navigator.hh"
+#include "G4TouchableHistory.hh"
+#include "G4TouchableHistoryHandle.hh"
+#include "BDSMagField.hh"
 #include <string>
 #include <vector>
+#include <list>
+#include <map>
 
 //using namespace std;
 
-class BDSMagFieldSQL : public BDSField
+class BDSMagFieldSQL : public BDSMagField
 {
 public:  // with description
 
+#if 0
   BDSMagFieldSQL(const G4String& FieldFile, G4double aMarkerLength,
-		 std::vector<G4String> Quadvol, std::vector<G4double> QuadBgrad,
-		 std::vector<G4String> Sextvol, std::vector<G4double> SextBgrad,
-		 std::vector<G4String> Octvol, std::vector<G4double> OctBgrad,
-		 std::vector<G4String> Fieldvol, std::vector<G4ThreeVector> UniformField);
+		 std::list<G4String> Quadvol, std::list<G4double> aQuadBgrad,
+		 std::list<G4String> Sextvol, std::list<G4double> aSextBgrad,
+		 std::list<G4String> Octvol, std::list<G4double> aOctBgrad,
+		 std::list<G4String> Fieldvol, std::list<G4ThreeVector> aUniformField);
+#endif
+
+  BDSMagFieldSQL(const G4String& aFieldFile,
+		 G4double aMarkerLength,
+		 std::map<G4String, G4double> aQuadVolBgrad,
+		 std::map<G4String, G4double> aSextVolBgrad,
+		 std::map<G4String, G4double> aOctVolBgrad,
+		 std::map<G4String, G4ThreeVector> aUniformFieldVolField,
+		 G4bool aHasNPoleFields, G4bool aHasUniformField);
+  
   virtual ~BDSMagFieldSQL();
   // Constructor and destructor. No actions.
 
 
   void  GetFieldValue( const G4double Point[4],G4double *Bfield ) const;
 
+  G4bool GetHasNPoleFields();
+  G4bool GetHasUniformField();
+  G4bool GetHasFieldMap();
+
   void Prepare(G4VPhysicalVolume *referenceVolume);
 
 private:
+  G4Navigator* itsIRNavigator;
+  G4bool itsHasNPoleFields;
+  G4bool itsHasUniformField;
+  G4bool itsHasFieldMap;
+
   ofstream ofs;
   ifstream ifs;
 
@@ -42,16 +67,22 @@ private:
   G4String FieldFile;
 
   // For Quad/Sext/Oct Fields
-  std::vector<G4double> itsQuadBgrad;
-  std::vector<G4String> itsQuadVol; 
-  std::vector<G4double> itsSextBgrad;
-  std::vector<G4String> itsSextVol; 
-  std::vector<G4double> itsOctBgrad;
-  std::vector<G4String> itsOctVol; 
+  std::list<G4double> itsQuadBgrad;
+  std::list<G4String> itsQuadVol; 
+  std::list<G4double> itsSextBgrad;
+  std::list<G4String> itsSextVol; 
+  std::list<G4double> itsOctBgrad;
+  std::list<G4String> itsOctVol; 
 
   // For Uniform Fields
-  std::vector<G4ThreeVector> itsUniformField;
-  std::vector<G4String> itsFieldVol; 
+  std::list<G4ThreeVector> itsUniformField;
+  std::list<G4String> itsFieldVol; 
+
+  //Maps for fields
+  std::map<G4String, G4ThreeVector> itsUniformFieldVolField;
+  std::map<G4String, G4double> itsQuadVolBgrad;
+  std::map<G4String, G4double> itsSextVolBgrad;
+  std::map<G4String, G4double> itsOctVolBgrad;
 
   // For Solenoid FieldMaps
   std::vector<G4double> itsBz;

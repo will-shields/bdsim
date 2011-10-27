@@ -8,6 +8,7 @@
 #include "G4EllipticalCone.hh"
 #include "G4Torus.hh"
 #include "G4SubtractionSolid.hh"
+#include "G4IntersectionSolid.hh"
 #include "G4Polycone.hh"
 #include "G4VisAttributes.hh"
 #include "G4LogicalVolume.hh"
@@ -43,10 +44,13 @@ BDSGeometrySQL::BDSGeometrySQL(G4String DBfile, G4double markerlength)
   align_in_volume = NULL;  //default alignment (does nothing)
   align_out_volume = NULL;  //default alignment (does nothing)
   HasFields = false;
+  nPoleField = 0;
+  HasUniformField = false;
 }
 
 BDSGeometrySQL::~BDSGeometrySQL(){
   delete rotateComponent;
+  delete itsUserLimits;
 }
 
 void BDSGeometrySQL::Construct(G4LogicalVolume *marker)
@@ -166,10 +170,14 @@ void BDSGeometrySQL::BuildCone(BDSMySQLTable* aSQLTable)
 	new G4LogicalVolume(aCone,
 			    theMaterials->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* ConeUserLimits = new G4UserLimits();
       ConeUserLimits->SetMaxAllowedStep(length);
+      if(BDSGlobals->GetThresholdCutCharged()>0){
+	ConeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+      }
       aConeVol->SetUserLimits(ConeUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -250,10 +258,14 @@ void BDSGeometrySQL::BuildEllipticalCone(BDSMySQLTable* aSQLTable)
 	new G4LogicalVolume(aEllipticalCone,
 			    theMaterials->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* EllipticalConeUserLimits = new G4UserLimits();
       EllipticalConeUserLimits->SetMaxAllowedStep(lengthZ);
+      if(BDSGlobals->GetThresholdCutCharged()>0){
+	EllipticalConeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+      }
       aEllipticalConeVol->SetUserLimits(EllipticalConeUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -357,10 +369,14 @@ void BDSGeometrySQL::BuildPolyCone(BDSMySQLTable* aSQLTable)
 	new G4LogicalVolume(aPolyCone,
 			    theMaterials->GetMaterial(Material),
 			    Name+"_LogVol");
-      
-      G4UserLimits* ConeUserLimits = new G4UserLimits();
-      ConeUserLimits->SetMaxAllowedStep(fabs(zPos[0]-zPos[numZplanes-1]));
-      aPolyConeVol->SetUserLimits(ConeUserLimits);
+#ifndef NOUSERLIMITS
+      G4UserLimits* PolyConeUserLimits = new G4UserLimits();
+      PolyConeUserLimits->SetMaxAllowedStep(fabs(zPos[0]-zPos[numZplanes-1]));
+      if(BDSGlobals->GetThresholdCutCharged()>0){
+	PolyConeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+      }
+      aPolyConeVol->SetUserLimits(PolyConeUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -443,10 +459,14 @@ void BDSGeometrySQL::BuildBox(BDSMySQLTable* aSQLTable)
 	new G4LogicalVolume(aBox,
 			    theMaterials->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* BoxUserLimits = new G4UserLimits();
       BoxUserLimits->SetMaxAllowedStep(lengthZ);
+      if(BDSGlobals->GetThresholdCutCharged()>0){
+	BoxUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+      }
       aBoxVol->SetUserLimits(BoxUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -537,10 +557,14 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
 	new G4LogicalVolume(aTrap,
 			    theMaterials->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* TrapUserLimits = new G4UserLimits();
       TrapUserLimits->SetMaxAllowedStep(lengthZ);
+      if(BDSGlobals->GetThresholdCutCharged()>0){
+	TrapUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+      }
       aTrapVol->SetUserLimits(TrapUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -629,10 +653,14 @@ void BDSGeometrySQL::BuildTorus(BDSMySQLTable* aSQLTable)
 	new G4LogicalVolume(aTorus,
 			    theMaterials->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* TorusUserLimits = new G4UserLimits();
       TorusUserLimits->SetMaxAllowedStep(rInner);
+      if(BDSGlobals->GetThresholdCutCharged()>0){
+	TorusUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+      }
       aTorusVol->SetUserLimits(TorusUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -722,10 +750,14 @@ void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
 	new G4LogicalVolume(aSampler,
 			    theMaterials->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* SamplerUserLimits = new G4UserLimits();
       SamplerUserLimits->SetMaxAllowedStep(length);
+      if(BDSGlobals->GetThresholdCutCharged()>0){
+	SamplerUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+      }
       aSamplerVol->SetUserLimits(SamplerUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -740,7 +772,7 @@ void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
       aSamplerVol->SetVisAttributes(VisAtt);
 
       G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-      if(BDSSampler::GetNSamplers==0){
+      if(BDSSampler::GetNSamplers()==0){
 	BDSSamplerSensDet = new BDSSamplerSD(Name, "plane");
 	SDMan->AddNewDetector(BDSSamplerSensDet);
       }
@@ -824,10 +856,14 @@ void BDSGeometrySQL::BuildTube(BDSMySQLTable* aSQLTable)
 	new G4LogicalVolume(aTubs,
 			    theMaterials->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* TubsUserLimits = new G4UserLimits();
       TubsUserLimits->SetMaxAllowedStep(length);
+      if(BDSGlobals->GetThresholdCutCharged()>0){
+	TubsUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+      }
       aTubsVol->SetUserLimits(TubsUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -908,7 +944,7 @@ void BDSGeometrySQL::BuildEllipticalTube(BDSMySQLTable* aSQLTable)
 	new G4LogicalVolume(aEllipticalTube,
 			    theMaterials->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* EllipticalTubeUserLimits = new G4UserLimits();
       G4double maxLength = lengthX;
       if (lengthY>lengthX&&lengthY>lengthZ){
@@ -918,7 +954,11 @@ void BDSGeometrySQL::BuildEllipticalTube(BDSMySQLTable* aSQLTable)
 	maxLength = lengthZ;
       }
       EllipticalTubeUserLimits->SetMaxAllowedStep(maxLength);
+      if(BDSGlobals->GetThresholdCutCharged()>0){
+	EllipticalTubeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+      }
       aEllipticalTubeVol->SetUserLimits(EllipticalTubeUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -1094,6 +1134,18 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
 	  continue;
 	}
 
+      if(InheritStyle.compareTo("INTERSECT",cmpmode)==0)
+	{
+	  G4VSolid* original = VOL_LIST[PARENTID]->GetSolid();
+	  G4VSolid* sub = VOL_LIST[ID]->GetSolid();
+	  VOL_LIST[PARENTID]->SetSolid(new G4IntersectionSolid(VOL_LIST[PARENTID]->GetName(),
+							 original,
+							 sub,
+							 RotateComponent(RotPsi,RotPhi,RotTheta),
+							 PlacementPoint));
+	  continue;
+	}
+
 
       G4VPhysicalVolume* PhysiComp = 
 	new G4PVPlacement(RotateComponent(RotPsi,RotPhi,RotTheta),
@@ -1151,29 +1203,37 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
       if(MagType.compareTo("QUAD",cmpmode)==0)
 	{
 	  HasFields = true;
+	  nPoleField = 1;
 	  QuadBgrad.push_back(- brho * K1 / (m*m));
 	  Quadvol.push_back(PhysiComp->GetName());
+	  QuadVolBgrad[PhysiComp->GetName()]=(- brho * K1 / (m*m));
 	}
 
       if(MagType.compareTo("SEXT",cmpmode)==0)
 	{
 	  HasFields = true;
+	  nPoleField = 2;
 	  SextBgrad.push_back(- brho * K2 / (m*m*m));
 	  Sextvol.push_back(PhysiComp->GetName());
+	  SextVolBgrad[PhysiComp->GetName()]=(- brho * K2 / (m*m*m));
 	}
 
       if(MagType.compareTo("OCT",cmpmode)==0)
 	{
 	  HasFields = true;
+	  nPoleField = 3;
 	  OctBgrad.push_back(- brho * K3 / (m*m*m*m));
 	  Octvol.push_back(PhysiComp->GetName());
+	  OctVolBgrad[PhysiComp->GetName()]=(- brho * K3 / (m*m*m*m));
 	}
 
       if(FieldX || FieldY || FieldZ) //if any vols have non-zero field components
 	{
 	  HasFields = true;
+	  HasUniformField=true;
 	  UniformField.push_back(G4ThreeVector(FieldX*tesla,FieldY*tesla,FieldZ*tesla));
 	  Fieldvol.push_back(PhysiComp->GetName());
+	  UniformFieldVolField[PhysiComp->GetName()]=G4ThreeVector(FieldX*tesla,FieldY*tesla,FieldZ*tesla);
 	}
   }
 }

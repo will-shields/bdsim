@@ -156,8 +156,8 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
        }    
      
    }
- //commented to allow multiple laserwires in beamline - Steve
- // FireLaserCompton=false;
+ 
+ FireLaserCompton=false;
  
  #if G4VERSION_NUMBER > 899
  return G4VDiscreteProcess::PostStepDoIt(trackData,stepData);

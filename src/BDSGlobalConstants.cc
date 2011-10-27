@@ -37,6 +37,10 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
     itsTunnelMaterialName = "concrete";
   else
     itsTunnelMaterialName = opt.tunnelMaterial;
+ if(opt.tunnelCavityMaterial == "") 
+    itsTunnelCavityMaterialName = "Air";
+  else
+    itsTunnelCavityMaterialName = opt.tunnelCavityMaterial;
  if(opt.soilMaterial == "") 
     itsSoilMaterialName = "soil";
   else

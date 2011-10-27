@@ -1,4 +1,4 @@
-   
+    
 //   BDSIM, (C) 2001-2007 
 //    
 //   version 0.4 
@@ -105,6 +105,7 @@
 #include "BDSSynchrotronRadiation.hh"
 #include "BDSContinuousSR.hh"
 #include "G4StepLimiter.hh"
+#include "G4UserSpecialCuts.hh"
 
 
 //
@@ -164,6 +165,12 @@ BDSPhysicsList::BDSPhysicsList():  G4VUserPhysicsList()
 
   //defaultCutValue = 0.7*mm;  
   defaultCutValue = BDSGlobals->GetDefaultRangeCut()*m;  
+  SetDefaultCutValue(BDSGlobals->GetDefaultRangeCut()*m);
+
+  G4cout<<"Charged Thresholdcut="<<BDSGlobals->GetThresholdCutCharged()/GeV<<" GeV"<<G4endl;
+  G4cout<<"Photon Thresholdcut="<<BDSGlobals->GetThresholdCutPhotons()/GeV<<" GeV"<<G4endl;
+  G4cout<<"Default range cut="<<BDSGlobals->GetDefaultRangeCut()/m<<" m"<<G4endl;
+
 
   SetVerboseLevel(1);
    
@@ -181,8 +188,16 @@ void BDSPhysicsList::ConstructProcess()
   theParticleIterator->reset();
   while( (*theParticleIterator)() ){
     G4ParticleDefinition* particle = theParticleIterator->value();
+    if((particle->GetParticleName()=="gamma")||(particle->GetParticleName()=="e-")||(particle->GetParticleName()=="e+")){
+    particle->SetApplyCutsFlag(true);
+    }
     G4ProcessManager *pmanager = particle->GetProcessManager();
-    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
+#ifndef NOSTEPLIMITER
+    pmanager->AddDiscreteProcess(new G4StepLimiter);
+#endif
+#ifndef NOUSERSPECIALCUTS
+    pmanager->AddDiscreteProcess(new G4UserSpecialCuts);
+#endif
   }
   //===========================================
   //Some options
@@ -386,13 +401,13 @@ void BDSPhysicsList::SetCuts()
 
   
     if(BDSGlobals->GetProdCutPhotons()>0)
-    SetCutValue(BDSGlobals->GetProdCutPhotons(),"gamma");
+      SetCutValue(BDSGlobals->GetProdCutPhotons(),G4ProductionCuts::GetIndex("gamma"));
   
    if(BDSGlobals->GetProdCutElectrons()>0)
-   SetCutValue(BDSGlobals->GetProdCutElectrons(),"e-");
+     SetCutValue(BDSGlobals->GetProdCutElectrons(),G4ProductionCuts::GetIndex("e-"));
   
   if(BDSGlobals->GetProdCutPositrons()>0)
-    SetCutValue(BDSGlobals->GetProdCutPositrons(),"e+");
+    SetCutValue(BDSGlobals->GetProdCutPositrons(),G4ProductionCuts::GetIndex("e+"));
   
 
     
@@ -458,7 +473,8 @@ void BDSPhysicsList::ConstructEM()
         ebremsstrahlung_lpb->RegisterProcess(ebremsstrahlung);
         pmanager->AddProcess(ebremsstrahlung_lpb,     -1,-1,3);
       } else {
-        pmanager->AddProcess(new G4eBremsstrahlung,   -1, 3,3);     
+	G4eBremsstrahlung* ebremsstrahlung = new G4eBremsstrahlung();
+        pmanager->AddProcess(ebremsstrahlung,   -1, 3,3);     
       }
             
       if(BDSGlobals->GetTurnOnCerenkov()){

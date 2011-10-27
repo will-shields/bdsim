@@ -17,7 +17,8 @@
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 #include "G4PVPlacement.hh"               
-
+#include "BDSDriftStepper.hh"
+#include "BDSMagField.hh"
 #include "BDSMultipole.hh"
 
 class BDSDrift :public BDSMultipole
@@ -33,8 +34,13 @@ protected:
 private:
   void BuildBLMs();
   G4VisAttributes* SetVisAttributes();
+  void BuildBpFieldAndStepper();
   G4double itsStartOuterR;
   G4double itsEndOuterR;
+  //field related objects
+  BDSDriftStepper* itsStepper;
+  BDSMagField* itsMagField;
+  G4Mag_UsualEqRhs* itsEqRhs;
 };
 
 #endif

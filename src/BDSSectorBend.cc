@@ -249,27 +249,26 @@ void BDSSectorBend::BuildBPFieldAndStepper()
 
 void BDSSectorBend::BuildSBMarkerLogicalVolume()
 {
+  G4double xLength, yLength;
+  xLength = yLength = std::max(itsOuterR,BDSGlobals->GetComponentBoxSize()/2);
+  xLength = std::max(xLength, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness() + 4*BDSGlobals->GetLengthSafety() );   
+  yLength = std::max(yLength, this->GetTunnelRadius()+2*std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+4*BDSGlobals->GetLengthSafety() );
 
-//   G4double xLength, yLength;
-  G4double aThickness=std::min(1*cm,BDSGlobals->GetTunnelSoilThickness());
-  G4double totalTunnelRadius = BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness()+aThickness+std::max(BDSGlobals->GetTunnelOffsetX(),BDSGlobals->GetTunnelOffsetY());
- 
-  G4double boxSize = std::max(itsOuterR,BDSGlobals->GetComponentBoxSize()/2);
-  boxSize = std::max(boxSize,totalTunnelRadius);
+  G4double transverseSize=std::max(xLength, yLength);
 
 #ifdef DEBUG 
-  G4cout<<"marker volume : x/y="<<boxSize/m<<
+  G4cout<<"marker volume : x/y="<<transverseSize/m<<
     " m, l= "<<  (itsLength+BDSGlobals->GetLengthSafety())/2/m <<" m"<<G4endl;
 #endif
 
     G4double xHalfLengthPlus, xHalfLengthMinus;
     if(fabs(itsAngle) > 1e-20){
       xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
-        - fabs(cos(itsAngle/2))*boxSize*tan(itsAngle/2)/2
+        - fabs(cos(itsAngle/2))*transverseSize*tan(itsAngle/2)/2
         + BDSGlobals->GetLengthSafety()/2;
       
       xHalfLengthPlus = (itsLength/itsAngle)*sin(itsAngle/2)
-        + fabs(cos(itsAngle/2))*boxSize*tan(itsAngle/2)/2
+        + fabs(cos(itsAngle/2))*transverseSize*tan(itsAngle/2)/2
         + BDSGlobals->GetLengthSafety()/2;
     } else {
       xHalfLengthPlus=itsLength/2.0;
@@ -284,9 +283,9 @@ void BDSSectorBend::BuildSBMarkerLogicalVolume()
     itsMarkerSolidVolume = new G4Trd(itsName+"_marker",
 				  xHalfLengthPlus,     // x hlf lgth at +z
 				  xHalfLengthMinus,    // x hlf lgth at -z
-				  boxSize/2,           // y hlf lgth at +z
-				  boxSize/2,           // y hlf lgth at -z
-				  fabs(cos(itsAngle/2))*boxSize/2);// z hlf lgth
+				  transverseSize/2,           // y hlf lgth at +z
+				  transverseSize/2,           // y hlf lgth at -z
+				  fabs(cos(itsAngle/2))*transverseSize/2);// z hlf lgth
 
   G4String LocalLogicalName=itsName;
   

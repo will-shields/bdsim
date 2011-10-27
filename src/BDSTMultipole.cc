@@ -24,6 +24,7 @@
 #include "BDSMultipoleMagField.hh"
 #include "G4Mag_UsualEqRhs.hh"
 #include "BDSRK4Stepper.hh"
+#include "G4HelixImplicitEuler.hh"
 
 #include <map>
 
@@ -184,8 +185,7 @@ void BDSTMultipole::BuildBPFieldAndStepper()
   itsMagField=new BDSMultipoleMagField(kn,ks);
   itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);
   
-  itsStepper=new BDSRK4Stepper(itsEqRhs);
-  itsStepper->SetVolLength(itsLength*4.0);
+  itsStepper=new G4HelixImplicitEuler(itsEqRhs);
 }
 
 BDSTMultipole::~BDSTMultipole()

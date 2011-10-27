@@ -281,12 +281,12 @@ void BDSRBend::BuildRBMarkerLogicalVolume()
     new G4LogicalVolume(rbendRectangleSolidVolume,
 			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			LocalLogicalName+"_rbend_rectangle");
-
+#ifndef NOUSERLIMITS
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX);
   itsMarkerUserLimits->SetMaxAllowedStep(itsMagFieldLength);
   itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
   rbendRectangleLogicalVolume->SetUserLimits(itsMarkerUserLimits);
-
+#endif
   //
   // zero field in the marker volume
   //
@@ -489,7 +489,7 @@ void BDSRBend::BuildRBBeampipe()
   itsBeampipeUserLimits =
     new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());
-  itsBeampipeUserLimits->SetMaxAllowedStep(itsMagFieldLength/1000);
+  itsBeampipeUserLimits->SetMaxAllowedStep(itsMagFieldLength);
   middleBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
 
 

@@ -27,6 +27,7 @@ BDSQuadStepper::BDSQuadStepper(G4Mag_EqRhs *EqRhs)
                                      // position & velocity
 {
   fPtrMagEqOfMot = EqRhs;
+  QuadNavigator=new G4Navigator();
 }
 
 
@@ -57,14 +58,13 @@ void BDSQuadStepper::AdvanceHelix( const G4double  yIn[],
          << G4endl; 
 #endif
 
-  G4Navigator* QuadNavigator=
-    G4TransportationManager::GetTransportationManager()->
-    GetNavigatorForTracking();
-
   G4double h2=h*h;
 
   G4ThreeVector LocalR,LocalRp ;
-  
+
+  QuadNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()); 
+  QuadNavigator->LocateGlobalPointAndSetup(GlobalR);
+
   // relevant momentum scale is p_z, not P_tot:
   // check that the approximations are valid, else do a linear step:
   if(fabs(kappa)<1.e-12)
@@ -354,5 +354,7 @@ G4double BDSQuadStepper::DistChord()   const
 }
 
 BDSQuadStepper::~BDSQuadStepper()
-{}
+{
+  delete QuadNavigator;
+}
 

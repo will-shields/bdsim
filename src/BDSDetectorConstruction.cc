@@ -25,7 +25,7 @@
 #include "BDSDetectorConstruction.hh"
 
 #include "G4UserLimits.hh"
-
+#include "G4GeometryManager.hh"
 #include "G4Region.hh"
 #include "G4ProductionCuts.hh"
 
@@ -35,7 +35,6 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4UniformMagField.hh"
-#include "G4FieldManager.hh"
 #include "G4TransportationManager.hh"
 #include "G4PropagatorInField.hh"
 #include "G4SDManager.hh"
@@ -127,12 +126,10 @@ LogVolMap* LogVol;
 G4RotationMatrix* RotY90=new G4RotationMatrix();
 G4RotationMatrix* RotYM90=new G4RotationMatrix();
 
-G4Navigator* StepperNavigator;
-G4Navigator* QuadNavigator;
+//G4Navigator* StepperNavigator;
+//G4Navigator* QuadNavigator;
 
 //=========================================
-G4FieldManager* theOuterFieldManager;
-
 extern BDSOutput* bdsOutput;
 extern G4bool verbose;
 extern G4bool outline;
@@ -153,6 +150,9 @@ BDSDetectorConstruction::BDSDetectorConstruction()
 
   RotY90->rotateY(pi_ov_2);
   RotYM90->rotateY(-pi_ov_2);
+
+  G4double worldExtent = 10000*m; 
+  G4GeometryManager::GetInstance()->SetWorldMaximumExtent(worldExtent);
 }
 
 //=================================================================
@@ -379,7 +379,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 
   //
-  G4double samplerLength = 1.E-11 * m;
+  G4double samplerLength = 1.E-7 * m;
 
 
   //
@@ -446,9 +446,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
       if((*it).type==_DRIFT ) {
 	double aper=0;
-	double aperX=0;
-	double aperY=0;
-	
 
 	if( (*it).aper > 0 ) aper = (*it).aper * m; //Set if aper specified for element
         if( ((*it).aperX>0) || ((*it).aperY>0)){  //aperX or aperY override aper, aper set to the largest of aperX or aperY
@@ -523,7 +520,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 
       if((*it).type==_PCLDRIFT ) {
-	G4double aper;
+	G4double aper=0;
 	//Check all apertures are set.
 	if ((*it).aperY>BDSGlobals->GetLengthSafety()){
 	  (*it).aperYUp = (*it).aperY;
@@ -561,19 +558,18 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 		   << " tunnelRadius= " << (*it).tunnelRadius << "m"
 		   << G4endl;
 #endif
-	      G4bool aperset=true;
 	      if(!((*it).tunnelOffsetX<1e6)){
 		theBeamline.push_back(new BDSPCLDrift( (*it).name,
 						       (*it).l*m,
 						       (*it).blmLocZ,
 						       (*it).blmLocTheta,
-						       (*it).aperX*m, (*it).aperYUp*m, (*it).aperYDown*m,(*it).aperDy*m, (*it).tunnelMaterial, aperset, aper, (*it).tunnelRadius*m));
+						       (*it).aperX*m, (*it).aperYUp*m, (*it).aperYDown*m,(*it).aperDy*m, (*it).tunnelMaterial, aper, (*it).tunnelRadius*m));
 	      } else {
 		theBeamline.push_back(new BDSPCLDrift( (*it).name,
 						       (*it).l*m,
 						       (*it).blmLocZ,
 						       (*it).blmLocTheta,
-						       (*it).aperX*m, (*it).aperYUp*m, (*it).aperYDown*m,(*it).aperDy*m, (*it).tunnelMaterial, aperset, aper, (*it).tunnelRadius*m, (*it).tunnelOffsetX*m) );
+						       (*it).aperX*m, (*it).aperYUp*m, (*it).aperYDown*m,(*it).aperDy*m, (*it).tunnelMaterial, aper, (*it).tunnelRadius*m, (*it).tunnelOffsetX*m) );
 	      }
 	  }
       }
@@ -1321,6 +1317,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
                << " aper= " << aper/m << "m"
                << " outR= " << (*it).outR << "m"
                << " tunnel material " << (*it).tunnelMaterial
+               << " tunnel cavity material " << (*it).tunnelCavityMaterial
                << G4endl;
 #endif
 	if((*it).tunnelOffsetX<1e6){
@@ -1329,14 +1326,14 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						(*it).bmapFile,
 						(*it).l * m,
 						aper,
-						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (*it).tunnelOffsetX ));
+						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (*it).tunnelOffsetX, (*it).tunnelCavityMaterial ));
 	} else {
 	  theBeamline.push_back(new BDSElement( (*it).name,
 						(*it).geometryFile,
 						(*it).bmapFile,
 						(*it).l * m,
 						aper,
-						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius));
+						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (G4double)0, (*it).tunnelCavityMaterial));
 	}
 	
 	added_comp=true;
@@ -1679,16 +1676,19 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
   
   G4String LocalName="World";
   
-  G4double WorldSizeX = 1 * ( (fabs(rmin(0)) + fabs(rmax(0)) ) + BDSGlobals->GetTunnelRadius() + BDSGlobals->GetTunnelThickness() + BDSGlobals->GetTunnelSoilThickness());
-  G4double WorldSizeY = 1 * ( (fabs(rmin(1)) + fabs(rmax(1)) )  + BDSGlobals->GetTunnelRadius() + BDSGlobals->GetTunnelThickness() + BDSGlobals->GetTunnelSoilThickness());
-  G4double WorldSizeZ = 1 * ( (fabs(rmin(2)) + fabs(rmax(2)) ) + BDSGlobals->GetTunnelRadius() + BDSGlobals->GetTunnelThickness() + BDSGlobals->GetTunnelSoilThickness());
+  G4double WorldSizeX = 100*m;//10 * ( (fabs(rmin(0)) + fabs(rmax(0)) )) *m;
+  G4double WorldSizeY = 100*m;//10 * ( (fabs(rmin(1)) + fabs(rmax(1)) )) *m;
+  G4double WorldSizeZ = ( (fabs(rmin(2)) + fabs(rmax(2)) )) *m;
   
-  //G4cout<<"world radius="<<WorldRadius/m<<" m"<<G4endl;
   if(verbose || debug)
     {
       G4cout<<"minX="<<rmin(0)/m<<" m"<<" maxX="<<rmax(0)/m<<" m"<<G4endl;
       G4cout<<"minY="<<rmin(1)/m<<" m"<<" maxY="<<rmax(1)/m<<" m"<<G4endl;
       G4cout<<"minZ="<<rmin(2)/m<<" m"<<" maxZ="<<rmax(2)/m<<" m"<<G4endl;
+
+      G4cout<<"WorldSizeX = "<<WorldSizeX/m<<G4endl;
+      G4cout<<"WorldSizeY = "<<WorldSizeY/m<<G4endl;
+      G4cout<<"WorldSizeZ = "<<WorldSizeZ/m<<G4endl;
       
       G4cout<<"box size="<<BDSGlobals->GetComponentBoxSize()/m<<" m"<<G4endl;
       G4cout<<"s_tot="<<s_tot/m<<" m"<<G4endl;
@@ -1710,14 +1710,12 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 
   // set default max step length (only for particles which have the
   // G4StepLimiter process enabled)
+#ifndef NOUSERLIMITS
   G4UserLimits* WorldUserLimits =new G4UserLimits();
-  WorldUserLimits->SetMaxAllowedStep(100*m);
+  WorldUserLimits->SetMaxAllowedStep(WorldSizeZ);
+  WorldUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
   logicWorld->SetUserLimits(WorldUserLimits);
-
-
-  G4cout<<"Charged Thresholdcut="<<BDSGlobals->GetThresholdCutCharged()/GeV<<" GeV"<<G4endl;
-  G4cout<<"Photon Thresholdcut="<<BDSGlobals->GetThresholdCutPhotons()/GeV<<" GeV"<<G4endl;
-
+#endif
 
   G4cout<<"Creating regions..."<<G4endl;
   
@@ -1726,16 +1724,18 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
   G4ProductionCuts* theProductionCuts = new G4ProductionCuts();
   
   if(BDSGlobals->GetProdCutPhotonsP()>0)
-    theProductionCuts->SetProductionCut(BDSGlobals->GetProdCutPhotonsP(),"gamma");
+    theProductionCuts->SetProductionCut(BDSGlobals->GetProdCutPhotonsP(),G4ProductionCuts::GetIndex("gamma"));
 
   if(BDSGlobals->GetProdCutElectronsP()>0)
-    theProductionCuts->SetProductionCut(BDSGlobals->GetProdCutElectronsP(),"e-");
+    theProductionCuts->SetProductionCut(BDSGlobals->GetProdCutElectronsP(),G4ProductionCuts::GetIndex("e-"));
 
   if(BDSGlobals->GetProdCutPositronsP()>0)
-    theProductionCuts->SetProductionCut(BDSGlobals->GetProdCutPositronsP(),"e+");
+    theProductionCuts->SetProductionCut(BDSGlobals->GetProdCutPositronsP(),G4ProductionCuts::GetIndex("e+"));
   
   precisionRegion->SetProductionCuts(theProductionCuts);
-
+#ifndef NOUSERLIMITS
+  precisionRegion->SetUserLimits(WorldUserLimits);
+#endif
   // world
 
   physiWorld = new G4PVPlacement((G4RotationMatrix*)0,		// no rotation
@@ -2017,7 +2017,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 
 	  fPhysicalVolumeVector.push_back(PhysiComponentPlace);
 	  vector<G4VPhysicalVolume*> MultiplePhysicalVolumes = (*iBeam)->GetMultiplePhysicalVolumes();
-	  for (G4int i=0;i<MultiplePhysicalVolumes.size(); i++) fPhysicalVolumeVector.push_back(MultiplePhysicalVolumes.at(i));
+	  for (unsigned int i=0;i<MultiplePhysicalVolumes.size(); i++) fPhysicalVolumeVector.push_back(MultiplePhysicalVolumes.at(i));
 					    
 
 	  
@@ -2097,22 +2097,18 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 
     if(verbose || debug) G4cout<<"Finished listing materials, returning physiWorld"<<G4endl; 
 
-  return physiWorld;
+    return physiWorld;
 }
 
-  
-  
 //=================================================================
-
-void BDSDetectorConstruction::SetMagField(const G4double fieldValue)
-{
  
+void BDSDetectorConstruction::SetMagField(const G4double fieldValue){
+  
   G4FieldManager* fieldMgr =
     G4TransportationManager::GetTransportationManager()->GetFieldManager();
   magField = new G4UniformMagField(G4ThreeVector(0.,fieldValue,0.));  
   fieldMgr->SetDetectorField(magField);
   fieldMgr->CreateChordFinder(magField);
-
 }
 
 //=================================================================

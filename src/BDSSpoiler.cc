@@ -101,10 +101,11 @@ void BDSSpoiler::BuildInnerSpoiler()
     SetSensitiveVolume(itsSolidLogVol);
   }
 
+#ifndef NOUSERLIMITS
   itsSolidLogVol->
     SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
-				       BDSGlobals-> GetThresholdCutCharged()));
-  
+				   BDSGlobals-> GetThresholdCutCharged()));
+#endif
   itsPhysiComp = 
     new G4PVPlacement(
 		      (G4RotationMatrix*)0,		     // no rotation

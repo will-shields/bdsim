@@ -85,11 +85,12 @@ void BDSDump::DumpLogicalVolume()
 
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
-
+#ifndef NOUSERLIMITS
       itsOuterUserLimits =new G4UserLimits();
       itsOuterUserLimits->SetMaxAllowedStep(itsLength);
+      itsOuterUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
       itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
-
+#endif
       // Sensitive Detector:
       if(true)
 	{

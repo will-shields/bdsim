@@ -46,6 +46,7 @@ BDSSamplerSD::BDSSamplerSD(G4String name, G4String type)
 {
   itsCollectionName="Sampler_"+type;
   collectionName.insert(itsCollectionName);  
+  maxNStepsInSampler=1e4;
 }
 
 BDSSamplerSD::~BDSSamplerSD()
@@ -94,7 +95,7 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
 
       // Get Translation and Rotation of Sampler Volume w.r.t the World Volume
       // as described in Geant4 FAQ's: http://geant4.cern.ch/support/faq.shtml
-      G4AffineTransform tf(preStepPoint->GetTouchable()->GetHistory()->GetTopTransform());
+      G4AffineTransform tf(preStepPoint->GetTouchableHandle()->GetHistory()->GetTopTransform());
 //      const G4RotationMatrix Rot=tf.NetRotation();
 //      const G4ThreeVector Trans=-tf.NetTranslation();
 
@@ -205,19 +206,29 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
       smpHit->SetGlobalZPrime(momDir.z());
       smpHit->SetType(itsType);
 
+#ifdef DEBUG
+      G4cout << energy << " " << x << " " << y << " " << z << " " << xPrime << " " << yPrime << G4endl;
+#endif
       SamplerCollection->insert(smpHit);
       if(theTrack->GetVolume()!=theTrack->GetNextVolume())StoreHit=true;
       else StoreHit=false;
+      nStepsInSampler=0;
       return true;
 
     }
   else
     {
+#ifdef DEBUG
+      G4cout << theTrack->GetVolume()->GetName() << " " << theTrack->GetNextVolume()->GetName() << G4endl;
+#endif
       if(theTrack->GetVolume()!=theTrack->GetNextVolume())StoreHit=true;
       else StoreHit=false;
+      //      nStepsInSampler++;
+      //      if(nStepsInSampler>maxNStepsInSampler){ //In rare cases, a particle can get stuck in the sampler if they have a trajectory near 90 degrees, freezing the program.
+      //      	theTrack->SetTrackStatus(fStopAndKill);
+      //      }
       return false;
     }
-
 }
 
 void BDSSamplerSD::EndOfEvent(G4HCofThisEvent*HCE)

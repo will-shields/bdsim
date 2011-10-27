@@ -38,7 +38,7 @@ G4ClassificationOfNewTrack
 BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 {
   G4ClassificationOfNewTrack classification = fUrgent;
-  G4String pName=aTrack->GetDefinition()->GetParticleName();
+
 
 #ifdef DEBUG 
   G4cout<<"StackingAction: ClassifyNewtrack "<<aTrack->GetTrackID()<<
@@ -118,81 +118,88 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
       
     }
 
-   if(BDSGlobals->getWaitingForDump()) // if waiting for placet synchronization
-     {
+  if(BDSGlobals->getWaitingForDump()) // if waiting for placet synchronization
+    {
        // when waiting to synchronize with placet - put on postponed stack
-       if( aTrack->GetTrackStatus()==fPostponeToNextEvent )
-       classification = fPostpone;
+      if( aTrack->GetTrackStatus()==fPostponeToNextEvent )
+	classification = fPostpone;
      }
   
-    if(BDSGlobals->getDumping()) // in the process of dumping
-     {
+  if(BDSGlobals->getDumping()) // in the process of dumping
+    {
 #ifdef DEBUG
-       G4cout<<"reclassifying track "<<aTrack->GetTrackID()<<G4endl;
-       G4cout<<"r= "<<aTrack->GetPosition()<<G4endl;
+      G4cout<<"reclassifying track "<<aTrack->GetTrackID()<<G4endl;
+      G4cout<<"r= "<<aTrack->GetPosition()<<G4endl;
 #endif
-
-	G4AffineTransform tf = BDSGlobals->GetDumpTransform().Inverse();
-        G4ThreeVector initialPos=aTrack->GetPosition();
-        G4ThreeVector momDir=aTrack->GetMomentumDirection().unit();
-	G4ThreeVector transformedPos = initialPos;
-        G4ThreeVector LocalPosition=tf.TransformPoint(transformedPos);
-        G4ThreeVector LocalDirection=tf.TransformAxis(momDir);
-
+      
+      G4AffineTransform tf = BDSGlobals->GetDumpTransform().Inverse();
+      G4ThreeVector initialPos=aTrack->GetPosition();
+      G4ThreeVector momDir=aTrack->GetMomentumDirection().unit();
+      G4ThreeVector transformedPos = initialPos;
+      G4ThreeVector LocalPosition=tf.TransformPoint(transformedPos);
+      G4ThreeVector LocalDirection=tf.TransformAxis(momDir);
+      
 #ifdef DEBUG
-        G4cout << "Stacking: Pos = " << transformedPos << G4endl;
-        G4cout << "LocalPos: Pos = " << LocalPosition << G4endl;
-        G4cout << "Stacking: mom = " << momDir << G4endl;
-        G4cout << "LocalDir: mom = " << LocalDirection << G4endl;
+      G4cout << "Stacking: Pos = " << transformedPos << G4endl;
+      G4cout << "LocalPos: Pos = " << LocalPosition << G4endl;
+      G4cout << "Stacking: mom = " << momDir << G4endl;
+      G4cout << "LocalDir: mom = " << LocalDirection << G4endl;
 #endif
-
-        G4double x=LocalPosition.x()/micrometer;
-        G4double y=LocalPosition.y()/micrometer;
-	G4double z=LocalPosition.z()/micrometer;
-        G4double xPrime=LocalDirection.x()/(1e-6*radian);
-        G4double yPrime=LocalDirection.y()/(1e-6*radian);
-	G4double t=aTrack->GetGlobalTime();
-
-        BDSGlobals->fileDump.precision(15);
-        // TODO : dump the file
-	//        BDSGlobals->fileDump << aTrack->GetTotalEnergy()/GeV << "\t"
-	//<< x << "\t" << y << "\t" << z << "\t"
-	//<< xPrime << "\t" << yPrime << "\t" << t <<"\n"; // SPM
+      
+      G4double x=LocalPosition.x()/micrometer;
+      G4double y=LocalPosition.y()/micrometer;
+      G4double z=LocalPosition.z()/micrometer;
+      G4double xPrime=LocalDirection.x()/(1e-6*radian);
+      G4double yPrime=LocalDirection.y()/(1e-6*radian);
+      G4double t=aTrack->GetGlobalTime();
+      
+      BDSGlobals->fileDump.precision(15);
+      // TODO : dump the file
+      //        BDSGlobals->fileDump << aTrack->GetTotalEnergy()/GeV << "\t"
+      //<< x << "\t" << y << "\t" << z << "\t"
+      //<< xPrime << "\t" << yPrime << "\t" << t <<"\n"; // SPM
 #ifdef DEBUG
-        printf("Out: %.15f %.15f %.15f %.15f %.15f %.15f %f\n",
-               aTrack->GetTotalEnergy()/GeV,x,y,z,xPrime,yPrime,t);
+      printf("Out: %.15f %.15f %.15f %.15f %.15f %.15f %f\n",
+	     aTrack->GetTotalEnergy()/GeV,x,y,z,xPrime,yPrime,t);
 #endif
-        tmpParticle outputParticle, transformedParticle;
-        if(aTrack->GetDefinition()->GetPDGEncoding()==-11)
-	  outputParticle.E=-(aTrack->GetTotalEnergy());
-        else outputParticle.E=aTrack->GetTotalEnergy();
-        outputParticle.xp=momDir.x();
-        outputParticle.yp=momDir.y();
-        outputParticle.x=initialPos.x();
-        outputParticle.y=initialPos.y();
-        outputParticle.z=initialPos.z();
-        outputParticle.t=t;
-        outputParticle.trackID=aTrack->GetTrackID();
-        outputParticle.parentID=aTrack->GetParentID();
+      tmpParticle outputParticle, transformedParticle;
+      if(aTrack->GetDefinition()->GetPDGEncoding()==-11)
+	outputParticle.E=-(aTrack->GetTotalEnergy());
+      else outputParticle.E=aTrack->GetTotalEnergy();
+      outputParticle.xp=momDir.x();
+      outputParticle.yp=momDir.y();
+      outputParticle.x=initialPos.x();
+      outputParticle.y=initialPos.y();
+      outputParticle.z=initialPos.z();
+      outputParticle.t=t;
+      outputParticle.trackID=aTrack->GetTrackID();
+      outputParticle.parentID=aTrack->GetParentID();
+      
+      transformedParticle.x=x;
+      transformedParticle.y=y;
+      transformedParticle.z=z;
+      transformedParticle.xp=xPrime;
+      transformedParticle.yp=yPrime;
+      transformedParticle.t=t;
+      transformedParticle.E=aTrack->GetTotalEnergy()/GeV;
+      transformedParticle.parentID=aTrack->GetParentID();
+      
+      BDSGlobals->outputQueue.push_back(outputParticle);
+      BDSGlobals->transformedQueue.push_back(transformedParticle);
+      classification = fPostpone;
+    }
+  
+  if(BDSGlobals->getReading()){
+    classification = fWaiting_1;
+  }
 
-	transformedParticle.x=x;
-	transformedParticle.y=y;
-	transformedParticle.z=z;
-	transformedParticle.xp=xPrime;
-	transformedParticle.yp=yPrime;
-	transformedParticle.t=t;
-	transformedParticle.E=aTrack->GetTotalEnergy()/GeV;
-        transformedParticle.parentID=aTrack->GetParentID();
-
-        BDSGlobals->outputQueue.push_back(outputParticle);
-        BDSGlobals->transformedQueue.push_back(transformedParticle);
-        classification = fPostpone;
-     }
-
-     if(BDSGlobals->getReading()){
-       classification = fWaiting_1;
-     }
-
+  //For improvement in efficiency 
+  if(aTrack->GetNextVolume() != aTrack->GetVolume()) classification = fWaiting; //Track all particles in same volume first
+  if(aTrack->GetTrackID()!=1) classification = fWaiting_1;  //Not a secondary
+  if(aTrack->GetTotalEnergy()<0.1*BDSGlobals->GetBeamTotalEnergy()) classification = fWaiting_2;  //Below certain thresholds
+  if(aTrack->GetTotalEnergy()<0.01*BDSGlobals->GetBeamTotalEnergy()) classification = fWaiting_3; 
+  if(aTrack->GetTotalEnergy()<0.001*BDSGlobals->GetBeamTotalEnergy()) classification = fWaiting_4; 
+  
   return classification;
 }
 

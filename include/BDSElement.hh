@@ -15,10 +15,12 @@
 #include "G4FieldManager.hh"
 #include "G4ChordFinder.hh"
 #include "G4Mag_UsualEqRhs.hh"
+#include "G4Mag_EqRhs.hh"
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
-
+#include "G4UniformMagField.hh"
 #include "BDSField.hh"
+#include "BDSMagField.hh"
 #include "BDSXYMagField.hh"
 
 #include "G4EqMagElectricField.hh"
@@ -30,12 +32,12 @@ class BDSElement :public BDSAcceleratorComponent
 {
 public:
   BDSElement(G4String aName, G4String geometry, G4String bmap, G4double aLength, 
-             G4double bpRad, G4double outR, G4String aTunnelMaterial="", G4double tunnelRadius=0., G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX());
+             G4double bpRad, G4double outR, G4String aTunnelMaterial="", G4double tunnelRadius=0., G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX(), G4String aTunnelCavityMaterial="Air");
   ~BDSElement();
 
   void BuildGeometry();
   void PlaceComponents(G4String geometry, G4String bmap);
-  void BuildMagField(G4int nvar=8, G4bool foreToAllDaughters=false);
+  void BuildMagField(G4bool forceToAllDaughters=false);
 
   // creates a field mesh in global coordinates in case it is given by map
   void PrepareField(G4VPhysicalVolume *referenceVolume);
@@ -54,10 +56,17 @@ protected:
   G4VisAttributes* SetVisAttributes();  
 
 private:
+  G4String itsFieldVolName;
+  G4bool itsFieldIsUniform;
   G4ChordFinder* fChordFinder;
 
+  G4MagIntegratorStepper* itsFStepper;
+  G4EqMagElectricField* itsFEquation;
+  G4Mag_UsualEqRhs* itsEqRhs;
 
   BDSField *itsField;
+  BDSMagField *itsMagField;
+  G4UniformMagField *itsUniformMagField;
   G4double itsOuterR;
   // Volume to align incoming beamline on inside the marker volume
   // (set during Geometery construction)

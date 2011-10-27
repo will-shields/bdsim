@@ -3,9 +3,9 @@
 
 #include "G4Types.hh"
 #include "G4MagneticField.hh"
-#include "BDSField.hh"
+#include "BDSMagField.hh"
 
-class BDSDetectorSolenoidMagField : public BDSField
+class BDSDetectorSolenoidMagField : public BDSMagField
 {
 public: 
 

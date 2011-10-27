@@ -49,10 +49,12 @@ BDSDrift::BDSDrift (G4String aName, G4double aLength,
       //
       // build beampipe (geometry + magnetic field)
       //
-      itsBPFieldMgr=NULL;
       if(BDSGlobals->GetBuildTunnel()){
         BuildTunnel();
       }
+
+      BuildBpFieldAndStepper();
+      BuildBPFieldMgr(itsStepper, itsMagField);
       if (aperset){
 	BuildBeampipe();
       } else {
@@ -91,6 +93,13 @@ G4VisAttributes* BDSDrift::SetVisAttributes()
 {
   itsVisAttributes=new G4VisAttributes(G4Colour(0,1,0)); //useless
   return itsVisAttributes;
+}
+
+void BDSDrift::BuildBpFieldAndStepper(){
+    // set up the magnetic field and stepper
+  itsMagField=new BDSMagField(); //Zero magnetic field.
+  itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);
+  itsStepper=new BDSDriftStepper(itsEqRhs);
 }
 
 void BDSDrift::BuildBLMs(){

@@ -11,6 +11,7 @@
 #include "globals.hh"
 #include "BDSMaterials.hh"
 #include "G4LogicalVolume.hh"
+#include "G4HelixImplicitEuler.hh"
 
 #include "G4FieldManager.hh"
 #include "G4ChordFinder.hh"
@@ -55,7 +56,7 @@ private:
   G4VisAttributes* SetVisAttributes();
 
   // field related objects:
-  BDSRK4Stepper* itsStepper;
+  G4HelixImplicitEuler* itsStepper;
   BDSMultipoleMagField* itsMagField;
   G4Mag_UsualEqRhs* itsEqRhs;
 

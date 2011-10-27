@@ -34,14 +34,10 @@
 #        since the C++ method DrawTrajectory() is 
 #        described in the event action.
 
-/vis/viewer/set/viewpointThetaPhi 90 45
-#/vis/viewer/scale 1 5
-# /vis/drawVolume
-#/vis/scene/add/trajectories
-# /tracking/storeTrajectory 0
-#/vis/viewer/zoom 
+/vis/drawVolume
+/vis/scene/add/trajectories
 /tracking/storeTrajectory 1
-#
+
 # for BDS:
 #/vis/viewer/zoom 300
 #/vis/viewer/set/viewpointThetaPhi 3 45

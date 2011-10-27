@@ -72,10 +72,11 @@ void BDSLWCalorimeter::LWCalorimeterLogicalVolume()
 
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
-
+#ifndef NOUSERLIMITS
       itsOuterUserLimits =new G4UserLimits();
       itsOuterUserLimits->SetMaxAllowedStep(itsLength);
       itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
+#endif
 
     }
   else
@@ -164,7 +165,7 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
 		       itsMarkerLogicalVolume,     // its mother  volume
 		       false,		     // no boolean operation
 		       0);		             // copy number
-   
+#ifndef NOUSERLIMITS
    itsBeampipeUserLimits =
      new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
 		      BDSGlobals->GetThresholdCutCharged());
@@ -180,7 +181,7 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
    itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength);
    
    itsInnerBPLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
-   
+#endif
    itsInnerBPLogicalVolume->SetFieldManager(itsBPFieldMgr,false) ;
    
    // now protect the fields inside the marker volume by giving the

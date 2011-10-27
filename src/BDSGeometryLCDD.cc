@@ -1,6 +1,7 @@
 #ifdef USE_LCDD
 #include "BDSGlobalConstants.hh" // must be first in include list
 #include "BDSGeometryLCDD.hh"
+#include "BDSSbendMagField.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
 #include "G4Cons.hh"
@@ -25,6 +26,7 @@
 #include "G4NystromRK4.hh"
 #include "G4ChordFinder.hh"
 #include "G4TessellatedSolid.hh"
+#include "G4UniformMagField.hh"
 
 #include <vector>
 #include <map>
@@ -43,6 +45,8 @@ extern BDSGlobalConstants* BDSGlobals;
 
 BDSGeometryLCDD::BDSGeometryLCDD(G4String LCDDfile)
 {
+  itsFieldIsUniform=false;
+  itsFieldVolName="";
   itsLCDDfile = LCDDfile;
   visRed = visGreen = visBlue = 0.0;
 
@@ -117,7 +121,10 @@ BDSGeometryLCDD::BDSGeometryLCDD(G4String LCDDfile)
 }
 
 BDSGeometryLCDD::~BDSGeometryLCDD()
-{;}
+{
+  delete itsUniformMagField;
+  delete itsMagField;
+}
 
 void BDSGeometryLCDD::Construct(G4LogicalVolume *marker)
 {
@@ -126,9 +133,18 @@ void BDSGeometryLCDD::Construct(G4LogicalVolume *marker)
 
 }
 
-BDSField* BDSGeometryLCDD::GetField()
+G4bool BDSGeometryLCDD::GetFieldIsUniform(){
+  return itsFieldIsUniform;
+}
+
+BDSMagField* BDSGeometryLCDD::GetField()
 {
-  return itsField;
+  return itsMagField;
+}
+
+G4UniformMagField* BDSGeometryLCDD::GetUniformField()
+{
+  return itsUniformMagField;
 }
 
 void BDSGeometryLCDD::parseDoc()
@@ -373,6 +389,9 @@ void BDSGeometryLCDD::parseFIELDS(xmlNodePtr cur)
   tempcur=tempcur->next;
   while (tempcur != NULL){
     if ((!xmlStrcmp(tempcur->name, (const xmlChar *)"solenoid"))){
+      if(itsFieldIsUniform==true){
+	G4Exception("BDSGeometryLCDD::parseFIELDS> making solenoid field but already built dipole field...");
+      } 
       G4String name = parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"name"));
       G4double lunit = parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"lunit"));
       G4double funit = parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"funit"));
@@ -384,11 +403,19 @@ void BDSGeometryLCDD::parseFIELDS(xmlNodePtr cur)
       G4double zmin = parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"zmin")) * lunit;
 
       //Make the magnetic field
-      itsField = new BDSDetectorSolenoidMagField(inner_field, outer_field, inner_radius, outer_radius, zmin, zmax);
-    }  else if ((!xmlStrcmp(tempcur->name, (const xmlChar *)"text"))){
+      itsMagField = new BDSDetectorSolenoidMagField(inner_field, outer_field, inner_radius, outer_radius, zmin, zmax);
+    }else if ((!xmlStrcmp(tempcur->name, (const xmlChar *)"bdsimdipole"))){
+      G4String name = parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"name"));
+      itsFieldVolName = parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"volume"));
+      G4double funit = parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"funit"));
+      G4double field = parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"field")) * funit;
+      const G4ThreeVector fieldVec(0,field,0);
+      itsUniformMagField=new G4UniformMagField(fieldVec);
+      itsFieldIsUniform=true;
+    }else if ((!xmlStrcmp(tempcur->name, (const xmlChar *)"text"))){
     }  else {
       G4cout << tempcur->name << G4endl;
-      G4Exception("BDSGeometryLCDD.cc: parsing <fields - types other than solenoid are not currently implemented in BDSIM");      
+      G4Exception("BDSGeometryLCDD.cc: parsing <fields - types other than solenoid and bdsimdipole are not currently implemented in BDSIM");      
     }
     tempcur=tempcur->next;
   }
@@ -507,7 +534,7 @@ void BDSGeometryLCDD::parseMATERIALS(xmlNodePtr cur)
 	   xmlNodePtr tempcur = cur->xmlChildrenNode;
 	   
 	   G4String name, type;
-	   G4double value, unit;
+	   G4double value(0), unit(1);
 	   
 	   name = parseStrChar(xmlGetProp(cur,(const xmlChar*)"name"));	   
 	   if(theMaterials->CheckMaterial(name)){
@@ -698,17 +725,23 @@ void BDSGeometryLCDD::parseVOLUME(xmlNodePtr cur)
        if ((!xmlStrcmp(cur->name, (const xmlChar *)"materialref")))
 	 {
 	   materialref = parseStrChar(xmlGetProp(cur,(const xmlChar*)"ref"));
+#ifdef DEBUG
            G4cout << "BDSGeometryLCDD> materialref = " << materialref << G4endl; 
+#endif
 	 }
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"solidref")))
 	 {
 	   solidref = parseStrChar(xmlGetProp(cur,(const xmlChar*)"ref"));  
+#ifdef DEBUG
            G4cout << "BDSGeometryLCDD> solidref = " << solidref << G4endl; 
+#endif
 	 }
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"visref")))
 	 {
 	   visref = parseStrChar(xmlGetProp(cur,(const xmlChar*)"ref")); 
+#ifdef DEBUG
            G4cout << "BDSGeometryLCDD> visref = " << visref << G4endl; 
+#endif
 	 }
        
        cur = cur->next;

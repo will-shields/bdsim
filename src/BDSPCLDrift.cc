@@ -6,6 +6,8 @@
 #include "BDSGlobalConstants.hh" // must be first in include list
 
 #include "BDSPCLDrift.hh"
+#include "BDSMagField.hh"
+#include "BDSDriftStepper.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
 #include "G4VisAttributes.hh"
@@ -29,7 +31,7 @@ extern BDSMaterials* theMaterials;
 //============================================================
 
 BDSPCLDrift::BDSPCLDrift (G4String aName, G4double aLength, 
-			  std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double aperX, G4double aperYUp, G4double aperYDown, G4double aperDy, G4String tunnelMaterial, G4bool aperset, G4double aper, G4double tunnelRadius, G4double tunnelOffsetX):
+			  std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double aperX, G4double aperYUp, G4double aperYDown, G4double aperDy, G4String tunnelMaterial, G4double aper, G4double tunnelRadius, G4double tunnelOffsetX):
   BDSMultipole(aName, aLength, aper, aper, SetVisAttributes(),  blmLocZ, blmLocTheta, tunnelMaterial, "", aper, aper, 0, tunnelRadius, tunnelOffsetX),
   itsYAperUp(aperYUp), itsYAperDown(aperYDown), itsDyAper(aperDy)
 {
@@ -46,10 +48,11 @@ BDSPCLDrift::BDSPCLDrift (G4String aName, G4double aLength,
       //
       // build beampipe (geometry + magnetic field)
       //
-      itsBPFieldMgr=NULL;
       if(BDSGlobals->GetBuildTunnel()){
         BuildTunnel();
       }
+      BuildBpFieldAndStepper();
+      BuildBPFieldMgr(itsStepper, itsMagField);
       BuildBeampipe();
       BuildBLMs();
   
@@ -79,9 +82,13 @@ BDSPCLDrift::BDSPCLDrift (G4String aName, G4double aLength,
     }
 }
 
-void BDSPCLDrift::BuildBeampipe(){
+void BDSPCLDrift::BuildBeampipe(G4String materialName){
   G4Material *material;
-  material = theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName());
+  if(materialName != ""){
+    material = theMaterials->GetMaterial( materialName );
+  } else {
+    material = theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName());
+  }
   
   // build beampipe
 
@@ -136,8 +143,8 @@ void BDSPCLDrift::BuildBeampipe(){
 
    upper_inner_solid =new G4SubtractionSolid("upper_inner_solid",
 						      new G4EllipticalTube(itsName+"_upper_inner_solid_a",
-									   itsXAper,
-									   itsYAperUp,
+									   itsXAper-BDSGlobals->GetLengthSafety()/2.0,
+									   itsYAperUp-BDSGlobals->GetLengthSafety()/2.0,
 									   itsLength/2.0-BDSGlobals->GetLengthSafety()/2.0),					
 						      new G4Box(itsName+"_upper_inner_solid_b",
 								itsXAper*2.0,
@@ -165,9 +172,9 @@ void BDSPCLDrift::BuildBeampipe(){
 						threeVector1);
   
    middle_inner_solid = new G4Box(itsName+"middle_inner_solid", 
-					   itsXAper,
-					   itsDyAper/2.0,
-					   itsLength/2.0-BDSGlobals->GetLengthSafety()/2.0);
+				  itsXAper,
+				  itsDyAper/2.0-10*BDSGlobals->GetLengthSafety(),
+				  itsLength/2.0-BDSGlobals->GetLengthSafety()/2.0);
     
 
 //Make the lower ellipse
@@ -200,7 +207,7 @@ void BDSPCLDrift::BuildBeampipe(){
 								 itsLength/2.0-BDSGlobals->GetLengthSafety()/2.0),					
 					    new G4Box(itsName+"_lower_inner_solid_b",
 						      itsXAper*2.0,
-						      itsYAperDown*2.0,
+						      itsYAperDown*2.0-BDSGlobals->GetLengthSafety()/2.0,
 						      itsLength),
 					    nullrot,
 						      threeVector1);
@@ -258,7 +265,7 @@ void BDSPCLDrift::BuildBeampipe(){
 
   G4cout << "Placing..." << G4endl;
 
-  threeVector1.setY(itsDyAper+BDSGlobals->GetLengthSafety());
+  threeVector1.setY(itsDyAper+BDSGlobals->GetLengthSafety()*2);
 
   itsPhysiUpperInner = new G4PVPlacement(
 					 (G4RotationMatrix*)0,		        // no rotation
@@ -278,7 +285,7 @@ void BDSPCLDrift::BuildBeampipe(){
 				    false,		     // no boolean operation
 				    0);		             // copy number
   
-  threeVector1.setY(itsDyAper/2.0+BDSGlobals->GetLengthSafety()/2.0);
+  threeVector1.setY(itsDyAper/2.0);
   
   itsPhysiMiddleInner = new G4PVPlacement(
 					  (G4RotationMatrix*)0,		        // no rotation
@@ -298,7 +305,7 @@ void BDSPCLDrift::BuildBeampipe(){
 				     false,		     // no boolean operation
 				     0);		             // copy number
 
-  threeVector1.setY(0);
+  threeVector1.setY(-1*BDSGlobals->GetLengthSafety()/2.0);
   itsPhysiLowerInner = new G4PVPlacement(
 					 (G4RotationMatrix*)0,		        // no rotation
 					 threeVector1,	               
@@ -326,28 +333,36 @@ void BDSPCLDrift::BuildBeampipe(){
   SetMultiplePhysicalVolumes(itsPhysiLowerInner);
   SetMultiplePhysicalVolumes(itsPhysiLower);
 
-  
-   itsBeampipeUserLimits =
-   new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
-   itsInnerBeampipeUserLimits =
-     new G4UserLimits("inner beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-		      BDSGlobals->GetThresholdCutCharged());
-   itsBeampipeUserLimits->SetMaxAllowedStep(itsLength);
-   itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength);
+#ifndef NOUSERLIMITS
+  itsBeampipeUserLimits =  new G4UserLimits("beampipe cuts");
+  itsBeampipeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
 
-   itsUpperBeamPipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
-   itsUpperInnerBeamPipeLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
-   itsUpperBeamPipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
-   itsUpperInnerBeamPipeLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
-   //---
+  itsInnerBeampipeUserLimits =  new G4UserLimits("inner beampipe cuts");
+  itsInnerBeampipeUserLimits->SetUserMinEkine( BDSGlobals->GetThresholdCutCharged());
+
+  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength*1000);
+  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength*1000);
+
+  itsUpperBeamPipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
+  itsUpperInnerBeamPipeLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
+
+  itsUpperBeamPipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
+
    itsMiddleBeamPipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
    itsMiddleInnerBeamPipeLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
+
    itsMiddleBeamPipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
-   itsMiddleInnerBeamPipeLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
-   //---
+
    itsLowerBeamPipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
    itsLowerInnerBeamPipeLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
+
+#endif
+
+
+   itsUpperInnerBeamPipeLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
+   //---
+   itsMiddleInnerBeamPipeLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
+   //---
    itsLowerBeamPipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
    itsLowerInnerBeamPipeLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
    
@@ -365,6 +380,12 @@ void BDSPCLDrift::BuildBeampipe(){
   G4cout << "Finished making beam pipe..." << G4endl;
 }
 
+void BDSPCLDrift::BuildBpFieldAndStepper(){
+    // set up the magnetic field and stepper
+  itsMagField=new BDSMagField(); //Zero magnetic field.
+  itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);
+  itsStepper=new BDSDriftStepper(itsEqRhs);
+}
 
 G4VisAttributes* BDSPCLDrift::SetVisAttributes()
 {

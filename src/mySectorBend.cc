@@ -215,10 +215,11 @@ void mySectorBend::BuildSBMarkerLogicalVolume()
 				    fabs(itsAngle)), // delta phi
 			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName+"_marker");
-
+#ifndef NOUSERLIMITS
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX);
   itsMarkerUserLimits->SetMaxAllowedStep(itsLength);
   itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
+#endif
 }
 
 
@@ -294,7 +295,7 @@ void mySectorBend::BuildSBBeampipe()
 		      itsMarkerLogicalVolume,  // its mother  volume
 		      false,		       // no boolean operation
 		      0);		             // copy number
-  
+#ifndef NOUSERLIMITS
   itsBeampipeUserLimits =
     new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());
@@ -303,18 +304,18 @@ void mySectorBend::BuildSBBeampipe()
     new G4UserLimits("inner beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());
   /*  
-  itsOuterUserLimits =
-    new G4UserLimits("sbend cut",itsLength,DBL_MAX,DBL_MAX,
-		     BDSGlobals->GetThresholdCutCharged());
+      itsOuterUserLimits =
+      new G4UserLimits("sbend cut",itsLength,DBL_MAX,DBL_MAX,
+      BDSGlobals->GetThresholdCutCharged());
   
-  itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
+      itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
   */
   itsBeampipeUserLimits->SetMaxAllowedStep(itsLength);
   itsBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
   
   itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength);
   itsInnerBPLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
-
+#endif
   // zero field in the marker volume
   itsMarkerLogicalVolume->
     SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
@@ -373,13 +374,13 @@ void mySectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum)
                       itsMarkerLogicalVolume,   // its mother  volume
                       false,                    // no boolean operation
                       0);                       // copy number
-
+#ifndef NOUSERLIMITS
   itsOuterUserLimits =
     new G4UserLimits("multipole cut",itsLength,DBL_MAX,DBL_MAX,
                      BDSGlobals->GetThresholdCutCharged());
   //  itsOuterUserLimits->SetMaxAllowedStep(aLength);
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
-
+#endif
 }
 
 mySectorBend::~mySectorBend()

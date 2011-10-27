@@ -20,6 +20,7 @@
 #include "G4UImanager.hh"        // G4 session managers
 #include "G4UIterminal.hh"
 #include "G4UItcsh.hh"
+#include "G4GeometryManager.hh"
 
 #include "Randomize.hh"
 
@@ -49,6 +50,7 @@
 #include "G4SteppingManager.hh"
 #include "G4GeometrySampler.hh"
 #include "G4ImportanceAlgorithm.hh"
+#include "G4GeometryTolerance.hh"
 
 #include "BDSGeometryInterface.hh"
 
@@ -383,11 +385,20 @@ int main(int argc,char** argv) {
 
 
 
+  //Set the geometry tolerance
+  static G4GeometryTolerance* theGeometryTolerance = G4GeometryTolerance::GetInstance();
+  G4cout << "main> default geometry tolerances: surface " << theGeometryTolerance->GetSurfaceTolerance() << " " << theGeometryTolerance->GetAngularTolerance() << " " << theGeometryTolerance->GetRadialTolerance() << " " <<G4endl;
+  G4double worldMaximumExtent=2000*m;
+  G4GeometryManager::GetInstance()->SetWorldMaximumExtent(1000*m); //This sets the tolerances for the geometry (1e-11 times this value)
+  G4cout << "main> geometry toleranceswith worldMaximumExtent=" << worldMaximumExtent/m << "m: surface: " << theGeometryTolerance->GetSurfaceTolerance() << " angular: " << theGeometryTolerance->GetAngularTolerance() << " radial: " << theGeometryTolerance->GetRadialTolerance() << " " <<G4endl;
+
+
 #ifdef DEBUG 
   G4cout<<"constructing detector"<<G4endl;
 #endif
   BDSDetectorConstruction* detector = new BDSDetectorConstruction;
  
+
 #ifdef DEBUG 
   G4cout<<"user init detector"<<G4endl;
 #endif
@@ -463,6 +474,8 @@ int main(int argc,char** argv) {
   G4EventManager::GetEventManager()->GetTrackingManager()->GetSteppingManager()
     ->SetVerboseLevel(verboseSteppingLevel);
 
+  //Close the geometry
+  G4bool bCloseGeometry = G4GeometryManager::GetInstance()->CloseGeometry(true,true);
 
   bdsOutput->Init(0); // activate the output - setting the first filename to 
                      // be appended with _0

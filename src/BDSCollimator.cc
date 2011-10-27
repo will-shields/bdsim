@@ -45,13 +45,13 @@ BDSCollimator::BDSCollimator (G4String aName,G4double aLength,G4double bpRad,
   if ( (*LogVolCount)[itsName]==0)
     {
   G4double xLength, yLength;
-  G4double totalTunnelRadius = BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+std::max(BDSGlobals->GetTunnelOffsetX(),BDSGlobals->GetTunnelOffsetY());
-  
   xLength = yLength = std::max(itsOuterR,BDSGlobals->GetComponentBoxSize()/2);
-  xLength = yLength = std::max(xLength,totalTunnelRadius);
+
+  xLength = std::max(xLength, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness() + 4*BDSGlobals->GetLengthSafety() );   
+  yLength = std::max(yLength, this->GetTunnelRadius()+2*std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+4*BDSGlobals->GetLengthSafety() );
 
   itsMarkerLogicalVolume=new G4LogicalVolume
-    (new G4Box( itsName+"_solid",
+    (new G4Box( itsName+"_marker_log",
                 xLength,
 		yLength,
 		(itsLength+BDSGlobals->GetLengthSafety())/2), //z half length 
@@ -98,71 +98,78 @@ void BDSCollimator::BuildInnerCollimator()
 {
 
   // zero aperture --> no aperture
-
   if(itsXAper <= 0) itsXAper = BDSGlobals->GetComponentBoxSize()/2;
   if(itsYAper <= 0) itsYAper = BDSGlobals->GetComponentBoxSize()/2;
 
-  itsSolidLogVol=
-    new G4LogicalVolume(new G4Box(itsName+"_solid",
-				  itsOuterR,
-				  itsOuterR,				  
-				  itsLength/2),
-                        itsCollimatorMaterial,
-			itsName+"_solid");
-
   if(itsType == "rcol")
     {
-      itsInnerLogVol=
-	new G4LogicalVolume(new G4Box(itsName+"_inner",
-				      itsXAper,
-				      itsYAper,
-				      itsLength/2),
-			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
-			    itsName+"_inner");
+      itsInnerSolid=new G4Box(itsName+"_inner",
+			      itsXAper,
+			      itsYAper,
+			      itsLength/2);
     }
   
   if(itsType == "ecol")
     {
-      itsInnerLogVol=
-	new G4LogicalVolume(new G4EllipticalTube(itsName+"_inner",
-				      itsXAper,
-				      itsYAper,
-				      itsLength/2),
-			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
-			    itsName+"_inner");
+      itsInnerSolid=new G4EllipticalTube(itsName+"_inner",
+					 itsXAper,
+					 itsYAper,
+					 itsLength/2);
     }
+  
+  itsInnerLogVol=
+    new G4LogicalVolume(itsInnerSolid,
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			itsName+"_inner_log");
+  
+  itsOuterSolid = new G4Box(itsName+"_outer_solid",
+			    itsOuterR,
+			    itsOuterR,
+			    itsLength/2);
 
   G4ThreeVector nullThreeVector = G4ThreeVector(0,0,0);
   G4RotationMatrix *nullRotationMatrix = new G4RotationMatrix();  
 
-  itsPhysiComp2 = 
-    new G4PVPlacement(
-		      nullRotationMatrix,  // no rotation
-		      nullThreeVector,     // its position
-		      itsInnerLogVol,      // its logical volume
-		      itsName+"_combined", // its name
-		      itsSolidLogVol,      // its mother  volume
-		      false,		   // no boolean operation
-		      0);		   // copy number 
-
-
-  if(BDSGlobals->GetSensitiveComponents()){
-    SetSensitiveVolume(itsSolidLogVol);
-  }
-
-  itsSolidLogVol->
-    SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
-				       BDSGlobals-> GetThresholdCutCharged()));
   
+  itsSolid = new G4SubtractionSolid(itsName+"_solid",itsOuterSolid,itsInnerSolid, nullRotationMatrix, nullThreeVector);
+
+  itsSolidLogVol=
+    new G4LogicalVolume(itsOuterSolid,
+                        itsCollimatorMaterial,
+			itsName+"_solid_log");
+  
+ #ifndef NOUSERLIMITS
+  itsUserLimits = new G4UserLimits();
+  itsUserLimits->SetMaxAllowedStep(itsLength);
+  itsUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+  itsSolidLogVol-> SetUserLimits(itsUserLimits);
+  itsInnerLogVol-> SetUserLimits(itsUserLimits);
+  itsMarkerLogicalVolume->SetUserLimits(itsUserLimits);
+#endif
   itsPhysiComp = 
     new G4PVPlacement(
 		      nullRotationMatrix,   // no rotation
 		      nullThreeVector,        // its position
 		      itsSolidLogVol,    // its logical volume
-		      itsName+"_solid",	     // its name
+		      itsName+"_solid_phys",	     // its name
 		      itsMarkerLogicalVolume, // its mother  volume
 		      false,		     // no boolean operation
 		      0);		     // copy number  
+
+
+    itsPhysiComp2 = 
+    new G4PVPlacement(
+    nullRotationMatrix,  // no rotation
+    nullThreeVector,     // its position
+    itsInnerLogVol,      // its logical volume
+    itsName+"_inner_phys", // its name
+    itsSolidLogVol,      // its mother  volume
+    false,		   // no boolean operation
+    0);		   // copy number 
+
+  if(BDSGlobals->GetSensitiveComponents()){
+    SetSensitiveVolume(itsSolidLogVol);
+  }
   SetMultiplePhysicalVolumes(itsPhysiComp);
   SetMultiplePhysicalVolumes(itsPhysiComp2);
 }

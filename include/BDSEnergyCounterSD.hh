@@ -34,8 +34,8 @@ public:
 private:
   BDSEnergyCounterHitsCollection *BDSEnergyCounterCollection;
   G4int* HitID;
-  G4int nMaxCopy;
-  
+  G4double enrg;
+  G4double zpos;
 };
 
 

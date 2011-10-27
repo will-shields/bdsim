@@ -223,7 +223,7 @@ G4double BDSSynchrotronRadiation::SynGenC(G4double xmin)
 { static bool DoInit=true;
   static G4double a1,a2,c1,xlow,ratio,LastXmin=-1.;
   
-  if(DoInit | xmin!=LastXmin)
+  if((DoInit) | (xmin!=LastXmin))
   { DoInit=false;
      LastXmin=xmin;
      if(xmin>1.) xlow=xmin; else xlow=1.;
@@ -270,7 +270,7 @@ G4double BDSSynchrotronRadiation::SynRadC(G4double x)
      see also my LEP Note 632 of 12/1990
      converted to C++, H.Burkhardt 21-4-1996    */
 { G4double synrad=0.;
-  if(x>0. & x<800.) // otherwise result synrad remains 0
+  if((x>0.) & (x<800.)) // otherwise result synrad remains 0
   { if(x<6.)
      { G4double a,b,z;
        z=x*x/16.-2.;

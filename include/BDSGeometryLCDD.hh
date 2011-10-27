@@ -15,6 +15,7 @@
 
 #include "globals.hh"
 #include "BDSMaterials.hh"
+#include "G4UniformMagField.hh"
 #include "G4LogicalVolume.hh"
 #include "G4VSolid.hh"
 #include "G4Cons.hh"
@@ -80,6 +81,8 @@ public:
   BDSGeometryLCDD(G4String LCDDfile);
   ~BDSGeometryLCDD();
 
+  inline G4String GetFieldVolName(){return itsFieldVolName;}
+
   void parseDoc();
   void parseLCDD(xmlNodePtr cur);
   void parseHEADER(xmlNodePtr cur);
@@ -93,8 +96,10 @@ public:
   void parsePHYSVOL(xmlNodePtr cur, G4String volume_name);
   void parseFIELDS(xmlNodePtr cur);
 
-  BDSField* GetField();
-  
+  BDSMagField* GetField();
+  G4UniformMagField* GetUniformField();
+  G4bool GetFieldIsUniform();
+
   G4RotationMatrix* RotateComponent(G4ThreeVector rotvalues);
 
   void Construct(G4LogicalVolume *marker);
@@ -113,7 +118,8 @@ public:
   G4bool StrToFloat(const char* str, G4int start, G4int end, G4double& f);
 
 private:
-
+  G4bool itsFieldIsUniform;
+  G4String itsFieldVolName;
   // Fetching of imported objects
   G4VisAttributes* GetVisByName(G4String name);
   G4VSolid* GetSolidByName(G4String name);
@@ -148,7 +154,8 @@ private:
   G4double visRed, visGreen, visBlue;
 
   //The magnetic field
-  BDSField* itsField;
+  BDSMagField* itsMagField;
+  G4UniformMagField* itsUniformMagField;
 
 protected:
 };
@@ -171,7 +178,9 @@ inline G4ThreeVector BDSGeometryLCDD::GetPosition(xmlNodePtr cur, G4double lunit
   apos.name = name;
   apos.value = pos;
   POS_LIST.push_back(apos);
-  //G4cout << "pos: " <<name << " " << pos << G4endl;
+#ifdef DEBUG
+  G4cout << "pos: " <<name << " " << pos << G4endl;
+#endif
   return pos;
 }
 inline G4ThreeVector BDSGeometryLCDD::GetPosition(G4String name)
@@ -191,7 +200,9 @@ inline G4ThreeVector BDSGeometryLCDD::GetPosition(G4String name)
       G4cout << "Couldn't find position: " << name<<G4endl;
       G4Exception("Quitting in BDSGeometryLCDD");
     } 
-  //G4cout << "pos: " <<name << " " << POS_LIST[ID].value << G4endl;
+#ifdef DEBUG
+  G4cout << "pos: " <<name << " " << POS_LIST[ID].value << G4endl;
+#endif
   return POS_LIST[ID].value;
 }
 inline G4RotationMatrix* BDSGeometryLCDD::GetRotation(xmlNodePtr cur, G4double aunit)
@@ -212,7 +223,9 @@ inline G4RotationMatrix* BDSGeometryLCDD::GetRotation(xmlNodePtr cur, G4double a
   arot.name = name;
   arot.value = rotvect;
   ROT_LIST.push_back(arot);
-  //G4cout << "rot: " << name << " "<<rotvect << G4endl;
+#ifdef DEBUG
+  G4cout << "rot: " << name << " "<<rotvect << G4endl;
+#endif
   return RotateComponent(rotvect);
 }
 inline G4RotationMatrix* BDSGeometryLCDD::GetRotation(G4String name)
@@ -232,7 +245,9 @@ inline G4RotationMatrix* BDSGeometryLCDD::GetRotation(G4String name)
       G4cout << "Couldn't find rotation: " << name<<G4endl;
       G4Exception("Quitting in BDSGeometryLCDD");
     } 
-  //G4cout << "rot: " << name << " "<<ROT_LIST[ID].value << G4endl;
+#ifdef DEBUG
+  G4cout << "rot: " << name << " "<<ROT_LIST[ID].value << G4endl;
+#endif
   return RotateComponent(ROT_LIST[ID].value);
 }
 inline G4VisAttributes* BDSGeometryLCDD::GetVisByName(G4String name)
@@ -278,7 +293,6 @@ inline G4VSolid* BDSGeometryLCDD::GetSolidByName(G4String name)
 
 inline G4LogicalVolume* BDSGeometryLCDD::GetLogVolByName(G4String name)
 {
-  G4String::caseCompare cmpmode = G4String::ignoreCase;
   G4int ID = -1;
   G4int i;
   for(i=0; i<(G4int)LOGVOL_LIST.size(); i++)
@@ -301,13 +315,19 @@ inline G4String BDSGeometryLCDD::parseStrChar(xmlChar* value)
 {
   if(value==NULL) return "";
   G4String val = G4String((char*)value);
-  //G4cout << "strVAL: "<< val << G4endl;
+#ifdef DEBUG
+  G4cout << "BDSGeometryLCDD:parseStrChar> value = " << value << G4endl;
+  G4cout << "strVAL: "<< val << G4endl;
+#endif
   return val;
 }
 
 inline G4bool BDSGeometryLCDD::parseBoolChar(xmlChar* value)
 {
   if(value==NULL) return false;
+#ifdef DEBUG
+  G4cout << "BDSGeometryLCDD:parseBoolChar> value = " << value << G4endl;
+#endif
   G4String val = G4String((char*)value);
   
   if(val=="true") return true;
@@ -321,16 +341,19 @@ inline G4double BDSGeometryLCDD::parseDblChar(xmlChar* value)
   if(value==NULL) return 0.0;
   G4String val = G4String((char*)value);
   stripwhitespace(val);
-  //G4cout << "dblVAL: "<< val << G4endl;
+#ifdef DEBUG
+  G4cout << "BDSGeometryLCDD:parseDblChar> value = " << value << G4endl;
+  G4cout << "dblVAL: "<< val << G4endl;
+#endif
   // now check for defined constants
-  for(G4int i=0; i<CONST_LIST.size(); i++)
+  for(unsigned int i=0; i<CONST_LIST.size(); i++)
     {
       if(val.contains(CONST_LIST[i].name))
 	{
 	  //check that this is the entire constant, and not part of a larger name
 	  // e.g "zpos" and "zpos_world"
-	  G4int endpos = val.index(CONST_LIST[i].name)+(CONST_LIST[i].name).length();
-	  G4int startpos = val.index(CONST_LIST[i].name);
+	  unsigned int endpos = val.index(CONST_LIST[i].name)+(CONST_LIST[i].name).length();
+	  unsigned int startpos = val.index(CONST_LIST[i].name);
 	  G4bool replaceStr = false;
 	  if(val==CONST_LIST[i].name) replaceStr = true;
 	  
@@ -363,7 +386,9 @@ inline G4double BDSGeometryLCDD::parseDblChar(xmlChar* value)
   if(VerifyExpression(val)) EvaluateExpression(val.data(),dbl_val);
   else
     {
+#ifdef DEBUG
       G4cout << "Unable to evaluate expression: " << value << G4endl;
+#endif
       G4Exception("Check spellings and that constants are declared properly");
     }
     
@@ -766,8 +791,6 @@ inline void BDSGeometryLCDD::BuildSubtraction(xmlNodePtr cur)
 
   G4ThreeVector FirstPlacementPoint = G4ThreeVector(0.,0.,0.);
 
-  G4RotationMatrix* componentFirstRot = NULL;
-  
   xmlNodePtr tempcur = cur->xmlChildrenNode;
   
   while(tempcur!=NULL)
@@ -834,7 +857,7 @@ inline void BDSGeometryLCDD::BuildTessellated(xmlNodePtr cur){
   G4int numTriFacets = 0;
   G4int numQuadFacets = 0;
   G4String sType; 
-  G4FacetVertexType iType;
+  G4FacetVertexType iType=ABSOLUTE;
   G4ThreeVector vertex[4];
 
   while(tempcur!=NULL) {
@@ -853,20 +876,24 @@ inline void BDSGeometryLCDD::BuildTessellated(xmlNodePtr cur){
       vertex[2]=GetPosition(parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"vertex3")));
     
       if(!xmlStrcmp(tempcur->name, (const xmlChar *)"triangular")){
+#ifdef DEBUG
 	G4cout << "BDSGeometryLCDD adding triangular facet, vertices: "<< G4endl;
 	G4cout << "vertex1: " << vertex[0].x() << " " << vertex[0].y() << " " << vertex[0].z() << G4endl;
 	G4cout << "vertex2: " << vertex[1].x() << " " << vertex[1].y() << " " << vertex[1].z() << G4endl;
 	G4cout << "vertex3: " << vertex[2].x() << " " << vertex[2].y() << " " << vertex[2].z() << G4endl;
+#endif
 
 	tessellatedSolid->AddFacet((G4VFacet*)(new G4TriangularFacet(vertex[0], vertex[1], vertex[2], iType)));	
 	numTriFacets++;
       } else {
 	vertex[3]=GetPosition(parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"vertex4")));
+#ifdef DEBUG
 	G4cout << "BDSGeometryLCDD adding quadrangular facet, vertices: "<< G4endl;
 	G4cout << "vertex1: " << vertex[0].x() << " " << vertex[0].y() << " " << vertex[0].z() << G4endl;
 	G4cout << "vertex2: " << vertex[1].x() << " " << vertex[1].y() << " " << vertex[1].z() << G4endl;
 	G4cout << "vertex3: " << vertex[2].x() << " " << vertex[2].y() << " " << vertex[2].z() << G4endl;
 	G4cout << "vertex4: " << vertex[3].x() << " " << vertex[3].y() << " " << vertex[3].z() << G4endl;
+#endif
 	tessellatedSolid->AddFacet((G4VFacet*)(new G4QuadrangularFacet(vertex[0], vertex[1], vertex[2], vertex[3], iType)));	
 	numQuadFacets++;
       }

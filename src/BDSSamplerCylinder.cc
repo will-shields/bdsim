@@ -70,11 +70,11 @@ void BDSSamplerCylinder::SamplerCylinderLogicalVolume()
       
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
-
+#ifndef NOUSERLIMITS
       itsOuterUserLimits =new G4UserLimits();
-      itsOuterUserLimits->SetMaxAllowedStep(itsLength);
+      itsOuterUserLimits->SetMaxAllowedStep(BDSGlobals->GetSamplerDiameter()/2.0);
       itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
-
+#endif
       // Sensitive Detector:
       G4SDManager* SDMan = G4SDManager::GetSDMpointer();
       BDSSamplerSD* SensDet=new BDSSamplerSD(itsName,"cylinder");

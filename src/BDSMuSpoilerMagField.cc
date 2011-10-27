@@ -7,24 +7,27 @@
 
 #include "globals.hh"
 #include "BDSMuSpoilerMagField.hh"
-
 #include "G4Navigator.hh"
 #include "G4TransportationManager.hh"
 
 BDSMuSpoilerMagField::BDSMuSpoilerMagField(G4double aField)
   :itsBField(aField)
-{}
+{
+  MuSpoilerNavigator = new G4Navigator();
+}
 
-BDSMuSpoilerMagField::~BDSMuSpoilerMagField(){}
+BDSMuSpoilerMagField::~BDSMuSpoilerMagField(){
+  delete MuSpoilerNavigator;
+}
 
 void BDSMuSpoilerMagField::GetFieldValue(const G4double Point[4],
 					      G4double *Bfield ) const
 {
-  G4Navigator* MuSpoilerNavigator=
-    G4TransportationManager::GetTransportationManager()->
-    GetNavigatorForTracking();
 
   G4ThreeVector GlobalPosition= G4ThreeVector( Point[0], Point[1], Point[2]);  
+  MuSpoilerNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()); 
+  MuSpoilerNavigator->LocateGlobalPointAndSetup(GlobalPosition);
+
   G4AffineTransform GlobalAffine=MuSpoilerNavigator->
     GetGlobalToLocalTransform();  
   G4ThreeVector LocalR=GlobalAffine.TransformPoint(GlobalPosition); 

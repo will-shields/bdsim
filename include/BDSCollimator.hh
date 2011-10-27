@@ -15,6 +15,8 @@
 #include "G4VisAttributes.hh"
 #include "G4Box.hh"
 #include "G4EllipticalTube.hh"
+#include "G4VSolid.hh"
+#include "G4SubtractionSolid.hh"
 #include "BDSEnergyCounterSD.hh"
 
 #include "parser/gmad.h" // for type definitions
@@ -41,7 +43,13 @@ private:
   G4VPhysicalVolume* itsPhysiComp;
   G4VPhysicalVolume* itsPhysiComp2;
   G4LogicalVolume* itsSolidLogVol;
+  G4LogicalVolume* itsTempSolidLogVol;
   G4LogicalVolume* itsInnerLogVol;
+
+  G4VSolid* itsInnerSolid;
+  G4VSolid* itsOuterSolid;
+  G4SubtractionSolid* itsSolid;
+
 
   G4Tubs* itsSoilTube;
   G4Tubs* itsTunnelTube;

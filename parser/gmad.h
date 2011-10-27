@@ -133,6 +133,7 @@ struct Options {
   std::string pipeMaterial;
   std::string vacMaterial;
   std::string tunnelMaterial;
+  std::string tunnelCavityMaterial;
   std::string soilMaterial;
 
   bool includeIronMagFields;
@@ -247,6 +248,7 @@ struct Element {
   std::string bmapFile;
   std::string material;
   std::string tunnelMaterial;
+  std::string tunnelCavityMaterial;
 
   std::string spec;  // arbitrary specification to pass to beamline builder
   
@@ -327,7 +329,8 @@ struct Parameters {
   char bmap[64]; int bmapset;
   char emap[64];
   char material[64]; int materialset;
-  char tunnelMaterial[64]; int tunnelMaterialset;
+  char tunnelMaterial[64]; int tunnelmaterialset;
+  char tunnelCavityMaterial[64]; int tunnelcavitymaterialset;
 
 
   // string to pass a custom type specification
@@ -416,7 +419,8 @@ struct Parameters {
     strcpy(bmap,""); bmapset = 0;
 
     strcpy(material,""); materialset = 0;
-    strcpy(tunnelMaterial,""); materialset = 0;
+    strcpy(tunnelMaterial,""); tunnelmaterialset = 0;
+    strcpy(tunnelCavityMaterial,""); tunnelcavitymaterialset = 0;
     strcpy(spec,""); specset = 0;
   }
   

@@ -38,6 +38,7 @@ void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
   G4bool cond = ConfirmBeamOnCondition();
   G4StackManager* SM;
   SM = G4EventManager::GetEventManager()->GetStackManager();
+  SM->SetNumberOfAdditionalWaitingStacks(4);
   if(cond)
   {
     numberOfEventToBeProcessed = n_event;

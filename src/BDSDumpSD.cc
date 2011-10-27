@@ -86,7 +86,7 @@ G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
     BDSGlobals->setWaitingForDump(true);
     theTrack->SetTrackStatus(fPostponeToNextEvent);
 
-    G4AffineTransform tf(aStep->GetPreStepPoint()->GetTouchable()->
+    G4AffineTransform tf(aStep->GetPreStepPoint()->GetTouchableHandle()->
 				GetHistory()->GetTopTransform().Inverse());
     BDSGlobals->SetDumpTransform(tf);
   }

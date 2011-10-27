@@ -47,11 +47,11 @@ void BDSRunAction::BeginOfRunAction(const G4Run* aRun)
 {
   G4cout << "### Run " << aRun->GetRunID() << " start." << G4endl;
 
-  if (G4VVisManager::GetConcreteInstance())
-    {
-      G4UImanager* UI = G4UImanager::GetUIpointer(); 
+  //  if (G4VVisManager::GetConcreteInstance())
+  //    {
+      //      G4UImanager* UI = G4UImanager::GetUIpointer(); 
       //  UI->ApplyCommand("/vis/scene/notifyHandlers");
-    } 
+  //    } 
 
 
 }

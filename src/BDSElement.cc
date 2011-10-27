@@ -17,8 +17,16 @@
 #include "G4UserLimits.hh"
 #include "G4Mag_UsualEqRhs.hh"
 #include "BDSHelixStepper.hh"
+#include "BDSQuadStepper.hh"
+#include "BDSOctStepper.hh"
+#include "BDSSextStepper.hh"
 #include "G4HelixImplicitEuler.hh"
-
+#include "G4HelixExplicitEuler.hh"
+#include "G4HelixMixedStepper.hh"
+#include "G4HelixSimpleRunge.hh"
+#include "G4HelixHeum.hh"
+#include "G4SimpleRunge.hh"
+#include "G4ExactHelixStepper.hh"
 #include "BDSAcceleratorComponent.hh"
 
 // geometry drivers
@@ -51,13 +59,15 @@ extern G4RotationMatrix* RotY90;
 //============================================================
 
 BDSElement::BDSElement(G4String aName, G4String geometry, G4String bmap,
-		       G4double aLength, G4double bpRad, G4double outR, G4String aTunnelMaterial, G4double aTunnelRadius, G4double aTunnelOffsetX):
+		       G4double aLength, G4double bpRad, G4double outR, G4String aTunnelMaterial, G4double aTunnelRadius, G4double aTunnelOffsetX, G4String aTunnelCavityMaterial):
   BDSAcceleratorComponent(
 			  aName,
 			  aLength,bpRad,0,0,
-			  SetVisAttributes(), aTunnelMaterial, "", 0., 0., 0., 0., aTunnelRadius*m, aTunnelOffsetX*m),
-  itsField(NULL)
+			  SetVisAttributes(), aTunnelMaterial, "", 0., 0., 0., 0., aTunnelRadius*m, aTunnelOffsetX*m, aTunnelCavityMaterial),
+  itsField(NULL), itsMagField(NULL)
 {
+  itsFieldVolName="";
+  itsFieldIsUniform=false;
   itsOuterR = outR;
   SetType(_ELEMENT);
 
@@ -98,30 +108,32 @@ void BDSElement::BuildGeometry()
 #ifdef DEBUG 
   G4cout<<"BDSElement : creating logical volume"<<G4endl;
 #endif
-  G4double elementSizeX=itsOuterR, elementSizeY = itsOuterR;
+  G4double elementSizeX=itsOuterR+BDSGlobals->GetLengthSafety()/2, elementSizeY = itsOuterR+BDSGlobals->GetLengthSafety()/2;
   
   
-  if(itsOuterR==0)
-      {
-        elementSizeX =(this->GetTunnelRadius()+std::abs(this->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()) / 2;   
-        elementSizeY = (this->GetTunnelRadius()+std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()) / 2;
-      }
+  elementSizeX = std::max(elementSizeX, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness() + 4*BDSGlobals->GetLengthSafety() );   
+  elementSizeY = std::max(elementSizeY, this->GetTunnelRadius()+2*std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+4*BDSGlobals->GetLengthSafety() );
 
+  G4double elementSize=std::max(elementSizeX, elementSizeY); 
   
   itsMarkerLogicalVolume = 
     new G4LogicalVolume(new G4Box(itsName+"generic_element",
-                                  elementSizeX+std::abs(this->GetTunnelOffsetX()),
-                                  elementSizeY+std::abs(BDSGlobals->GetTunnelOffsetY()),   
+                                  elementSize,
+                                  elementSize,   
 				  itsLength/2),
 			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName);
   
   (*LogVolCount)[itsName] = 1;
   (*LogVol)[itsName] = itsMarkerLogicalVolume;
-  
+#ifndef NOUSERLIMITS
   itsOuterUserLimits = new G4UserLimits();
   itsOuterUserLimits->SetMaxAllowedStep(itsLength);
+  if(BDSGlobals->GetThresholdCutCharged()>0){
+    itsOuterUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+  }
   itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
+#endif
 
   //Build the tunnel
   if(BDSGlobals->GetBuildTunnel()){
@@ -200,7 +212,7 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
 
     if(bFormat=="XY")
       {
-	itsField = new BDSXYMagField(bFile);
+	itsMagField = new BDSXYMagField(bFile);
 
 	// build the magnetic field manager and transportation
 	BuildMagField();
@@ -212,12 +224,28 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
     LCDD->Construct(itsMarkerLogicalVolume);
     SetMultipleSensitiveVolumes(itsMarkerLogicalVolume);
     if(bFormat=="XY"){
-      itsField = new BDSXYMagField(bFile);
+      itsMagField = new BDSXYMagField(bFile);
       // build the magnetic field manager and transportation
-      BuildMagField();
-    } else if ( bFormat == "none" ){
-      itsField=LCDD->GetField();
-      BuildMagField();
+      BuildMagField(true);
+    } else if ( bFormat == "mokka" ){
+      G4ThreeVector uniField = G4ThreeVector(0,3.5*tesla,0);
+      std::vector<G4ThreeVector> uniFieldVect;
+      uniFieldVect.push_back(uniField);
+      std::vector<G4double> nulld;
+      std::vector<G4String> nulls;
+      //      itsMagField = new BDSMagFieldSQL(bFile,itsLength,nulls, nulld, nulls, nulld, nulls, nulld, LCDD->FieldVol, uniFieldVect);
+    } else if ( bFormat == "test" ){
+    }
+    else if ( bFormat == "none" ){
+      itsFieldIsUniform=LCDD->GetFieldIsUniform();
+      if(itsFieldIsUniform){
+	G4cout << "BDSElement> using LCDD format uniform field..." << G4endl;
+	itsUniformMagField=LCDD->GetUniformField();
+      }else{
+	itsMagField=LCDD->GetField();
+      }
+      itsFieldVolName=LCDD->GetFieldVolName();
+      BuildMagField(true);
     }
 #else
     G4cout << "LCDD support not selected during BDSIM configuration" << G4endl;
@@ -229,7 +257,7 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
     Mokka = new BDSGeometrySQL(gFile,itsLength);
     Mokka->Construct(itsMarkerLogicalVolume);
     vector<G4LogicalVolume*> SensComps = Mokka->SensitiveComponents;
-    for(G4int i=0; i<Mokka->GetMultiplePhysicalVolumes().size(); i++){
+    for(unsigned int i=0; i<Mokka->GetMultiplePhysicalVolumes().size(); i++){
       SetMultiplePhysicalVolumes(Mokka->GetMultiplePhysicalVolumes().at(i));
     }
     for(G4int id=0; id<(G4int)SensComps.size(); id++)
@@ -245,14 +273,17 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
 	  // as there may be cases where there are no bFormats given
 	  // in gmad file but fields might be set to volumes in SQL files
 	  {
-	    itsField = new BDSMagFieldSQL(bFile,itsLength,
-					  Mokka->Quadvol, Mokka->QuadBgrad,
-					  Mokka->Sextvol, Mokka->SextBgrad,
-					  Mokka->Octvol, Mokka->OctBgrad,
-					  Mokka->Fieldvol,Mokka->UniformField);
-	    
+	    itsMagField = new BDSMagFieldSQL(bFile,itsLength,
+					  Mokka->QuadVolBgrad,
+					  Mokka->SextVolBgrad,
+					  Mokka->OctVolBgrad,
+					  Mokka->UniformFieldVolField,
+					  Mokka->nPoleField,
+					  Mokka->HasUniformField);
+
+
 	    // build the magnetic field manager and transportation
-	    BuildMagField(6,true);
+	    BuildMagField(true);
 	  }
       }
   } 
@@ -286,7 +317,7 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
 // 	Point[1] = y;
 // 	Point[2] = z;
 // 	Point[3] = 0;
-// 	itsField->GetFieldValue(Point,BField);
+// 	itsMagField->GetFieldValue(Point,BField);
 // 	testf<<Point[0]<<" "<<Point[1]<<" "<<Point[2]<<" "<<
 // 	  BField[0]<<" "<<BField[1]<<" "<<BField[2]<<G4endl;
 //       }
@@ -306,52 +337,83 @@ G4VisAttributes* BDSElement::SetVisAttributes()
 }
 
 
-void BDSElement::BuildMagField(G4int nvar, G4bool forceToAllDaughters)
+void BDSElement::BuildMagField(G4bool forceToAllDaughters)
 {
-  //itsField = new BDSField();
-
-  // Create an equation of motion for this field
-  G4EqMagElectricField* fEquation = new G4EqMagElectricField(itsField);
-  G4MagIntegratorStepper* fStepper = new G4ClassicalRK4( fEquation, nvar );
-  //  G4MagIntegratorStepper* fStepper = new BDSRK4Stepper( fEquation, nvar );
-  
+  G4cout << "BDSElement.cc::BuildMagField Building magnetic field...." << G4endl;
   // create a field manager
   G4FieldManager* fieldManager = new G4FieldManager();
-  fieldManager->SetDetectorField(itsField );
 
 
-  G4double fMinStep  = BDSGlobals->GetChordStepMinimum(); 
-  
-  G4MagInt_Driver* fIntgrDriver = new G4MagInt_Driver(fMinStep, 
-						      fStepper, 
-						      fStepper->GetNumberOfVariables() );
-  
+  if(!itsFieldIsUniform){
+    itsEqRhs = new G4Mag_UsualEqRhs(itsMagField);
+    if( (itsMagField->GetHasUniformField())&!(itsMagField->GetHasNPoleFields() || itsMagField->GetHasFieldMap())){
+      //    itsFStepper = new G4ExactHelixStepper(itsEqRhs); //For constant magnetic field
+    itsFStepper = new G4HelixMixedStepper(itsEqRhs,6); //For constant magnetic field
+    } else {
+      //        itsFStepper = new G4HelixMixedStepper(itsEqRhs,6); //For constant magnetic field
+      itsFStepper = new G4HelixImplicitEuler(itsEqRhs); //For non constant magnetic field
+      //    itsFStepper = new G4HelixSimpleRunge(itsEqRhs);
+      //    itsFStepper = new G4HelixHeum(itsEqRhs);
+      //    itsFStepper = new G4ClassicalRK4(itsEqRhs);
+    }
+    //    //  itsFStepper = new G4HelixSimpleRunge(itsEqRhs); //Trying simple runge
+    //  itsFStepper = new G4HelixExplicitEuler(itsEqRhs); //This is a pure magnetic field, so HelixImplicitEuler is a good choice
+    fieldManager->SetDetectorField(itsMagField );
+  } else {
+    itsEqRhs = new G4Mag_UsualEqRhs(itsUniformMagField);
+    //itsFStepper = new G4HelixImplicitEuler(itsEqRhs); //For non constant magnetic field
+    itsFStepper = new G4HelixMixedStepper(itsEqRhs, 6); //For constant magnetic field
+    fieldManager->SetDetectorField(itsUniformMagField );
+  }
+
+  if(BDSGlobals->GetDeltaOneStep()>0){
+    fieldManager->SetDeltaOneStep(BDSGlobals->GetDeltaOneStep());
+  }
+  if(BDSGlobals->GetMaximumEpsilonStep()>0){
+  fieldManager->SetMaximumEpsilonStep(BDSGlobals->GetMaximumEpsilonStep());
+  }
+  if(BDSGlobals->GetMinimumEpsilonStep()>0){
+  fieldManager->SetMinimumEpsilonStep(BDSGlobals->GetMinimumEpsilonStep());
+  }
+  if(BDSGlobals->GetDeltaIntersection()>0){
+  fieldManager->SetDeltaIntersection(BDSGlobals->GetDeltaIntersection());
+  }
+
+  G4MagInt_Driver* fIntgrDriver = new G4MagInt_Driver(BDSGlobals->GetChordStepMinimum(),
+							itsFStepper, 
+							itsFStepper->GetNumberOfVariables() );
   fChordFinder = new G4ChordFinder(fIntgrDriver);
 
   fChordFinder->SetDeltaChord(BDSGlobals->GetDeltaChord());
 
   fieldManager->SetChordFinder( fChordFinder ); 
 
-  itsMarkerLogicalVolume->SetFieldManager(fieldManager,forceToAllDaughters);
-  
-  G4UserLimits* fUserLimits =
-    new G4UserLimits("element cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
-  
-  //  fUserLimits->SetMaxAllowedStep(1e-2 * m);
-  fUserLimits->SetMaxAllowedStep(itsLength);
-  
-  itsMarkerLogicalVolume->SetUserLimits(fUserLimits);
-  
+  /*
+    if(itsFieldVolName != ""){
+    itsFieldVolName=itsFieldVolName+"_PhysiComp";
+    G4cout << "Printing daughters... itsFieldVolName=" << itsFieldVolName << G4endl;
+    for(int i=0;itsMarkerLogicalVolume->IsAncestor(itsMarkerLogicalVolume->GetDaughter(i)); i++){
+    G4cout << itsMarkerLogicalVolume->GetDaughter(i)->GetName() << endl;
+    if( itsMarkerLogicalVolume->GetDaughter(i)->GetName() == itsFieldVolName){
+    itsMarkerLogicalVolume->GetDaughter(i)->GetLogicalVolume()->SetFieldManager(fieldManager,forceToAllDaughters);
+    G4cout << "Field volume set..." << G4endl;
+    break;
+    }
+    }
+  } else {
+  }
+  */
+    itsMarkerLogicalVolume->SetFieldManager(fieldManager,forceToAllDaughters);
+
 }
 
 // creates a field mesh in the reference frame of a physical volume
 // from  b-field map value list 
 // has to be called after the component is placed in the geometry
-void BDSElement::PrepareField(G4VPhysicalVolume *referenceVolume)
+    void BDSElement::PrepareField(G4VPhysicalVolume *referenceVolume)
 {
-  if(!itsField) return;
-  itsField->Prepare(referenceVolume);
+  if(!itsMagField) return;
+  itsMagField->Prepare(referenceVolume);
 }
 
 // Rotates and positions the marker volume before it is placed in
@@ -483,4 +545,6 @@ BDSElement::~BDSElement()
   delete itsVisAttributes;
   delete itsMarkerLogicalVolume;
   delete fChordFinder;
+  delete itsFStepper;
+  delete itsFEquation;
 }

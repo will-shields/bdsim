@@ -9,6 +9,7 @@
    Removed StringFromInt function
 */
 
+
 #include "BDSGlobalConstants.hh" // must be first in include list
 
 #include <cstdlib>
@@ -215,24 +216,24 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
   SetMultiplePhysicalVolumes(itsPhysiInner);
   SetMultiplePhysicalVolumes(itsPhysiComp);
   
-
-  itsBeampipeUserLimits =
-    new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
+#ifndef NOUSERLIMITS
+  G4cout << "BDSMultipole::BuildBeamPipe() Using user limits." << G4endl;
+  itsBeampipeUserLimits = new G4UserLimits("beampipe cuts");
+  itsInnerBeampipeUserLimits = new G4UserLimits("inner beampipe cuts");
   
-  itsInnerBeampipeUserLimits =
-    new G4UserLimits("inner beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
-  
-  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength/2.0);
+  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength);
+  itsBeampipeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
   itsBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
   
-  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength/2.0);
+  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength);
+  itsInnerBeampipeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
   itsInnerBPLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
+#endif
   
   itsBeampipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
   itsInnerBPLogicalVolume->SetFieldManager(itsBPFieldMgr,false) ;
-  
+
+
   // now protect the fields inside the marker volume by giving the
   // marker a null magnetic field (otherwise G4VPlacement can
   // over-ride the already-created fields, by calling 
@@ -345,19 +346,13 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
   SetMultiplePhysicalVolumes(itsPhysiInner);
   SetMultiplePhysicalVolumes(itsPhysiComp);
 
-  itsBeampipeUserLimits =
-     new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
+#ifndef NOUSERLIMITS
+  itsBeampipeUserLimits = new G4UserLimits("beampipe cuts");
+  itsBeampipeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength);
 
-  itsInnerBeampipeUserLimits =
-    new G4UserLimits("inner beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
-
-  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength/2);
   itsBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
-
-  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength/2.0);
-  itsInnerBPLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
+  itsInnerBPLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
 
   itsBeampipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
   itsInnerBPLogicalVolume->SetFieldManager(itsBPFieldMgr,false) ;
@@ -396,31 +391,29 @@ void BDSMultipole::BuildBPFieldMgr(G4MagIntegratorStepper* aStepper,
 		      aStepper);
 
   itsChordFinder->SetDeltaChord(BDSGlobals->GetDeltaChord());
-
   itsBPFieldMgr= new G4FieldManager();
   itsBPFieldMgr->SetDetectorField(aField);
   itsBPFieldMgr->SetChordFinder(itsChordFinder);
-  itsBPFieldMgr->SetDeltaIntersection(BDSGlobals->GetDeltaIntersection());
-  
+  if(BDSGlobals->GetDeltaIntersection()>0){
+    itsBPFieldMgr->SetDeltaIntersection(BDSGlobals->GetDeltaIntersection());
+  }
   if(BDSGlobals->GetMinimumEpsilonStep()>0)
     itsBPFieldMgr->SetMinimumEpsilonStep(BDSGlobals->GetMinimumEpsilonStep());
-
   if(BDSGlobals->GetMaximumEpsilonStep()>0)
     itsBPFieldMgr->SetMaximumEpsilonStep(BDSGlobals->GetMaximumEpsilonStep());
-
   if(BDSGlobals->GetDeltaOneStep()>0)
     itsBPFieldMgr->SetDeltaOneStep(BDSGlobals->GetDeltaOneStep());
-  
 }
 
 
 void BDSMultipole::BuildDefaultMarkerLogicalVolume()
 {
   G4double xLength, yLength;
-  G4double totalTunnelRadius = this->GetTunnelRadius()+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+std::max(this->GetTunnelOffsetX(),BDSGlobals->GetTunnelOffsetY());
   
   xLength = yLength = std::max(itsOuterR,BDSGlobals->GetComponentBoxSize()/2);
-  xLength = yLength = std::max(xLength,totalTunnelRadius);
+
+  xLength = std::max(xLength, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness() + 4*BDSGlobals->GetLengthSafety() );   
+  yLength = std::max(yLength, this->GetTunnelRadius()+2*std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+4*BDSGlobals->GetLengthSafety() );
 
 #ifdef DEBUG 
   G4cout<<"marker volume : x/y="<<xLength/m<<
@@ -438,10 +431,10 @@ void BDSMultipole::BuildDefaultMarkerLogicalVolume()
      theMaterials->GetMaterial("vacuum"),
      itsName+"_log");
 
-   itsMarkerUserLimits =
-     new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());     
-   itsMarkerUserLimits->SetMaxAllowedStep(itsLength/2);
+#ifndef NOUSERLIMITS
+   itsMarkerUserLimits =  new G4UserLimits();
+   itsMarkerUserLimits->SetMaxAllowedStep(itsLength);
+   itsMarkerUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
    itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
 
 }
@@ -506,10 +499,10 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
   //Add the physical volumes to a vector which can be used for e.g. geometrical biasing
   SetMultiplePhysicalVolumes(itsPhysiComp);
 
-  itsOuterUserLimits =
-    new G4UserLimits("multipole cut",aLength,DBL_MAX,DBL_MAX,
-		     BDSGlobals->GetThresholdCutCharged());
-  itsOuterUserLimits->SetMaxAllowedStep(itsLength/2);
+#ifndef NOUSERLIMITS
+  itsOuterUserLimits =  new G4UserLimits("multipole cut");
+  itsOuterUserLimits->SetUserMinEkine( BDSGlobals->GetThresholdCutCharged());
+  itsOuterUserLimits->SetMaxAllowedStep(itsLength);
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
 
  
@@ -542,28 +535,28 @@ void BDSMultipole::BuildEllipticalOuterLogicalVolume(G4double aLength,
   
  
 
-G4LogicalVolume* itsOuterLogicalVolume=
-	new G4LogicalVolume(new G4SubtractionSolid(itsName+"_outer_solid",
-                                                   tubs_tmp, etube_tmp),
-			    material,
-			    itsName+"_outer_log");
-
+  G4LogicalVolume* itsOuterLogicalVolume=
+    new G4LogicalVolume(new G4SubtractionSolid(itsName+"_outer_solid",
+					       tubs_tmp, etube_tmp),
+			material,
+			itsName+"_outer_log");
+  
   itsPhysiComp = new G4PVPlacement(
 				   (G4RotationMatrix*)0,		      // no rotation
 				   (G4ThreeVector)0,                      // its position
-		      itsOuterLogicalVolume,  // its logical volume
-		      itsName+"_outer_phys",  // its name
-		      itsMarkerLogicalVolume, // its mother  volume
-		      false,		      // no boolean operation
-		      0);		      // copy number
-
+				   itsOuterLogicalVolume,  // its logical volume
+				   itsName+"_outer_phys",  // its name
+				   itsMarkerLogicalVolume, // its mother  volume
+				   false,		      // no boolean operation
+				   0);		      // copy number
+  
   //Add the physical volumes to a vector which can be used for e.g. geometrical biasing
   SetMultiplePhysicalVolumes(itsPhysiComp);
-
-  itsOuterUserLimits =
-    new G4UserLimits("multipole cut",aLength,DBL_MAX,DBL_MAX,
-		     BDSGlobals->GetThresholdCutCharged());
-  itsOuterUserLimits->SetMaxAllowedStep(itsLength/2);
+  
+#ifndef NOUSERLIMITS
+  itsOuterUserLimits = new G4UserLimits("multipole cut");
+  itsOuterUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+  itsOuterUserLimits->SetMaxAllowedStep(itsLength);
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
 
  
@@ -580,14 +573,17 @@ void BDSMultipole::BuildOuterFieldManager(G4int nPoles, G4double poleField,
   if (poleField==0) return;
 
   itsOuterMagField=new BDSMultipoleOuterMagField(nPoles,poleField,phiOffset);
-
   itsOuterFieldMgr=new G4FieldManager(itsOuterMagField);
-
-  //  (*theOuterFieldMap)[itsOuterLogicalVolume->GetName()]=itsOuterMagField;
-
+  if(BDSGlobals->GetDeltaIntersection()>0){
+    itsOuterFieldMgr->SetDeltaIntersection(BDSGlobals->GetDeltaIntersection());
+  }
+  if(BDSGlobals->GetMinimumEpsilonStep()>0)
+    itsOuterFieldMgr->SetMinimumEpsilonStep(BDSGlobals->GetMinimumEpsilonStep());
+  if(BDSGlobals->GetMaximumEpsilonStep()>0)
+    itsOuterFieldMgr->SetMaximumEpsilonStep(BDSGlobals->GetMaximumEpsilonStep());
+  if(BDSGlobals->GetDeltaOneStep()>0)
+    itsOuterFieldMgr->SetDeltaOneStep(BDSGlobals->GetDeltaOneStep());
   itsOuterLogicalVolume->SetFieldManager(itsOuterFieldMgr,false);
-
-
 }
 
 
@@ -598,6 +594,7 @@ BDSMultipole::~BDSMultipole()
   if(itsBPFieldMgr) delete itsBPFieldMgr;
   if(itsBeampipeLogicalVolume) delete itsBeampipeLogicalVolume;
   if(itsChordFinder) delete itsChordFinder;
+  if(itsOuterChordFinder) delete itsOuterChordFinder;
   if(itsOuterUserLimits) delete itsOuterUserLimits;
   if(itsBeampipeUserLimits) delete itsBeampipeUserLimits;
   if(itsOuterFieldMgr) delete itsOuterFieldMgr;

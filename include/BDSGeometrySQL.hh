@@ -29,6 +29,7 @@
 #include "BDSSamplerSD.hh"
 #include <fstream>
 #include <vector>
+#include <vector>
 #include "BDSMagFieldSQL.hh"
 
 //using namespace std;
@@ -44,16 +45,22 @@ public:
   void Construct(G4LogicalVolume *marker);
 
   // For List of uniform fields for volumes
-  std::vector<G4ThreeVector> UniformField;
-  std::vector<G4String> Fieldvol; 
+  std::list<G4ThreeVector> UniformField;
+  std::list<G4String> Fieldvol; 
 
   // For List of Quad/Sext/Oct Fields
-  std::vector<G4double> QuadBgrad;
-  std::vector<G4String> Quadvol; 
-  std::vector<G4double> SextBgrad;
-  std::vector<G4String> Sextvol;
-  std::vector<G4double> OctBgrad;
-  std::vector<G4String> Octvol;
+  std::list<G4double> QuadBgrad;
+  std::list<G4String> Quadvol; 
+  std::list<G4double> SextBgrad;
+  std::list<G4String> Sextvol;
+  std::list<G4double> OctBgrad;
+  std::list<G4String> Octvol;
+
+  std::map<G4String, G4ThreeVector> UniformFieldVolField;
+  std::map<G4String, G4double> QuadVolBgrad;
+  std::map<G4String, G4double> SextVolBgrad;
+  std::map<G4String, G4double> OctVolBgrad;
+
   G4VPhysicalVolume* align_in_volume;
   G4VPhysicalVolume* align_out_volume;
   std::vector<G4LogicalVolume*> SensitiveComponents;
@@ -61,6 +68,8 @@ public:
 
   std::vector<G4LogicalVolume*> VOL_LIST;
   G4bool HasFields;
+  G4int nPoleField;
+  G4bool HasUniformField;
 
   std::vector<G4VPhysicalVolume*> GetMultiplePhysicalVolumes();
 
@@ -88,6 +97,7 @@ private:
   std::vector<BDSMySQLTable*> itsSQLTable;
   BDSMagFieldSQL* itsMagField;
   BDSSamplerSD* SensDet;
+  G4UserLimits* itsUserLimits;
 
 void  SetMultiplePhysicalVolumes(G4VPhysicalVolume* aPhysVol);
 protected:

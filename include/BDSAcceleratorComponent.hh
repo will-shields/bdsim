@@ -41,6 +41,7 @@
 #include "G4PVPlacement.hh"
 #include "G4AssemblyVolume.hh"
 #include "G4CSGSolid.hh"
+#include "G4Tubs.hh"
 
 #include <vector> 
 
@@ -201,7 +202,9 @@ public:
 			  G4double YOffset=0.,
 			  G4double ZOffset=0.,
 			  G4double tunnelRadius=0.,
-			  G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX());
+			  G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX(),
+                          G4String aTunnelCavityMaterial = "Air"
+);
 
   BDSAcceleratorComponent (
 			  G4String& aName, 
@@ -213,12 +216,12 @@ public:
                           G4String aTunnelMaterial = "",
 			  G4String aMaterial = "",
 			  G4double phi=0.,  // polar angle (used in hor. bends)
-                          //G4double theta=0.,
 			  G4double XOffset=0.,
 			  G4double YOffset=0.,
 			  G4double ZOffset=0.,
 			  G4double tunnelRadius=0.,
-			  G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX());
+			  G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX(),
+			  G4String aTunnelCavityMaterial = "Air");
 
 
 
@@ -230,16 +233,33 @@ public:
 
 
 protected:
+
+  //Values related to BLM placement and geometry
+  G4double itsBlmLocationR;
+  G4double itsBlmRadius;
+
   G4String itsName;
-  G4String itsType;
   G4double itsLength;
   G4double itsBpRadius;
   G4double itsXAper;
   G4double itsYAper;
   G4double itsAngle;
-  G4double itsTilt;
   G4String itsMaterial;
+  G4VisAttributes* itsVisAttributes;
+  std::list<G4double> itsBlmLocZ;
+  std::list<G4double> itsBlmLocTheta;
   G4String itsTunnelMaterial;
+  //Tunnel geom
+  G4double itsXOffset;
+  G4double itsYOffset;
+  G4double itsZOffset;
+  G4double itsTunnelRadius;
+  G4double itsTunnelOffsetX;  
+
+  G4String itsType;
+
+  G4double itsTilt;
+
   
   G4double itsMagScaleFactor;
   G4double itsPhi;
@@ -254,11 +274,13 @@ protected:
   G4MagIntegratorStepper*  itsOuterStepper;
   G4ChordFinder* itsOuterChordFinder;
   G4FieldManager*  itsOuterFieldMgr;
-  G4VisAttributes* itsVisAttributes;
   G4UserLimits* itsOuterUserLimits;
   G4UserLimits* itsMarkerUserLimits;
   G4UserLimits* itsInnerBeampipeUserLimits;
   G4LogicalVolume* itsInnerMostLogicalVolume;
+
+  G4String itsTunnelCavityMaterial;
+
 
   //Marker solid
   G4VSolid* itsMarkerSolidVolume;
@@ -294,21 +316,25 @@ protected:
   G4UserLimits* itsTunnelUserLimits;
   G4UserLimits* itsSoilTunnelUserLimits;
   G4UserLimits* itsInnerTunnelUserLimits;
-  //Tunnel geom
-  G4double itsTunnelRadius;  
-  G4double itsTunnelOffsetX;  
 
-  G4double itsXOffset;
-  G4double itsYOffset;
-  G4double itsZOffset;
 
-  //Values related to BLM placement and geometry
-  G4double itsBlmLocationR;
-  G4double itsBlmRadius;
-  std::list<G4double> itsBlmLocZ;
-  std::list<G4double> itsBlmLocTheta;
+
+
+
 
 private:
+  G4RotationMatrix* nullRotationMatrix;
+  G4RotationMatrix* tunnelRot;
+  G4RotationMatrix* gateRot;
+  G4Material* gateMaterial;
+  G4VisAttributes* VisAtt;
+  G4VisAttributes* VisAtt1;
+  G4VisAttributes* VisAtt2;
+  G4VisAttributes* VisAtt3;
+  G4VisAttributes* VisAtt4;
+  G4VisAttributes* VisAtt5;
+  G4Tubs* itsBLMSolid;
+  G4Tubs* itsBlmOuterSolid;
   G4double itsSPos;
   G4int itsCopyNumber;
   BDSEnergyCounterSD* itsBDSEnergyCounter;
@@ -332,11 +358,11 @@ BDSAcceleratorComponent (
 			G4VisAttributes* aVisAtt,
                         G4String aTunnelMaterial,
                         G4String aMaterial,G4double angle,
-			G4double XOffset, G4double YOffset,G4double ZOffset, G4double tunnelRadius, G4double tunnelOffsetX):
+			G4double XOffset, G4double YOffset,G4double ZOffset, G4double tunnelRadius, G4double tunnelOffsetX,G4String aTunnelCavityMaterial):
   itsName(aName),itsLength(aLength),itsBpRadius(aBpRadius),
   itsXAper(aXAper),itsYAper(aYAper),itsAngle(angle),
   itsMaterial(aMaterial),itsVisAttributes(aVisAtt),itsTunnelMaterial(aTunnelMaterial),
-  itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset), itsTunnelRadius(tunnelRadius), itsTunnelOffsetX(tunnelOffsetX)
+  itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset), itsTunnelRadius(tunnelRadius), itsTunnelOffsetX(tunnelOffsetX),itsTunnelCavityMaterial(aTunnelCavityMaterial)
 {
   itsSensitiveVolume=NULL;
   itsInnerBeampipeUserLimits =new G4UserLimits();
@@ -358,12 +384,12 @@ BDSAcceleratorComponent (
 			std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
                         G4String aTunnelMaterial,
                         G4String aMaterial,G4double angle,
-			G4double XOffset, G4double YOffset,G4double ZOffset, G4double tunnelRadius, G4double tunnelOffsetX):
+			G4double XOffset, G4double YOffset,G4double ZOffset, G4double tunnelRadius, G4double tunnelOffsetX, G4String aTunnelCavityMaterial):
   itsName(aName),itsLength(aLength),itsBpRadius(aBpRadius),
   itsXAper(aXAper),itsYAper(aYAper),itsAngle(angle),
   itsMaterial(aMaterial),itsVisAttributes(aVisAtt), itsBlmLocZ(blmLocZ), itsBlmLocTheta(blmLocTheta),
   itsTunnelMaterial(aTunnelMaterial),
-  itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset), itsTunnelRadius(tunnelRadius), itsTunnelOffsetX(tunnelOffsetX) 
+  itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset), itsTunnelRadius(tunnelRadius), itsTunnelOffsetX(tunnelOffsetX), itsTunnelCavityMaterial(aTunnelCavityMaterial)
 {
   itsSensitiveVolume=NULL;
   itsInnerBeampipeUserLimits =new G4UserLimits();

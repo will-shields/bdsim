@@ -9,7 +9,6 @@
 */
 
 
-
 //======================================================
 //======================================================
 #include "BDSGlobalConstants.hh" // must be first in include list
@@ -36,7 +35,6 @@
 #include "G4UnitsTable.hh"
 #include "Randomize.hh"
 
-#include "G4FieldManager.hh"
 #include "G4ChordFinder.hh"
 
 #include "BDSSampler.hh"

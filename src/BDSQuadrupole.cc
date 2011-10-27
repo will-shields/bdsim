@@ -471,12 +471,11 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   SetMultiplePhysicalVolumes(itsPhysiQuadrant3);
   SetMultiplePhysicalVolumes(itsPhysiQuadrant4);
   SetMultiplePhysicalVolumes(itsPhysiComp);
-
+#ifndef NOUSERLIMITS
   itsOuterUserLimits =
-    new G4UserLimits("quadrupole cut",itsLength,DBL_MAX,DBL_MAX,
-		     BDSGlobals->GetThresholdCutCharged());
-  //  itsOuterUserLimits->SetMaxAllowedStep(aLength);
+    new G4UserLimits("quadrupole cut",itsLength,DBL_MAX,DBL_MAX,BDSGlobals->GetThresholdCutCharged());
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
+#endif
 }
 
 /*
@@ -686,12 +685,11 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
   SetMultiplePhysicalVolumes(itsPhysiQuadrant3);
   SetMultiplePhysicalVolumes(itsPhysiQuadrant4);
   SetMultiplePhysicalVolumes(itsPhysiComp);
-
+  #ifndef NOUSERLIMITS
   itsOuterUserLimits =
-    new G4UserLimits("quadrupole cut",itsLength,DBL_MAX,DBL_MAX,
-		     BDSGlobals->GetThresholdCutCharged());
-  //  itsOuterUserLimits->SetMaxAllowedStep(aLength);
+  new G4UserLimits("quadrupole cut",itsLength,DBL_MAX,DBL_MAX,BDSGlobals->GetThresholdCutCharged());
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
+  #endif
 }
 */
 

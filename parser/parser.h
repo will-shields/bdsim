@@ -180,6 +180,7 @@ void flush(struct Element& e )
   e.spec = "";
   e.material="";
   e.tunnelMaterial="";
+  e.tunnelCavityMaterial="Air";
   e.tunnelRadius=0;
   e.tunnelOffsetX=1e6;
 };
@@ -250,6 +251,7 @@ void copy_properties(std::list<struct Element>::iterator dest, std::list<struct 
   (*dest).material = (*src).material;
 
   (*dest).tunnelMaterial = (*src).tunnelMaterial;
+  (*dest).tunnelCavityMaterial = (*src).tunnelCavityMaterial;
 
   (*dest).tunnelRadius = (*src).tunnelRadius;
   (*dest).tunnelOffsetX = (*src).tunnelOffsetX;
@@ -322,7 +324,8 @@ void inherit_properties(struct Element e)
 
   if(!params.specset) { strncpy(params.spec,e.spec.c_str(),1024); params.specset = 1; }
   if(!params.materialset) { strncpy(params.material,e.spec.c_str(),64); params.materialset = 1; }
-  if(!params.tunnelMaterialset) { strncpy(params.tunnelMaterial,e.spec.c_str(),64); params.tunnelMaterialset = 1; }
+  if(!params.tunnelmaterialset) { strncpy(params.tunnelMaterial,e.spec.c_str(),64); params.tunnelmaterialset = 1; }
+  if(!params.tunnelcavitymaterialset) { strncpy(params.tunnelCavityMaterial,e.spec.c_str(),64); params.tunnelcavitymaterialset = 1; }
   if(!params.tunnelRadiusset) { params.tunnelRadius = e.tunnelRadius; params.tunnelRadiusset = 1; }
   if(!params.tunnelOffsetXset) { params.tunnelOffsetX = e.tunnelOffsetX; params.tunnelOffsetXset = 1; }
 
@@ -458,6 +461,7 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
   e.ysize = params.ysize;
   e.material = params.material;  
   e.tunnelMaterial = params.tunnelMaterial;  
+  e.tunnelCavityMaterial = params.tunnelCavityMaterial;  
   e.tunnelRadius = params.tunnelRadius;
   e.tunnelOffsetX = params.tunnelOffsetX;
   
@@ -1396,8 +1400,8 @@ void set_value(std::string name, double value )
   if(name == "annihiToMuFe") { options.annihiToMuFe = value; return; }
   if(name == "gammaToMuFe") { options.gammaToMuFe = value; return; }
   if(name == "eeToHadronsFe") { options.eeToHadronsFe = value; return; }
-  if(name == "thresholdCutCharged" ) { options.thresholdCutCharged = value; return; }
-  if(name == "thresholdCutPhotons" ) { options.thresholdCutPhotons = value; return; }
+  if(name == "thresholdCutCharged" ) { options.thresholdCutCharged = (double)value; return; }
+  if(name == "thresholdCutPhotons" ) { options.thresholdCutPhotons = (double)value; return; }
   if(name == "vacuumPressure") { options.vacuumPressure = (double)value; return; }
   if(name == "planckScatterFe") { options.planckScatterFe = (double)value; return; }
   if(name == "stopTracks") { options.stopTracks = (int) value; return; } 
@@ -1469,6 +1473,7 @@ void set_value(std::string name, std::string value )
   if(name == "beampipeMaterial" ) { options.pipeMaterial = value; return; }
   if(name == "vacMaterial" ) { options.vacMaterial = value; return; }
   if(name == "tunnelMaterial" ) { options.tunnelMaterial = value; return; }
+  if(name == "tunnelCavityMaterial" ) { options.tunnelCavityMaterial = value; return; }
   if(name == "soilMaterial" ) { options.soilMaterial = value; return; }
   
   // options which influence the tracking

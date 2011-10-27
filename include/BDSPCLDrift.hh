@@ -9,6 +9,8 @@
 
 #include "globals.hh"
 #include "BDSMaterials.hh"
+#include "BDSMagField.hh"
+#include "BDSDriftStepper.hh"
 #include "G4LogicalVolume.hh"
 
 #include "G4FieldManager.hh"
@@ -25,14 +27,14 @@ class BDSPCLDrift :public BDSMultipole
 public:
   BDSPCLDrift(G4String aName, G4double aLength,
            std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, 
-	      G4double aperX, G4double aperyUp, G4double aperYDown, G4double aperDy,  G4String aTunnelMaterial="", G4bool aperset=false, G4double aper=0, G4double tunnelRadius=0., G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX());
+	      G4double aperX, G4double aperyUp, G4double aperYDown, G4double aperDy,  G4String aTunnelMaterial="", G4double aper=0, G4double tunnelRadius=0., G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX());
   ~BDSPCLDrift();
 
 protected:
 
 private:
   void BuildBLMs();
-  void BuildBeampipe();
+  void BuildBeampipe(G4String materialName = "");
   G4VisAttributes* SetVisAttributes();
   G4double itsYAperUp, itsYAperDown, itsDyAper;
 
@@ -60,6 +62,12 @@ private:
 
   G4VisAttributes* itsBeampipeVisAtt;
   G4VisAttributes* itsInnerBeampipeVisAtt;
+
+  //field related objects
+  void BuildBpFieldAndStepper();
+  BDSDriftStepper* itsStepper;
+  BDSMagField* itsMagField;
+  G4Mag_UsualEqRhs* itsEqRhs;
 };
 
 #endif
