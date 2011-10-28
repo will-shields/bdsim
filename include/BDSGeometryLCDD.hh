@@ -352,8 +352,8 @@ inline G4double BDSGeometryLCDD::parseDblChar(xmlChar* value)
 	{
 	  //check that this is the entire constant, and not part of a larger name
 	  // e.g "zpos" and "zpos_world"
-	  unsigned int endpos = val.index(CONST_LIST[i].name)+(CONST_LIST[i].name).length();
-	  unsigned int startpos = val.index(CONST_LIST[i].name);
+	  G4int endpos = val.index(CONST_LIST[i].name)+(CONST_LIST[i].name).length();
+	  G4int startpos = val.index(CONST_LIST[i].name);
 	  G4bool replaceStr = false;
 	  if(val==CONST_LIST[i].name) replaceStr = true;
 	  

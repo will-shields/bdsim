@@ -214,6 +214,12 @@ void BDSGeometryLCDD::parseDoc()
 	 }
        cur = cur->next;
      }
+   if((!itsMagField) && (!itsUniformMagField)){
+#ifdef DEBUG
+     G4cout << "BDSGeometryLCDD.cc> No magnetic fields defined. Making default (zero) BDSMagField" << G4endl;
+#endif
+     itsMagField = new BDSMagField();
+   }
 
    xmlFreeDoc(doc);
    return;
