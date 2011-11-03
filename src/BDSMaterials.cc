@@ -18,6 +18,7 @@
 #include "BDSGlobalConstants.hh" // must be first in include list
 
 #include "BDSMaterials.hh"
+#include "G4NistManager.hh"
 
 using namespace std;
 
@@ -585,22 +586,48 @@ void BDSMaterials::AddElement(G4String aName, G4String aSymbol, G4double itsZ, G
 
 G4Material* BDSMaterials::GetMaterial(G4String aMaterial)
 {
-  aMaterial.toLower();
-  map<G4String,G4Material*>::iterator iter = materials.find(aMaterial);
-  if(iter != materials.end()) return (*iter).second;
-  else{
-    G4Exception("BDSMaterials::GetMaterial - Material "+aMaterial+" not known. Aborting.");
-    exit(1);
+  G4String cmpStr1 ("G4_");
+  G4String cmpStr2 (aMaterial, 3);
+#ifdef DEBUG
+  G4cout << cmpStr1 << " " << cmpStr2 << " " << cmpStr1.compareTo(cmpStr2) << G4endl;
+#endif
+  if (!cmpStr1.compareTo(cmpStr2)){
+#ifdef DEBUG
+    G4cout << "Using NIST material " << aMaterial << G4endl;
+#endif
+    G4NistManager* nistManager = G4NistManager::Instance();
+    return nistManager->FindOrBuildMaterial(aMaterial, true, true);
+  } else {
+    aMaterial.toLower();
+    map<G4String,G4Material*>::iterator iter = materials.find(aMaterial);
+    if(iter != materials.end()) return (*iter).second;
+    else{
+      G4Exception("BDSMaterials::GetMaterial - Material "+aMaterial+" not known. Aborting.");
+      exit(1);
+    }
   }
 }
 
 G4Element* BDSMaterials::GetElement(G4String aSymbol)
 {
-  map<G4String,G4Element*>::iterator iter = elements.find(aSymbol);
-  if(iter != elements.end()) return (*iter).second;
-  else{
-    G4Exception("BDSMaterials::GetElement - Element "+aSymbol+" not known. Aborting.");
-    exit(1);
+  G4String cmpStr1 ("G4_");
+  G4String cmpStr2 (aSymbol, 3);
+#ifdef DEBUG
+  G4cout << cmpStr1 << " " << cmpStr2 << " " << cmpStr1.compareTo(cmpStr2) << G4endl;
+#endif
+  if (!cmpStr1.compareTo(cmpStr2)){
+#ifdef DEBUG
+    G4cout << "Using NIST material " << aSymbol << G4endl;
+#endif
+    G4NistManager* nistManager = G4NistManager::Instance();
+    return nistManager->FindOrBuildElement(aSymbol, true);
+  } else {
+    map<G4String,G4Element*>::iterator iter = elements.find(aSymbol);
+    if(iter != elements.end()) return (*iter).second;
+    else{
+      G4Exception("BDSMaterials::GetElement - Element "+aSymbol+" not known. Aborting.");
+      exit(1);
+    }
   }
 }
 
@@ -684,6 +711,11 @@ void BDSMaterials::ListMaterials(){
   G4cout << "Vanadium" << G4endl;
   G4cout << "Water" << G4endl;
   G4cout << "WeightIron" << G4endl;
+  G4cout << "****************************" << G4endl;
+  G4cout << "Available nist materials are:" << G4endl;
+  G4NistManager* nistManager = G4NistManager::Instance();
+  G4String list="all";
+  nistManager->ListMaterials(list);
 }
 
 BDSMaterials::~BDSMaterials(){
