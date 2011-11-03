@@ -15,6 +15,7 @@ extern G4bool isBatch;
 
 extern G4int nptwiss;
 
+
 BDSBunch::BDSBunch()
 {
   X0 = 0;
@@ -531,8 +532,10 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
   if(BDSGlobals->isReference && partId<nptwiss){
     G4double phiX= twopi * G4UniformRand();
     G4double phiY= twopi * G4UniformRand();
-    G4double ex=-log(G4UniformRand())*emitX;
-    G4double ey=-log(G4UniformRand())*emitY;
+    //    G4double ex=-log(G4UniformRand())*emitX;
+    //    G4double ey=-log(G4UniformRand())*emitY;
+    G4double ex=std::abs(GaussGen->shoot()*emitX);
+    G4double ey=std::abs(GaussGen->shoot()*emitY);
     x0=sqrt(2*ex*betaX)*sin(phiX);
     xp=sqrt(2*ex/betaX)*(cos(phiX)-alphaX*sin(phiX));
     y0=sqrt(2*ey*betaY)*sin(phiY);
@@ -604,26 +607,12 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
   switch(distribType){
   case _GAUSSIAN:
     {
-#ifdef DEBUG 
-      G4cout<< "BDSBunch : " <<"GAUSSIAN: "<<G4endl
-            <<" X0= "<<X0<<" m"<<G4endl
-            <<" Y0= "<<Y0<<" m"<<G4endl
-            <<" Z0= "<<Z0<<" m"<<G4endl
-            <<" T0= "<<T0<<" s"<<G4endl
-            <<" Xp0= "<<Xp0<<G4endl
-            <<" Yp0= "<<Yp0<<G4endl
-            <<" Zp0= "<<Zp0<<G4endl
-            <<" sigmaX= "<<sigmaX<<" m"<<G4endl
-            <<" sigmaY= "<<sigmaY<<" m"<<G4endl
-            <<" sigmaXp= "<<sigmaXp<<G4endl
-            <<" sigmaYp= "<<sigmaYp<<G4endl
-            <<" sigmaT= "<<sigmaT<<"s"<<G4endl
-            <<" relative energy spread= "<<energySpread<<G4endl;
-#endif
       G4double phiX= twopi * G4UniformRand();
       G4double phiY= twopi * G4UniformRand();
-      G4double ex=-log(G4UniformRand())*emitX;
-      G4double ey=-log(G4UniformRand())*emitY;
+      //      G4double ex=-log(G4UniformRand())*emitX;
+      //      G4double ey=-log(G4UniformRand())*emitY;
+      G4double ex=std::abs(GaussGen->shoot()*emitX);
+      G4double ey=std::abs(GaussGen->shoot()*emitY);
       x0=sqrt(2*ex*betaX)*sin(phiX)*m;
       xp=sqrt(2*ex/betaX)*(cos(phiX)-alphaX*sin(phiX))*rad;
       y0=sqrt(2*ey*betaY)*sin(phiY)*m;
@@ -644,6 +633,37 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
         zp = sqrt(1.-xp*xp -yp*yp);
       t = 0;
       E = BDSGlobals->GetBeamKineticEnergy() * (1 + energySpread * GaussGen->shoot());
+
+
+
+#ifdef DEBUG 
+      G4cout<< "BDSBunch : " <<"GAUSSIAN: "<<G4endl
+            <<" X0= "<<X0<<" m"<<G4endl
+            <<" Y0= "<<Y0<<" m"<<G4endl
+            <<" Z0= "<<Z0<<" m"<<G4endl
+            <<" T0= "<<T0<<" s"<<G4endl
+            <<" Xp0= "<<Xp0<<G4endl
+            <<" Yp0= "<<Yp0<<G4endl
+            <<" Zp0= "<<Zp0<<G4endl
+            <<" sigmaX= "<<sigmaX<<" m"<<G4endl
+            <<" sigmaY= "<<sigmaY<<" m"<<G4endl
+            <<" sigmaXp= "<<sigmaXp<<G4endl
+            <<" sigmaYp= "<<sigmaYp<<G4endl
+            <<" sigmaT= "<<sigmaT<<"s"<<G4endl
+            <<" relative energy spread= "<<energySpread<<G4endl
+
+	    <<G4endl
+            <<" x0= "<<x0<<" m"<<G4endl
+            <<" y0= "<<y0<<" m"<<G4endl
+            <<" z0= "<<z0<<" m"<<G4endl
+            <<" t= "<<t<<" s"<<G4endl
+            <<" xp= "<<xp<<G4endl
+            <<" yp= "<<yp<<G4endl
+            <<" zp= "<<zp<<G4endl
+            <<" E= "<<E<<G4endl;
+#endif
+
+
       break;
     }
   case _GAUSSIAN_TWISS:
@@ -669,8 +689,10 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 
       G4double phiX= twopi * G4UniformRand();
       G4double phiY= twopi * G4UniformRand();
-      G4double ex=-log(G4UniformRand())*emitX;
-      G4double ey=-log(G4UniformRand())*emitY;
+      //      G4double ex=-log(G4UniformRand())*emitX;
+      //      G4double ey=-log(G4UniformRand())*emitY;
+      G4double ex=std::abs(GaussGen->shoot()*emitX);
+      G4double ey=std::abs(GaussGen->shoot()*emitY);
       x0=sqrt(2*ex*betaX)*sin(phiX)*m;
       xp=sqrt(2*ex/betaX)*(cos(phiX)-alphaX*sin(phiX))*rad;
       y0=sqrt(2*ey*betaY)*sin(phiY)*m;

@@ -60,6 +60,7 @@ void init()
   add_var("cm" ,1e-2,_RESERVED);
   add_var("mm" ,1e-3,_RESERVED);
   add_var("um",1e-6,_RESERVED);
+  add_var("mum",1e-6,_RESERVED);
   add_var("nm" ,1e-9,_RESERVED);
 
   add_var("s"  ,1.0  ,_RESERVED);
