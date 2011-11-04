@@ -246,12 +246,10 @@ void BDSRBend::BuildRBMarkerLogicalVolume()
     G4double boxSize=BDSGlobals->GetComponentBoxSize()+BDSGlobals->GetTunnelRadius();
 
     G4double xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
-      - fabs(cos(itsAngle/2))*boxSize*tan(itsAngle/2)/2
-      + BDSGlobals->GetLengthSafety()/2;
+      - fabs(cos(itsAngle/2))*boxSize*tan(itsAngle/2)/2;
     
     G4double xHalfLengthPlus = (itsLength/itsAngle)*sin(itsAngle/2)
-      + fabs(cos(itsAngle/2))*boxSize*tan(itsAngle/2)/2
-      + BDSGlobals->GetLengthSafety()/2;
+      + fabs(cos(itsAngle/2))*boxSize*tan(itsAngle/2)/2;
 
     markerSolidVolume = new G4Trd(itsName+"_marker",
 				  xHalfLengthPlus,     // x hlf lgth at +z
@@ -262,12 +260,12 @@ void BDSRBend::BuildRBMarkerLogicalVolume()
     
 
     rbendRectangleSolidVolume = new G4Trd(itsName+"_rbend_rectangle",
-				  itsMagFieldLength,     
-				  itsMagFieldLength,    
-				  boxSize/2,          
-				  boxSize/2,           
-				  fabs(cos(itsAngle/2))*boxSize/2);
-					  
+					  itsMagFieldLength,     
+					  itsMagFieldLength,    
+					  boxSize/2,          
+					  boxSize/2,           
+					  fabs(cos(itsAngle/2))*boxSize/2);
+    
   }
 
   G4String LocalLogicalName=itsName;
@@ -538,12 +536,10 @@ void BDSRBend::BuildRBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
   G4double boxSize = BDSGlobals->GetComponentBoxSize();
  
   G4double xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
-    - fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2
-    + BDSGlobals->GetLengthSafety()/2;
+    - fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2;
 
   G4double xHalfLengthPlus = (itsLength/itsAngle)*sin(itsAngle/2)
-    + fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2
-    + BDSGlobals->GetLengthSafety()/2;
+    + fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2;
 
   G4double tubLen = std::max(xHalfLengthPlus,xHalfLengthMinus);
   

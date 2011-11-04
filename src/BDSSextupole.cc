@@ -17,6 +17,8 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4UserLimits.hh"
 #include "G4TransportationManager.hh"
+#include "G4HelixImplicitEuler.hh"
+#include "G4CashKarpRKF45.hh"
 
 #include <map>
 
@@ -202,8 +204,10 @@ BDSSextupole::BDSSextupole(G4String aName, G4double aLength,
 
 void BDSSextupole::SynchRescale(G4double factor)
 {
+#ifndef NOSEXTSTEPPER
   itsStepper->SetBDblPrime(factor*itsBDblPrime);
   itsMagField->SetBDblPrime(factor*itsBDblPrime);
+#endif
 #ifdef DEBUG 
   G4cout << "Sext " << itsName << " has been scaled" << G4endl;
 #endif
@@ -221,9 +225,14 @@ void BDSSextupole::BuildBPFieldAndStepper()
   // set up the magnetic field and stepper
   itsMagField=new BDSSextMagField(itsBDblPrime);
   itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);
-  
+
+#ifndef NOSEXTSTEPPER
   itsStepper=new BDSSextStepper(itsEqRhs);
   itsStepper->SetBDblPrime(itsBDblPrime);
+#else
+  //  itsStepper = new G4HelixImplicitEuler(itsEqRhs); 
+  itsStepper = new G4CashKarpRKF45(itsEqRhs); //For constant magnetic field
+#endif
 }
 
 BDSSextupole::~BDSSextupole()

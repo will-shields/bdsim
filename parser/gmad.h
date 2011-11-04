@@ -136,12 +136,12 @@ struct Options {
   std::string tunnelCavityMaterial;
   std::string soilMaterial;
 
-  bool includeIronMagFields;
+  int includeIronMagFields;
 
   // tunnel geometry parameters
-  bool buildTunnel;
-  bool buildTunnelFloor;
-  bool showTunnel;
+  int buildTunnel;
+  int buildTunnelFloor;
+  int showTunnel;
   double tunnelOffsetX;
   double tunnelOffsetY;
   double samplerDiameter;
@@ -150,7 +150,7 @@ struct Options {
   double tunnelFloorOffset;
   
   //Geometry biasing
-  bool geometryBias;
+  int geometryBias;
 
   //BLM geometry
   double blmRad;
@@ -161,10 +161,10 @@ struct Options {
   double annihiToMuFe;
   double eeToHadronsFe;
  
-  bool useEMLPB;
-  bool useHadLPB;
+  int useEMLPB;
+  int useHadLPB;
 
-  bool sensitiveBeamlineComponents, sensitiveBeamPipe, sensitiveBLMs;
+  int sensitiveBeamlineComponents, sensitiveBeamPipe, sensitiveBLMs;
 
   double LPBFraction;
 
@@ -184,11 +184,11 @@ struct Options {
   double minimumEpsilonStep;
   double maximumEpsilonStep;
   double deltaOneStep;
-  bool turnOnCerenkov;
-  bool synchRadOn;
-  bool decayOn;
-  bool synchRescale;
-  bool synchTrackPhotons;
+  int turnOnCerenkov;
+  int synchRadOn;
+  int decayOn;
+  int synchRescale;
+  int synchTrackPhotons;
   double synchLowX;
   double synchLowGamE;
   int synchPhotonMultiplicity;

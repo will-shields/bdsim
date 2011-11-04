@@ -78,6 +78,7 @@ public:
 
   G4double GetMinimumEpsilonStep();
   G4double GetMaximumEpsilonStep();
+  G4double GetMaxTime();
   G4double GetDeltaOneStep();
 
   void SetLogFile(ofstream & os);
@@ -295,6 +296,7 @@ private:
   G4bool itsUseHadLPB;
   G4double itsMinimumEpsilonStep;
   G4double itsMaximumEpsilonStep;
+  G4double itsMaxTime;
   G4double itsDeltaOneStep;
   G4double itsComponentBoxSize;
   G4double itsMagnetPoleSize;
@@ -419,6 +421,11 @@ inline G4double BDSGlobalConstants::GetMinimumEpsilonStep()
 inline G4double BDSGlobalConstants::GetMaximumEpsilonStep()
 {
   return itsMaximumEpsilonStep;
+}
+
+inline G4double BDSGlobalConstants::GetMaxTime()
+{
+  return itsMaxTime;
 }
 
 inline G4double BDSGlobalConstants::GetDeltaOneStep()

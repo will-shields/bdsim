@@ -141,6 +141,7 @@ void BDSCollimator::BuildInnerCollimator()
  #ifndef NOUSERLIMITS
   itsUserLimits = new G4UserLimits();
   itsUserLimits->SetMaxAllowedStep(itsLength);
+  itsUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
   itsUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
   itsSolidLogVol-> SetUserLimits(itsUserLimits);
   itsInnerLogVol-> SetUserLimits(itsUserLimits);

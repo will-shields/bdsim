@@ -129,6 +129,7 @@ void BDSElement::BuildGeometry()
 #ifndef NOUSERLIMITS
   itsOuterUserLimits = new G4UserLimits();
   itsOuterUserLimits->SetMaxAllowedStep(itsLength);
+  itsOuterUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
   if(BDSGlobals->GetThresholdCutCharged()>0){
     itsOuterUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
   }

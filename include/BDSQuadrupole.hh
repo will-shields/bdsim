@@ -30,6 +30,10 @@
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 #include "G4PVPlacement.hh"               
+#include "G4HelixMixedStepper.hh"
+#include "G4HelixImplicitEuler.hh"
+#include "G4SimpleRunge.hh"
+#include "G4CashKarpRKF45.hh"
 
 #include "BDSMultipole.hh"
 #include "BDSQuadMagField.hh"
@@ -57,7 +61,14 @@ private:
   G4VisAttributes* SetVisAttributes();
 
   // field related objects:
+#ifndef NOQUADSTEPPER
   BDSQuadStepper* itsStepper;
+#else
+  //  G4HelixMixedStepper* itsStepper;
+  //  G4SimpleRunge* itsStepper;
+  //  G4HelixImplicitEuler* itsStepper;
+  G4CashKarpRKF45* itsStepper;
+#endif
   BDSQuadMagField* itsMagField;
   G4Mag_UsualEqRhs* itsEqRhs;
 

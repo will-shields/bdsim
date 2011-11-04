@@ -173,6 +173,7 @@ void BDSGeometrySQL::BuildCone(BDSMySQLTable* aSQLTable)
 #ifndef NOUSERLIMITS
       G4UserLimits* ConeUserLimits = new G4UserLimits();
       ConeUserLimits->SetMaxAllowedStep(length);
+      ConeUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	ConeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
       }
@@ -261,6 +262,7 @@ void BDSGeometrySQL::BuildEllipticalCone(BDSMySQLTable* aSQLTable)
 #ifndef NOUSERLIMITS
       G4UserLimits* EllipticalConeUserLimits = new G4UserLimits();
       EllipticalConeUserLimits->SetMaxAllowedStep(lengthZ);
+      EllipticalConeUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	EllipticalConeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
       }
@@ -372,6 +374,7 @@ void BDSGeometrySQL::BuildPolyCone(BDSMySQLTable* aSQLTable)
 #ifndef NOUSERLIMITS
       G4UserLimits* PolyConeUserLimits = new G4UserLimits();
       PolyConeUserLimits->SetMaxAllowedStep(fabs(zPos[0]-zPos[numZplanes-1]));
+      PolyConeUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	PolyConeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
       }
@@ -462,6 +465,7 @@ void BDSGeometrySQL::BuildBox(BDSMySQLTable* aSQLTable)
 #ifndef NOUSERLIMITS
       G4UserLimits* BoxUserLimits = new G4UserLimits();
       BoxUserLimits->SetMaxAllowedStep(lengthZ);
+      BoxUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	BoxUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
       }
@@ -560,6 +564,7 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
 #ifndef NOUSERLIMITS
       G4UserLimits* TrapUserLimits = new G4UserLimits();
       TrapUserLimits->SetMaxAllowedStep(lengthZ);
+      TrapUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	TrapUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
       }
@@ -656,6 +661,7 @@ void BDSGeometrySQL::BuildTorus(BDSMySQLTable* aSQLTable)
 #ifndef NOUSERLIMITS
       G4UserLimits* TorusUserLimits = new G4UserLimits();
       TorusUserLimits->SetMaxAllowedStep(rInner);
+      TorusUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	TorusUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
       }
@@ -753,6 +759,7 @@ void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
 #ifndef NOUSERLIMITS
       G4UserLimits* SamplerUserLimits = new G4UserLimits();
       SamplerUserLimits->SetMaxAllowedStep(length);
+      SamplerUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	SamplerUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
       }
@@ -859,6 +866,7 @@ void BDSGeometrySQL::BuildTube(BDSMySQLTable* aSQLTable)
 #ifndef NOUSERLIMITS
       G4UserLimits* TubsUserLimits = new G4UserLimits();
       TubsUserLimits->SetMaxAllowedStep(length);
+      TubsUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	TubsUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
       }
@@ -954,6 +962,7 @@ void BDSGeometrySQL::BuildEllipticalTube(BDSMySQLTable* aSQLTable)
 	maxLength = lengthZ;
       }
       EllipticalTubeUserLimits->SetMaxAllowedStep(maxLength);
+      EllipticalTubeUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	EllipticalTubeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
       }

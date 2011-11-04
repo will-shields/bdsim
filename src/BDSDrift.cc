@@ -13,6 +13,7 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4UserLimits.hh"
 #include "G4TransportationManager.hh"
+#include "G4CashKarpRKF45.hh"
 
 #include <map>
 
@@ -99,7 +100,11 @@ void BDSDrift::BuildBpFieldAndStepper(){
     // set up the magnetic field and stepper
   itsMagField=new BDSMagField(); //Zero magnetic field.
   itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);
+#ifndef NODRIFTSTEPPER
   itsStepper=new BDSDriftStepper(itsEqRhs);
+#else
+  itsStepper = new G4CashKarpRKF45(itsEqRhs); //For constant magnetic field
+#endif
 }
 
 void BDSDrift::BuildBLMs(){

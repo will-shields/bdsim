@@ -1,4 +1,4 @@
-    
+      
 //   BDSIM, (C) 2001-2007 
 //    
 //   version 0.4 
@@ -8,6 +8,7 @@
 //
 //    Physics lists
 //
+
 
 #include "BDSGlobalConstants.hh" // must be first in include list
 #include "BDSPhysicsList.hh"
@@ -213,7 +214,14 @@ void BDSPhysicsList::ConstructProcess()
   }
   //Synchrotron radiation
   if(BDSGlobals->GetSynchRadOn()) {
+#ifdef DEBUG
+    G4cout << "BDSPhysics list: synch. rad. is turned on" << G4endl;
+#endif
     ConstructSR();
+  } else {
+#ifdef DEBUG
+    G4cout << "BDSPhysics list: synch. rad. is turned OFF!" << G4endl;
+#endif
   }
   //Particle decay
   if(BDSGlobals->GetDecayOn()) ConstructDecay();
@@ -425,8 +433,9 @@ void BDSPhysicsList::ConstructEM()
     G4ParticleDefinition* particle = theParticleIterator->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
-
+#ifndef NOSTEPLIMITER
     pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
+#endif
 
     if (particleName == "gamma") {
       // gamma         
@@ -550,8 +559,9 @@ void BDSPhysicsList::ConstructMuon()
     G4ParticleDefinition* particle = theParticleIterator->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
-    
+#ifndef NOSTEPLIMITER
     pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
+#endif
 
     if (particleName == "gamma") {
       // gamma         
@@ -619,8 +629,9 @@ void BDSPhysicsList::ConstructDecay()
     G4ParticleDefinition* particle = theParticleIterator->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
-
+#ifndef NOSTEPLIMITER
     pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
+#endif
     
     if (theDecayProcess->IsApplicable(*particle)) { 
       pmanager -> AddProcess(theDecayProcess);
@@ -661,8 +672,9 @@ void BDSPhysicsList::ConstructEM_Low_Energy()
     G4ParticleDefinition* particle = theParticleIterator->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
-
+#ifndef NOSTEPLIMITER
     pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
+#endif
      
     if (particleName == "gamma") {
      

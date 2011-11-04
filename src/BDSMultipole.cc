@@ -171,7 +171,7 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
   itsInnerBeampipeSolid=new G4EllipticalTube(itsName+"_inner_bmp_solid",
 					     this->GetAperX(),
 					     this->GetAperY(),
-                                                itsLength/2);
+					     itsLength/2);
 
   G4EllipticalTube* largerInnerBeampipeSolid_tmp=new G4EllipticalTube(itsName+"larger_inner_bmp_solid",
 								      this->GetAperX()+BDSGlobals->GetLengthSafety()/2.0,
@@ -221,11 +221,15 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
   itsBeampipeUserLimits = new G4UserLimits("beampipe cuts");
   itsInnerBeampipeUserLimits = new G4UserLimits("inner beampipe cuts");
   
-  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength);
+  G4double maxStepFactor=0.5;
+
+  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
   itsBeampipeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
   itsBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
   
-  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength);
+  G4double maxStepFactorIn=1e-3;
+
+  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength*maxStepFactorIn);
   itsInnerBeampipeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
   itsInnerBPLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
 #endif
@@ -294,7 +298,7 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
 		       startAper,
                        endAper-BDSGlobals->GetBeampipeThickness(),
 		       endAper,
-		       itsLength/(2.),
+			      itsLength/(2.),
 		       0,twopi*radian);
 
 #ifdef DEBUG 
@@ -310,7 +314,7 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
 			        startAper-BDSGlobals->GetBeampipeThickness(),
 				0.,
 			        endAper-BDSGlobals->GetBeampipeThickness(),
-				itsLength/2,
+				       itsLength/2+BDSGlobals->GetLengthSafety(),
 				0,twopi*radian);
   itsBeampipeLogicalVolume=	
     new G4LogicalVolume(itsBeampipeSolid,
@@ -347,9 +351,10 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
   SetMultiplePhysicalVolumes(itsPhysiComp);
 
 #ifndef NOUSERLIMITS
+  G4double maxStepFactor=0.5;
   itsBeampipeUserLimits = new G4UserLimits("beampipe cuts");
   itsBeampipeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
-  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength);
+  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
 
   itsBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
   itsInnerBPLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
@@ -417,13 +422,13 @@ void BDSMultipole::BuildDefaultMarkerLogicalVolume()
 
 #ifdef DEBUG 
   G4cout<<"marker volume : x/y="<<xLength/m<<
-    " m, l= "<<  (itsLength+BDSGlobals->GetLengthSafety())/2/m <<" m"<<G4endl;
+    " m, l= "<<  (itsLength)/2/m <<" m"<<G4endl;
 #endif
 
   itsMarkerSolidVolume = new G4Box( itsName+"_marker_solid",
                                     xLength,
                                     yLength,
-                                    (itsLength+BDSGlobals->GetLengthSafety())/2);
+                                    itsLength/2);
 
   itsMarkerLogicalVolume=new G4LogicalVolume
     (
@@ -432,8 +437,9 @@ void BDSMultipole::BuildDefaultMarkerLogicalVolume()
      itsName+"_log");
 
 #ifndef NOUSERLIMITS
+  G4double maxStepFactor=1e-3;
    itsMarkerUserLimits =  new G4UserLimits();
-   itsMarkerUserLimits->SetMaxAllowedStep(itsLength);
+   itsMarkerUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
    itsMarkerUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
    itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
 #endif
@@ -477,7 +483,7 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
                                                  new G4Tubs(itsName+"_outer_solid_tmp_1",
                                                             itsInnerIronRadius+BDSGlobals->GetLengthSafety()/2.0,
                                                             outerRadius,
-                                                            aLength/2,
+                                                            aLength/2-BDSGlobals->GetLengthSafety()/2,
                                                             0,twopi*radian),
                                                  new G4EllipticalTube(itsName+"_outer_solid_tmp_2",
                                                                       this->GetAperX()+BDSGlobals->GetBeampipeThickness()+BDSGlobals->GetLengthSafety()/2.0,
@@ -501,9 +507,10 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
   SetMultiplePhysicalVolumes(itsPhysiComp);
 
 #ifndef NOUSERLIMITS
+  G4double maxStepFactor=0.5;
   itsOuterUserLimits =  new G4UserLimits("multipole cut");
   itsOuterUserLimits->SetUserMinEkine( BDSGlobals->GetThresholdCutCharged());
-  itsOuterUserLimits->SetMaxAllowedStep(itsLength);
+  itsOuterUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
 #endif
  
@@ -524,15 +531,15 @@ void BDSMultipole::BuildEllipticalOuterLogicalVolume(G4double aLength,
   if(itsOuterR==0) outerRadius = BDSGlobals->GetComponentBoxSize()/2;
 
   G4Tubs* tubs_tmp= new G4Tubs(itsName+"_tubs_tmp",
-                           0,
-                           outerRadius,
-                           aLength/2,
-                           0,twopi*radian);
+			       0,
+			       outerRadius,
+			       aLength/2-BDSGlobals->GetLengthSafety()/2,
+			       0,twopi*radian);
 
   G4EllipticalTube* etube_tmp= new G4EllipticalTube(itsName+"_etube_tmp",
                                                     this->GetAperX()+1*nm,
                                                     this->GetAperY()+1*nm,
-                                                    aLength/2);
+                                                    aLength/2-BDSGlobals->GetLengthSafety()/2);
   
  
 
@@ -555,9 +562,10 @@ void BDSMultipole::BuildEllipticalOuterLogicalVolume(G4double aLength,
   SetMultiplePhysicalVolumes(itsPhysiComp);
   
 #ifndef NOUSERLIMITS
+  G4double maxStepFactor=0.5;
   itsOuterUserLimits = new G4UserLimits("multipole cut");
   itsOuterUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
-  itsOuterUserLimits->SetMaxAllowedStep(itsLength);
+  itsOuterUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
 #endif
  

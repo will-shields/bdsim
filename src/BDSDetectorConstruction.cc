@@ -379,7 +379,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 
   //
-  G4double samplerLength = 1.E-7 * m;
+  G4double samplerLength = 1.E-7 * m ;
 
 
   //
@@ -1712,8 +1712,9 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
   // G4StepLimiter process enabled)
 #ifndef NOUSERLIMITS
   G4UserLimits* WorldUserLimits =new G4UserLimits();
-  WorldUserLimits->SetMaxAllowedStep(WorldSizeZ);
+  WorldUserLimits->SetMaxAllowedStep(1*mm);
   WorldUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+  WorldUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
   logicWorld->SetUserLimits(WorldUserLimits);
 #endif
 

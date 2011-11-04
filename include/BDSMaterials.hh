@@ -13,7 +13,7 @@
 
 #include "globals.hh"
 #include "G4Material.hh"
-
+#include "G4NistManager.hh"
 
 class BDSMaterials
 {

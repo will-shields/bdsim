@@ -258,21 +258,19 @@ void BDSSectorBend::BuildSBMarkerLogicalVolume()
 
 #ifdef DEBUG 
   G4cout<<"marker volume : x/y="<<transverseSize/m<<
-    " m, l= "<<  (itsLength+BDSGlobals->GetLengthSafety())/2/m <<" m"<<G4endl;
+    " m, l= "<<  (itsLength)/2/m <<" m"<<G4endl;
 #endif
 
     G4double xHalfLengthPlus, xHalfLengthMinus;
     if(fabs(itsAngle) > 1e-20){
       xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
-        - fabs(cos(itsAngle/2))*transverseSize*tan(itsAngle/2)/2
-        + BDSGlobals->GetLengthSafety()/2;
+        - fabs(cos(itsAngle/2))*transverseSize*tan(itsAngle/2)/2;
       
       xHalfLengthPlus = (itsLength/itsAngle)*sin(itsAngle/2)
-        + fabs(cos(itsAngle/2))*transverseSize*tan(itsAngle/2)/2
-        + BDSGlobals->GetLengthSafety()/2;
+        + fabs(cos(itsAngle/2))*transverseSize*tan(itsAngle/2)/2;
     } else {
-      xHalfLengthPlus=itsLength/2.0;
-      xHalfLengthMinus=itsLength/2.0;
+      xHalfLengthPlus=(itsLength)/2.0;
+      xHalfLengthMinus=(itsLength)/2.0;
     }
     
     if((xHalfLengthPlus<0) || (xHalfLengthMinus<0)){
@@ -295,7 +293,8 @@ void BDSSectorBend::BuildSBMarkerLogicalVolume()
 			LocalLogicalName+"_marker");
 
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX, BDSGlobals->GetThresholdCutCharged());
-  itsMarkerUserLimits->SetMaxAllowedStep(itsLength);
+G4double  maxStepFactor=1e-3;
+  itsMarkerUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
   itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
   
 
@@ -325,16 +324,14 @@ void BDSSectorBend::BuildSBBeampipe()
   if(itsAngle != 0){
     xHalfLengthMinus =
       (itsLength/itsAngle)*sin(itsAngle/2)
-      - fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2
-      + BDSGlobals->GetLengthSafety()/2;
+      - fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2;
     
     xHalfLengthPlus =
       (itsLength/itsAngle)*sin(itsAngle/2)
-      + fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2
-      + BDSGlobals->GetLengthSafety()/2;
+      + fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2;
     tubLen = std::max(xHalfLengthPlus,xHalfLengthMinus);
   } else {
-    tubLen=itsLength/2.0;
+    tubLen=(itsLength)/2.0;
   }
 
   
@@ -417,13 +414,15 @@ void BDSSectorBend::BuildSBBeampipe()
   itsBeampipeUserLimits =
     new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());
-  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength);
+  G4double maxStepFactor=0.5;
+  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
   itsBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
   
+  G4double maxStepFactorIn=1e-3;
   itsInnerBeampipeUserLimits =
     new G4UserLimits("inner beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());
-  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength);
+  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength*maxStepFactorIn);
   itsInnerBPLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
 
   //
@@ -469,15 +468,15 @@ void BDSSectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
   if(itsAngle != 0){
     xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
       - fabs(cos(itsAngle/2)) * BDSGlobals->GetComponentBoxSize() * tan(itsAngle/2)/2
-      + BDSGlobals->GetLengthSafety()/2;
+      - BDSGlobals->GetLengthSafety()/2;
 
     xHalfLengthPlus = (itsLength/itsAngle)*sin(itsAngle/2)
     + fabs(cos(itsAngle/2)) * BDSGlobals->GetComponentBoxSize() * tan(itsAngle/2)/2
-      + BDSGlobals->GetLengthSafety()/2;
+      - BDSGlobals->GetLengthSafety()/2;
     
     tubLen = std::max(xHalfLengthPlus,xHalfLengthMinus);
   } else {
-    tubLen = itsLength/2.0;
+    tubLen = (itsLength-BDSGlobals->GetLengthSafety())/2.0;
   }
   
   
@@ -527,11 +526,11 @@ void BDSSectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
                       0);                     // copy number
 
 SetMultiplePhysicalVolumes(itsPhysiComp);
-
+ G4double  maxStepFactor=0.5;
   itsOuterUserLimits =
     new G4UserLimits("multipole cut",DBL_MAX,DBL_MAX,DBL_MAX,
                      BDSGlobals->GetThresholdCutCharged());
-  itsOuterUserLimits->SetMaxAllowedStep(itsLength);
+  itsOuterUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
 }
 

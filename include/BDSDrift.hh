@@ -20,6 +20,7 @@
 #include "BDSDriftStepper.hh"
 #include "BDSMagField.hh"
 #include "BDSMultipole.hh"
+#include "G4CashKarpRKF45.hh"
 
 class BDSDrift :public BDSMultipole
 {
@@ -38,7 +39,11 @@ private:
   G4double itsStartOuterR;
   G4double itsEndOuterR;
   //field related objects
+#ifndef NODRIFTSTEPPER
   BDSDriftStepper* itsStepper;
+#else
+  G4CashKarpRKF45* itsStepper;
+#endif
   BDSMagField* itsMagField;
   G4Mag_UsualEqRhs* itsEqRhs;
 };

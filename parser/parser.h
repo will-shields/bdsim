@@ -1285,55 +1285,28 @@ void set_value(std::string name, double value )
   if(name == "beampipeRadius" ) { options.beampipeRadius = value; return; }
 
   if(name == "includeIronMagFields") {
-    if (value == 0) {
-      options.includeIronMagFields = false;
-    } else {
-      options.includeIronMagFields = true;
-    }
-    return; 
-  }
+    options.includeIronMagFields = (int)value; return;
+  } 
 
   if(name == "buildTunnel") {
-    if (value == 0) {
-      options.buildTunnel = false;
-    } else {
-      options.buildTunnel = true;
-    }
-    return; 
+      options.buildTunnel = (int)value; return;
   }
+
   if(name == "buildTunnelFloor") {
-    if (value == 0) {
-      options.buildTunnelFloor = false;
-    } else {
-      options.buildTunnelFloor = true;
-    }
-    return;
+    options.buildTunnelFloor = (int)value; return;
   }
+  
   if(name == "showTunnel") {
-    if (value == 0) {
-      options.showTunnel = false;
-    } else {
-      options.showTunnel = true;
-    }
-    return;
+    options.showTunnel = (int)value; return;
   }
 
   if(name == "synchRadOn") { 
-    if (value == 0){
-    options.synchRadOn = false; 
-    } else {
-    options.synchRadOn = true; 
-    }
+    options.synchRadOn=(int)value;
     return; 
   }
 
   if(name == "decayOn") { 
-    if (value == 0){
-      options.decayOn = false; 
-    } else {
-      options.decayOn = true; 
-    }
-    return; 
+    options.decayOn = (int)value; return; 
   }
   
   if(name == "tunnelOffsetX" ) { options.tunnelOffsetX = value; return; }
@@ -1345,12 +1318,7 @@ void set_value(std::string name, double value )
 
   //geometry biasing
   if(name == "geometryBias") {
-    if (value == 0) {
-      options.geometryBias = false;
-    } else {
-      options.geometryBias = true;
-    }
-    return;
+    options.geometryBias = (int)value; return;
   }
 
 
@@ -1365,30 +1333,15 @@ void set_value(std::string name, double value )
 
   // physics processes
   if(name == "turnOnCerenkov") {
-    if(value != 0) { 
-      options.turnOnCerenkov = true;
-    } else{
-      options.turnOnCerenkov = false;
-    }
-    return;
+      options.turnOnCerenkov = (int)value; return;
   }
 
   if(name == "srRescale") {
-    if(value != 0) { 
-      options.synchRescale = true;
-    } else{
-      options.synchRescale = false;
-    }
-    return;
+      options.synchRescale = (int)value; return;
   }
 
   if(name == "srTrackPhotons") {
-    if(value != 0) { 
-      options.synchTrackPhotons = true;
-    } else{
-      options.synchTrackPhotons = false;
-    }
-    return;
+    options.synchTrackPhotons = (int)value; return;
   }
 
   if(name == "useEMLPB") { options.useEMLPB = value; return; }

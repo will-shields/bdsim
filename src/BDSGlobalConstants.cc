@@ -106,14 +106,17 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
   itsDeltaIntersection= opt.deltaIntersection * m;
   itsMinimumEpsilonStep = opt.minimumEpsilonStep;
   itsMaximumEpsilonStep = opt.maximumEpsilonStep;
+  itsMaxTime=1e-4*s;
   itsDeltaOneStep = opt.deltaOneStep * m;
   doTwiss = opt.doTwiss;
   itsDoPlanckScattering = opt.doPlanckScattering;
   itsTurnOnCerenkov = opt.turnOnCerenkov;
   itsSynchRadOn = opt.synchRadOn;
+  G4cout << "BDSGlobals synchRadOn = " << itsSynchRadOn << G4endl;
   itsDecayOn = opt.decayOn;
   itsSynchRescale = opt.synchRescale; // rescale due to synchrotron
   itsSynchTrackPhotons= opt.synchTrackPhotons;
+  G4cout << "BDSGlobals synchTrackphotons = " << itsSynchTrackPhotons << G4endl;
   itsSynchLowX = opt.synchLowX;
   itsSynchLowGamE = opt.synchLowGamE * GeV;  // lowest gamma energy
   itsSynchPhotonMultiplicity = opt.synchPhotonMultiplicity;

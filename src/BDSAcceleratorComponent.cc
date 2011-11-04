@@ -119,6 +119,7 @@ void BDSAcceleratorComponent::BuildTunnel()
   if(itsLength <= BDSGlobals->GetLengthSafety()){
     G4cout << "BDSAcceleratorComponent::BuildTunnel() - WARNING - " << G4endl;
     G4cout << "Components length, " << itsLength << ", less than or equal to safety length, " << BDSGlobals->GetLengthSafety() << ". Not building tunnel." << G4endl;
+    G4Exception("Error: length of component less than safety length");
     return;
   }
 
@@ -168,7 +169,7 @@ void BDSAcceleratorComponent::BuildTunnel()
                                   itsName+"_bnd_sized_block_solid", 
                                   blockSize,
                                   blockSize,
-                                  (itsLength-BDSGlobals->GetLengthSafety()/2.0)
+                                  (itsLength-BDSGlobals->GetLengthSafety())
                                   );
 
    itsTunnelSolid=new G4Tubs(itsName+"_tun_solid",
@@ -222,12 +223,10 @@ void BDSAcceleratorComponent::BuildTunnel()
 
     G4double xHalfLengthPlus, xHalfLengthMinus, tunHalfLen;
     xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
-      - fabs(cos(itsAngle/2)) * (itsTunnelRadius + BDSGlobals->GetTunnelThickness()) * tan(itsAngle/2)/2
-      + BDSGlobals->GetLengthSafety()/2;
+      - fabs(cos(itsAngle/2)) * (itsTunnelRadius + BDSGlobals->GetTunnelThickness()) * tan(itsAngle/2)/2;
     
     xHalfLengthPlus = (itsLength/itsAngle)*sin(itsAngle/2)
-      + fabs(cos(itsAngle/2)) * (itsTunnelRadius + BDSGlobals->GetTunnelThickness()) * tan(itsAngle/2)/2
-      + BDSGlobals->GetLengthSafety()/2;
+      + fabs(cos(itsAngle/2)) * (itsTunnelRadius + BDSGlobals->GetTunnelThickness()) * tan(itsAngle/2)/2;
     
     tunHalfLen = std::max(xHalfLengthPlus,xHalfLengthMinus);
 #ifdef DEBUG
@@ -419,6 +418,10 @@ void BDSAcceleratorComponent::BuildTunnel()
     itsInnerTunnelUserLimits->SetUserMinEkine(tcut);
   }
   
+  itsTunnelUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
+  itsSoilTunnelUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
+  itsInnerTunnelUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
+
   itsTunnelUserLimits->SetMaxAllowedStep(itsLength);
   itsSoilTunnelUserLimits->SetMaxAllowedStep(itsLength);
   itsInnerTunnelUserLimits->SetMaxAllowedStep(itsLength);
