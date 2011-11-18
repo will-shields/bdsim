@@ -194,6 +194,7 @@ void BDSPhysicsList::ConstructProcess()
     }
     G4ProcessManager *pmanager = particle->GetProcessManager();
 #ifndef NOSTEPLIMITER
+    //pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
     pmanager->AddDiscreteProcess(new G4StepLimiter);
 #endif
 #ifndef NOUSERSPECIALCUTS
@@ -234,6 +235,12 @@ void BDSPhysicsList::ConstructProcess()
     if(BDSGlobals->GetPhysListName() == "em_standard") 
       {
         ConstructEM();
+        return;
+      }
+
+    if(BDSGlobals->GetPhysListName() == "em_standard_db") 
+      {
+        ConstructEM_db();
         return;
       }
     
@@ -296,6 +303,12 @@ void BDSPhysicsList::ConstructProcess()
       return;
     }
     
+    if(BDSGlobals->GetPhysListName() == "QGSP_BERT_HP"){
+      QGSP_BERT_HP *myPhysList = new QGSP_BERT_HP;
+      myPhysList->ConstructProcess();
+      return;
+    }
+
     if(BDSGlobals->GetPhysListName() == "hadronic_QGSP_BERT_HP_muon"){
       ConstructEM();
       ConstructMuon();
@@ -328,6 +341,7 @@ void BDSPhysicsList::ConstructProcess()
     return;
   }
 }
+
 void BDSPhysicsList::ConstructParticle()
 {
   // pseudo-particles
@@ -434,7 +448,7 @@ void BDSPhysicsList::ConstructEM()
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
 #ifndef NOSTEPLIMITER
-    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
+    //    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
 #endif
 
     if (particleName == "gamma") {
@@ -552,6 +566,134 @@ void BDSPhysicsList::ConstructEM()
   }
 }
 
+
+// particular physics process constructors
+void BDSPhysicsList::ConstructEM_db()
+{
+  theParticleIterator->reset();
+  while( (*theParticleIterator)() ){
+    G4ParticleDefinition* particle = theParticleIterator->value();
+    G4ProcessManager* pmanager = particle->GetProcessManager();
+    G4String particleName = particle->GetParticleName();
+#ifndef NOSTEPLIMITER
+    //    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
+#endif
+
+    if (particleName == "gamma") {
+      // gamma         
+      pmanager->AddDiscreteProcess(new G4PhotoElectricEffect);
+      pmanager->AddDiscreteProcess(new G4ComptonScattering);
+
+      if(0){
+	G4GammaConversion* gammaconversion = new G4GammaConversion();
+	gammaconversion->SetLambdaFactor(1/1.0e-20);
+	BDSXSBias* gammaconversion_xsbias = new BDSXSBias();
+	gammaconversion_xsbias->RegisterProcess(gammaconversion);
+	gammaconversion_xsbias->SetEnhanceFactor(1e-20);
+	pmanager->AddDiscreteProcess(gammaconversion_xsbias);
+	
+      } else if (BDSGlobals->GetUseEMLPB()){ //added by M.D. Salt, R.B. Appleby, 15/10/09
+	  G4GammaConversion* gammaconversion = new G4GammaConversion();
+	  GammaConversion_LPB* gammaconversion_lpb = new GammaConversion_LPB();
+	  gammaconversion_lpb->RegisterProcess(gammaconversion);
+	  pmanager->AddDiscreteProcess(gammaconversion_lpb);
+      } else {
+	pmanager->AddDiscreteProcess(new G4GammaConversion);
+      }
+    
+      
+    } else if (particleName == "mask_e-") {
+      //electron
+#if G4VERSION_NUMBER>919
+      pmanager->AddProcess(new G4eMultipleScattering,-1, 1,1);
+#else
+      pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
+#endif
+      pmanager->AddProcess(new G4eIonisation,       -1, 2,2);
+      if(0){
+	G4eBremsstrahlung* ebremsstrahlung = new G4eBremsstrahlung();
+	ebremsstrahlung->SetLambdaFactor(1/1.0e-20);
+	BDSXSBias* ebremsstrahlung_xsbias = new BDSXSBias();
+	ebremsstrahlung_xsbias->RegisterProcess(ebremsstrahlung);
+	ebremsstrahlung_xsbias->SetEnhanceFactor(1e-20);
+	pmanager->AddDiscreteProcess(ebremsstrahlung_xsbias);     
+      }	else if(BDSGlobals->GetUseEMLPB()){ //added by M.D. Salt, R.B. Appleby, 15/10/09
+	  
+        G4eBremsstrahlung* ebremsstrahlung = new G4eBremsstrahlung();
+        eBremsstrahlung_LPB* ebremsstrahlung_lpb = new eBremsstrahlung_LPB();
+        ebremsstrahlung_lpb->RegisterProcess(ebremsstrahlung);
+        pmanager->AddProcess(ebremsstrahlung_lpb,     -1,-1,3);
+      } else {
+	G4eBremsstrahlung* ebremsstrahlung = new G4eBremsstrahlung();
+        pmanager->AddProcess(ebremsstrahlung,   -1, 3,3);     
+      }
+            
+      if(BDSGlobals->GetTurnOnCerenkov()){
+#if G4VERSION_NUMBER > 909
+        G4Cerenkov* theCerenkovProcess = new G4Cerenkov;
+        pmanager->AddProcess(theCerenkovProcess);
+        pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
+#else
+        pmanager->AddProcess(new G4Cerenkov,          -1, 5,-1);
+#endif
+      }
+      
+    } else if (particleName == "e+") {
+      //positron
+#if G4VERSION_NUMBER>919
+      pmanager->AddProcess(new G4eMultipleScattering,-1, 1,1);
+      #else
+      pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
+#endif
+      pmanager->AddProcess(new G4eIonisation,       -1, 2,2);
+      if(0){
+	G4eBremsstrahlung* ebremsstrahlung = new G4eBremsstrahlung();
+	ebremsstrahlung->SetLambdaFactor(1/1.0e-20);
+	BDSXSBias* ebremsstrahlung_xsbias = new BDSXSBias();
+	ebremsstrahlung_xsbias->RegisterProcess(ebremsstrahlung);
+	ebremsstrahlung_xsbias->SetEnhanceFactor(1e-20);
+	pmanager->AddDiscreteProcess(ebremsstrahlung_xsbias);      
+      } else if (BDSGlobals->GetUseEMLPB()){
+	G4eBremsstrahlung* ebremsstrahlung = new G4eBremsstrahlung();
+	eBremsstrahlung_LPB* ebremsstrahlung_lpb = new eBremsstrahlung_LPB();
+        ebremsstrahlung_lpb->RegisterProcess(ebremsstrahlung);
+        pmanager->AddProcess(ebremsstrahlung_lpb,     -1,-1,3);
+      } else {
+        pmanager->AddProcess(new G4eBremsstrahlung,   -1, 3,3);
+      }
+      pmanager->AddProcess(new G4eplusAnnihilation,  0,-1,4);
+      if(BDSGlobals->GetTurnOnCerenkov()){      
+#if G4VERSION_NUMBER > 909
+        G4Cerenkov* theCerenkovProcess = new G4Cerenkov;
+        pmanager->AddProcess(theCerenkovProcess);
+        pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
+#else
+        pmanager->AddProcess(new G4Cerenkov,          -1, 5,-1);
+#endif 
+      }
+    } else if ((!particle->IsShortLived()) &&
+	       (particle->GetPDGCharge() != 0.0) && 
+	       (particle->GetParticleName() != "chargedgeantino")) {
+      //all others charged particles except geantino
+#if G4VERSION_NUMBER>919
+      pmanager->AddProcess(new G4hMultipleScattering,-1, 1,1);
+#else
+      pmanager->AddProcess(new G4MultipleScattering,-1, 1,1);
+#endif
+      pmanager->AddProcess(new G4hIonisation,       -1, 2,2);
+           if(BDSGlobals->GetTurnOnCerenkov()){
+#if  G4VERSION_NUMBER > 909
+        G4Cerenkov* theCerenkovProcess = new G4Cerenkov;
+        pmanager->AddProcess(theCerenkovProcess);
+        pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
+#else
+        pmanager->AddProcess(new G4Cerenkov,          -1, 3,-1);
+#endif
+      }
+    }
+  }
+}
+
 void BDSPhysicsList::ConstructMuon()
 {
   theParticleIterator->reset();
@@ -560,7 +702,7 @@ void BDSPhysicsList::ConstructMuon()
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
 #ifndef NOSTEPLIMITER
-    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
+    //    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
 #endif
 
     if (particleName == "gamma") {
@@ -630,7 +772,7 @@ void BDSPhysicsList::ConstructDecay()
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
 #ifndef NOSTEPLIMITER
-    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
+    //    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
 #endif
     
     if (theDecayProcess->IsApplicable(*particle)) { 
@@ -673,7 +815,7 @@ void BDSPhysicsList::ConstructEM_Low_Energy()
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
 #ifndef NOSTEPLIMITER
-    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
+    //    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
 #endif
      
     if (particleName == "gamma") {
