@@ -28,6 +28,7 @@
 #include "G4ios.hh"
 #include <iomanip>   
 #include "QGSP_BERT.hh"
+#include "QGSP_BERT_HP.hh"
 #include "HadronPhysicsQGSP_BERT.hh"
 #include "HadronPhysicsQGSP_BERT_HP.hh"
 #include "HadronPhysicsFTFP_BERT.hh"
@@ -570,6 +571,7 @@ void BDSPhysicsList::ConstructEM()
 // particular physics process constructors
 void BDSPhysicsList::ConstructEM_db()
 {
+  /*
   theParticleIterator->reset();
   while( (*theParticleIterator)() ){
     G4ParticleDefinition* particle = theParticleIterator->value();
@@ -692,6 +694,7 @@ void BDSPhysicsList::ConstructEM_db()
       }
     }
   }
+  */
 }
 
 void BDSPhysicsList::ConstructMuon()
