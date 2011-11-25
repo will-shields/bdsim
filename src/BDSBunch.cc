@@ -537,9 +537,9 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
     G4double ex=std::abs(GaussGen->shoot()*emitX);
     G4double ey=std::abs(GaussGen->shoot()*emitY);
     x0=sqrt(2*ex*betaX)*sin(phiX);
-    xp=sqrt(2*ex/betaX)*(cos(phiX)-alphaX*sin(phiX));
+    xp=sqrt(2*ex/betaX)*(cos(phiX)+alphaX*sin(phiX));
     y0=sqrt(2*ey*betaY)*sin(phiY);
-    yp=sqrt(2*ey/betaY)*(cos(phiY)-alphaY*sin(phiY)); 
+    yp=sqrt(2*ey/betaY)*(cos(phiY)+alphaY*sin(phiY)); 
     z0 = Z0 * m + (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * c_light * s;
     if (Zp0<0)
       zp = -sqrt(1.-xp*xp -yp*yp);
@@ -614,9 +614,9 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       G4double ex=std::abs(GaussGen->shoot()*emitX);
       G4double ey=std::abs(GaussGen->shoot()*emitY);
       x0=sqrt(2*ex*betaX)*sin(phiX)*m;
-      xp=sqrt(2*ex/betaX)*(cos(phiX)-alphaX*sin(phiX))*rad;
+      xp=sqrt(2*ex/betaX)*(cos(phiX)+alphaX*sin(phiX))*rad;
       y0=sqrt(2*ey*betaY)*sin(phiY)*m;
-      yp=sqrt(2*ey/betaY)*(cos(phiY)-alphaY*sin(phiY))*rad;      
+      yp=sqrt(2*ey/betaY)*(cos(phiY)+alphaY*sin(phiY))*rad;      
       z0 = Z0 * m + (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * c_light * s;
      
       if(sigmaX !=0) x0 = (X0 + sigmaX * GaussGen->shoot()) * m;
@@ -694,9 +694,9 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       G4double ex=std::abs(GaussGen->shoot()*emitX);
       G4double ey=std::abs(GaussGen->shoot()*emitY);
       x0=sqrt(2*ex*betaX)*sin(phiX)*m;
-      xp=sqrt(2*ex/betaX)*(cos(phiX)-alphaX*sin(phiX))*rad;
+      xp=sqrt(2*ex/betaX)*(cos(phiX)+alphaX*sin(phiX))*rad;
       y0=sqrt(2*ey*betaY)*sin(phiY)*m;
-      yp=sqrt(2*ey/betaY)*(cos(phiY)-alphaY*sin(phiY))*rad;
+      yp=sqrt(2*ey/betaY)*(cos(phiY)+alphaY*sin(phiY))*rad;
       z0 = Z0 * m + (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * c_light * s;
 
       if (Zp0<0)
