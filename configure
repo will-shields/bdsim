@@ -49,7 +49,6 @@ fi
 printf "The BDSIM magnet steppers and step limiter do not work well when the beam gas pressure is high (>4.5e-9 bar). A G4 stepper can be used instead, however, this will disable the synchRescale (rescaling of magentic field strengths to account for synchrotron radiation energy loss). Do you want to use a G4 stepper instead?\n"
 read -p "[y/n]" value
 if test "$value" == "y"; then
-    USE_GDML="-DUSE_GDML"
     NOQUADSTEPPER="-DNOQUADSTEPPER"
     NOSEXTSTEPPER="-DNOSEXTSTEPPER"
     NODRIFTSTEPPER="-DNODRIFTSTEPPER"
