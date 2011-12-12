@@ -12,7 +12,6 @@
 //
 
 
-
 #include "BDSGlobalConstants.hh"
 #include "BDSStackingAction.hh"
 #include "G4SDManager.hh"
@@ -194,11 +193,11 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
   }
 
   //For improvement in efficiency 
-  if(aTrack->GetNextVolume() != aTrack->GetVolume()) classification = fWaiting; //Track all particles in same volume first
-  if(aTrack->GetTrackID()!=1) classification = fWaiting_1;  //Not a secondary
-  if(aTrack->GetTotalEnergy()<0.1*BDSGlobals->GetBeamTotalEnergy()) classification = fWaiting_2;  //Below certain thresholds
-  if(aTrack->GetTotalEnergy()<0.01*BDSGlobals->GetBeamTotalEnergy()) classification = fWaiting_3; 
-  if(aTrack->GetTotalEnergy()<0.001*BDSGlobals->GetBeamTotalEnergy()) classification = fWaiting_4; 
+  //  if(aTrack->GetNextVolume() != aTrack->GetVolume()) classification = fWaiting; //Track all particles in same volume first
+  //  if(aTrack->GetTrackID()!=1) classification = fWaiting_1;  //Not a secondary
+  //  if(aTrack->GetTotalEnergy()<0.1*BDSGlobals->GetBeamTotalEnergy()) classification = fWaiting_2;  //Below certain thresholds
+  //  if(aTrack->GetTotalEnergy()<0.01*BDSGlobals->GetBeamTotalEnergy()) classification = fWaiting_3; 
+  //  if(aTrack->GetTotalEnergy()<0.001*BDSGlobals->GetBeamTotalEnergy()) classification = fWaiting_4; 
   
   return classification;
 }

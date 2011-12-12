@@ -15,6 +15,8 @@
 //     
 //
 
+#define DEBUG
+
 #include "BDSGlobalConstants.hh" // global parameters
 
 #include "G4UImanager.hh"        // G4 session managers
@@ -38,6 +40,7 @@
 #include "BDSDetectorConstruction.hh"   // Geant4 includes
 #include "BDSPhysicsList.hh"
 #include "QGSP_BERT.hh"
+#include "QGSP_BERT_HP.hh"
 #include "BDSPrimaryGeneratorAction.hh"
 #include "BDSRunAction.hh"
 #include "BDSEventAction.hh"
@@ -376,23 +379,25 @@ int main(int argc,char** argv) {
 #ifdef DEBUG 
   G4cout<<"constructing phys list"<<G4endl;
 #endif
+
   BDSPhysicsList* PhysList=new BDSPhysicsList;
+  runManager->SetUserInitialization(PhysList);
   
 #ifdef DEBUG 
   G4cout<<"user init phys list"<<G4endl;
 #endif
-  runManager->SetUserInitialization(PhysList);
+
 
 
 
   //Set the geometry tolerance
   static G4GeometryTolerance* theGeometryTolerance = G4GeometryTolerance::GetInstance();
   G4cout << "main> default geometry tolerances: surface " << theGeometryTolerance->GetSurfaceTolerance() << " " << theGeometryTolerance->GetAngularTolerance() << " " << theGeometryTolerance->GetRadialTolerance() << " " <<G4endl;
-  G4double worldMaximumExtent=2000*m;
-  G4GeometryManager::GetInstance()->SetWorldMaximumExtent(1000*m); //This sets the tolerances for the geometry (1e-11 times this value)
+  G4double worldMaximumExtent=1000*m;
+  G4GeometryManager::GetInstance()->SetWorldMaximumExtent(worldMaximumExtent); //This sets the tolerances for the geometry (1e-11 times this value)
   G4cout << "main> geometry toleranceswith worldMaximumExtent=" << worldMaximumExtent/m << "m: surface: " << theGeometryTolerance->GetSurfaceTolerance() << " angular: " << theGeometryTolerance->GetAngularTolerance() << " radial: " << theGeometryTolerance->GetRadialTolerance() << " " <<G4endl;
-
-
+  
+  
 #ifdef DEBUG 
   G4cout<<"constructing detector"<<G4endl;
 #endif
@@ -409,11 +414,6 @@ int main(int argc,char** argv) {
   //
   // set user action classes
   //
-
-#ifdef DEBUG 
-  G4cout<<"user action - detector"<<G4endl;
-#endif
-  runManager->SetUserAction(new BDSPrimaryGeneratorAction(detector));
 
 #ifdef DEBUG 
   G4cout<<"user action - runaction"<<G4endl;
@@ -439,6 +439,12 @@ int main(int argc,char** argv) {
   G4cout<<"user action - stackingaction"<<G4endl;
 #endif
   runManager->SetUserAction(new BDSStackingAction);
+
+#ifdef DEBUG 
+  G4cout<<"user action - detector"<<G4endl;
+#endif
+  runManager->SetUserAction(new BDSPrimaryGeneratorAction(detector));
+
   
 
   //

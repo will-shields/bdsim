@@ -4,7 +4,6 @@
 #include "globals.hh"
 #include <cmath>
 
-
 using namespace std;
 
 extern G4bool verbose;      // run options
@@ -14,7 +13,6 @@ extern G4int verboseEventNumber;
 extern G4bool isBatch;
 
 extern G4int nptwiss;
-
 
 BDSBunch::BDSBunch()
 {
@@ -207,125 +205,126 @@ void BDSBunch::SetOptions(struct Options& opt)
 	{
 	  pos = unparsed_str.find(":");
 	  G4String token = unparsed_str.substr(0,pos);
+
+
 	  unparsed_str = unparsed_str.substr(pos+1);
 #ifdef DEBUG 
           G4cout<< "BDSBunch : " <<"token ->"<<token<<G4endl;
+	  G4cout << "BDSBunch : token.substr(0,1) -> " << token.substr(0,1) << G4endl;
 	  G4cout<< "BDSBunch : " <<"unparsed_str ->"<<unparsed_str<<G4endl;
           G4cout<< "BDSBunch : " <<"pos ->"<<pos<<G4endl;
 #endif
-	  // see if the token has a meeting
-	  if( token.length() > 2) {
-	    if(token.substr(0,1)=="E") {
+	  if(token.substr(0,1)=="E") {
 #ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"E!"<<G4endl;
+	    G4cout<< "BDSBunch : " <<"E!"<<G4endl;
 #endif
-	      G4String rest = token.substr(1);
+	    G4String rest = token.substr(1);
 #ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"rest ->"<<rest<<G4endl;
+	    G4cout<< "BDSBunch : " <<"rest ->"<<rest<<G4endl;
 #endif
-	      G4int pos1 = rest.find("[");
-	      G4int pos2 = rest.find("]");
-	      if(pos1 < 0 || pos2 < 0) {
-		G4cerr<<"unit format wrong!!!"<<G4endl;
-	      } else {
-		G4String fmt = rest.substr(pos1+1,pos2-1);
+	    G4int pos1 = rest.find("[");
+	    G4int pos2 = rest.find("]");
+	    if(pos1 < 0 || pos2 < 0) {
+	      G4cerr<<"unit format wrong!!!"<<G4endl;
+	    } else {
+	      G4String fmt = rest.substr(pos1+1,pos2-1);
 #ifdef DEBUG 
-                G4cout<< "BDSBunch : " <<"fmt ->"<<fmt<<G4endl;
+	      G4cout<< "BDSBunch : " <<"fmt ->"<<fmt<<G4endl;
 #endif
-		sd.name = "E"; 
-                
-		if(fmt=="GeV") sd.unit=1;
-		if(fmt=="MeV") sd.unit=1.e-3;
-		if(fmt=="KeV") sd.unit=1.e-6;
-		if(fmt=="eV") sd.unit=1.e-9;
-		
-		fields.push_back(sd);
-	      }
-	    } else if(token.substr(0,1)=="t") {
+	      sd.name = "E"; 
+              
+	      if(fmt=="GeV") sd.unit=1;
+	      if(fmt=="MeV") sd.unit=1.e-3;
+	      if(fmt=="KeV") sd.unit=1.e-6;
+	      if(fmt=="eV") sd.unit=1.e-9;
+	      
+	      fields.push_back(sd);
+	    }
+	  } else if(token.substr(0,1)=="t") {
 #ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"t!"<<G4endl;
+	    G4cout<< "BDSBunch : " <<"t!"<<G4endl;
 #endif
-	      G4String rest = token.substr(1);
+	    G4String rest = token.substr(1);
 #ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"rest ->"<<rest<<G4endl;
+	    G4cout<< "BDSBunch : " <<"rest ->"<<rest<<G4endl;
 #endif
-	      G4int pos1 = rest.find("[");
-	      G4int pos2 = rest.find("]");
-	      if(pos1 < 0 || pos2 < 0) {
-		G4cerr<<"unit format wrong!!!"<<G4endl;
-	      } else {
-		G4String fmt = rest.substr(pos1+1,pos2-1);
+	    G4int pos1 = rest.find("[");
+	    G4int pos2 = rest.find("]");
+	    if(pos1 < 0 || pos2 < 0) {
+	      G4cerr<<"unit format wrong!!!"<<G4endl;
+	    } else {
+	      G4String fmt = rest.substr(pos1+1,pos2-1);
 #ifdef DEBUG 
-                G4cout<< "BDSBunch : " <<"fmt ->"<<fmt<<G4endl;
+	      G4cout<< "BDSBunch : " <<"fmt ->"<<fmt<<G4endl;
 #endif
-		sd.name = "t"; 
-                
-		if(fmt=="s") sd.unit=1;
-		if(fmt=="ms") sd.unit=1.e-3;
-		if(fmt=="mus") sd.unit=1.e-6;
-		if(fmt=="ns") sd.unit=1.e-9;
-		if(fmt=="mm/c") sd.unit=(mm/c_light)/s;
-		if(fmt=="nm/c") sd.unit=(nm/c_light)/s;
-                
-		fields.push_back(sd);
-		
-	      }
-	    } else if( (token.substr(0,1)=="x") && (token.substr(1,1)!="p") ) {
+	      sd.name = "t"; 
+              
+	      if(fmt=="s") sd.unit=1;
+	      if(fmt=="ms") sd.unit=1.e-3;
+	      if(fmt=="mus") sd.unit=1.e-6;
+	      if(fmt=="ns") sd.unit=1.e-9;
+	      if(fmt=="mm/c") sd.unit=(mm/c_light)/s;
+	      if(fmt=="nm/c") sd.unit=(nm/c_light)/s;
+              
+	      fields.push_back(sd);
+	      
+	    }
+	  } else if( (token.substr(0,1)=="x") && (token.substr(1,1)!="p") ) {
 #ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"x!"<<G4endl;
+	    G4cout<< "BDSBunch : " <<"x!"<<G4endl;
 #endif
-	      G4String rest = token.substr(1);
+	    G4String rest = token.substr(1);
 #ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"rest ->"<<rest<<G4endl;
+	    G4cout<< "BDSBunch : " <<"rest ->"<<rest<<G4endl;
 #endif
-	      G4int pos1 = rest.find("[");
-	      G4int pos2 = rest.find("]");
-	      if(pos1 < 0 || pos2 < 0) {
-		G4cerr<<"unit format wrong!!!"<<G4endl;
-	      } else {
-		G4String fmt = rest.substr(pos1+1,pos2-1);
+	    G4int pos1 = rest.find("[");
+	    G4int pos2 = rest.find("]");
+	    if(pos1 < 0 || pos2 < 0) {
+	      G4cerr<<"unit format wrong!!!"<<G4endl;
+	    } else {
+	      G4String fmt = rest.substr(pos1+1,pos2-1);
 #ifdef DEBUG 
-                G4cout<< "BDSBunch : " <<"fmt ->"<<fmt<<G4endl;
+	      G4cout<< "BDSBunch : " <<"fmt ->"<<fmt<<G4endl;
 #endif
-		sd.name="x";
-		
-		if(fmt=="m") sd.unit=1;
-		if(fmt=="cm") sd.unit=1.e-2;
-		if(fmt=="mm") sd.unit=1.e-3;
-		if(fmt=="mum") sd.unit=1.e-6;
-		if(fmt=="nm") sd.unit=1.e-9;
-		
-		fields.push_back(sd);
-		
-	      }
-	    }else if(token.substr(0,1)=="y" && token.substr(1,1)!="p" ) {
+	      sd.name="x";
+	      
+	      if(fmt=="m") sd.unit=1;
+	      if(fmt=="cm") sd.unit=1.e-2;
+	      if(fmt=="mm") sd.unit=1.e-3;
+	      if(fmt=="mum") sd.unit=1.e-6;
+	      if(fmt=="nm") sd.unit=1.e-9;
+	      
+	      fields.push_back(sd);
+	      
+	    }
+	  }else if(token.substr(0,1)=="y" && token.substr(1,1)!="p" ) {
 #ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"y!"<<G4endl;
+	    G4cout<< "BDSBunch : " <<"y!"<<G4endl;
 #endif
-	      G4String rest = token.substr(1);
+	    G4String rest = token.substr(1);
 #ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"rest ->"<<rest<<G4endl;
+	    G4cout<< "BDSBunch : " <<"rest ->"<<rest<<G4endl;
 #endif
-	      G4int pos1 = rest.find("[");
-	      G4int pos2 = rest.find("]");
-	      if(pos1 < 0 || pos2 < 0) {
-		G4cerr<<"unit format wrong!!!"<<G4endl;
-	      } else {
-		G4String fmt = rest.substr(pos1+1,pos2-1);
+	    G4int pos1 = rest.find("[");
+	    G4int pos2 = rest.find("]");
+	    if(pos1 < 0 || pos2 < 0) {
+	      G4cerr<<"unit format wrong!!!"<<G4endl;
+	    } else {
+	      G4String fmt = rest.substr(pos1+1,pos2-1);
 #ifdef DEBUG 
-                G4cout<< "BDSBunch : " <<"fmt ->"<<fmt<<G4endl;
+	      G4cout<< "BDSBunch : " <<"fmt ->"<<fmt<<G4endl;
 #endif
-		sd.name="y";
-		
-		if(fmt=="m") sd.unit=1;
-		if(fmt=="cm") sd.unit=1.e-2;
-		if(fmt=="mm") sd.unit=1.e-3;
-		if(fmt=="mum") sd.unit=1.e-6;
-		if(fmt=="nm") sd.unit=1.e-9;
-		
-		fields.push_back(sd);
-	      }
-	    }else if(token.substr(0,1)=="z" && token.substr(1,1)!="p" ) {
+	      sd.name="y";
+	      
+	      if(fmt=="m") sd.unit=1;
+	      if(fmt=="cm") sd.unit=1.e-2;
+	      if(fmt=="mm") sd.unit=1.e-3;
+	      if(fmt=="mum") sd.unit=1.e-6;
+	      if(fmt=="nm") sd.unit=1.e-9;
+	      
+	      fields.push_back(sd);
+	    }
+	  }else if(token.substr(0,1)=="z" && token.substr(1,1)!="p" ) {
 #ifdef DEBUG 
               G4cout<< "BDSBunch : " <<"z!"<<G4endl;
 #endif
@@ -352,99 +351,97 @@ void BDSBunch::SetOptions(struct Options& opt)
 		
 		fields.push_back(sd);
 	      }
-	    }else if(token.substr(0,2)=="xp") {
+	  } else if(token.substr(0,2)=="xp") {
 #ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"xp!"<<G4endl;
+	    G4cout<< "BDSBunch : " <<"xp!"<<G4endl;
 #endif
-	      G4String rest = token.substr(2);
+	    G4String rest = token.substr(2);
 #ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"rest ->"<<rest<<G4endl;
+	    G4cout<< "BDSBunch : " <<"rest ->"<<rest<<G4endl;
 #endif
-	      G4int pos1 = rest.find("[");
-	      G4int pos2 = rest.find("]");
-	      if(pos1 < 0 || pos2 < 0) {
-		G4cerr<<"unit format wrong!!!"<<G4endl;
-	      } else {
-		G4String fmt = rest.substr(pos1+1,pos2-1);
+	    G4int pos1 = rest.find("[");
+	    G4int pos2 = rest.find("]");
+	    if(pos1 < 0 || pos2 < 0) {
+	      G4cerr<<"unit format wrong!!!"<<G4endl;
+	    } else {
+	      G4String fmt = rest.substr(pos1+1,pos2-1);
 #ifdef DEBUG 
-                G4cout<< "BDSBunch : " <<"fmt ->"<<fmt<<G4endl;
+	      G4cout<< "BDSBunch : " <<"fmt ->"<<fmt<<G4endl;
 #endif
-		sd.name="xp";
-                
-		if(fmt=="rad") sd.unit=1;
-		if(fmt=="mrad") sd.unit=1.e-3;
-		if(fmt=="murad") sd.unit=1.e-6;
-		
-		fields.push_back(sd);
-		
-	      }
-	    }else if(token.substr(0,2)=="yp") {
-#ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"yp!"<<G4endl;
-#endif
-	      G4String rest = token.substr(2);
-#ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"rest ->"<<rest<<G4endl;
-#endif
-	      G4int pos1 = rest.find("[");
-	      G4int pos2 = rest.find("]");
-	      if(pos1 < 0 || pos2 < 0) {
-		G4cerr<<"unit format wrong!!!"<<G4endl;
-	      } else {
-		G4String fmt = rest.substr(pos1+1,pos2-1);
-#ifdef DEBUG 
-                G4cout<< "BDSBunch : " <<"fmt ->"<<fmt<<G4endl;
-#endif
-		sd.name="yp";
-		
-		if(fmt=="rad") sd.unit=1;
-		if(fmt=="mrad") sd.unit=1.e-3;
-		if(fmt=="murad") sd.unit=1.e-6;
-		
-		fields.push_back(sd);
-	      }
-	    } else if(token.substr(0,2)=="zp") {
-#ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"zp!"<<G4endl;
-#endif
-              G4String rest = token.substr(2);
-#ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"rest ->"<<rest<<G4endl;
-#endif
-              G4int pos1 = rest.find("[");
-	      G4int pos2 = rest.find("]");
-	      if(pos1 < 0 || pos2 < 0) {
-		G4cerr<<"unit format wrong!!!"<<G4endl;
-	      } else {
-		G4String fmt = rest.substr(pos1+1,pos2-1);
-#ifdef DEBUG 
-                G4cout<< "BDSBunch : " <<"fmt ->"<<fmt<<G4endl;
-#endif
-                sd.name="zp";
-		
-		if(fmt=="rad") sd.unit=1;
-		if(fmt=="mrad") sd.unit=1.e-3;
-		if(fmt=="murad") sd.unit=1.e-3;
-		
-		fields.push_back(sd);
-	      }
-	    }
-	  } else if(token.substr(0,2)=="pt") {
-#ifdef DEBUG 
-              G4cout<< "BDSBunch : " <<"pt!"<<G4endl;
-#endif
-              sd.name="pt";
-	      sd.unit=1;
+	      sd.name="xp";
+              
+	      if(fmt=="rad") sd.unit=1;
+	      if(fmt=="mrad") sd.unit=1.e-3;
+	      if(fmt=="murad") sd.unit=1.e-6;
+	      
 	      fields.push_back(sd);
+	      
+	    }
+	  }else if(token.substr(0,2)=="yp") {
+#ifdef DEBUG 
+	    G4cout<< "BDSBunch : " <<"yp!"<<G4endl;
+#endif
+	    G4String rest = token.substr(2);
+#ifdef DEBUG 
+	    G4cout<< "BDSBunch : " <<"rest ->"<<rest<<G4endl;
+#endif
+	    G4int pos1 = rest.find("[");
+	    G4int pos2 = rest.find("]");
+	    if(pos1 < 0 || pos2 < 0) {
+	      G4cerr<<"unit format wrong!!!"<<G4endl;
+	    } else {
+	      G4String fmt = rest.substr(pos1+1,pos2-1);
+#ifdef DEBUG 
+	      G4cout<< "BDSBunch : " <<"fmt ->"<<fmt<<G4endl;
+#endif
+	      sd.name="yp";
+	      
+	      if(fmt=="rad") sd.unit=1;
+	      if(fmt=="mrad") sd.unit=1.e-3;
+	      if(fmt=="murad") sd.unit=1.e-6;
+	      
+	      fields.push_back(sd);
+	    }
+	  } else if(token.substr(0,2)=="zp") {
+#ifdef DEBUG 
+	    G4cout<< "BDSBunch : " <<"zp!"<<G4endl;
+#endif
+	    G4String rest = token.substr(2);
+#ifdef DEBUG 
+	    G4cout<< "BDSBunch : " <<"rest ->"<<rest<<G4endl;
+#endif
+	    G4int pos1 = rest.find("[");
+	    G4int pos2 = rest.find("]");
+	    if(pos1 < 0 || pos2 < 0) {
+	      G4cerr<<"unit format wrong!!!"<<G4endl;
+	    } else {
+	      G4String fmt = rest.substr(pos1+1,pos2-1);
+#ifdef DEBUG 
+	      G4cout<< "BDSBunch : " <<"fmt ->"<<fmt<<G4endl;
+#endif
+	      sd.name="zp";
+	      
+	      if(fmt=="rad") sd.unit=1;
+	      if(fmt=="mrad") sd.unit=1.e-3;
+	      if(fmt=="murad") sd.unit=1.e-3;
+	      
+	      fields.push_back(sd);
+	    }
+	  }else if(token.substr(0,2)=="pt") {
+#ifdef DEBUG 
+	    G4cout<< "BDSBunch : " <<"pt!"<<G4endl;
+#endif
+	    sd.name="pt";
+	    sd.unit=1;
+	    fields.push_back(sd);
 	  } else if(token.substr(0,1)=="w") {
 #ifdef DEBUG 
 	    G4cout<< "BDSBunch : " <<"weight!"<<G4endl;
 #endif
-              sd.name="weight";
-	      sd.unit=1;
-	      fields.push_back(sd);
-	  }
-	  else {
+	    sd.name="weight";
+	    sd.unit=1;
+	    fields.push_back(sd);
+	  } else {
 	    G4cerr << "Cannot determine bunch data format" << G4endl; exit(1);
 	  }
 	} 
@@ -1048,10 +1045,10 @@ case _RING:
          if(it->name=="E") { ReadValue(E); E *= ( GeV * it->unit ); 
 #ifdef DEBUG 
          G4cout << "******** Particle Mass = " << BDSGlobals->GetParticleDefinition()->GetPDGMass() << G4endl;
-         G4cout << "******** Particle Energy = " << E << G4endl;
+         G4cout << "******** Particle Total Energy = " << E << G4endl;
          
          E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
-         G4cout << "******** Particle Energy = " << E << G4endl;
+         G4cout << "******** Particle Kinetic Energy = " << E << G4endl;
 	 
 	 G4cout<< "BDSBunch : " << E <<G4endl;
 #endif
@@ -1093,9 +1090,9 @@ case _RING:
          }
 	 if(it->name=="weight") {ReadValue(weight);
 #ifdef DEBUG 
-	 G4cout<< "BDSBunch : " << weight <<G4endl;
+	   G4cout<< "BDSBunch : " << weight <<G4endl;
 #endif
-}
+	 }
 
 	 // compute zp from xp and yp if it hasn't been read from file
 	 if (!zpdef) zp=sqrt(1.-xp*xp -yp*yp);

@@ -19,8 +19,10 @@
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 #include "G4PVPlacement.hh"               
-
+#include "G4CashKarpRKF45.hh"
+#include "G4ExactHelixStepper.hh"
 #include "BDSMultipole.hh"
+
 
 class BDSPCLDrift :public BDSMultipole
 {
@@ -38,34 +40,29 @@ private:
   G4VisAttributes* SetVisAttributes();
   G4double itsYAperUp, itsYAperDown, itsDyAper;
 
-  G4VSolid* upper_outer_solid;
-  G4VSolid* middle_outer_solid;
-  G4VSolid* lower_outer_solid;
-  G4VSolid* upper_inner_solid;
-  G4VSolid* middle_inner_solid;
-  G4VSolid* lower_inner_solid;
+  G4VSolid* outer_solid;
+  G4VSolid* inner_solid;
 
-  G4LogicalVolume* itsUpperBeamPipeLogicalVolume;
-  G4LogicalVolume* itsMiddleBeamPipeLogicalVolume;
-  G4LogicalVolume* itsLowerBeamPipeLogicalVolume;
-
-  G4LogicalVolume* itsUpperInnerBeamPipeLogicalVolume;
-  G4LogicalVolume* itsMiddleInnerBeamPipeLogicalVolume;
-  G4LogicalVolume* itsLowerInnerBeamPipeLogicalVolume;
+  G4LogicalVolume* itsOuterBeamPipeLogicalVolume;
+  G4LogicalVolume* itsInnerBeamPipeLogicalVolume;
   
-  G4VPhysicalVolume* itsPhysiUpperInner;
-  G4VPhysicalVolume* itsPhysiUpper;
-  G4VPhysicalVolume* itsPhysiMiddleInner;
-  G4VPhysicalVolume* itsPhysiMiddle;
-  G4VPhysicalVolume* itsPhysiLowerInner;
-  G4VPhysicalVolume* itsPhysiLower;
+  G4VPhysicalVolume* itsPhysiInner;
+  G4VPhysicalVolume* itsPhysiOuter;
 
   G4VisAttributes* itsBeampipeVisAtt;
   G4VisAttributes* itsInnerBeampipeVisAtt;
 
+  G4UserLimits* itsBeampipeUserLimits;
+  G4UserLimits* itsInnerBeampipeUserLimits;
+
   //field related objects
   void BuildBpFieldAndStepper();
+#ifndef NODRIFTSTEPPER
   BDSDriftStepper* itsStepper;
+#else
+  //  G4CashKarpRKF45* itsStepper;
+  G4ExactHelixStepper* itsStepper;
+#endif
   BDSMagField* itsMagField;
   G4Mag_UsualEqRhs* itsEqRhs;
 };

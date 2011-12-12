@@ -189,6 +189,10 @@ void BDSPhysicsList::ConstructProcess()
     QGSP_BERT_HP* physList = new QGSP_BERT_HP;
     physList->ConstructProcess();
     return;
+  } else if(BDSGlobals->GetPhysListName() == "QGSP_BERT"){
+    QGSP_BERT* physList = new QGSP_BERT;
+    physList->ConstructProcess();
+    return;
   } else {
     //Apply the following in all cases - transportation and step limiter
     AddTransportation();
@@ -349,44 +353,46 @@ void BDSPhysicsList::ConstructParticle()
   if(BDSGlobals->GetPhysListName() == "QGSP_BERT_HP"){
     QGSP_BERT_HP* physList = new QGSP_BERT_HP;
     physList->ConstructParticle();
+  } else if(BDSGlobals->GetPhysListName() == "QGSP_BERT"){
+    QGSP_BERT* physList = new QGSP_BERT;
+    physList->ConstructParticle();
   } else {
-  
-  // pseudo-particles
-  G4Geantino::GeantinoDefinition();
-  G4ChargedGeantino::ChargedGeantinoDefinition();
-  
-  // gamma
-  G4Gamma::GammaDefinition();
-  
-  // optical photon
-  G4OpticalPhoton::OpticalPhotonDefinition();
-  
-  // leptons
-  G4Electron::ElectronDefinition();
-  G4Positron::PositronDefinition();
-  G4MuonPlus::MuonPlusDefinition();
-  G4MuonMinus::MuonMinusDefinition();
-  
-  G4NeutrinoE::NeutrinoEDefinition();
-  G4AntiNeutrinoE::AntiNeutrinoEDefinition();
-  G4NeutrinoMu::NeutrinoMuDefinition();
-  G4AntiNeutrinoMu::AntiNeutrinoMuDefinition();  
-  
-  // mesons
-  G4MesonConstructor mConstructor;
-  mConstructor.ConstructParticle();
-  
-  // barions
-  G4BaryonConstructor bConstructor;
-  bConstructor.ConstructParticle();
-  
-  // ions
-  G4IonConstructor iConstructor;
-  iConstructor.ConstructParticle();
-  
-  //  Construct  resonaces and quarks
-  G4ShortLivedConstructor pShortLivedConstructor;
-  pShortLivedConstructor.ConstructParticle();
+    // pseudo-particles
+    G4Geantino::GeantinoDefinition();
+    G4ChargedGeantino::ChargedGeantinoDefinition();
+    
+    // gamma
+    G4Gamma::GammaDefinition();
+    
+    // optical photon
+    G4OpticalPhoton::OpticalPhotonDefinition();
+    
+    // leptons
+    G4Electron::ElectronDefinition();
+    G4Positron::PositronDefinition();
+    G4MuonPlus::MuonPlusDefinition();
+    G4MuonMinus::MuonMinusDefinition();
+    
+    G4NeutrinoE::NeutrinoEDefinition();
+    G4AntiNeutrinoE::AntiNeutrinoEDefinition();
+    G4NeutrinoMu::NeutrinoMuDefinition();
+    G4AntiNeutrinoMu::AntiNeutrinoMuDefinition();  
+    
+    // mesons
+    G4MesonConstructor mConstructor;
+    mConstructor.ConstructParticle();
+    
+    // barions
+    G4BaryonConstructor bConstructor;
+    bConstructor.ConstructParticle();
+    
+    // ions
+    G4IonConstructor iConstructor;
+    iConstructor.ConstructParticle();
+    
+    //  Construct  resonaces and quarks
+    G4ShortLivedConstructor pShortLivedConstructor;
+    pShortLivedConstructor.ConstructParticle();
   }
   
   // set primary particle definition and kinetic beam parameters other than total energy

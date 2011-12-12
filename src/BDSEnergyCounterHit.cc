@@ -14,12 +14,12 @@
 G4Allocator<BDSEnergyCounterHit> BDSEnergyCounterHitAllocator;
 
 BDSEnergyCounterHit::BDSEnergyCounterHit(G4int nCopy, G4double anEnergy, 
-					 G4double EnWeightZ, G4int partID, G4int parentID, G4String volumeName, G4double weight):
+					 G4double EnWeightZ, G4int partID, G4int parentID, G4String volumeName, G4double weight, G4double x, G4double y):
     itsEnergy(anEnergy),itsCopyNumber(nCopy),
     itsPartID(partID),itsParentID(parentID),
     itsVolumeName(volumeName),
     itsEnergyWeightedPosition(EnWeightZ),
-    itsWeight(weight)
+    itsWeight(weight), itsX(x), itsY(y)
 {;}
 
 
@@ -37,6 +37,8 @@ BDSEnergyCounterHit::BDSEnergyCounterHit(const BDSEnergyCounterHit &right):G4VHi
   itsPartID = right.itsPartID;
   itsParentID = right.itsParentID;
   itsVolumeName = right.itsVolumeName;
+  itsX = right.itsX;
+  itsY = right.itsY;
   itsWeight = right.itsWeight;
 }
 
@@ -48,6 +50,8 @@ const BDSEnergyCounterHit& BDSEnergyCounterHit::operator=(const BDSEnergyCounter
   itsParentID = right.itsParentID;
   itsVolumeName = right.itsVolumeName;
   itsWeight = right.itsWeight;
+  itsX = right.itsX;
+  itsY = right.itsY;
   return *this;
 }
 

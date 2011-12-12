@@ -8,6 +8,8 @@
 #include "BDSPCLDrift.hh"
 #include "BDSMagField.hh"
 #include "BDSDriftStepper.hh"
+#include "BDSPCLTube.hh"
+
 #include "G4Box.hh"
 #include "G4Tubs.hh"
 #include "G4VisAttributes.hh"
@@ -15,6 +17,8 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4UserLimits.hh"
 #include "G4TransportationManager.hh"
+#include "G4CashKarpRKF45.hh"
+#include "G4ExactHelixStepper.hh"
 #include "G4UnionSolid.hh"
 
 #include <map>
@@ -60,9 +64,7 @@ BDSPCLDrift::BDSPCLDrift (G4String aName, G4double aLength,
       // define sensitive volumes for hit generation
       //
       if(BDSGlobals->GetSensitiveBeamPipe()){
-	SetMultipleSensitiveVolumes(itsUpperBeamPipeLogicalVolume)
-;	SetMultipleSensitiveVolumes(itsMiddleBeamPipeLogicalVolume);
-	SetMultipleSensitiveVolumes(itsLowerBeamPipeLogicalVolume);
+	SetMultipleSensitiveVolumes(itsOuterBeamPipeLogicalVolume);	
       }
       
       //
@@ -104,234 +106,73 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
   G4cout << "PCLDrift aperYDown: " << itsYAperDown/m << " m" << G4endl;
   G4cout << "PCLDrift Dy: " << itsDyAper/m << " m" << G4endl;
 
-  G4RotationMatrix* nullrot  = new G4RotationMatrix();
-  G4ThreeVector threeVector1;
+  G4double ts = BDSGlobals->GetLengthSafety()+BDSGlobals->GetBeampipeThickness()/2;
 
-  threeVector1.setX(0);
-  threeVector1.setZ(0);
+  BDSPCLTube* innerTube = new BDSPCLTube(itsXAper-ts, itsYAperUp-ts, itsYAperDown-ts, itsDyAper, -1, itsLength, itsName+"_inner");
 
-  //Make the upper ellipse
-  threeVector1.setY(0);
-  G4VSolid* tmp_solid_1 =new G4SubtractionSolid("tmp_solid_1",
-						new G4EllipticalTube(itsName+"_tmp_solid_1_a",
-								     itsXAper+BDSGlobals->GetBeampipeThickness(),
-								     itsYAperUp+BDSGlobals->GetBeampipeThickness(),
-								     itsLength/2-BDSGlobals->GetLengthSafety()/2.0),
-						new G4EllipticalTube(itsName+"_tmp_solid_1_b",
-								     itsXAper+BDSGlobals->GetLengthSafety()/2.0,
-								     itsYAperUp+BDSGlobals->GetLengthSafety()/2.0,
-								     itsLength),					
-						nullrot,
-						threeVector1);
-
-  threeVector1.setY(-1*(itsYAperUp*2));
-   upper_outer_solid = 
-
-     //  new G4EllipticalTube(itsName+"_tester",
-     //			  itsXAper+BDSGlobals->GetBeampipeThickness(),
-     //			  itsYAperUp+BDSGlobals->GetBeampipeThickness(),
-     //			  itsLength/2-BDSGlobals->GetLengthSafety()/2.0);
-   
-    new G4SubtractionSolid("upper_outer_solid",
-  			 tmp_solid_1,
-  			 new G4Box(itsName+"_upper_outer_solid_a",
-  				   itsXAper*2.0,
-  				   itsYAperUp*2.0,
-  				   itsLength),
-  			 nullrot,
-  			 threeVector1);
-
-   upper_inner_solid =new G4SubtractionSolid("upper_inner_solid",
-						      new G4EllipticalTube(itsName+"_upper_inner_solid_a",
-									   itsXAper-BDSGlobals->GetLengthSafety()/2.0,
-									   itsYAperUp-BDSGlobals->GetLengthSafety()/2.0,
-									   itsLength/2.0-BDSGlobals->GetLengthSafety()/2.0),					
-						      new G4Box(itsName+"_upper_inner_solid_b",
-								itsXAper*2.0,
-								itsYAperUp*2.0,
-								itsLength),
-						      nullrot,
-						      threeVector1);
+  BDSPCLTube* outerTube = new BDSPCLTube(itsXAper, itsYAperUp, itsYAperDown, itsDyAper, BDSGlobals->GetBeampipeThickness(), itsLength, itsName+"_outer");
   
+  //The inner beam pipe solids need to be fused together to form one seamless shape in order to create a vacuum and field without gaps in it.
 
+  inner_solid = innerTube->GetSolid();
+  outer_solid = outerTube->GetSolid();
 
-  
-
-  threeVector1.setY(0);
-  //Make the middle box
-   middle_outer_solid =new G4SubtractionSolid(itsName+"middle_outer_solid",
-						new G4Box(itsName+"_middle_outer_solid_a",
-							  itsXAper+BDSGlobals->GetBeampipeThickness(),
-							  itsDyAper/2.0-BDSGlobals->GetLengthSafety()/2.0,
-							  itsLength/2.0-BDSGlobals->GetLengthSafety()/2.0),
-						new G4Box(itsName+"_middle_outer_solid_b",
-							  itsXAper+BDSGlobals->GetLengthSafety()/2.0,
-							  itsDyAper,
-							  itsLength),
-						nullrot,
-						threeVector1);
-  
-   middle_inner_solid = new G4Box(itsName+"middle_inner_solid", 
-				  itsXAper,
-				  itsDyAper/2.0-10*BDSGlobals->GetLengthSafety(),
-				  itsLength/2.0-BDSGlobals->GetLengthSafety()/2.0);
-    
-
-//Make the lower ellipse
-    threeVector1.setY(0);
-  G4VSolid* tmp_solid_2 =new G4SubtractionSolid("tmp_solid_2",
-						new G4EllipticalTube(itsName+"_tmp_solid_2_a",
-								     itsXAper+BDSGlobals->GetBeampipeThickness(),
-								     itsYAperDown+BDSGlobals->GetBeampipeThickness(),
-								     itsLength/2-BDSGlobals->GetLengthSafety()/2.0),
-						new G4EllipticalTube(itsName+"_tmp_solid_2_b",
-								     itsXAper+BDSGlobals->GetLengthSafety()/2.0,
-								     itsYAperDown+BDSGlobals->GetLengthSafety()/2.0,
-								     itsLength),					
-						nullrot,
-						threeVector1);
-
-  threeVector1.setY(itsYAperDown*2);
-  lower_outer_solid =new G4SubtractionSolid("lower_outer_solid",
-					    tmp_solid_2,
-					    new G4Box(itsName+"_lower_outer_solid_a",
-						      itsXAper*2.0,
-						      itsYAperDown*2.0,
-						      itsLength),
-					    nullrot,
-					    threeVector1);
-  lower_inner_solid =new G4SubtractionSolid("lower_inner_solid",
-					    new G4EllipticalTube(itsName+"_lower_inner_solid_a",
-								 itsXAper,
-								 itsYAperDown,
-								 itsLength/2.0-BDSGlobals->GetLengthSafety()/2.0),					
-					    new G4Box(itsName+"_lower_inner_solid_b",
-						      itsXAper*2.0,
-						      itsYAperDown*2.0-BDSGlobals->GetLengthSafety()/2.0,
-						      itsLength),
-					    nullrot,
-						      threeVector1);
-  
-  
   G4cout << "Making logical..." << G4endl;
   
-  itsUpperBeamPipeLogicalVolume=	
-    new G4LogicalVolume(upper_outer_solid,
-			material,
-			itsName+"_upper_bmp_log");
-
-  itsMiddleBeamPipeLogicalVolume=	
-    new G4LogicalVolume(middle_outer_solid,
-			material,
-			itsName+"_middle_bmp_log");
-
-  itsLowerBeamPipeLogicalVolume=	
-    new G4LogicalVolume(lower_outer_solid,
-			material,
-			itsName+"_lower_bmp_log");
-
-  itsUpperInnerBeamPipeLogicalVolume=	
-    new G4LogicalVolume(upper_inner_solid,
+  itsInnerBeamPipeLogicalVolume=	
+    new G4LogicalVolume(inner_solid,
 			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
-			itsName+"_upper_inner_bmp_log");
+			itsName+"_inner_bmp_log");
 
-  itsMiddleInnerBeamPipeLogicalVolume=	
-    new G4LogicalVolume(middle_inner_solid,
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
-			itsName+"_middle_inner_bmp_log");
-
-  itsLowerInnerBeamPipeLogicalVolume=	
-    new G4LogicalVolume(lower_inner_solid,
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
-			itsName+"_lower_inner_bmp_log");
+  itsOuterBeamPipeLogicalVolume=	
+    new G4LogicalVolume(outer_solid,
+			material,
+			itsName+"_outer_bmp_log");
+  
   //
   // set visualization attributes
   //
-  itsInnerBeampipeVisAtt =  new G4VisAttributes(G4Colour(0., 0., 0));
+  itsInnerBeampipeVisAtt =  new G4VisAttributes(G4Colour(0., 1., 0));
   itsInnerBeampipeVisAtt->SetForceSolid(true);
-  itsInnerBeampipeVisAtt->SetVisibility(false);
-  itsUpperInnerBeamPipeLogicalVolume->SetVisAttributes(itsInnerBeampipeVisAtt);
-  itsMiddleInnerBeamPipeLogicalVolume->SetVisAttributes(itsInnerBeampipeVisAtt);
-  itsLowerInnerBeamPipeLogicalVolume->SetVisAttributes(itsInnerBeampipeVisAtt);
+  itsInnerBeampipeVisAtt->SetVisibility(true);
   
   itsBeampipeVisAtt = new G4VisAttributes(G4Colour(0.4, 0.4, 0.4));
   itsBeampipeVisAtt->SetForceSolid(true);
   itsBeampipeVisAtt->SetVisibility(true);
-  itsUpperBeamPipeLogicalVolume->SetVisAttributes(itsBeampipeVisAtt);
-  itsMiddleBeamPipeLogicalVolume->SetVisAttributes(itsBeampipeVisAtt);
-  itsLowerBeamPipeLogicalVolume->SetVisAttributes(itsBeampipeVisAtt);
 
+  itsOuterBeamPipeLogicalVolume->SetVisAttributes(itsBeampipeVisAtt);
+  itsInnerBeamPipeLogicalVolume->SetVisAttributes(itsInnerBeampipeVisAtt);
 
 
   G4cout << "Placing..." << G4endl;
-
-  threeVector1.setY(itsDyAper+BDSGlobals->GetLengthSafety()*2);
-
-  itsPhysiUpperInner = new G4PVPlacement(
-					 (G4RotationMatrix*)0,		        // no rotation
-					 threeVector1,	               
-					 itsUpperInnerBeamPipeLogicalVolume,  // its logical volume
-					 itsName+"_upper_inner_bmp_phys",// its name
-					 itsMarkerLogicalVolume,   // its mother  volume
-					 false,		        // no boolean operation
-					 0);		        // copy number
-
-  itsPhysiUpper = new G4PVPlacement(
-				    (G4RotationMatrix*)0,			     // no rotation
+  G4ThreeVector threeVector1;
+  threeVector1.setY(0);
+  itsPhysiInner = new G4PVPlacement(
+				    (G4RotationMatrix*)0,		        // no rotation
 				    threeVector1,	               
-				    itsUpperBeamPipeLogicalVolume,  // its logical volume
-				    itsName+"_bmp_phys",	     // its name
-				    itsMarkerLogicalVolume,    // its mother  volume
-				    false,		     // no boolean operation
-				    0);		             // copy number
-  
-  threeVector1.setY(itsDyAper/2.0);
-  
-  itsPhysiMiddleInner = new G4PVPlacement(
-					  (G4RotationMatrix*)0,		        // no rotation
-					  threeVector1,	               
-					  itsMiddleInnerBeamPipeLogicalVolume,  // its logical volume
-					  itsName+"_middle_inner_bmp_phys",// its name
-					  itsMarkerLogicalVolume,   // its mother  volume
-					  false,		        // no boolean operation
-					  0);		        // copy number
-  
-  itsPhysiMiddle = new G4PVPlacement(
-				     (G4RotationMatrix*)0,			     // no rotation
-				     threeVector1,	               
-				     itsMiddleBeamPipeLogicalVolume,  // its logical volume
-				     itsName+"_middle_bmp_phys",	     // its name
-				     itsMarkerLogicalVolume,    // its mother  volume
-				     false,		     // no boolean operation
-				     0);		             // copy number
+				    itsInnerBeamPipeLogicalVolume,  // its logical volume
+				    itsName+"_inner_bmp_phys",// its name
+				    itsMarkerLogicalVolume,   // its mother  volume
+				    false,		        // no boolean operation
+				    0);		        // copy number
 
-  threeVector1.setY(-1*BDSGlobals->GetLengthSafety()/2.0);
-  itsPhysiLowerInner = new G4PVPlacement(
-					 (G4RotationMatrix*)0,		        // no rotation
-					 threeVector1,	               
-					 itsLowerInnerBeamPipeLogicalVolume,  // its logical volume
-					 itsName+"_lower_inner_bmp_phys",// its name
-					 itsMarkerLogicalVolume,   // its mother  volume
-					 false,		        // no boolean operation
-					 0);		        // copy number
-  
-  itsPhysiLower = new G4PVPlacement(
-				   (G4RotationMatrix*)0,			     // no rotation
-				   threeVector1,	               
-				   itsLowerBeamPipeLogicalVolume,  // its logical volume
-				   itsName+"_lower_bmp_phys",	     // its name
-				   itsMarkerLogicalVolume,    // its mother  volume
-				   false,		     // no boolean operation
-				   0);		             // copy number
+
+  itsPhysiOuter = new G4PVPlacement(
+				    (G4RotationMatrix*)0,		        // no rotation
+				    threeVector1,	               
+				    itsOuterBeamPipeLogicalVolume,  // its logical volume
+				    itsName+"_inner_bmp_phys",// its name
+				    itsMarkerLogicalVolume,   // its mother  volume
+				    false,		        // no boolean operation
+				    0);		        // copy number
+
+
+
 
 
   //Add the physical volumes to a vector which can be used for e.g. geometrical biasing
-  SetMultiplePhysicalVolumes(itsPhysiUpperInner);
-  SetMultiplePhysicalVolumes(itsPhysiUpper);
-  SetMultiplePhysicalVolumes(itsPhysiMiddleInner);
-  SetMultiplePhysicalVolumes(itsPhysiMiddle);
-  SetMultiplePhysicalVolumes(itsPhysiLowerInner);
-  SetMultiplePhysicalVolumes(itsPhysiLower);
+  SetMultiplePhysicalVolumes(itsPhysiInner);
+  SetMultiplePhysicalVolumes(itsPhysiOuter);
 
 #ifndef NOUSERLIMITS
   itsBeampipeUserLimits =  new G4UserLimits("beampipe cuts");
@@ -340,32 +181,20 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
   itsInnerBeampipeUserLimits =  new G4UserLimits("inner beampipe cuts");
   itsInnerBeampipeUserLimits->SetUserMinEkine( BDSGlobals->GetThresholdCutCharged());
 
-  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength*1000);
-  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength*1000);
+  G4double stepfactor = 0.5;
 
-  itsUpperBeamPipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
-  itsUpperInnerBeamPipeLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
+  itsBeampipeUserLimits->SetMaxAllowedStep(itsLength*stepfactor);
+  itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength*stepfactor);
 
-  itsUpperBeamPipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
+  itsInnerBeamPipeLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
+  itsOuterBeamPipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
 
-   itsMiddleBeamPipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
-   itsMiddleInnerBeamPipeLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
-
-   itsMiddleBeamPipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
-
-   itsLowerBeamPipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
-   itsLowerInnerBeamPipeLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
 
 #endif
 
+   itsInnerBeamPipeLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
+   itsOuterBeamPipeLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
 
-   itsUpperInnerBeamPipeLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
-   //---
-   itsMiddleInnerBeamPipeLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
-   //---
-   itsLowerBeamPipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
-   itsLowerInnerBeamPipeLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
-   
   
   // now protect the fields inside the marker volume by giving the
   // marker a null magnetic field (otherwise G4VPlacement can
@@ -384,7 +213,11 @@ void BDSPCLDrift::BuildBpFieldAndStepper(){
     // set up the magnetic field and stepper
   itsMagField=new BDSMagField(); //Zero magnetic field.
   itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);
-  itsStepper=new BDSDriftStepper(itsEqRhs);
+#ifndef NODRIFTSTEPPER
+  itsStepper = new BDSDriftStepper(itsEqRhs);
+#else
+  itsStepper = new G4ExactHelixStepper(itsEqRhs); //For constant magnetic field
+#endif
 }
 
 G4VisAttributes* BDSPCLDrift::SetVisAttributes()
@@ -406,24 +239,12 @@ BDSPCLDrift::~BDSPCLDrift()
   if(itsMarkerLogicalVolume) delete itsMarkerLogicalVolume;
   if(itsOuterLogicalVolume) delete itsOuterLogicalVolume;
   if(itsPhysiComp) delete itsPhysiComp;
-  delete upper_outer_solid;
-  delete middle_outer_solid;
-  delete lower_outer_solid;
-  delete upper_inner_solid;
-  delete middle_inner_solid;
-  delete lower_inner_solid;
-  delete itsUpperBeamPipeLogicalVolume;
-  delete itsMiddleBeamPipeLogicalVolume;
-  delete itsLowerBeamPipeLogicalVolume;
-  delete itsUpperInnerBeamPipeLogicalVolume;
-  delete itsMiddleInnerBeamPipeLogicalVolume;
-  delete itsLowerInnerBeamPipeLogicalVolume;
-  delete itsPhysiUpperInner;
-  delete itsPhysiUpper;
-  delete itsPhysiMiddleInner;
-  delete itsPhysiMiddle;
-  delete itsPhysiLowerInner;
-  delete itsPhysiLower;
+  delete outer_solid;
+  delete inner_solid;
+  delete itsOuterBeamPipeLogicalVolume;
+  delete itsInnerBeamPipeLogicalVolume;
+  delete itsPhysiOuter;
+  delete itsPhysiInner;
   delete itsBeampipeVisAtt;
   delete itsInnerBeampipeVisAtt;
   //if(itsField) delete itsField;

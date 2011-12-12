@@ -12,7 +12,7 @@ Symbol table for numeric variables and functions
 
 using namespace std;
  
-#define NSYMS 16383
+#define NSYMS 65532
  
 struct symtab {
   int is_reserved;

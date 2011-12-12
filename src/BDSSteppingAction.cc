@@ -238,25 +238,20 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 //====================================================
 
 // -------------  kill tracks according to cuts -------------------
-//The cuts should be handled by G4UserSpecialCuts. For some reason this does not always happen. Then very low energy particles get trapped in magnetic fields for a long time. Hence hard limit applied here at 100 times below the UserLimits threshold.
 #ifndef NOSTEPPERCUT
 G4String pName=ThisStep->GetTrack()->GetDefinition()->GetParticleName();
 
 // this cuts apply to default region
 if(pName=="gamma"){
-  if(ThisStep->GetTrack()->GetKineticEnergy()<BDSGlobals->GetThresholdCutPhotons()*0.01)
+  if(ThisStep->GetTrack()->GetKineticEnergy()<BDSGlobals->GetThresholdCutPhotons())
     {
       ThisStep->GetTrack()->SetTrackStatus(fStopAndKill);
     }
- }
-
-//if(pName=="e-"||pName=="e+")
-//if(pName!="gamma")
- else {
-   if(ThisStep->GetTrack()->GetKineticEnergy()<BDSGlobals->GetThresholdCutCharged()*0.01)
-     {
-       ThisStep->GetTrack()->SetTrackStatus(fStopAndKill);
-     }
+ } else if(pName=="e-"||pName=="e+"){
+  if(ThisStep->GetTrack()->GetKineticEnergy()<BDSGlobals->GetThresholdCutCharged())
+    {
+      ThisStep->GetTrack()->SetTrackStatus(fStopAndKill);
+    }
  }
 #endif
 }

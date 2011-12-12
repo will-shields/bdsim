@@ -85,6 +85,7 @@ private:
   void BuildSampler(BDSMySQLTable* aSQLTable);
   void BuildTube(BDSMySQLTable* aSQLTable);
   void BuildEllipticalTube(BDSMySQLTable* aSQLTable);
+  void BuildPCLTube(BDSMySQLTable* aSQLTable);
   G4RotationMatrix* RotateComponent(G4double psi,
 				    G4double phi,
 				    G4double theta);

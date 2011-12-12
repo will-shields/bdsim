@@ -103,7 +103,7 @@ void BDSXYMagField::Prepare(G4VPhysicalVolume *referenceVolume)
       for(itt=itsFieldValues.begin();itt!=itsFieldValues.end();itt++)
 	{
 #ifdef DEBUG
-	  G4cout<<(*it).x<<" "<<(*it).y<<" "<<(*it).z<<" "<<(*it).Bx<<G4endl;
+	  G4cout<<(*it).x<<" "<<(*it).y<<" "<<" "<<(*it).Bx<<G4endl;
 #endif
 	  hxold = fabs((*it).x - (*itt).x);
 	  if( (hxold > 1.0e-11*m)&&(hxold<hx) ) hx = hxold;
@@ -236,7 +236,7 @@ void BDSXYMagField::GetFieldValue(const G4double Point[4], G4double *Bfield ) co
 
 #ifdef DEBUG
   G4cout<<" field value requested : "<<Point[0]<<" , "<<Point[1]<<" , "<<Point[2]<<" , "<<Point[3]<<" : "<<
-    i<<" , "<<j<<" , "<<k<<"    "<<local[0]<<" "<<local[1]<<" "<<local[2]<<" "<<bx<<" "<<by<<" "<<bz<<G4endl;
+    i<<" , "<<j<<" , "<<"    "<<local[0]<<" "<<local[1]<<" "<<local[2]<<" "<<bx<<" "<<by<<" "<<bz<<G4endl;
 #endif
 }
 

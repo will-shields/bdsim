@@ -45,6 +45,14 @@ extern BDSGlobalConstants* BDSGlobals;
 
 BDSGeometryLCDD::BDSGeometryLCDD(G4String LCDDfile)
 {
+#ifndef NOUSERLIMITS
+  itsUserLimits = new G4UserLimits();
+  itsUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
+  if(BDSGlobals->GetThresholdCutCharged()>0){
+    itsUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+  }
+#endif
+
   itsFieldIsUniform=false;
   itsFieldVolName="";
   itsLCDDfile = LCDDfile;
@@ -66,8 +74,6 @@ BDSGeometryLCDD::BDSGeometryLCDD(G4String LCDDfile)
   CONST_LIST.push_back(aconst);
 
   // define units using mm and radians =1 and tesla as =0.001
-  
-  
   aconst.name="radian";
   aconst.value=radian;
   CONST_LIST.push_back(aconst);
@@ -75,17 +81,14 @@ BDSGeometryLCDD::BDSGeometryLCDD(G4String LCDDfile)
   aconst.name="degree";
   aconst.value=degree;
   CONST_LIST.push_back(aconst);
-
   
   aconst.name="mm";
   aconst.value=mm;
   CONST_LIST.push_back(aconst);
-
   
   aconst.name="cm";
   aconst.value=cm;
   CONST_LIST.push_back(aconst);
-
   
   aconst.name="m";
   aconst.value=m;
@@ -118,6 +121,12 @@ BDSGeometryLCDD::BDSGeometryLCDD(G4String LCDDfile)
   aconst.name="mole";
   aconst.value=mole;
   CONST_LIST.push_back(aconst);
+#ifdef DEBUG
+  G4cout << "BDSGeometryLCDD CONST_LIST defined units: " <<  G4endl;
+  for(unsigned int i=0; i<CONST_LIST.size(); i++){
+    G4cout << CONST_LIST[i].name << " " << CONST_LIST[i].value << G4endl;
+  }
+#endif
 }
 
 BDSGeometryLCDD::~BDSGeometryLCDD()
@@ -381,8 +390,9 @@ void BDSGeometryLCDD::parseLCDD(xmlNodePtr cur)
 			     itsMarkerVol,
 			     false,
 			     0);
-
-
+#ifndef NOUSERLIMITS
+	   topvol->SetUserLimits(itsUserLimits);
+#endif
 	 }
        cur = cur->next;
      }
@@ -568,6 +578,9 @@ void BDSGeometryLCDD::parseMATERIALS(xmlNodePtr cur)
 		 value = parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"value"));
 		 unit = parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"unit"));
 		 type = parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"type"));
+#ifdef DEBUG
+		 G4cout << "BDSGeometryLCDD:ParseMaterials value = " << value << ", unit = " << unit << ", type = " << type << G4endl; 
+#endif
 		 if (!strcmp("",type)){
 		   G4cout << "Warning - BDSGeometryLCDD.cc: parsing <material - type not defined, assuming type density." << G4endl;
 		 } else if (strcmp("density",type)){
@@ -587,15 +600,23 @@ void BDSGeometryLCDD::parseMATERIALS(xmlNodePtr cur)
 	     std::list<G4double> fractions;
 
 	     tempcur = cur->xmlChildrenNode;
+#ifdef DEBUG
 	     G4cout << "BDSGeometryLCDD::parseMATERIALS - making list of fractions/composites" << G4endl;
+#endif
 	     while(tempcur!=NULL){
+#ifdef DEBUG
 	       G4cout << "BDSGeometryLCDD::parseMATERIALS - name = " << tempcur->name << G4endl;
+#endif	    
 	       if (!xmlStrcmp(tempcur->name, (const xmlChar *)"fraction")){
+#ifdef DEBUG
 		 G4cout << "BDSGeometryLCDD::parseMATERIALS - component = " << parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"ref")) << G4endl;
+#endif
 		 components.push_back((G4String)parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"ref")).c_str()); 
 		 stComponents.push_back((G4String)parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"ref"))); 
+#ifdef DEBUG
 		 G4cout << components.back() << G4endl;
 		 G4cout << "BDSGeometryLCDD::parseMATERIALS - fraction = " << parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"n")) << G4endl;
+#endif
 		 fractions.push_back(parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"n")));
 	       } else if (!xmlStrcmp(tempcur->name, (const xmlChar *)"composite")){
 		 components.push_back((G4String)parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"ref")).c_str()); 
@@ -621,17 +642,25 @@ void BDSGeometryLCDD::parseMATERIALS(xmlNodePtr cur)
 	     for(stIter = stComponents.begin();
 	     	 stIter!= stComponents.end();
 	     	 stIter++){
+#ifdef DEBUG
 	       G4cout << "String element: " << *stIter << G4endl;
+#endif
 	       components.push_back((*stIter).c_str());
+#ifdef DEBUG
 	       G4cout << "Element: " << components.back() << G4endl;
+#endif
 	     }
 
 	     if (weights.size()>0){
+#ifdef DEBUG
 	     G4cout << "Size of weights: " << weights.size() << G4endl;
-	     theMaterials->AddMaterial(name, value*unit, kStateSolid, 300*kelvin, 1*atmosphere, components, weights);
+#endif
+	     theMaterials->AddMaterial(name, value*unit/(g/cm3), kStateSolid, 300, 1, components, weights);
 	     } else if(fractions.size()>0){
+#ifdef DEBUG
 	     G4cout << "Size of fractions: " << fractions.size() << G4endl;
-	     theMaterials->AddMaterial(name, value*unit, kStateSolid, 300*kelvin, 1*atmosphere, components, fractions);
+#endif
+	     theMaterials->AddMaterial(name, value*unit/(g/cm3), kStateSolid, 300, 1, components, fractions);
 	     } else G4Exception("BDSGeometry LCDD: Ill defined material fractions - list of fractions and weights empty.");
 
 	 }
@@ -758,7 +787,11 @@ void BDSGeometryLCDD::parseVOLUME(xmlNodePtr cur)
       G4LogicalVolume* alogvol = new G4LogicalVolume(GetSolidByName(solidref),
 						     theMaterials->GetMaterial(materialref),
 						     volume_name);
+#ifndef NOUSERLIMITS
+      alogvol->SetUserLimits(itsUserLimits);
+#endif
       
+      SensitiveComponents.push_back(alogvol);
       LOGVOL_LIST.push_back(alogvol);
 
       if(visref==""){ //Default vis settings

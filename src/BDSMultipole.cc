@@ -68,7 +68,9 @@ BDSMultipole::BDSMultipole( G4String aName,
                          aMaterial,
 			 angle),
   itsInnerIronRadius(aInnerIronRadius)
-{}
+{  
+CalculateLengths();
+}
 
 BDSMultipole::BDSMultipole( G4String aName, 
 			    G4double aLength,
@@ -101,7 +103,9 @@ BDSMultipole::BDSMultipole( G4String aName,
 			 tunnelRadius,
 			 tunnelOffsetX),
   itsInnerIronRadius(aInnerIronRadius)
-{}
+{
+CalculateLengths();
+}
 
 BDSMultipole::BDSMultipole( G4String aName, 
 			    G4double aLength,
@@ -131,7 +135,9 @@ BDSMultipole::BDSMultipole( G4String aName,
 			 tunnelRadius,
 			 tunnelOffsetX),
   itsInnerIronRadius(aInnerIronRadius)
-{}
+{
+CalculateLengths();
+}
 
 void BDSMultipole::BuildBLMs(){
   itsBlmLocationR=itsOuterR;
@@ -176,7 +182,7 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
   G4EllipticalTube* largerInnerBeampipeSolid_tmp=new G4EllipticalTube(itsName+"larger_inner_bmp_solid",
 								      this->GetAperX()+BDSGlobals->GetLengthSafety()/2.0,
 								      this->GetAperY()+BDSGlobals->GetLengthSafety()/2.0,
-								      itsLength+BDSGlobals->GetLengthSafety());
+								      itsLength);
   
   itsBeampipeSolid = new G4SubtractionSolid(itsName + "_bmp_solid",
                                                tmp_tube,
@@ -227,7 +233,7 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
   itsBeampipeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
   itsBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
   
-  G4double maxStepFactorIn=1e-3;
+  G4double maxStepFactorIn=0.5;
 
   itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength*maxStepFactorIn);
   itsInnerBeampipeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
@@ -314,7 +320,7 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
 			        startAper-BDSGlobals->GetBeampipeThickness(),
 				0.,
 			        endAper-BDSGlobals->GetBeampipeThickness(),
-				       itsLength/2+BDSGlobals->GetLengthSafety(),
+				       itsLength/2-BDSGlobals->GetLengthSafety(),
 				0,twopi*radian);
   itsBeampipeLogicalVolume=	
     new G4LogicalVolume(itsBeampipeSolid,
@@ -359,6 +365,8 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
   itsBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
   itsInnerBPLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
 
+#endif
+
   itsBeampipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
   itsInnerBPLogicalVolume->SetFieldManager(itsBPFieldMgr,false) ;
 
@@ -368,7 +376,7 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
   // G4LogicalVolume::AddDaughter, which calls 
   // pDaughterLogical->SetFieldManager(fFieldManager, true) - the
   // latter 'true' over-writes all the other fields
-#endif
+
   itsMarkerLogicalVolume->
     SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
   
@@ -413,22 +421,10 @@ void BDSMultipole::BuildBPFieldMgr(G4MagIntegratorStepper* aStepper,
 
 void BDSMultipole::BuildDefaultMarkerLogicalVolume()
 {
-  G4double xLength, yLength;
-  
-  xLength = yLength = std::max(itsOuterR,BDSGlobals->GetComponentBoxSize()/2);
-
-  xLength = std::max(xLength, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness() + 4*BDSGlobals->GetLengthSafety() );   
-  yLength = std::max(yLength, this->GetTunnelRadius()+2*std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+4*BDSGlobals->GetLengthSafety() );
-
-#ifdef DEBUG 
-  G4cout<<"marker volume : x/y="<<xLength/m<<
-    " m, l= "<<  (itsLength)/2/m <<" m"<<G4endl;
-#endif
-
   itsMarkerSolidVolume = new G4Box( itsName+"_marker_solid",
-                                    xLength,
-                                    yLength,
-                                    itsLength/2);
+                                    itsXLength,
+                                    itsYLength,
+                                    itsLength/2-BDSGlobals->GetLengthSafety()/5);
 
   itsMarkerLogicalVolume=new G4LogicalVolume
     (
@@ -437,7 +433,7 @@ void BDSMultipole::BuildDefaultMarkerLogicalVolume()
      itsName+"_log");
 
 #ifndef NOUSERLIMITS
-  G4double maxStepFactor=1e-3;
+  G4double maxStepFactor=0.5;
    itsMarkerUserLimits =  new G4UserLimits();
    itsMarkerUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
    itsMarkerUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
@@ -483,7 +479,7 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
                                                  new G4Tubs(itsName+"_outer_solid_tmp_1",
                                                             itsInnerIronRadius+BDSGlobals->GetLengthSafety()/2.0,
                                                             outerRadius,
-                                                            aLength/2-BDSGlobals->GetLengthSafety()/2,
+                                                            aLength/2-BDSGlobals->GetLengthSafety(),
                                                             0,twopi*radian),
                                                  new G4EllipticalTube(itsName+"_outer_solid_tmp_2",
                                                                       this->GetAperX()+BDSGlobals->GetBeampipeThickness()+BDSGlobals->GetLengthSafety()/2.0,
@@ -533,13 +529,13 @@ void BDSMultipole::BuildEllipticalOuterLogicalVolume(G4double aLength,
   G4Tubs* tubs_tmp= new G4Tubs(itsName+"_tubs_tmp",
 			       0,
 			       outerRadius,
-			       aLength/2-BDSGlobals->GetLengthSafety()/2,
+			       aLength/2-BDSGlobals->GetLengthSafety(),
 			       0,twopi*radian);
 
   G4EllipticalTube* etube_tmp= new G4EllipticalTube(itsName+"_etube_tmp",
                                                     this->GetAperX()+1*nm,
                                                     this->GetAperY()+1*nm,
-                                                    aLength/2-BDSGlobals->GetLengthSafety()/2);
+                                                    aLength/2-BDSGlobals->GetLengthSafety());
   
  
 

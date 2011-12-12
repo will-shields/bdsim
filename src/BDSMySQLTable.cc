@@ -38,7 +38,9 @@ BDSMySQLVariable* BDSMySQLTable::GetVariable(G4String aVarName)
   for (G4int i=0; i<(G4int)itsVar.size(); i++)
     {
       G4String::caseCompare cmpmode = G4String::ignoreCase;
-      if( (itsVar[i])->GetName().compareTo(aVarName,cmpmode)==0) return itsVar[i];
+      if( (itsVar[i])->GetName().compareTo(aVarName,cmpmode)==0) {
+	return itsVar[i];
+      }
     }
   return NULL; //if does not exist return null
 }

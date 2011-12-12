@@ -35,6 +35,8 @@ private:
   BDSEnergyCounterHitsCollection *BDSEnergyCounterCollection;
   G4int* HitID;
   G4double enrg;
+  G4double xpos;
+  G4double ypos;
   G4double zpos;
 };
 

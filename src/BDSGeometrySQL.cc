@@ -9,6 +9,7 @@
 #include "G4Torus.hh"
 #include "G4SubtractionSolid.hh"
 #include "G4IntersectionSolid.hh"
+#include "G4UnionSolid.hh"
 #include "G4Polycone.hh"
 #include "G4VisAttributes.hh"
 #include "G4LogicalVolume.hh"
@@ -21,6 +22,7 @@
 #include "BDSSamplerSD.hh"
 #include "BDSSampler.hh"
 #include "BDSOutput.hh"
+#include "BDSPCLTube.hh"
 #include <vector>
 #include <map>
 #include <cstdlib>
@@ -91,6 +93,7 @@ void BDSGeometrySQL::BuildSQLObjects(G4String file)
       else if(ObjectType.compareTo("SAMPLER",cmpmode)==0) BuildSampler(itsSQLTable[i]);
       else if(ObjectType.compareTo("TUBE",cmpmode)==0) BuildTube(itsSQLTable[i]);
       else if(ObjectType.compareTo("ELLIPTICALTUBE",cmpmode)==0) BuildEllipticalTube(itsSQLTable[i]);
+      else if(ObjectType.compareTo("PCLTUBE",cmpmode)==0) BuildPCLTube(itsSQLTable[i]);
     }
 
 }
@@ -172,7 +175,7 @@ void BDSGeometrySQL::BuildCone(BDSMySQLTable* aSQLTable)
 			    Name+"_LogVol");
 #ifndef NOUSERLIMITS
       G4UserLimits* ConeUserLimits = new G4UserLimits();
-      ConeUserLimits->SetMaxAllowedStep(length);
+      ConeUserLimits->SetMaxAllowedStep(length/2);
       ConeUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	ConeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
@@ -261,7 +264,7 @@ void BDSGeometrySQL::BuildEllipticalCone(BDSMySQLTable* aSQLTable)
 			    Name+"_LogVol");
 #ifndef NOUSERLIMITS
       G4UserLimits* EllipticalConeUserLimits = new G4UserLimits();
-      EllipticalConeUserLimits->SetMaxAllowedStep(lengthZ);
+      EllipticalConeUserLimits->SetMaxAllowedStep(lengthZ/2);
       EllipticalConeUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	EllipticalConeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
@@ -373,7 +376,7 @@ void BDSGeometrySQL::BuildPolyCone(BDSMySQLTable* aSQLTable)
 			    Name+"_LogVol");
 #ifndef NOUSERLIMITS
       G4UserLimits* PolyConeUserLimits = new G4UserLimits();
-      PolyConeUserLimits->SetMaxAllowedStep(fabs(zPos[0]-zPos[numZplanes-1]));
+      PolyConeUserLimits->SetMaxAllowedStep(fabs(zPos[0]-zPos[numZplanes-1])/2);
       PolyConeUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	PolyConeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
@@ -410,7 +413,7 @@ void BDSGeometrySQL::BuildPolyCone(BDSMySQLTable* aSQLTable)
 void BDSGeometrySQL::BuildBox(BDSMySQLTable* aSQLTable)
 {
   G4int NVariables = aSQLTable->GetVariable("LENGTHX")->GetNVariables();
-
+  
   G4double lengthX;
   G4double lengthY;
   G4double lengthZ;
@@ -464,7 +467,7 @@ void BDSGeometrySQL::BuildBox(BDSMySQLTable* aSQLTable)
 			    Name+"_LogVol");
 #ifndef NOUSERLIMITS
       G4UserLimits* BoxUserLimits = new G4UserLimits();
-      BoxUserLimits->SetMaxAllowedStep(lengthZ);
+      BoxUserLimits->SetMaxAllowedStep(lengthZ/2);
       BoxUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	BoxUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
@@ -563,7 +566,7 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
 			    Name+"_LogVol");
 #ifndef NOUSERLIMITS
       G4UserLimits* TrapUserLimits = new G4UserLimits();
-      TrapUserLimits->SetMaxAllowedStep(lengthZ);
+      TrapUserLimits->SetMaxAllowedStep(lengthZ/2);
       TrapUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	TrapUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
@@ -660,7 +663,7 @@ void BDSGeometrySQL::BuildTorus(BDSMySQLTable* aSQLTable)
 			    Name+"_LogVol");
 #ifndef NOUSERLIMITS
       G4UserLimits* TorusUserLimits = new G4UserLimits();
-      TorusUserLimits->SetMaxAllowedStep(rInner);
+      TorusUserLimits->SetMaxAllowedStep(rInner/2);
       TorusUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	TorusUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
@@ -758,7 +761,7 @@ void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
 			    Name+"_LogVol");
 #ifndef NOUSERLIMITS
       G4UserLimits* SamplerUserLimits = new G4UserLimits();
-      SamplerUserLimits->SetMaxAllowedStep(length);
+      SamplerUserLimits->SetMaxAllowedStep(length/2);
       SamplerUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	SamplerUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
@@ -865,7 +868,7 @@ void BDSGeometrySQL::BuildTube(BDSMySQLTable* aSQLTable)
 			    Name+"_LogVol");
 #ifndef NOUSERLIMITS
       G4UserLimits* TubsUserLimits = new G4UserLimits();
-      TubsUserLimits->SetMaxAllowedStep(length);
+      TubsUserLimits->SetMaxAllowedStep(length/2);
       TubsUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	TubsUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
@@ -961,7 +964,7 @@ void BDSGeometrySQL::BuildEllipticalTube(BDSMySQLTable* aSQLTable)
       else if(lengthZ>lengthY&&lengthZ>lengthX){
 	maxLength = lengthZ;
       }
-      EllipticalTubeUserLimits->SetMaxAllowedStep(maxLength);
+      EllipticalTubeUserLimits->SetMaxAllowedStep(maxLength/2);
       EllipticalTubeUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	EllipticalTubeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
@@ -982,6 +985,112 @@ void BDSGeometrySQL::BuildEllipticalTube(BDSMySQLTable* aSQLTable)
       aEllipticalTubeVol->SetVisAttributes(VisAtt);
 
       VOL_LIST.push_back(aEllipticalTubeVol);
+
+    }
+  PlaceComponents(aSQLTable, VOL_LIST);
+}
+
+
+void BDSGeometrySQL::BuildPCLTube(BDSMySQLTable* aSQLTable)
+{
+  G4int NVariables = aSQLTable->GetVariable("LENGTH")->GetNVariables();
+
+  G4double aperX;
+  G4double aperYUp;
+  G4double aperYDown;
+  G4double aperDy; 
+  G4double thickness;
+  G4double length;
+  G4double VisRed;
+  G4double VisGreen;
+  G4double VisBlue;
+  G4String VisType;
+  G4String Material;
+  G4String TableName = aSQLTable->GetName();
+  G4String Name;
+
+  for(G4int k=0; k<NVariables; k++)
+    {
+
+      //Defaults 
+      aperX = 100.*mm;
+      aperYUp = 50.*mm;
+      aperYDown = 200.*mm;
+      length = 200.0*mm;
+      VisRed = VisGreen = VisBlue = 0.;
+      VisType = "S";
+      Material = BDSGlobals->GetVacuumMaterial();
+
+      if(aSQLTable->GetVariable("RED")!=NULL)
+	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
+      if(aSQLTable->GetVariable("BLUE")!=NULL)
+	VisBlue = aSQLTable->GetVariable("BLUE")->GetDblValue(k);
+      if(aSQLTable->GetVariable("GREEN")!=NULL)
+	VisGreen = aSQLTable->GetVariable("GREEN")->GetDblValue(k);
+      if(aSQLTable->GetVariable("VISATT")!=NULL)
+	VisType = aSQLTable->GetVariable("VISATT")->GetStrValue(k);
+      if(aSQLTable->GetVariable("APERX")!=NULL)
+	aperX = aSQLTable->GetVariable("APERX")->GetDblValue(k);
+      if(aSQLTable->GetVariable("APERYUP")!=NULL)
+	aperYUp = aSQLTable->GetVariable("APERYUP")->GetDblValue(k);
+      if(aSQLTable->GetVariable("APERYDOWN")!=NULL)
+	aperYDown = aSQLTable->GetVariable("APERYDOWN")->GetDblValue(k);
+      if(aSQLTable->GetVariable("APERDY")!=NULL)
+	aperDy = aSQLTable->GetVariable("APERDY")->GetDblValue(k);
+      if(aSQLTable->GetVariable("THICKNESS")!=NULL)
+	thickness = aSQLTable->GetVariable("THICKNESS")->GetDblValue(k);
+      if(aSQLTable->GetVariable("LENGTH")!=NULL)
+	length = aSQLTable->GetVariable("LENGTH")->GetDblValue(k);
+      if(aSQLTable->GetVariable("MATERIAL")!=NULL)
+	Material = aSQLTable->GetVariable("MATERIAL")->GetStrValue(k);
+      if(aSQLTable->GetVariable("NAME")!=NULL)
+	Name = aSQLTable->GetVariable("NAME")->GetStrValue(k);
+
+      if(Name=="") Name = TableName+BDSGlobals->StringFromInt(k);
+      
+      // make sure that each name is unique!
+      Name = itsMarkerVol->GetName()+"_"+Name;
+
+      BDSPCLTube* aPCLTubeBuilder = new BDSPCLTube(aperX/2.0, aperYUp/2.0, aperYDown/2.0, aperDy, thickness/2.0, length, Name+"_PCLTube");
+      G4VSolid* aPCLTube = aPCLTubeBuilder->GetSolid();
+
+
+      G4LogicalVolume* aPCLTubeVol = 
+	new G4LogicalVolume(aPCLTube,
+			    theMaterials->GetMaterial(Material),
+			    Name+"_LogVol");
+#ifndef NOUSERLIMITS
+      G4UserLimits* PCLTubeUserLimits = new G4UserLimits();
+      G4double totalYLength = aperDy+aperYUp+aperYDown+thickness;
+      G4double totalXLength = aperX+thickness;
+      G4double maxLength = length;
+      if (totalYLength>length&&totalYLength>totalXLength){
+	maxLength = totalYLength;
+      }
+      else if(totalXLength>totalYLength&&totalXLength>length){
+	maxLength = totalXLength;
+      }
+      PCLTubeUserLimits->SetMaxAllowedStep(maxLength/2);
+      PCLTubeUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
+      if(BDSGlobals->GetThresholdCutCharged()>0){
+	PCLTubeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+      }
+      aPCLTubeVol->SetUserLimits(PCLTubeUserLimits);
+#endif
+      G4VisAttributes* VisAtt = 
+	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
+      switch (VisType(0))
+	{
+	case 'W': VisAtt->SetForceWireframe(true); break;
+	case 'I': VisAtt->SetVisibility(false); break;
+	case 'S': VisAtt->SetForceSolid(true); break;
+	case 'w': VisAtt->SetForceWireframe(true); break;
+	case 'i': VisAtt->SetVisibility(false); break;
+	case 's': VisAtt->SetForceSolid(true); break;
+	}
+      aPCLTubeVol->SetVisAttributes(VisAtt);
+
+      VOL_LIST.push_back(aPCLTubeVol);
 
     }
   PlaceComponents(aSQLTable, VOL_LIST);
@@ -1148,6 +1257,19 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
 	  G4VSolid* original = VOL_LIST[PARENTID]->GetSolid();
 	  G4VSolid* sub = VOL_LIST[ID]->GetSolid();
 	  VOL_LIST[PARENTID]->SetSolid(new G4IntersectionSolid(VOL_LIST[PARENTID]->GetName(),
+							 original,
+							 sub,
+							 RotateComponent(RotPsi,RotPhi,RotTheta),
+							 PlacementPoint));
+	  continue;
+	}
+
+
+      if(InheritStyle.compareTo("UNION",cmpmode)==0)
+	{
+	  G4VSolid* original = VOL_LIST[PARENTID]->GetSolid();
+	  G4VSolid* sub = VOL_LIST[ID]->GetSolid();
+	  VOL_LIST[PARENTID]->SetSolid(new G4UnionSolid(VOL_LIST[PARENTID]->GetName(),
 							 original,
 							 sub,
 							 RotateComponent(RotPsi,RotPhi,RotTheta),

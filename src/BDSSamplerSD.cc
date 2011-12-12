@@ -96,16 +96,16 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
       // Get Translation and Rotation of Sampler Volume w.r.t the World Volume
       // as described in Geant4 FAQ's: http://geant4.cern.ch/support/faq.shtml
       G4AffineTransform tf(preStepPoint->GetTouchableHandle()->GetHistory()->GetTopTransform());
-//      const G4RotationMatrix Rot=tf.NetRotation();
-//      const G4ThreeVector Trans=-tf.NetTranslation();
-
+      //      const G4RotationMatrix Rot=tf.NetRotation();
+      //      const G4ThreeVector Trans=-tf.NetTranslation();
+      
       //Old method - works for standard Samplers, but not samplers within a deeper
       //hierarchy of volumes (e.g. Mokka built samplers)
       //const G4RotationMatrix* Rot=theTrack->GetVolume()->GetFrameRotation();
       //const G4ThreeVector Trans=theTrack->GetVolume()->GetFrameTranslation();
 
-//      G4ThreeVector LocalPosition=pos+Trans; 
-//      G4ThreeVector LocalDirection=Rot*momDir; 
+      //      G4ThreeVector LocalPosition=pos+Trans; 
+      //      G4ThreeVector LocalDirection=Rot*momDir; 
       G4ThreeVector LocalPosition = tf.TransformPoint(pos);
       G4ThreeVector LocalDirection = tf.TransformAxis(momDir);
 
@@ -124,19 +124,19 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
       // apply a correction that takes ac... gab to do later!
 
       G4int nEvent= 
-	  G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
+	G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
 
       nEvent+=BDSGlobals->GetEventNumberOffset();
 
       G4int nSampler=theTrack->GetVolume()->GetCopyNo()+1;
       G4String SampName = theTrack->GetVolume()->GetName()+"_"+BDSGlobals->StringFromInt(nSampler);
       G4int PDGtype=theTrack->GetDefinition()->GetPDGEncoding();
-
       G4String pName=theTrack->GetDefinition()->GetParticleName();
-
+      
 #ifdef DEBUG
       G4cout << "BDSSamplerSD> Paricle name: " << pName << G4endl;  
       G4cout << "BDSSamplerSD> PDG encoding: " << PDGtype << G4endl;  
+      G4cout << "BDSSamplerSD> TrackID: " << TrackID << G4endl;  
 #endif
 
       G4ThreeVector vtx=theTrack->GetVertexPosition();
@@ -207,19 +207,23 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
       smpHit->SetType(itsType);
 
 #ifdef DEBUG
+      G4cout << "BDSSamplerSD> Storing hit: E, x, y, z, xPrime, yPrime" << G4endl;
       G4cout << energy << " " << x << " " << y << " " << z << " " << xPrime << " " << yPrime << G4endl;
+      G4cout << "BDSSamplerSD> entries in hits collection before inserting hit: " << SamplerCollection->entries() << G4endl;
 #endif
       SamplerCollection->insert(smpHit);
+#ifdef DEBUG
+      G4cout << "BDSSamplerSD> entries in hits collection after inserting hit: " << SamplerCollection->entries() << G4endl;
+#endif
       if(theTrack->GetVolume()!=theTrack->GetNextVolume())StoreHit=true;
       else StoreHit=false;
       nStepsInSampler=0;
       return true;
-
     }
   else
     {
 #ifdef DEBUG
-      G4cout << theTrack->GetVolume()->GetName() << " " << theTrack->GetNextVolume()->GetName() << G4endl;
+      G4cout << "BDSSamplerSD> Not storing hit. This volume: " << theTrack->GetVolume()->GetName() << ", next volume:  " << theTrack->GetNextVolume()->GetName() << G4endl;
 #endif
       if(theTrack->GetVolume()!=theTrack->GetNextVolume())StoreHit=true;
       else StoreHit=false;

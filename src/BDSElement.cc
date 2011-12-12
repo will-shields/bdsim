@@ -28,6 +28,7 @@
 #include "G4SimpleRunge.hh"
 #include "G4ExactHelixStepper.hh"
 #include "BDSAcceleratorComponent.hh"
+#include "G4CashKarpRKF45.hh"
 
 // geometry drivers
 #include "ggmad.hh"
@@ -70,6 +71,9 @@ BDSElement::BDSElement(G4String aName, G4String geometry, G4String bmap,
   itsFieldIsUniform=false;
   itsOuterR = outR;
   SetType(_ELEMENT);
+
+  //Set marker volume lengths
+  CalculateLengths();
 
   // WARNING: ALign in and out will only apply to the first instance of the
   //          element. Subsequent copies will have no alignement set.
@@ -128,7 +132,8 @@ void BDSElement::BuildGeometry()
   (*LogVol)[itsName] = itsMarkerLogicalVolume;
 #ifndef NOUSERLIMITS
   itsOuterUserLimits = new G4UserLimits();
-  itsOuterUserLimits->SetMaxAllowedStep(itsLength);
+  G4double stepfactor=1e-2;
+  itsOuterUserLimits->SetMaxAllowedStep(itsLength*stepfactor);
   itsOuterUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
   if(BDSGlobals->GetThresholdCutCharged()>0){
     itsOuterUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
@@ -222,6 +227,12 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
   else if(gFormat=="lcdd") {
 #ifdef USE_LCDD
     LCDD = new BDSGeometryLCDD(gFile);
+    //Make marker visible (temp debug)
+    G4VisAttributes* VisAttLCDD = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
+    VisAttLCDD->SetForceSolid(true);  
+    VisAttLCDD->SetVisibility(true);
+    itsMarkerLogicalVolume->SetVisAttributes(VisAttLCDD);
+
     LCDD->Construct(itsMarkerLogicalVolume);
     SetMultipleSensitiveVolumes(itsMarkerLogicalVolume);
     if(bFormat=="XY"){
@@ -248,6 +259,11 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
       itsFieldVolName=LCDD->GetFieldVolName();
       BuildMagField(true);
     }
+
+    vector<G4LogicalVolume*> SensComps = LCDD->SensitiveComponents;
+    for(G4int id=0; id<(G4int)SensComps.size(); id++)
+      SetMultipleSensitiveVolumes(SensComps[id]);
+
 #else
     G4cout << "LCDD support not selected during BDSIM configuration" << G4endl;
     G4Exception("Please re-compile BDSIM with USE_LCDD flag in Makefile");
@@ -287,7 +303,7 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
 	    BuildMagField(true);
 	  }
       }
-  } 
+  }
   else if(gFormat=="gdml") {
 #ifdef USE_GDML
     GDML = new BDSGeometryGDML(gFile);
@@ -348,22 +364,23 @@ void BDSElement::BuildMagField(G4bool forceToAllDaughters)
   if(!itsFieldIsUniform){
     itsEqRhs = new G4Mag_UsualEqRhs(itsMagField);
     if( (itsMagField->GetHasUniformField())&!(itsMagField->GetHasNPoleFields() || itsMagField->GetHasFieldMap())){
-      //    itsFStepper = new G4ExactHelixStepper(itsEqRhs); //For constant magnetic field
-    itsFStepper = new G4HelixMixedStepper(itsEqRhs,6); //For constant magnetic field
+      //    itsFStepper = new G4ExactHelixStepper(itsEqRhs); 
+      itsFStepper = new G4HelixMixedStepper(itsEqRhs,6); 
     } else {
-      //        itsFStepper = new G4HelixMixedStepper(itsEqRhs,6); //For constant magnetic field
-      itsFStepper = new G4HelixImplicitEuler(itsEqRhs); //For non constant magnetic field
+      //        itsFStepper = new G4HelixMixedStepper(itsEqRhs,6); 
+      itsFStepper = new G4HelixImplicitEuler(itsEqRhs); 
       //    itsFStepper = new G4HelixSimpleRunge(itsEqRhs);
       //    itsFStepper = new G4HelixHeum(itsEqRhs);
       //    itsFStepper = new G4ClassicalRK4(itsEqRhs);
     }
-    //    //  itsFStepper = new G4HelixSimpleRunge(itsEqRhs); //Trying simple runge
-    //  itsFStepper = new G4HelixExplicitEuler(itsEqRhs); //This is a pure magnetic field, so HelixImplicitEuler is a good choice
+    //    //  itsFStepper = new G4HelixSimpleRunge(itsEqRhs); 
+    //  itsFStepper = new G4HelixExplicitEuler(itsEqRhs); 
     fieldManager->SetDetectorField(itsMagField );
   } else {
     itsEqRhs = new G4Mag_UsualEqRhs(itsUniformMagField);
-    //itsFStepper = new G4HelixImplicitEuler(itsEqRhs); //For non constant magnetic field
-    itsFStepper = new G4HelixMixedStepper(itsEqRhs, 6); //For constant magnetic field
+    //    itsFStepper = new G4HelixImplicitEuler(itsEqRhs); 
+    //  itsFStepper = new G4CashKarpRKF45(itsEqRhs); 
+    itsFStepper = new G4HelixMixedStepper(itsEqRhs, 6); 
     fieldManager->SetDetectorField(itsUniformMagField );
   }
 
@@ -373,7 +390,7 @@ void BDSElement::BuildMagField(G4bool forceToAllDaughters)
   if(BDSGlobals->GetMaximumEpsilonStep()>0){
   fieldManager->SetMaximumEpsilonStep(BDSGlobals->GetMaximumEpsilonStep());
   }
-  if(BDSGlobals->GetMinimumEpsilonStep()>0){
+  if(BDSGlobals->GetMinimumEpsilonStep()>=0){
   fieldManager->SetMinimumEpsilonStep(BDSGlobals->GetMinimumEpsilonStep());
   }
   if(BDSGlobals->GetDeltaIntersection()>0){
@@ -384,9 +401,9 @@ void BDSElement::BuildMagField(G4bool forceToAllDaughters)
 							itsFStepper, 
 							itsFStepper->GetNumberOfVariables() );
   fChordFinder = new G4ChordFinder(fIntgrDriver);
-
+  
   fChordFinder->SetDeltaChord(BDSGlobals->GetDeltaChord());
-
+  
   fieldManager->SetChordFinder( fChordFinder ); 
 
   /*
@@ -401,11 +418,10 @@ void BDSElement::BuildMagField(G4bool forceToAllDaughters)
     break;
     }
     }
-  } else {
-  }
+    } else {
+    }
   */
-    itsMarkerLogicalVolume->SetFieldManager(fieldManager,forceToAllDaughters);
-
+  itsMarkerLogicalVolume->SetFieldManager(fieldManager,forceToAllDaughters);
 }
 
 // creates a field mesh in the reference frame of a physical volume
@@ -437,8 +453,8 @@ void BDSElement::AlignComponent(G4ThreeVector& TargetPos,
 	{
 	  // advance co-ords in usual way if no alignment volumes found
 	  
-	  rtot = rlast + localZ*(itsLength/2 + BDSGlobals->GetLengthSafety()/2);
-	  rlast = rtot + localZ*(itsLength/2 + BDSGlobals->GetLengthSafety()/2);
+	  rtot = rlast + localZ*(itsLength/2);
+	  rlast = rtot + localZ*(itsLength/2);
 	  return;
 	}
       else 
@@ -470,7 +486,7 @@ void BDSElement::AlignComponent(G4ThreeVector& TargetPos,
 	  localZ.transform(Trot.inverse());
 
 	  //moving position in Z be at least itsLength/2 away
-	  rlast +=zHalfAngle*(itsLength/2 + diff.z() + BDSGlobals->GetLengthSafety()/2);
+	  rlast +=zHalfAngle*(itsLength/2 + diff.z());
 	  return;
 	}
     }
@@ -497,7 +513,7 @@ void BDSElement::AlignComponent(G4ThreeVector& TargetPos,
 	  G4ThreeVector zHalfAngle = G4ThreeVector(0.,0.,1.);
 	  zHalfAngle.transform(Trot.inverse());
 	  
-	  rlast = TargetPos + zHalfAngle*(itsLength/2 + BDSGlobals->GetLengthSafety()/2);
+	  rlast = TargetPos + zHalfAngle*(itsLength/2);
 	  localX.transform(Trot.inverse());
 	  localY.transform(Trot.inverse());
 	  localZ.transform(Trot.inverse());
@@ -533,7 +549,7 @@ void BDSElement::AlignComponent(G4ThreeVector& TargetPos,
 	  localZ.transform(Trot.inverse());
 
 	  //moving position in Z be at least itsLength/2 away
-	  rlast +=zHalfAngle*(itsLength/2 + diff.z() + BDSGlobals->GetLengthSafety()/2);
+	  rlast +=zHalfAngle*(itsLength/2 + diff.z());
 	  return;
 	}
     }

@@ -7,7 +7,6 @@
    Added GABs SynchGen code
 */
 
-
 //==================================================================
 //==================================================================
 #include "BDSGlobalConstants.hh" // must be first in include list
@@ -56,10 +55,13 @@ BDSPrimaryGeneratorAction::BDSPrimaryGeneratorAction(
   //                                      GetParticleDefinition());
 
   G4cout << "Primary particle is " << BDSGlobals->GetParticleDefinition()->GetParticleName() << G4endl;
+
+  G4cout << "Setting particle definition for gun..." << G4endl;
   particleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->
 				     FindParticle("e-"));
 
   
+  G4cout << "Setting synch rad..." << G4endl;
   if(BDSGlobals->GetUseSynchPrimaryGen()) // synchrotron radiation generator
     {
       itsBDSSynchrotronRadiation=new BDSSynchrotronRadiation("tmpSynRad");
@@ -75,6 +77,7 @@ BDSPrimaryGeneratorAction::BDSPrimaryGeneratorAction(
 		     FindParticle("gamma"));
     }
 
+  G4cout << "Setting momentum..." << G4endl;
   particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
   particleGun->SetParticlePosition(G4ThreeVector(0.*cm,0.*cm,0.*cm));
   particleGun->SetParticleEnergy(BDSGlobals->GetBeamKineticEnergy());

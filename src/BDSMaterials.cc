@@ -43,7 +43,19 @@ void BDSMaterials::Initialise()
   //
   // Define elements
   //
-
+#ifdef DEBUG
+  G4cout << "BDSMaterials: G4 predefined units: " << G4endl;
+  G4cout << "g= " << g << G4endl;
+  G4cout << "kg= " << kg << G4endl;
+  G4cout << "cm= " << cm << G4endl;
+  G4cout << "m= " << m << G4endl;
+  G4cout << "mm= " << mm << G4endl;
+  G4cout << "um= " << um << G4endl;
+  G4cout << "nm= " << nm << G4endl;
+  G4cout << "mole= " << mole << G4endl;
+  G4cout << "kelvin= " << kelvin << G4endl;
+  G4cout << "tesla= " << tesla << G4endl;
+#endif
   
   tmpElement = new G4Element
     (name="Hydrogen"   , symbol="H" , z=  1., a=   1.00*g/mole); elements[symbol] = tmpElement;
@@ -504,8 +516,11 @@ void BDSMaterials::Initialise()
 void BDSMaterials::AddMaterial(G4Material* aMaterial, G4String aName)
 {
   aName.toLower();
-  if(materials.insert(make_pair(aName,aMaterial)).second)
+  if(materials.insert(make_pair(aName,aMaterial)).second){
+#ifdef DEBUG
     G4cout << "New material : " << aName << " added to material table" << G4endl;
+#endif
+  }
   else G4Exception("Material "+aName+" already exists\n");
 }
 
@@ -515,10 +530,12 @@ void BDSMaterials::AddMaterial(G4String aName, G4double itsZ, G4double itsA, G4d
 {
   aName.toLower();
   G4Material* tmpMaterial = new G4Material(aName, itsZ, itsA*g/mole, itsDensity*g/cm3);
-  if(materials.insert(make_pair(aName,tmpMaterial)).second)
+  if(materials.insert(make_pair(aName,tmpMaterial)).second){
+#ifdef DEBUG
     G4cout << "New material : " << aName << " added to material table" << G4endl;
+#endif
+  }
   else G4Exception("Material "+aName+" already exists\n");
-   
 }
 
 void BDSMaterials::AddMaterial(G4String aName, G4double itsDensity, G4State itsState,
@@ -534,13 +551,18 @@ list<const char*> itsComponents, list<G4double> itsComponentsFractions)
       sIter != itsComponents.end();
       sIter++, dIter++)
   {
+#ifdef DEBUG
     G4cout << "BDSMaterials::AddMaterial - Adding element: " << (G4String)*sIter << G4endl;
+#endif
     if(CheckElement((G4String)*sIter)){
       tmpMaterial->AddElement(GetElement((G4String)*sIter),(*dIter));
     } else tmpMaterial->AddMaterial(GetMaterial((G4String)*sIter),(*dIter));
   }
-  if(materials.insert(make_pair(aName,tmpMaterial)).second)
+  if(materials.insert(make_pair(aName,tmpMaterial)).second){
+#ifdef DEBUG
     G4cout << "New material : " << aName << " added to material table" << G4endl;
+#endif
+  }
   else G4Exception("Material "+aName+" already exists\n");
   
 }
@@ -558,29 +580,39 @@ list<const char*> itsComponents, list<G4int> itsComponentsWeights)
 	sIter != itsComponents.end();
 	sIter++, iIter++)
   {
+#ifdef DEBUG
     G4cout << "BDSMaterials::AddMaterial - Adding element: " << (G4String)*sIter << G4endl;
+#endif
     if(CheckElement((G4String)*sIter)){
       tmpMaterial->AddElement(GetElement((G4String)*sIter),(*iIter));
     } else tmpMaterial->AddMaterial(GetMaterial((G4String)*sIter),(*iIter));
   }     
-  if(materials.insert(make_pair(aName,tmpMaterial)).second)
+  if(materials.insert(make_pair(aName,tmpMaterial)).second){
+#ifdef DEBUG
     G4cout << "New material : " << aName << " added to material table" << G4endl;
+#endif
+  }
   else G4Exception("Material "+aName+" already exists\n");
-  
 }
 
 void BDSMaterials::AddElement(G4Element* aElement, G4String aSymbol)
 {
-  if(elements.insert(make_pair(aSymbol,aElement)).second)
+  if(elements.insert(make_pair(aSymbol,aElement)).second){
+#ifdef DEBUG
     G4cout << "New atom : " << aSymbol << G4endl;
+#endif
+  }
   else G4Exception("Atom "+aSymbol+" already exists\n");
 }
 
 void BDSMaterials::AddElement(G4String aName, G4String aSymbol, G4double itsZ, G4double itsA)
 {
   G4Element* tmpElement = new G4Element(aName, aSymbol, itsZ, itsA*g/mole);
-  if(elements.insert(make_pair(aSymbol,tmpElement)).second)
+  if(elements.insert(make_pair(aSymbol,tmpElement)).second){
+#ifdef DEBUG
     G4cout << "New atom : " << aSymbol << G4endl;
+#endif
+  }
   else G4Exception("Atom "+aSymbol+" already exists\n");
 }
 

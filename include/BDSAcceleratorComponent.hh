@@ -77,6 +77,8 @@ public:
   void SetLength(G4double aLength); 
   virtual G4double GetLength ();
   virtual G4double GetZLength ();
+  virtual G4double GetXLength ();
+  virtual G4double GetYLength ();
   virtual G4double GetArcLength ();
 
   G4double GetPhi (); //polar angle with respect to original frame
@@ -234,12 +236,19 @@ public:
 
 protected:
 
+  //Calculate dimensions used for the marker volume etc.
+  void CalculateLengths();
+
+
   //Values related to BLM placement and geometry
   G4double itsBlmLocationR;
   G4double itsBlmRadius;
 
   G4String itsName;
   G4double itsLength;
+  G4double itsXLength;
+  G4double itsYLength;
+  G4double itsOuterR;
   G4double itsBpRadius;
   G4double itsXAper;
   G4double itsYAper;
@@ -351,8 +360,9 @@ private:
 
 // Class BDSAcceleratorComponent 
 
-inline BDSAcceleratorComponent::
-BDSAcceleratorComponent (
+
+
+inline BDSAcceleratorComponent::BDSAcceleratorComponent (
 			G4String& aName,G4double aLength, 
 			G4double aBpRadius,G4double aXAper,G4double aYAper, 
 			G4VisAttributes* aVisAtt,
@@ -370,14 +380,16 @@ BDSAcceleratorComponent (
   itsTheta = 0;
   itsPsi = 0;
   itsTilt = 0;
+  itsOuterR=0;
   itsMagScaleFactor = 1;
   if (itsTunnelRadius<=BDSGlobals->GetLengthSafety()){
     itsTunnelRadius=BDSGlobals->GetTunnelRadius();
   }
+  CalculateLengths();
 }
 
-inline BDSAcceleratorComponent::
-BDSAcceleratorComponent (
+
+inline BDSAcceleratorComponent::BDSAcceleratorComponent (
 			G4String& aName,G4double aLength, 
 			G4double aBpRadius,G4double aXAper,G4double aYAper, 
 			G4VisAttributes* aVisAtt,
@@ -400,7 +412,6 @@ BDSAcceleratorComponent (
   itsMagScaleFactor = 1;
   itsBlmLocationR=0;
 
-
   if (itsBlmLocZ.size() != itsBlmLocTheta.size()){
     G4cerr << "BDSAcceleratorComponent: error, lists blmLocZ and blmLocTheta are of unequal size" << G4endl;
     G4cerr << "blmLocZ.size() = " << blmLocZ.size() << G4endl;
@@ -410,10 +421,18 @@ BDSAcceleratorComponent (
   if (itsTunnelRadius<=BDSGlobals->GetLengthSafety()){
     itsTunnelRadius=BDSGlobals->GetTunnelRadius();
   }
+  itsOuterR=0;
+  CalculateLengths();
 }
 
 inline G4double BDSAcceleratorComponent::GetLength ()
 {return itsLength;}
+
+inline G4double BDSAcceleratorComponent::GetXLength ()
+{return itsXLength;}
+
+inline G4double BDSAcceleratorComponent::GetYLength ()
+{return itsYLength;}
 
 inline G4double BDSAcceleratorComponent::GetArcLength ()
 {return itsLength;}

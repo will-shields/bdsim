@@ -96,7 +96,10 @@ inline  G4String BDSMySQLVariable::GetStrValue(G4int itemN)
 {return itsStrVar[itemN];}
 
 inline  G4double BDSMySQLVariable::GetDblValue(G4int itemN)
-{return itsDblVar[itemN];}
+{
+  G4cout << "Getting double value..." << itsDblVar[itemN] << G4endl;
+  return itsDblVar[itemN];
+}
 
 inline  G4int BDSMySQLVariable::GetIntValue(G4int itemN)
 {return itsIntVar[itemN];}

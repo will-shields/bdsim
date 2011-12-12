@@ -103,6 +103,8 @@ public:
   G4RotationMatrix* RotateComponent(G4ThreeVector rotvalues);
 
   void Construct(G4LogicalVolume *marker);
+  std::vector<G4LogicalVolume*> SensitiveComponents;           //For registering the sensitive components
+  std::vector<G4VPhysicalVolume*> itsMultiplePhysicalVolumes;
   std::vector<G4LogicalVolume*> VOL_LIST;
   G4String parseStrChar(xmlChar* value);
   G4double parseDblChar(xmlChar* value);
@@ -118,6 +120,9 @@ public:
   G4bool StrToFloat(const char* str, G4int start, G4int end, G4double& f);
 
 private:
+#ifndef NOUSERLIMITS
+  G4UserLimits* itsUserLimits;
+#endif
   G4bool itsFieldIsUniform;
   G4String itsFieldVolName;
   // Fetching of imported objects
@@ -377,6 +382,9 @@ inline G4double BDSGeometryLCDD::parseDblChar(xmlChar* value)
 	      char constval[40];
 	      sprintf(constval,"%f",CONST_LIST[i].value);
 	      val.replace(val.index((CONST_LIST[i].name)), (CONST_LIST[i].name).length(), constval);
+#ifdef DEBUG
+	      G4cout << "BDSGeometryLCDD::ParseDbl Replacing " << CONST_LIST[i].name << " with " << constval << G4endl;
+#endif
 	      i=0;
 	    }
 	}
@@ -387,11 +395,15 @@ inline G4double BDSGeometryLCDD::parseDblChar(xmlChar* value)
   else
     {
 #ifdef DEBUG
-      G4cout << "Unable to evaluate expression: " << value << G4endl;
+      G4cout << "BDSGeometryLCDD::ParseDbl Unable to evaluate expression: " << value << G4endl;
 #endif
       G4Exception("Check spellings and that constants are declared properly");
     }
     
+
+#ifdef DEBUG
+      G4cout << "BDSGeometryLCDD::ParseDbl returning value: " << dbl_val << G4endl;
+#endif
   return dbl_val;
 }
 

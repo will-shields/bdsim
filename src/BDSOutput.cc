@@ -156,7 +156,9 @@ void BDSOutput::Init(G4int FileNum)
   G4int nBins = G4int(zMax/(BDSGlobals->GetElossHistoBinWidth()*m));
 
   EnergyLossHisto = new TH1F("ElossHisto", "Energy Loss",nBins,0.,zMax/m);
-  EnergyLossTree= new TTree("ElossTree", "Energy Loss");//"z:E:partID:parentID:weight:volumeName");
+  EnergyLossTree= new TTree("ElossTree", "Energy Loss");//"x:y:z:E:partID:parentID:weight:volumeName");
+  EnergyLossTree->Branch("x",&x,"y/F");
+  EnergyLossTree->Branch("y",&y,"y/F");
   EnergyLossTree->Branch("z",&z,"z/F");
   EnergyLossTree->Branch("E",&E,"E/F");
   EnergyLossTree->Branch("partID",&part,"partID/F");
@@ -203,58 +205,60 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
 
 
     for (G4int i=0; i<hc->entries(); i++)
-     {
-       
-       //if ((*hc)[i]->GetType()=="plane") 
-       //name="samp";
-       //else if ((*hc)[i]->GetType()=="cylinder")
-       //name ="cyln";
-       //name="samp" + BDSGlobals->StringFromInt((*hc)[i]->GetNumber());
-
-       TTree* sTree=(TTree*)gDirectory->Get((*hc)[i]->GetName());
-       
-       if(!sTree) G4Exception("BDSOutput: ROOT Sampler not found!");
-
-       E0=(*hc)[i]->GetInitMom() / GeV;
-       x0=(*hc)[i]->GetInitX() / micrometer;
-       y0=(*hc)[i]->GetInitY() / micrometer;
-       z0=(*hc)[i]->GetInitZ() / m;
-       xp0=(*hc)[i]->GetInitXPrime() / radian;
-       yp0=(*hc)[i]->GetInitYPrime() / radian;
-       zp0=(*hc)[i]->GetInitZPrime() / radian;
-       t0=(*hc)[i]->GetInitT() / ns;
-
-       E=(*hc)[i]->GetMom() / GeV;
-       //       Edep=(*hc)[i]->GetEdep() / GeV;
-       x=(*hc)[i]->GetX() / micrometer;
-       y=(*hc)[i]->GetY() / micrometer;
-       z=(*hc)[i]->GetZ() / m;
-       xp=(*hc)[i]->GetXPrime() / radian;
-       yp=(*hc)[i]->GetYPrime() / radian;
-       zp=(*hc)[i]->GetZPrime() / radian;
-       t=(*hc)[i]->GetT() / ns;
-
-       X=(*hc)[i]->GetGlobalX() / m;
-       Y=(*hc)[i]->GetGlobalY() / m;
-       Z=(*hc)[i]->GetGlobalZ() / m;
-       Xp=(*hc)[i]->GetGlobalXPrime() / radian;
-       Yp=(*hc)[i]->GetGlobalYPrime() / radian;
-       Zp=(*hc)[i]->GetGlobalZPrime() / radian;
-
-       s=(*hc)[i]->GetS() / m;
-
-       weight=(*hc)[i]->GetWeight();
-       part=(*hc)[i]->GetPDGtype(); 
-       nev=(*hc)[i]->GetEventNo(); 
-       pID=(*hc)[i]->GetParentID(); 
-       track_id=(*hc)[i]->GetTrackID();
-      
-       sTree->Fill();
-       
-     }
+      {
+	//if ((*hc)[i]->GetType()=="plane") 
+	//name="samp";
+	//else if ((*hc)[i]->GetType()=="cylinder")
+	//name ="cyln";
+	//name="samp" + BDSGlobals->StringFromInt((*hc)[i]->GetNumber());
+	
+	TTree* sTree=(TTree*)gDirectory->Get((*hc)[i]->GetName());
+	
+	if(!sTree) G4Exception("BDSOutput: ROOT Sampler not found!");
+	
+	E0=(*hc)[i]->GetInitMom() / GeV;
+	x0=(*hc)[i]->GetInitX() / micrometer;
+	y0=(*hc)[i]->GetInitY() / micrometer;
+	z0=(*hc)[i]->GetInitZ() / m;
+	xp0=(*hc)[i]->GetInitXPrime() / radian;
+	yp0=(*hc)[i]->GetInitYPrime() / radian;
+	zp0=(*hc)[i]->GetInitZPrime() / radian;
+	t0=(*hc)[i]->GetInitT() / ns;
+	
+	E=(*hc)[i]->GetMom() / GeV;
+	//Edep=(*hc)[i]->GetEdep() / GeV;
+	x=(*hc)[i]->GetX() / micrometer;
+	y=(*hc)[i]->GetY() / micrometer;
+	z=(*hc)[i]->GetZ() / m;
+	xp=(*hc)[i]->GetXPrime() / radian;
+	yp=(*hc)[i]->GetYPrime() / radian;
+	zp=(*hc)[i]->GetZPrime() / radian;
+	t=(*hc)[i]->GetT() / ns;
+	
+	X=(*hc)[i]->GetGlobalX() / m;
+	Y=(*hc)[i]->GetGlobalY() / m;
+	Z=(*hc)[i]->GetGlobalZ() / m;
+	Xp=(*hc)[i]->GetGlobalXPrime() / radian;
+	Yp=(*hc)[i]->GetGlobalYPrime() / radian;
+	Zp=(*hc)[i]->GetGlobalZPrime() / radian;
+	
+	s=(*hc)[i]->GetS() / m;
+	
+	weight=(*hc)[i]->GetWeight();
+	part=(*hc)[i]->GetPDGtype(); 
+	nev=(*hc)[i]->GetEventNo(); 
+	pID=(*hc)[i]->GetParentID(); 
+	track_id=(*hc)[i]->GetTrackID();
+	
+#ifdef DEBUG
+	if(track_id==1){
+	  G4cout << "BDSOutput::WriteHits> primary particles:" << (*hc)[i]->GetName() << " " << nev << G4endl; 
+	}
+#endif
+	sTree->Fill();
+      }
 #endif
   }
- 
 }
 
 G4int BDSOutput::WriteTrajectory(std::vector<G4VTrajectory*> TrajVec){

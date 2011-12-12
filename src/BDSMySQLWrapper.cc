@@ -162,7 +162,6 @@ G4int BDSMySQLWrapper::ReadComponent()
 		  if(vartype.contains("DOUBLE")) vartype="DOUBLE";
 		  else if(vartype.contains("VARCHAR")) vartype="STRING";
 		  else if(vartype.contains("INTEGER")) vartype="INTEGER";
-		  
 		  table[tableN]->AddVariable(varname,vartype);
 		  ifs.getline(buffer,255); // dumping rest of line
 		}

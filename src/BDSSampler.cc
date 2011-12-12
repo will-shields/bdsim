@@ -23,8 +23,6 @@
 //#include"MagFieldFunction.hh"
 #include <map>
 
-
-
 typedef std::map<G4String,int> LogVolCountMap;
 extern LogVolCountMap* LogVolCount;
 
@@ -80,7 +78,7 @@ void BDSSampler::SamplerLogicalVolume()
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
 #ifndef NOUSERLIMITS
       itsOuterUserLimits =new G4UserLimits();
-      itsOuterUserLimits->SetMaxAllowedStep(itsLength/2.0);
+      itsOuterUserLimits->SetMaxAllowedStep(itsLength/2e3);
       itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
 #endif
      // Sensitive Detector:

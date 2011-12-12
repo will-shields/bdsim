@@ -17,7 +17,6 @@
 //     15 Dec 2005 by Agapov beta
 //
 
-
 //=================================================================
 
 #include "BDSGlobalConstants.hh"
@@ -151,8 +150,6 @@ BDSDetectorConstruction::BDSDetectorConstruction()
   RotY90->rotateY(pi_ov_2);
   RotYM90->rotateY(-pi_ov_2);
 
-  G4double worldExtent = 10000*m; 
-  G4GeometryManager::GetInstance()->SetWorldMaximumExtent(worldExtent);
 }
 
 //=================================================================
@@ -379,7 +376,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 
   //
-  G4double samplerLength = 1.E-7 * m ;
+  G4double samplerLength = 1.E-8 * m ;
 
 
   //
@@ -1605,6 +1602,8 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
   
   G4ThreeVector rtot = G4ThreeVector(0.,0.,0.);   // world dimension
   G4ThreeVector rlast = G4ThreeVector(0.,0.,0.);  // edge of last element coordinates
+  G4ThreeVector rextentmax = G4ThreeVector(0.,0.,0.);  // extent
+  G4ThreeVector rextentmin = G4ThreeVector(0.,0.,0.);  // extent
   G4ThreeVector rmin = G4ThreeVector(0.,0.,0.);
   G4ThreeVector rmax = G4ThreeVector(0.,0.,0.);
 
@@ -1658,16 +1657,26 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 #endif
 	}
 
-      if(rmax(0)<rtot(0)) rmax(0) = rtot(0);
-      if(rmax(1)<rtot(1)) rmax(1) = rtot(1);
-      if(rmax(2)<rtot(2)) rmax(2) = rtot(2);
 
-      if(rmin(0)>rtot(0)) rmin(0) = rtot(0);
-      if(rmin(1)>rtot(1)) rmin(1) = rtot(1);
-      if(rmin(2)>rtot(2)) rmin(2) = rtot(2);
+      rextentmax = rtot + localX*(*iBeam)->GetXLength() + localY*(*iBeam)->GetYLength();
+      rextentmin = rtot - localX*(*iBeam)->GetXLength() - localY*(*iBeam)->GetYLength();
+
+      //      rextentmax(0) = rtot(0) + (localX*(*iBeam)->GetXLength())(0) + (localX*(*iBeam)->GetYLength())(0);
+      //      rextentmax(1) = rtot(1) + (localY*(*iBeam)->GetXLength())(1) + (localY*(*iBeam)->GetYLength())(1);
+      //      rextentmax(2) = rtot(2) + (localZ*(*iBeam)->GetXLength())(2) + (localZ*(*iBeam)->GetYLength())(2);
+
+      //      rextentmin(0) = rtot(0) - localX*(*iBeam)->GetXLength() - localX*(*iBeam)->GetYLength();
+      //      rextentmin(1) = rtot(1) - localY*(*iBeam)->GetXLength() - localY*(*iBeam)->GetYLength();
+      //      rextentmin(2) = rtot(2) - localZ*(*iBeam)->GetXLength() - localZ*(*iBeam)->GetYLength();
+
+
+	for(int i=0; i<3; i++){
+	  rmax(i) = std::max(rextentmax(i),rmax(i));
+	  rmin(i) = std::min(rextentmin(i),rmin(i));
+	}
+
     }
     
-  
   BDSGlobals->SetTotalS(s_tot);
   
   // -----------------------------------
@@ -1676,12 +1685,16 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
   
   G4String LocalName="World";
   
-  G4double WorldSizeX = 100*m;//10 * ( (fabs(rmin(0)) + fabs(rmax(0)) )) *m;
-  G4double WorldSizeY = 100*m;//10 * ( (fabs(rmin(1)) + fabs(rmax(1)) )) *m;
-  G4double WorldSizeZ = ( (fabs(rmin(2)) + fabs(rmax(2)) )) *m;
+  G4double WorldSizeX = 1.5*( 2*std::max(fabs( rmin(0) ),fabs( rmax(0) ) ) ) *mm;
+  G4double WorldSizeY = 1.5*( 2*std::max(fabs(rmin(1)),fabs(rmax(1))) ) *mm;
+  G4double WorldSizeZ = 1.5*(fabs(rmin(2)) + fabs(rmax(2))) *mm;
+
+  //  G4double WorldSizeY = ( (fabs(rmin(1)) + fabs(rmax(1)) )) *mm;
+  //  G4double WorldSizeZ = ( (fabs(rmin(2)) + fabs(rmax(2)) ))*mm;
   
   if(verbose || debug)
     {
+      
       G4cout<<"minX="<<rmin(0)/m<<" m"<<" maxX="<<rmax(0)/m<<" m"<<G4endl;
       G4cout<<"minY="<<rmin(1)/m<<" m"<<" maxY="<<rmax(1)/m<<" m"<<G4endl;
       G4cout<<"minZ="<<rmin(2)/m<<" m"<<" maxZ="<<rmax(2)/m<<" m"<<G4endl;
@@ -1712,7 +1725,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
   // G4StepLimiter process enabled)
 #ifndef NOUSERLIMITS
   G4UserLimits* WorldUserLimits =new G4UserLimits();
-  WorldUserLimits->SetMaxAllowedStep(1*mm);
+  WorldUserLimits->SetMaxAllowedStep(10*m);
   WorldUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
   WorldUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
   logicWorld->SetUserLimits(WorldUserLimits);

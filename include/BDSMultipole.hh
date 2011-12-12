@@ -131,7 +131,6 @@ protected:   // these might need to be accessed from the child classes
 
   G4RotationMatrix* itsSegRot;
   G4ThreeVector itsSegPos;
-  G4double itsOuterR;
   G4double itsStartOuterR;
   G4double itsEndOuterR;
 };

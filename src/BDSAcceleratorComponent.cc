@@ -48,6 +48,16 @@ void BDSAcceleratorComponent::PrepareField(G4VPhysicalVolume*)
   return;
 }
 
+void BDSAcceleratorComponent::CalculateLengths(){
+  itsXLength = itsYLength = std::max(itsOuterR,BDSGlobals->GetComponentBoxSize()/2);
+  itsXLength = std::max(itsXLength, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness() + 4*BDSGlobals->GetLengthSafety() );   
+  itsYLength = std::max(itsYLength, this->GetTunnelRadius()+2*std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+4*BDSGlobals->GetLengthSafety() );
+  
+}
+
+
+
+
 void BDSAcceleratorComponent::SynchRescale(G4double)
 {
   return;
@@ -443,7 +453,7 @@ void BDSAcceleratorComponent::BuildTunnel()
   } else {
     VisAtt->SetVisibility(false);
   }
-  VisAtt->SetForceSolid(true);
+  VisAtt->SetForceSolid(true);  
   itsSoilTunnelLogicalVolume->SetVisAttributes(VisAtt);
   VisAtt1 = new G4VisAttributes(G4Colour(0.4, 0.4, 0.4));
   VisAtt1->SetVisibility(BDSGlobals->GetShowTunnel());
@@ -457,6 +467,7 @@ void BDSAcceleratorComponent::BuildTunnel()
   itsTunnelMinusCavityLogicalVolume->SetVisAttributes(VisAtt1);
   itsMarkerLogicalVolume->SetVisAttributes(VisAtt);
   itsTunnelCavityLogicalVolume->SetVisAttributes(VisAtt2);
+  
 }
 
 void BDSAcceleratorComponent::BuildBLMs()
@@ -594,7 +605,6 @@ void BDSAcceleratorComponent::BuildBLMs()
    assemblyBlms->MakeImprint(itsMarkerLogicalVolume,blmTr3d);
  }
 }
-
 
 //This Method is for investigating the Anomalous signal at LHc junction IP8
 

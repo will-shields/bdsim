@@ -100,6 +100,13 @@ void init()
   options.ffact = 1.0;
   options.elossHistoBinWidth = 1.0;
   options.defaultRangeCut = 7e-4;
+  options.prodCutPositrons=7e-4,
+    options.prodCutElectrons=7e-4,
+    options.prodCutPhotons=7e-4,
+    options.prodCutPositronsP=7e-4,
+    options.prodCutElectronsP=7e-4,
+    options.prodCutPhotonsP=7e-4,
+
   //Beam loss monitors geometry
   options.blmRad = 0.05;
   options.blmLength = 0.18;
@@ -109,6 +116,15 @@ void init()
   options.turnOnCerenkov = 1;
   options.decayOn = 1;
   //  options.synchRadOn = 0;
+  //tracking options
+  options.chordStepMinimum = 0.000001;
+    options.deltaIntersection = 0.00001;
+    options.deltaChord = 0.00001;
+    options.deltaOneStep = 0.00001;
+    options.minimumEpsilonStep=0;
+    options.maximumEpsilonStep=1e-7;
+    options.lengthSafety = 0.000000001;
+
 }
 
 int gmad_parser(FILE *f)
