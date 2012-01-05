@@ -157,12 +157,12 @@ void BDSOutput::Init(G4int FileNum)
 
   EnergyLossHisto = new TH1F("ElossHisto", "Energy Loss",nBins,0.,zMax/m);
   EnergyLossTree= new TTree("ElossTree", "Energy Loss");//"x:y:z:E:partID:parentID:weight:volumeName");
-  EnergyLossTree->Branch("x",&x,"y/F");
+  EnergyLossTree->Branch("x",&x,"x/F");
   EnergyLossTree->Branch("y",&y,"y/F");
   EnergyLossTree->Branch("z",&z,"z/F");
   EnergyLossTree->Branch("E",&E,"E/F");
-  EnergyLossTree->Branch("partID",&part,"partID/F");
-  EnergyLossTree->Branch("parentID",&pID,"parentID/F");
+  EnergyLossTree->Branch("partID",&part,"partID/I");
+  EnergyLossTree->Branch("parentID",&pID,"parentID/I");
   EnergyLossTree->Branch("weight",&weight,"weight/F");
   EnergyLossTree->Branch("volumeName",&volumeName,"volumeName/C");
 #endif
