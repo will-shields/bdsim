@@ -19,6 +19,8 @@
 
 //=================================================================
 
+#define DEBUG
+
 #include "BDSGlobalConstants.hh"
 
 #include "BDSDetectorConstruction.hh"
@@ -442,49 +444,82 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       }
 
       if((*it).type==_DRIFT ) {
-	double aper=0;
-
+	double aper(0), aperX(0), aperY(0);
+	
 	if( (*it).aper > 0 ) aper = (*it).aper * m; //Set if aper specified for element
         if( ((*it).aperX>0) || ((*it).aperY>0)){  //aperX or aperY override aper, aper set to the largest of aperX or aperY
           aper=std::max((*it).aperX,(*it).aperY);
         }
 
 
-	if ( ((*it).aperX !=0) || ((*it).aperY != 0) || ((*it).aper != 0)){
+	if ( ((*it).aperX !=0) || ((*it).aperY != 0) || ((*it).aper != 0) || (*it).phiAngleIn != 0 || (*it).phiAngleOut !=0){
+	  if ((*it).aperX==0 && (*it).aperY==0 && (*it).aper==0){
+	    aperX=BDSGlobals->GetBeampipeRadius()/m;
+	    aperY=BDSGlobals->GetBeampipeRadius()/m;
+	    aper=BDSGlobals->GetBeampipeRadius()/m;
+	  }
+	  
+
 	  if((*it).l > BDSGlobals->GetLengthSafety()) // skip too short elements                                                                                                         
 	    {
 #if 1
 	      	      G4cout << "---->adding Drift,"
 	      		     << " name= " << (*it).name
 	      		     << " l= " << (*it).l << "m"
-			     << " aperX= " << (*it).aperX << "m"
-	      		     << " aperY= " << (*it).aperY << "m"
+			     << " aperX= " << aperX << "m"
+	      		     << " aperY= " << aperY << "m"
+			     << " aper = " << aper << "m"
+			     << " phiAngleIn= " << (*it).phiAngleIn 
+			     << " phiAngleOut= " << (*it).phiAngleOut 
 	      		     << G4endl;
 #endif
+
+	//Add the phiAngleIn using BDSTransform3D
+		      
+		      if((*it).phiAngleIn != 0){
+			G4String namStr = (G4String)(*it).name + "_phiAngleIn";
+			theBeamline.push_back(new BDSTransform3D( namStr.c_str(),
+								  0,
+								  0,
+								  0,
+								  (*it).phiAngleIn *rad,
+								  0,
+								  0));
+		      }
+		      
+
+
 	      G4bool aperset=true;
 	      if(!((*it).tunnelOffsetX)<1e6){
 		theBeamline.push_back(new BDSDrift( (*it).name,
 						    (*it).l*m,
 						    (*it).blmLocZ,
 						    (*it).blmLocTheta,
-						    (*it).aperX*m, (*it).aperY*m, (*it).tunnelMaterial, aperset, aper));
+						    aperX*m, aperY*m, (*it).tunnelMaterial, aperset, aper, BDSGlobals->GetTunnelOffsetX(), (*it).phiAngleIn, (*it).phiAngleOut));
 	      } else {
 		theBeamline.push_back(new BDSDrift( (*it).name,
 						    (*it).l*m,
 						    (*it).blmLocZ,
 						    (*it).blmLocTheta,
-						    (*it).aperX*m, (*it).aperY*m, (*it).tunnelMaterial, aperset, aper,(*it).tunnelOffsetX*m) );
+						    aperX*m, aperY*m, (*it).tunnelMaterial, aperset, aper,(*it).tunnelOffsetX*m, (*it).phiAngleIn, (*it).phiAngleOut) );
 	      }
-	    } else {
-	    /*
-	    G4cerr << "---->NOT adding Drift,"
-		   << " name= " << name
-		   << ", TOO SHORT LENGTH:"
-		   << " l= " << l << "m"
-		   << G4endl;
-	    */
-	   } 
-	  
+
+	      //Add the phiAngleOut using BDSTransform3D
+	      
+	      if((*it).phiAngleOut != 0){
+		G4String namStr = (G4String)(*it).name + "_phiAngleIn";
+		theBeamline.push_back(new BDSTransform3D( namStr.c_str(),
+							  0,
+							  0,
+							  0,
+							  (*it).phiAngleOut *rad,
+							  0,
+							  0));
+	      }
+	      
+
+	    } 
+	    
 	  //Build beam pipe to specified apertures.
 	} else {
 	  //Taper circular beam pipe between elements.
@@ -1313,26 +1348,34 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
                << " l= " << (*it).l << "m"
                << " aper= " << aper/m << "m"
                << " outR= " << (*it).outR << "m"
+               << " phiAngleIn= " << (*it).phiAngleIn 
+               << " phiAngleOut= " << (*it).phiAngleOut 
                << " tunnel material " << (*it).tunnelMaterial
                << " tunnel cavity material " << (*it).tunnelCavityMaterial
                << G4endl;
 #endif
+
 	if((*it).tunnelOffsetX<1e6){
+	  
 	  theBeamline.push_back(new BDSElement( (*it).name,
 						(*it).geometryFile,
 						(*it).bmapFile,
 						(*it).l * m,
 						aper,
-						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (*it).tunnelOffsetX, (*it).tunnelCavityMaterial ));
-	} else {
+						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (*it).tunnelOffsetX, (*it).tunnelCavityMaterial,
+						(*it).phiAngleIn, (*it).phiAngleOut) );
+	} 
+	else {
 	  theBeamline.push_back(new BDSElement( (*it).name,
 						(*it).geometryFile,
 						(*it).bmapFile,
 						(*it).l * m,
 						aper,
-						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (G4double)0, (*it).tunnelCavityMaterial));
+						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (G4double)0, (*it).tunnelCavityMaterial,
+						(*it).phiAngleIn, (*it).phiAngleOut));
 	}
 	
+
 	added_comp=true;
       }
 
@@ -1758,7 +1801,8 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
                                  LocalName,	// its name
                                  NULL,		// its mother  volume
                                  false,		// no boolean operation
-                                 0);		// copy number
+                                 0,             // copy number
+				 true);		// overlap checking
 
 
 
@@ -1854,7 +1898,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
       // define center of bended elements from the previos coordinate frame
       G4ThreeVector zHalfAngle = localZ; 
 
-      if((*iBeam)->GetType() == "sbend" || (*iBeam)->GetType() == "rbend")
+      if( (*iBeam)->GetType() == "sbend" || (*iBeam)->GetType() == "rbend"  )
 	zHalfAngle.rotate(angle/2,localY);
 
 #ifdef DEBUG
@@ -1908,12 +1952,20 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 	  rotateComponent->rotateY(-twopi/4-angle/2); 						
 	}
 
+      if( ((*iBeam)->GetType() == "drift"))// && (*iBeam)->)
+	rotateComponent->rotateY(-twopi/4); //Drift trapezoids defined along z axis 						
 
       // zero length components not placed (transform3d)
       if(length!=0.){
 	G4LogicalVolume* LocalLogVol=(*iBeam)->GetMarkerLogicalVolume();
 	
 	G4String LogVolName=LocalLogVol->GetName();
+	//--test
+	G4VisAttributes* VisAtt1 = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
+	VisAtt1->SetForceSolid(true);  
+	VisAtt1->SetVisibility(true);
+	LocalLogVol->SetVisAttributes(VisAtt1);
+	//------------
 	int nCopy=(*LogVolCount)[LogVolName]-1;
 	(*LogVolCount)[LogVolName]++;
 
@@ -2027,7 +2079,8 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 			    LocalLogVol,      // its logical volume
 			    physiWorld,	      // its mother  volume
 			    false,	      // no boolean operation
-			    nCopy);	      // copy number
+			    nCopy,            // copy number
+			    true);	      //overlap checking
 
 	  fPhysicalVolumeVector.push_back(PhysiComponentPlace);
 	  vector<G4VPhysicalVolume*> MultiplePhysicalVolumes = (*iBeam)->GetMultiplePhysicalVolumes();
@@ -2051,9 +2104,9 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 
 	if(use_graphics)
 	  {
-	    (*iBeam)->GetVisAttributes()->SetVisibility(false);
-            (*iBeam)->GetMarkerLogicalVolume()->
-	      SetVisAttributes((*iBeam)->GetVisAttributes());
+	    	    (*iBeam)->GetVisAttributes()->SetVisibility(true);
+	                (*iBeam)->GetMarkerLogicalVolume()->
+	    	      SetVisAttributes((*iBeam)->GetVisAttributes());
 	  }
 	
       }

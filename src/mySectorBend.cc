@@ -283,7 +283,7 @@ void mySectorBend::BuildSBBeampipe()
 		      itsName+"_InnerBmp",     // its name
 		      itsMarkerLogicalVolume,  // its mother volume
 		      false,		       // no boolean operation
-		      0);		       // copy number
+		      0, true);		       // copy number
 
   G4VPhysicalVolume* PhysiComp;
   PhysiComp = 
@@ -294,7 +294,7 @@ void mySectorBend::BuildSBBeampipe()
 		      itsName+"_bmp",	       // its name
 		      itsMarkerLogicalVolume,  // its mother  volume
 		      false,		       // no boolean operation
-		      0);		             // copy number
+		      0, true);		             // copy number
 #ifndef NOUSERLIMITS
   itsBeampipeUserLimits =
     new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
@@ -373,7 +373,7 @@ void mySectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum)
                       itsName+"_solid",         // its name
                       itsMarkerLogicalVolume,   // its mother  volume
                       false,                    // no boolean operation
-                      0);                       // copy number
+                      0, true);                       // copy number
 #ifndef NOUSERLIMITS
   itsOuterUserLimits =
     new G4UserLimits("multipole cut",itsLength,DBL_MAX,DBL_MAX,

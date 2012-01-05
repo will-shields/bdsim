@@ -116,7 +116,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 		      "vol_"+G4String(count),	     // its name
 		      marker,     // its mother  volume
 		      false,		     // no boolean operation
-		      0);		   
+		      0, true);		   
 
 	    count++;
 
@@ -185,7 +185,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 				"vol_"+G4String(count),	     // its name
 				marker,     // its mother  volume
 				false,		     // no boolean operation
-				0);		   
+				0, true);		   
 	    
 	    count++;
 	    
@@ -259,7 +259,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 				"vol_"+G4String(count),	     // its name
 				marker,     // its mother  volume
 				false,		     // no boolean operation
-				0);		   
+				0, true);		   
 	    
 	    count++;
 	    
@@ -321,7 +321,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 				"vol_"+G4String(count),	     // its name
 				marker,     // its mother  volume
 				false,		     // no boolean operation
-				0);		   
+				0, true);		   
 	    
 	    count++;
 	    

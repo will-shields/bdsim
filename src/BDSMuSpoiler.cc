@@ -194,7 +194,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
 		      itsName+"_combined", // its name
 		      itsSolidLogVol,      // its mother  volume
 		      false,		   // no boolean operation
-		      0);		   // copy number 
+		      0, true);		   // copy number 
 
   //For geometric biasing etc.
   SetMultiplePhysicalVolumes(itsPhysiComp2);
@@ -215,7 +215,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
 		      itsName+"_inner_bmp_phys",// its name
 		      itsMarkerLogicalVolume,   // its mother  volume
 		      false,		        // no boolean operation
-		      0);		        // copy number
+				   0, true);		        // copy number
   
       itsPhysiBP = new G4PVPlacement(
 				  (G4RotationMatrix*)0,			     // no rotation
@@ -224,7 +224,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
 			  itsName+"_bmp_phys",	     // its name
 			  itsMarkerLogicalVolume,    // its mother  volume
 			  false,		     // no boolean operation
-			  0);		             // copy number
+				  0, true);		             // copy number
 
   itsPhysiComp = 
     new G4PVPlacement(
@@ -234,7 +234,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
 		      itsName+"_solid",	     // its name
 		      itsMarkerLogicalVolume, // its mother  volume
 		      false,		     // no boolean operation
-		      0);		     // copy number  
+		      0, true);		     // copy number  
 
   //For geometric biasing etc.
   SetMultiplePhysicalVolumes(itsPhysiInnerBP);

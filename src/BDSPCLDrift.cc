@@ -154,7 +154,7 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
 				    itsName+"_inner_bmp_phys",// its name
 				    itsMarkerLogicalVolume,   // its mother  volume
 				    false,		        // no boolean operation
-				    0);		        // copy number
+				    0, true);		        // copy number
 
 
   itsPhysiOuter = new G4PVPlacement(
@@ -164,7 +164,7 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
 				    itsName+"_inner_bmp_phys",// its name
 				    itsMarkerLogicalVolume,   // its mother  volume
 				    false,		        // no boolean operation
-				    0);		        // copy number
+				    0, true);		        // copy number
 
 
 

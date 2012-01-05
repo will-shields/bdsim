@@ -440,7 +440,7 @@ void BDSRBend::BuildRBBeampipe()
 		      itsName+"_InnerBmp",     // its name
 		      itsMarkerLogicalVolume,  // its mother volume
 		      false,		       // no booleanm operation
-		      0);		       // copy number
+		      0, true);		       // copy number
 
 
   G4VPhysicalVolume* PhysiComp;
@@ -452,7 +452,7 @@ void BDSRBend::BuildRBBeampipe()
 		      itsName+"_bmp",	        // its name
 		      itsMarkerLogicalVolume,   // its mother volume
 		      false,		        // no boolean operation
-		      0);		        // copy number
+		      0, true);		        // copy number
 
   G4VPhysicalVolume* PhysiInnerEnds;
   PhysiInnerEnds = 
@@ -463,7 +463,7 @@ void BDSRBend::BuildRBBeampipe()
 		      itsName+"_InnerBmp",     // its name
 		      itsMarkerLogicalVolume,  // its mother volume
 		      false,		       // no booleanm operation
-		      0);		       // copy number
+		      0, true);		       // copy number
   
   G4VPhysicalVolume* PhysiCompEnds;
   PhysiCompEnds =
@@ -474,7 +474,7 @@ void BDSRBend::BuildRBBeampipe()
 		      itsName+"_bmp",	        // its name
 		      itsMarkerLogicalVolume,   // its mother volume
 		      false,		        // no boolean operation
-		      0);		        // copy number
+		      0, true);		        // copy number
   
   SetMultiplePhysicalVolumes(PhysiInner);
   SetMultiplePhysicalVolumes(PhysiComp);
@@ -581,7 +581,7 @@ void BDSRBend::BuildRBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
                       itsName+"_solid",       // its name
                       itsMarkerLogicalVolume, // its mother  volume
                       false,                  // no boolean operation
-                      0);                     // copy number
+                      0, true);                     // copy number
 
   SetMultiplePhysicalVolumes(itsPhysiComp);
 

@@ -69,7 +69,9 @@ public:
 		G4double aYAper=0.,
 		G4double angle=0.,
 		G4double tunnelRadius=0.,
-		G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX());
+		G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX(),
+		G4double phiAngleIn=0,
+		G4double phiAngleOut=0);
 
   virtual ~BDSMultipole();
 
@@ -98,6 +100,7 @@ public:
   void SetEndOuterRadius(G4double outR);
 
 protected:
+
   G4LogicalVolume* itsBeampipeLogicalVolume;
   G4LogicalVolume* itsInnerBPLogicalVolume;
 

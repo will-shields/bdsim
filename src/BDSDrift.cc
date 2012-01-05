@@ -29,8 +29,8 @@ extern BDSMaterials* theMaterials;
 //============================================================
 
 BDSDrift::BDSDrift (G4String aName, G4double aLength, 
-                    std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double aperX, G4double aperY, G4String tunnelMaterial, G4bool aperset, G4double aper, G4double tunnelOffsetX):
-  BDSMultipole(aName, aLength, aper, aper, SetVisAttributes(),  blmLocZ, blmLocTheta, tunnelMaterial, "", aperX, aperY, 0, 0, tunnelOffsetX)
+                    std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double aperX, G4double aperY, G4String tunnelMaterial, G4bool aperset, G4double aper, G4double tunnelOffsetX, G4double phiAngleIn, G4double phiAngleOut):
+  BDSMultipole(aName, aLength, aper, aper, SetVisAttributes(),  blmLocZ, blmLocTheta, tunnelMaterial, "", aperX, aperY, 0, 0, tunnelOffsetX, phiAngleIn, phiAngleOut)
 {
   if(!aperset){
     itsStartOuterR=aperX + BDSGlobals->GetBeampipeThickness();
@@ -46,6 +46,10 @@ BDSDrift::BDSDrift (G4String aName, G4double aLength,
       // build external volume
       // 
       BuildDefaultMarkerLogicalVolume();
+      G4VisAttributes* VisAtt1 = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
+      VisAtt1->SetVisibility(true);
+      VisAtt1->SetForceSolid(true);
+      itsMarkerLogicalVolume->SetVisAttributes(VisAtt1);
 
       //
       // build beampipe (geometry + magnetic field)

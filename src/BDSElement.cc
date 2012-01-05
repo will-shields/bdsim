@@ -60,12 +60,12 @@ extern G4RotationMatrix* RotY90;
 //============================================================
 
 BDSElement::BDSElement(G4String aName, G4String geometry, G4String bmap,
-		       G4double aLength, G4double bpRad, G4double outR, G4String aTunnelMaterial, G4double aTunnelRadius, G4double aTunnelOffsetX, G4String aTunnelCavityMaterial):
+		       G4double aLength, G4double bpRad, G4double outR, G4String aTunnelMaterial, G4double aTunnelRadius, G4double aTunnelOffsetX, G4String aTunnelCavityMaterial, G4double phiAngleIn, G4double phiAngleOut):
   BDSAcceleratorComponent(
 			  aName,
 			  aLength,bpRad,0,0,
 			  SetVisAttributes(), aTunnelMaterial, "", 0., 0., 0., 0., aTunnelRadius*m, aTunnelOffsetX*m, aTunnelCavityMaterial),
-  itsField(NULL), itsMagField(NULL)
+  itsField(NULL), itsMagField(NULL), itsPhiAngleIn(phiAngleIn), itsPhiAngleOut(phiAngleOut)
 {
   itsFieldVolName="";
   itsFieldIsUniform=false;
@@ -103,12 +103,9 @@ BDSElement::BDSElement(G4String aName, G4String geometry, G4String bmap,
     }
 }
 
-void BDSElement::BuildGeometry()
-{
-  // multiple element instances not implemented yet!!!
 
-  // Build the logical volume 
-
+void BDSElement::BuildElementMarkerLogicalVolume(){
+  
 #ifdef DEBUG 
   G4cout<<"BDSElement : creating logical volume"<<G4endl;
 #endif
@@ -120,6 +117,7 @@ void BDSElement::BuildGeometry()
 
   G4double elementSize=std::max(elementSizeX, elementSizeY); 
   
+
   itsMarkerLogicalVolume = 
     new G4LogicalVolume(new G4Box(itsName+"generic_element",
                                   elementSize,
@@ -127,7 +125,104 @@ void BDSElement::BuildGeometry()
 				  itsLength/2),
 			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName);
+
   
+  //-------------------------------------------------------------------------------------------------------------
+
+
+#ifdef DEBUG 
+  G4cout<<"marker volume : x/y="<<elementSize/m<<
+    " m, l= "<<  (itsLength)/2/m <<" m"<<G4endl;
+#endif
+
+
+    //-----------------------------
+    /*
+  G4RotationMatrix* rotMatrix1 = new G4RotationMatrix();
+  rotMatrix1->rotateY(itsPhiAngleIn);
+  G4RotationMatrix* rotMatrix2 = new G4RotationMatrix();
+  rotMatrix1->rotateY(itsPhiAngleOut);
+  G4ThreeVector transVec1(0, 0, itsLength
+
+  itsMarkerLogicalVolume = new G4SubtactionSolid(itsName+"_generic_element",
+						 new G4SubtactionSolid(itsName+"_tempSolid1",
+								       new G4Box(itsName+"tempSolid1a",
+										 elementSize,
+										 elementSize,   
+										 itsLength/2),
+								       new G4Box(itsName+"tempSolid1b", 
+										 sin(itsPhiAngleIn)*elementSize*2, //Make sure it is wider than the solid being subtracted from
+										 elementSize,
+										 itsLength/2),
+								       rotMatrix1,
+								       transVec1),
+						 new  G4Box(itsName+"tempSolid2", 
+							    sin(itsPhiAngleOut)*elementSize*2, //Make sure it is wider than the solid being subtracted from
+							    elementSize,
+							    itsLength/2),
+						 rotMatrix2,
+						 transVec2);
+
+
+
+  G4LogicalVolume* tempBox1 = new G4LogicalVolume(new G4Box(itsName+"tempBox1", 
+							    sin(itsPhiAngleIn)*elementSize,
+							    elementSize,
+							    itsLength/2),
+						  theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+						  itsName+"tempBox1Log"
+						  );
+  
+
+    */
+
+  /*
+  G4double xHalfLengthPlus, xHalfLengthMinus;
+  xHalfLengthMinus = (itsLength + (elementSize/2.0)*(tan(itsPhiAngleIn) -tan(itsPhiAngleOut)))/2.0;
+  xHalfLengthPlus = (itsLength +  (elementSize/2.0)*(tan(itsPhiAngleOut)-tan(itsPhiAngleIn )))/2.0;
+  
+  
+  if((xHalfLengthPlus<0) || (xHalfLengthMinus<0)){
+    G4cerr << "Bend radius in " << itsName << " too small for this tunnel/component geometry. Exiting." << G4endl;
+    exit(1);
+  }
+  
+  itsMarkerSolidVolume = new G4Trd(itsName+"_marker",
+				   xHalfLengthPlus,     // x hlf lgth at +z
+				   xHalfLengthMinus,    // x hlf lgth at -z
+				   elementSize/2,           // y hlf lgth at +z
+				   elementSize/2,           // y hlf lgth at -z
+				   fabs(cos(itsAngle/2))*elementSize/2);// z hlf lgth
+  
+  G4String LocalLogicalName=itsName;
+  
+  itsMarkerLogicalVolume=    
+    new G4LogicalVolume(itsMarkerSolidVolume,
+			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			LocalLogicalName+"_marker");
+  */
+  
+  itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX, BDSGlobals->GetThresholdCutCharged());
+  G4double  maxStepFactor=1e-3;
+  itsMarkerUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
+  itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
+  
+  
+  //
+  // zero field in the marker volume
+  //
+  itsMarkerLogicalVolume->
+    SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
+}
+
+void BDSElement::BuildGeometry()
+{
+  // multiple element instances not implemented yet!!!
+
+  // Build the marker logical volume 
+  BuildElementMarkerLogicalVolume();
+
+
   (*LogVolCount)[itsName] = 1;
   (*LogVol)[itsName] = itsMarkerLogicalVolume;
 #ifndef NOUSERLIMITS

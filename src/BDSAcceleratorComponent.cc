@@ -387,7 +387,7 @@ void BDSAcceleratorComponent::BuildTunnel()
                                          itsName+"_tun_phys",	     // its name
                                          itsMarkerLogicalVolume,    // its mother  volume
                                          true,		     // no boolean operation
-                                         0);		             // copy number
+                                         0, true);		             // copy number
   
   
   SetMultiplePhysicalVolumes(itsTunnelPhysiComp);
@@ -402,7 +402,7 @@ void BDSAcceleratorComponent::BuildTunnel()
                                              itsName+"_tun_phys_soil",	     // its name
                                              itsMarkerLogicalVolume,    // its mother  volume
                                              true,		     // no boolean operation
-                                             0);		             // copy number
+                                             0, true);		             // copy number
   
   SetMultiplePhysicalVolumes(itsTunnelPhysiCompSoil);
   /*
@@ -413,7 +413,7 @@ void BDSAcceleratorComponent::BuildTunnel()
     itsName+"_inner_tun_phys",// its name
     itsMarkerLogicalVolume,   // its mother  volume
     false,		        // no boolean operation
-    0);		        // copy number
+    0, true);		        // copy number
   */
   
 #ifndef NOUSERLIMITS
@@ -448,12 +448,9 @@ void BDSAcceleratorComponent::BuildTunnel()
     // set visualization attributes
     //
   VisAtt = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
-  if (itsAngle==0){
-    VisAtt->SetVisibility(false);  
-  } else {
-    VisAtt->SetVisibility(false);
-  }
+  VisAtt->SetVisibility(true);
   VisAtt->SetForceSolid(true);  
+  
   itsSoilTunnelLogicalVolume->SetVisAttributes(VisAtt);
   VisAtt1 = new G4VisAttributes(G4Colour(0.4, 0.4, 0.4));
   VisAtt1->SetVisibility(BDSGlobals->GetShowTunnel());
@@ -645,8 +642,8 @@ void BDSAcceleratorComponent::BuildGate()
 						  itsName + "_gate_physi",
 						  itsMarkerLogicalVolume,
 						  false,
-						  0
-						  );
+						   0,
+						  true);
   SetMultiplePhysicalVolumes(itsGatePhysi);
   
   G4VisAttributes* VisAtt = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0));

@@ -132,6 +132,8 @@ void flush(struct Element& e )
   e.k2 = 0;
   e.k3 = 0;
   e.angle = 0;
+  e.phiAngleIn = 0;
+  e.phiAngleOut = 0;
   e.tilt = 0;
   e.phi = 0;
   e.psi = 0;
@@ -196,6 +198,8 @@ void copy_properties(std::list<struct Element>::iterator dest, std::list<struct 
   (*dest).l = (*src).l;
 
   (*dest).angle = (*src).angle; 
+  (*dest).phiAngleIn = (*src).phiAngleIn; 
+  (*dest).phiAngleOut = (*src).phiAngleOut; 
   (*dest).xsize = (*src).xsize; 
   (*dest).ysize = (*src).ysize; 
 
@@ -274,6 +278,8 @@ void inherit_properties(struct Element e)
   if(!params.k2set) { params.k2 = e.k2; params.k2set = 1; }
   if(!params.k3set) { params.k3 = e.k3; params.k3set = 1; }
   if(!params.angleset) { params.angle = e.angle; params.angleset = 1; }
+  if(!params.phiAngleInset) { params.phiAngleIn = e.phiAngleIn; params.phiAngleInset = 1; }
+  if(!params.phiAngleOutset) { params.phiAngleOut = e.phiAngleOut; params.phiAngleOutset = 1; }
   if(!params.xsizeset) { params.xsize = e.xsize; params.xsizeset = 1; }
   if(!params.ysizeset) { params.ysize = e.ysize; params.ysizeset = 1; }
  
@@ -479,6 +485,10 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
       e.blmLocZ = params.blmLocZ;
     if(params.blmLocThetaset)
       e.blmLocTheta = params.blmLocTheta;
+    if(params.phiAngleInset)
+      e.phiAngleIn = params.phiAngleIn;
+    if(params.phiAngleOutset)
+      e.phiAngleOut = params.phiAngleOut;
     break;
 
   case _PCLDRIFT:
@@ -1454,6 +1464,8 @@ double property_lookup(char *element_name, char *property_name)
    if(!strcmp(property_name,"k2")) return (*it).k2;
    if(!strcmp(property_name,"k3")) return (*it).k3;
    if(!strcmp(property_name,"angle")) return (*it).angle;
+   if(!strcmp(property_name,"phiAngleIn")) return (*it).phiAngleIn;
+   if(!strcmp(property_name,"phiAngleOut")) return (*it).phiAngleOut;
    if(!strcmp(property_name,"aper")) return (*it).aper;
    if(!strcmp(property_name,"aperX")) return (*it).aperX;
    if(!strcmp(property_name,"aperY")) return (*it).aperY;

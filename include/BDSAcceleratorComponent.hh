@@ -81,6 +81,9 @@ public:
   virtual G4double GetYLength ();
   virtual G4double GetArcLength ();
 
+  G4double GetPhiAngleIn (); //polar angle in
+  G4double GetPhiAngleOut (); //polar angle out
+
   G4double GetPhi (); //polar angle with respect to original frame
   void SetPhi (G4double val);
 
@@ -269,6 +272,8 @@ protected:
 
   G4double itsTilt;
 
+  G4double itsPhiAngleIn;
+  G4double itsPhiAngleOut;
   
   G4double itsMagScaleFactor;
   G4double itsPhi;
@@ -442,6 +447,12 @@ inline G4double BDSAcceleratorComponent::GetZLength ()
 
 inline G4double BDSAcceleratorComponent::GetAngle ()
 {return itsAngle;}
+
+inline G4double BDSAcceleratorComponent::GetPhiAngleIn ()
+{return itsPhiAngleIn;}
+
+inline G4double BDSAcceleratorComponent::GetPhiAngleOut ()
+{return itsPhiAngleOut;}
 
 inline G4double BDSAcceleratorComponent::GetPhi ()
 {return itsPhi;}

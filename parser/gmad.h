@@ -216,7 +216,7 @@ struct Element {
   char * name;
 
   double inR; double bpRad; // inner radius and beam pipe radius of muon spoiler  
-  double l,ks,k0,k1,k2,k3,angle,aper,aperX, aperY, tilt,xsize,ysize,r,outR,hgap,B;
+  double l,ks,k0,k1,k2,k3,angle,aper,aperX, aperY, tilt,xsize,ysize,r,outR,hgap,B, phiAngleIn, phiAngleOut;
   double xdir, ydir, zdir, waveLength; // for laser wire and 3d transforms
   double flatlength,taperlength; //for realistic collimators
   double gradient; // for rf cavities
@@ -294,6 +294,8 @@ struct Parameters {
   double r; int rset; //radius, i.e cylindrical sampler
   
   double angle; int angleset;   // bending angle
+  double phiAngleIn; int phiAngleInset;   // incoming bending angle for element
+  double phiAngleOut; int phiAngleOutset;   // outgoing bending angle for element
   double aper; int aperset;   // aperture (circular)
   double aperX; int aperXset;   // aperture (elliptical)
   double aperY; int aperYset;   
@@ -370,6 +372,8 @@ struct Parameters {
     flatlength = 0; flatlengthset = 0;
     taperlength = 0; taperlengthset = 0;
     angle = 0; angleset = 0;
+    phiAngleIn = 0; phiAngleInset = 0;
+    phiAngleOut = 0; phiAngleOutset = 0;
     xsize = 0; xsizeset = 0;
     ysize = 0; ysizeset = 0;
     hgap = 0; hgapset = 0;    

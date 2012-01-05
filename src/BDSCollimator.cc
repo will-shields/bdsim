@@ -155,7 +155,7 @@ void BDSCollimator::BuildInnerCollimator()
 		      itsName+"_solid_phys",	     // its name
 		      itsMarkerLogicalVolume, // its mother  volume
 		      false,		     // no boolean operation
-		      0);		     // copy number  
+		      0, true);		     // copy number  
 
 
     itsPhysiComp2 = 
@@ -166,7 +166,7 @@ void BDSCollimator::BuildInnerCollimator()
     itsName+"_inner_phys", // its name
     itsSolidLogVol,      // its mother  volume
     false,		   // no boolean operation
-    0);		   // copy number 
+    0, true);		   // copy number 
 
   if(BDSGlobals->GetSensitiveComponents()){
     SetSensitiveVolume(itsSolidLogVol);

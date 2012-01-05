@@ -1285,7 +1285,7 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
 			  Name,
 			  VOL_LIST[PARENTID],
 			  false,
-			  0);
+			  0, true);
       SetMultiplePhysicalVolumes(PhysiComp);
       if(align_in)
 	{

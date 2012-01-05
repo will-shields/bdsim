@@ -57,7 +57,7 @@ void BDSGeometryGDML::Construct(G4LogicalVolume *marker){
                     topvol->GetName()+"_PhysiComp",
                     itsMarkerVol,
                     false,
-                    0);
+                    0, true);
 
   }
 #endif

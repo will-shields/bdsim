@@ -382,16 +382,16 @@ void BDSGeometryLCDD::parseLCDD(xmlNodePtr cur)
 	       tempcur = tempcur->next;
 	     }
 
-	   G4LogicalVolume* topvol = GetLogVolByName(itsWorldRef);
-	   new G4PVPlacement(NULL,
-			     G4ThreeVector(0.,0.,0.),
-			     topvol,
-			     topvol->GetName()+"_PhysiComp",
-			     itsMarkerVol,
-			     false,
-			     0);
+	   	   G4LogicalVolume* topvol = GetLogVolByName(itsWorldRef);
+	   	   new G4PVPlacement(NULL,
+	   	     G4ThreeVector(0.,0.,0.),
+				     topvol,
+				     topvol->GetName()+"_PhysiComp",
+				     itsMarkerVol,
+				     false,
+				     0, true);
 #ifndef NOUSERLIMITS
-	   topvol->SetUserLimits(itsUserLimits);
+	   	   topvol->SetUserLimits(itsUserLimits);
 #endif
 	 }
        cur = cur->next;
@@ -865,7 +865,7 @@ void BDSGeometryLCDD::parsePHYSVOL(xmlNodePtr cur, G4String volume_name)
 		    currentVol->GetName()+"_PhysiComp",
 		    parentVol,
 		    false,
-		    0);
+		    0, true);
   
 
   return;
