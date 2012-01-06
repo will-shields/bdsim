@@ -108,7 +108,7 @@ void BDSLWCalorimeter::BuildCal(G4double aLength)
 		      itsName+"_cal",	     // its name
 		      itsMarkerLogicalVolume,     // its mother  volume
 		      false,		     // no boolean operation
-		      0, true);		             // copy number
+		      0, BDSGlobals->GetCheckOverlaps());		             // copy number
   
   // Sensitive Detector:
   G4SDManager* SDMan = G4SDManager::GetSDMpointer();
@@ -150,7 +150,7 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
 		      itsName+"_InnerBmp",     // its name
 		      itsBeampipeLogicalVolume, // its mother  volume
 		      false,		       // no boolean operation
-				  0, true);		       // copy number
+				  0, BDSGlobals->GetCheckOverlaps());		       // copy number
   
   
    G4RotationMatrix* Rot=NULL;
@@ -164,7 +164,7 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
 		       itsName+"_bmp",	     // its name
 		       itsMarkerLogicalVolume,     // its mother  volume
 		       false,		     // no boolean operation
-		       0, true);		             // copy number
+		       0, BDSGlobals->GetCheckOverlaps());		             // copy number
 #ifndef NOUSERLIMITS
    itsBeampipeUserLimits =
      new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,

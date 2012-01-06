@@ -133,8 +133,8 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
   // set visualization attributes
   //
   itsInnerBeampipeVisAtt =  new G4VisAttributes(G4Colour(0., 1., 0));
-  itsInnerBeampipeVisAtt->SetForceSolid(true);
-  itsInnerBeampipeVisAtt->SetVisibility(true);
+  itsInnerBeampipeVisAtt->SetForceWireframe(true);
+  itsInnerBeampipeVisAtt->SetVisibility(false);
   
   itsBeampipeVisAtt = new G4VisAttributes(G4Colour(0.4, 0.4, 0.4));
   itsBeampipeVisAtt->SetForceSolid(true);
@@ -154,7 +154,7 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
 				    itsName+"_inner_bmp_phys",// its name
 				    itsMarkerLogicalVolume,   // its mother  volume
 				    false,		        // no boolean operation
-				    0, true);		        // copy number
+				    0, BDSGlobals->GetCheckOverlaps());		        // copy number
 
 
   itsPhysiOuter = new G4PVPlacement(
@@ -164,7 +164,7 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
 				    itsName+"_inner_bmp_phys",// its name
 				    itsMarkerLogicalVolume,   // its mother  volume
 				    false,		        // no boolean operation
-				    0, true);		        // copy number
+				    0, BDSGlobals->GetCheckOverlaps());		        // copy number
 
 
 
@@ -223,8 +223,8 @@ void BDSPCLDrift::BuildBpFieldAndStepper(){
 G4VisAttributes* BDSPCLDrift::SetVisAttributes()
 {
   itsVisAttributes=new G4VisAttributes(G4Colour(0,1,0)); //useless
-  itsVisAttributes->SetVisibility(true);
-  itsVisAttributes->SetForceSolid(true);
+  itsVisAttributes->SetVisibility(false);
+  itsVisAttributes->SetForceWireframe(true);
   return itsVisAttributes;
 }
 

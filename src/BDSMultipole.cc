@@ -170,7 +170,8 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
   
   G4RotationMatrix* RotY;
 
-  if(this->GetType()!="drift"){
+  if((itsPhiAngleIn==0)&&(itsPhiAngleOut==0)){
+    G4cout << "#%#%#%# Building ordinary beam pipe (not trapezoid) " << G4endl;
     RotY=NULL;
     
 #ifdef DEBUG 
@@ -275,7 +276,7 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
                                  itsName+"_inner_bmp_phys",// its name
                                  itsMarkerLogicalVolume,   // its mother  volume
                                  false,		        // no boolean operation
-                                 0, true);		        // copy number
+                                 0, BDSGlobals->GetCheckOverlaps());		        // copy number
  
 
   itsPhysiComp = new G4PVPlacement(
@@ -286,7 +287,7 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
                                 itsName+"_bmp_phys",	     // its name
                                 itsMarkerLogicalVolume,    // its mother  volume
                                 false,		     // no boolean operation
-                                0, true);		             // copy number
+                                0, BDSGlobals->GetCheckOverlaps());		             // copy number
 
   //Add the physical volumes to a vector which can be used for e.g. geometrical biasing
   SetMultiplePhysicalVolumes(itsPhysiInner);
@@ -418,7 +419,7 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
 				      itsName+"_inner_bmp_phys",// its name
 				      itsMarkerLogicalVolume,   // its mother  volume
 				      false,		        // no boolean operation
-				      0, true);		        // copy number
+				      0, BDSGlobals->GetCheckOverlaps());		        // copy number
     
       
     
@@ -429,7 +430,7 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
 				     itsName+"_bmp_phys",	     // its name
 				     itsMarkerLogicalVolume,    // its mother  volume
 				     false,		     // no boolean operation
-				     0, true);		             // copy number
+				     0, BDSGlobals->GetCheckOverlaps());		             // copy number
     
     //Add the physical volumes to a vector which can be used for e.g. geometrical biasing
     SetMultiplePhysicalVolumes(itsPhysiInner);
@@ -500,7 +501,7 @@ void BDSMultipole::BuildBPFieldMgr(G4MagIntegratorStepper* aStepper,
 
 void BDSMultipole::BuildDefaultMarkerLogicalVolume()
 {
-  if (!(this->GetType() == "drift")){
+  if ((itsPhiAngleIn==0)&&(itsPhiAngleOut==0)){
     itsMarkerSolidVolume = new G4Box( itsName+"_marker_solid",
 				      itsXLength,
 				      itsYLength,
@@ -560,7 +561,7 @@ void BDSMultipole::BuildDefaultMarkerLogicalVolume()
       xHalfLengthMinus << " " <<
       0 << " " << G4endl;
     
-    itsMarkerSolidVolume = new G4Trap(itsName+"_marker",
+    itsMarkerSolidVolume = new G4Trap(itsName+"_trapezoid_marker",
 				      //			    fabs(cos(itsPhiAngleIn/2))*transverseSize/2,// z hlf lgth
 				      transverseSize/2.0, // z hlf lgth Dz
 				      atan((tan(itsPhiAngleOut)-tan(itsPhiAngleIn))/2.0), // pTheta
@@ -647,7 +648,7 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
 		      itsName+"_outer_phys",  // its name
 		      itsMarkerLogicalVolume, // its mother  volume
 		      false,		      // no boolean operation
-				   0, true);		      // copy number
+				   0, BDSGlobals->GetCheckOverlaps());		      // copy number
   
   //Add the physical volumes to a vector which can be used for e.g. geometrical biasing
   SetMultiplePhysicalVolumes(itsPhysiComp);
@@ -702,7 +703,7 @@ void BDSMultipole::BuildEllipticalOuterLogicalVolume(G4double aLength,
 				   itsName+"_outer_phys",  // its name
 				   itsMarkerLogicalVolume, // its mother  volume
 				   false,		      // no boolean operation
-				   0, true);		      // copy number
+				   0, BDSGlobals->GetCheckOverlaps());		      // copy number
   
   //Add the physical volumes to a vector which can be used for e.g. geometrical biasing
   SetMultiplePhysicalVolumes(itsPhysiComp);

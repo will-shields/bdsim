@@ -80,6 +80,8 @@ void init()
 
   options.vacuumPressure = 1e-12;
   options.planckScatterFe = 1.0;
+  options.doPlanckScattering=0;
+  options.checkOverlaps=0;
   options.synchPhotonMultiplicity = 1;
   options.synchMeanFreeFactor = 1;
   options.gammaToMuFe = 1;

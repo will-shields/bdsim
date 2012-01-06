@@ -95,7 +95,7 @@ void BDSSpoiler::BuildInnerSpoiler()
 		      itsName+"_combined", // its name
 		      itsSolidLogVol,      // its mother  volume
 		      false,		   // no boolean operation
-		      0);		   // copy number 
+		      0, BDSGlobals->GetCheckOverlaps());  // copy number 
 
   if(BDSGlobals->GetSensitiveComponents()){
     SetSensitiveVolume(itsSolidLogVol);
@@ -114,7 +114,7 @@ void BDSSpoiler::BuildInnerSpoiler()
 		      itsName+"_solid",	     // its name
 		      itsMarkerLogicalVolume, // its mother  volume
 		      false,		     // no boolean operation
-		      0);		     // copy number  
+		      0, BDSGlobals->GetCheckOverlaps());		     // copy number  
 }
 
 

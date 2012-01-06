@@ -120,6 +120,7 @@ struct Options {
   double betx, bety, alfx, alfy, emitx, emity; // initial twiss parameters
   int doTwiss;
   int doPlanckScattering;
+  int checkOverlaps;
   int numberOfEventsPerNtuple;
   unsigned long int eventNumberOffset;
   double vacuumPressure;

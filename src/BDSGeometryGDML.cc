@@ -38,7 +38,7 @@ void BDSGeometryGDML::Construct(G4LogicalVolume *marker){
   G4LogicalVolume* topvol = parser->GetWorldVolume()->GetLogicalVolume();
 
   G4VisAttributes* VisAtt = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
-  VisAtt->SetVisibility(true);
+  VisAtt->SetVisibility(false);
   VisAtt->SetForceSolid(true);
 
   G4VisAttributes* VisAtt2 = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
@@ -57,7 +57,7 @@ void BDSGeometryGDML::Construct(G4LogicalVolume *marker){
                     topvol->GetName()+"_PhysiComp",
                     itsMarkerVol,
                     false,
-                    0, true);
+                    0, BDSGlobals->GetCheckOverlaps());
 
   }
 #endif

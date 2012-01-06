@@ -325,7 +325,7 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
     //Make marker visible (temp debug)
     G4VisAttributes* VisAttLCDD = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
     VisAttLCDD->SetForceSolid(true);  
-    VisAttLCDD->SetVisibility(true);
+    VisAttLCDD->SetVisibility(false);
     itsMarkerLogicalVolume->SetVisAttributes(VisAttLCDD);
 
     LCDD->Construct(itsMarkerLogicalVolume);

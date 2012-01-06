@@ -110,6 +110,7 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
   itsDeltaOneStep = opt.deltaOneStep * m;
   doTwiss = opt.doTwiss;
   itsDoPlanckScattering = opt.doPlanckScattering;
+  itsCheckOverlaps = opt.checkOverlaps;
   itsTurnOnCerenkov = opt.turnOnCerenkov;
   itsSynchRadOn = opt.synchRadOn;
   G4cout << "BDSGlobals synchRadOn = " << itsSynchRadOn << G4endl;

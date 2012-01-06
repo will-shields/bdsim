@@ -447,13 +447,15 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	double aper(0), aperX(0), aperY(0);
 	
 	if( (*it).aper > 0 ) aper = (*it).aper * m; //Set if aper specified for element
-        if( ((*it).aperX>0) || ((*it).aperY>0)){  //aperX or aperY override aper, aper set to the largest of aperX or aperY
+	if( (*it).aperX > 0 ) aperX = (*it).aperX * m; //Set if aperX specified for elemen
+	if( (*it).aperY > 0 ) aperY = (*it).aperY * m; //Set if aperY specified for element
+        if( (aperX>0) || (aperY>0)){  //aperX or aperY override aper, aper set to the largest of aperX or aperY
           aper=std::max((*it).aperX,(*it).aperY);
         }
 
 
-	if ( ((*it).aperX !=0) || ((*it).aperY != 0) || ((*it).aper != 0) || (*it).phiAngleIn != 0 || (*it).phiAngleOut !=0){
-	  if ((*it).aperX==0 && (*it).aperY==0 && (*it).aper==0){
+	if ( (aperX !=0) || (aperY != 0) || (aper != 0) || (*it).phiAngleIn != 0 || (*it).phiAngleOut !=0){
+	  if (aperX==0 && aperY==0 && aper==0){
 	    aperX=BDSGlobals->GetBeampipeRadius()/m;
 	    aperY=BDSGlobals->GetBeampipeRadius()/m;
 	    aper=BDSGlobals->GetBeampipeRadius()/m;
@@ -495,13 +497,13 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						    (*it).l*m,
 						    (*it).blmLocZ,
 						    (*it).blmLocTheta,
-						    aperX*m, aperY*m, (*it).tunnelMaterial, aperset, aper, BDSGlobals->GetTunnelOffsetX(), (*it).phiAngleIn, (*it).phiAngleOut));
+						    aperX, aperY, (*it).tunnelMaterial, aperset, aper, BDSGlobals->GetTunnelOffsetX(), (*it).phiAngleIn, (*it).phiAngleOut));
 	      } else {
 		theBeamline.push_back(new BDSDrift( (*it).name,
 						    (*it).l*m,
 						    (*it).blmLocZ,
 						    (*it).blmLocTheta,
-						    aperX*m, aperY*m, (*it).tunnelMaterial, aperset, aper,(*it).tunnelOffsetX*m, (*it).phiAngleIn, (*it).phiAngleOut) );
+						    aperX, aperY, (*it).tunnelMaterial, aperset, aper,(*it).tunnelOffsetX*m, (*it).phiAngleIn, (*it).phiAngleOut) );
 	      }
 
 	      //Add the phiAngleOut using BDSTransform3D
@@ -1802,7 +1804,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
                                  NULL,		// its mother  volume
                                  false,		// no boolean operation
                                  0,             // copy number
-				 true);		// overlap checking
+				 BDSGlobals->GetCheckOverlaps());		// overlap checking
 
 
 
@@ -1950,10 +1952,15 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 	  
 	  // bend trapezoids defined along z-axis
 	  rotateComponent->rotateY(-twopi/4-angle/2); 						
+	} else {
+	if ((*iBeam)->GetMarkerLogicalVolume()->GetSolid()->GetName().contains("trapezoid") ){
+	  G4cout << "#%#%#%#%#%#%# this is a trapezoid " << G4endl;
+	  rotateComponent->rotateY(-twopi/4); //Drift trapezoids defined along z axis 
 	}
-
-      if( ((*iBeam)->GetType() == "drift"))// && (*iBeam)->)
-	rotateComponent->rotateY(-twopi/4); //Drift trapezoids defined along z axis 						
+	G4cout << "#%#%#%#%#%#%  " << (*iBeam)->GetMarkerLogicalVolume()->GetSolid()->GetName() << G4endl;
+      }
+    
+    					
 
       // zero length components not placed (transform3d)
       if(length!=0.){
@@ -1963,7 +1970,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 	//--test
 	G4VisAttributes* VisAtt1 = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
 	VisAtt1->SetForceSolid(true);  
-	VisAtt1->SetVisibility(true);
+	VisAtt1->SetVisibility(false);
 	LocalLogVol->SetVisAttributes(VisAtt1);
 	//------------
 	int nCopy=(*LogVolCount)[LogVolName]-1;
@@ -2080,7 +2087,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 			    physiWorld,	      // its mother  volume
 			    false,	      // no boolean operation
 			    nCopy,            // copy number
-			    true);	      //overlap checking
+			    BDSGlobals->GetCheckOverlaps());	      //overlap checking
 
 	  fPhysicalVolumeVector.push_back(PhysiComponentPlace);
 	  vector<G4VPhysicalVolume*> MultiplePhysicalVolumes = (*iBeam)->GetMultiplePhysicalVolumes();

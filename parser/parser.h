@@ -1389,6 +1389,7 @@ void set_value(std::string name, double value )
   if(name == "emity" ) { options.emity = value; return; }
   if(name == "doTwiss" ) { options.doTwiss = (int) value; return; }
   if(name == "doPlanckScattering" ) { options.doPlanckScattering = (int) value; return; }
+  if(name == "checkOverlaps" ) { options.checkOverlaps = (int) value; return; }
 
   if(name == "storeTrajectory") { options.storeTrajectory = (int) value; return; } 
   if(name == "storeTrajectories") { options.storeTrajectory = (int) value; return; } 

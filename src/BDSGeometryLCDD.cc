@@ -389,7 +389,7 @@ void BDSGeometryLCDD::parseLCDD(xmlNodePtr cur)
 				     topvol->GetName()+"_PhysiComp",
 				     itsMarkerVol,
 				     false,
-				     0, true);
+				     0, BDSGlobals->GetCheckOverlaps());
 #ifndef NOUSERLIMITS
 	   	   topvol->SetUserLimits(itsUserLimits);
 #endif
@@ -865,7 +865,7 @@ void BDSGeometryLCDD::parsePHYSVOL(xmlNodePtr cur, G4String volume_name)
 		    currentVol->GetName()+"_PhysiComp",
 		    parentVol,
 		    false,
-		    0, true);
+		    0, BDSGlobals->GetCheckOverlaps());
   
 
   return;

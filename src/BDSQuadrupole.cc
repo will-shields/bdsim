@@ -347,7 +347,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 		      itsName+"_solid",	            // its name
 		      lQuadrant,                    // its mother  volume
 		      false,		            // no boolean operation
-		      0, true);		            // copy number
+		      0, BDSGlobals->GetCheckOverlaps());		            // copy number
   
 
   // color-coding for the pole
@@ -394,7 +394,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 			  itsName+"_yoke_solid",        // its name
 			  lQuadrant,                    // its mother volume
 			  false,                        // no boolean operation
-			  0, true);                           // copy number
+			  0, BDSGlobals->GetCheckOverlaps());                           // copy number
       SetMultiplePhysicalVolumes(itsPhysiQYoke1);
 
       // color-coding 
@@ -420,7 +420,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 					itsName+"_solid",      // its name
 					itsOuterLogicalVolume, // its mother volume
 					false,                 // no boolean operation
-					0, true);                    // copy number
+					0, BDSGlobals->GetCheckOverlaps());                    // copy number
 
 
   G4RotationMatrix* rotQ2= new  G4RotationMatrix;
@@ -434,7 +434,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 		      itsName+"_solid",	     // its name
 		      itsOuterLogicalVolume, // its mother volume
 		      false,                 // no boolean operation
-		      0, true);                    // copy number
+		      0, BDSGlobals->GetCheckOverlaps());                    // copy number
 
   G4RotationMatrix* rotQ3= new  G4RotationMatrix;
   rotQ3->rotateZ( pi );
@@ -447,7 +447,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 		      itsName+"_solid",	     // its name
 		      itsOuterLogicalVolume, // its mother volume
 		      false,                 // no boolean operation
-		      0, true);                    // copy number
+		      0, BDSGlobals->GetCheckOverlaps());                    // copy number
 
 
   G4RotationMatrix* rotQ4= new  G4RotationMatrix;
@@ -461,7 +461,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 		      itsName+"_solid",	      // its name
 		      itsOuterLogicalVolume,  // its mother volume
 		      false,                  // no boolean operation
-		      0, true);                     // copy number
+		      0, BDSGlobals->GetCheckOverlaps());                     // copy number
 
 
   //rotQ->rotateZ( pi / 4.);
@@ -476,7 +476,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 		      itsName+"_outer_phys",  // its name
 		      itsMarkerLogicalVolume, // its mother  volume
 		      false,                  // no boolean operation
-		      0, true);                     // copy number
+		      0, BDSGlobals->GetCheckOverlaps());                     // copy number
   
   SetMultiplePhysicalVolumes(itsPhysiQPole1);
   SetMultiplePhysicalVolumes(itsPhysiQuadrant1);
@@ -560,7 +560,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 		      itsName+"_solid",	            // its name
 		      lQuadrant,                    // its mother  volume
 		      false,		            // no boolean operation
-		      0, true);		            // copy number
+		      0, BDSGlobals->GetCheckOverlaps());		            // copy number
   
   // color-coding for the pole
   G4VisAttributes* VisAtt = 
@@ -606,7 +606,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 			  itsName+"_yoke_solid",        // its name
 			  lQuadrant,                    // its mother volume
 			  false,                        // no boolean operation
-			  0, true);                           // copy number
+			  0, BDSGlobals->GetCheckOverlaps());                           // copy number
       SetMultiplePhysicalVolumes(itsPhysiQYoke1);
 
       // color-coding 
@@ -632,7 +632,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 		      itsName+"_solid",      // its name
 		      itsOuterLogicalVolume, // its mother volume
 		      false,                 // no boolean operation
-		      0, true);                    // copy number
+		      0, BDSGlobals->GetCheckOverlaps());                    // copy number
 
   G4RotationMatrix* rotQ2= new  G4RotationMatrix;
   rotQ2->rotateZ( pi / 2.);
@@ -645,7 +645,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 		      itsName+"_solid",	     // its name
 		      itsOuterLogicalVolume, // its mother volume
 		      false,                 // no boolean operation
-		      0, true);                    // copy number
+		      0, BDSGlobals->GetCheckOverlaps());                    // copy number
 
   G4RotationMatrix* rotQ3= new  G4RotationMatrix;
   rotQ3->rotateZ( pi );
@@ -658,7 +658,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 		      itsName+"_solid",	     // its name
 		      itsOuterLogicalVolume, // its mother volume
 		      false,                 // no boolean operation
-		      0, true);                    // copy number
+		      0, BDSGlobals->GetCheckOverlaps());                    // copy number
 
 
   G4RotationMatrix* rotQ4= new  G4RotationMatrix;
@@ -672,7 +672,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 		      itsName+"_solid",	      // its name
 		      itsOuterLogicalVolume,  // its mother volume
 		      false,                  // no boolean operation
-		      0, true);                     // copy number
+		      0, BDSGlobals->GetCheckOverlaps());                     // copy number
 
 
   //rotQ->rotateZ( pi / 4.);
@@ -690,7 +690,7 @@ void BDSQuadrupole::BuildOuterLogicalVolume()
 		      itsName+"_solid",	      // its name
 		      itsMarkerLogicalVolume, // its mother  volume
 		      false,                  // no boolean operation
-		      0, true);                     // copy number
+		      0, BDSGlobals->GetCheckOverlaps());                     // copy number
   
   SetMultiplePhysicalVolumes(itsPhysiQPole1);
   SetMultiplePhysicalVolumes(itsPhysiQuadrant1);

@@ -72,6 +72,8 @@ public:
 
   G4bool GetDoPlanckScattering();
 
+  G4bool GetCheckOverlaps();
+
   G4bool DoTwiss();
   void SetDoTwiss(G4bool val); 
 
@@ -351,6 +353,7 @@ private:
   G4bool itsTurnOnCerenkov;
   G4bool doTwiss;
   G4bool itsDoPlanckScattering;
+  G4bool itsCheckOverlaps;
   G4bool itsStoreMuonTrajectories;
   G4double itsTrajCutGTZ;
   G4double itsTrajCutLTR;
@@ -812,6 +815,9 @@ inline void BDSGlobalConstants::SetDoTwiss(G4bool val)
 
 inline G4bool BDSGlobalConstants::GetDoPlanckScattering() 
 {return itsDoPlanckScattering;}
+
+inline G4bool BDSGlobalConstants::GetCheckOverlaps() 
+{return itsCheckOverlaps;}
 
 //for map of laserwire wavelengths
 inline G4double BDSGlobalConstants::GetLaserwireWavelength(G4String aName)

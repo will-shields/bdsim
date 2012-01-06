@@ -1285,7 +1285,7 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
 			  Name,
 			  VOL_LIST[PARENTID],
 			  false,
-			  0, true);
+			  0, BDSGlobals->GetCheckOverlaps());
       SetMultiplePhysicalVolumes(PhysiComp);
       if(align_in)
 	{

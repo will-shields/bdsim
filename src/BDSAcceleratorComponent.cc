@@ -1,4 +1,4 @@
- //  
+//  
 //   BDSIM, (C) 2001-2006 
 //   
 //   version 0.3
@@ -387,7 +387,7 @@ void BDSAcceleratorComponent::BuildTunnel()
                                          itsName+"_tun_phys",	     // its name
                                          itsMarkerLogicalVolume,    // its mother  volume
                                          true,		     // no boolean operation
-                                         0, true);		             // copy number
+                                         0, BDSGlobals->GetCheckOverlaps());		             // copy number
   
   
   SetMultiplePhysicalVolumes(itsTunnelPhysiComp);
@@ -402,7 +402,7 @@ void BDSAcceleratorComponent::BuildTunnel()
                                              itsName+"_tun_phys_soil",	     // its name
                                              itsMarkerLogicalVolume,    // its mother  volume
                                              true,		     // no boolean operation
-                                             0, true);		             // copy number
+                                             0, BDSGlobals->GetCheckOverlaps());		             // copy number
   
   SetMultiplePhysicalVolumes(itsTunnelPhysiCompSoil);
   /*
@@ -413,7 +413,7 @@ void BDSAcceleratorComponent::BuildTunnel()
     itsName+"_inner_tun_phys",// its name
     itsMarkerLogicalVolume,   // its mother  volume
     false,		        // no boolean operation
-    0, true);		        // copy number
+    0, BDSGlobals->GetCheckOverlaps());		        // copy number
   */
   
 #ifndef NOUSERLIMITS
@@ -448,7 +448,7 @@ void BDSAcceleratorComponent::BuildTunnel()
     // set visualization attributes
     //
   VisAtt = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
-  VisAtt->SetVisibility(true);
+  VisAtt->SetVisibility(false);
   VisAtt->SetForceSolid(true);  
   
   itsSoilTunnelLogicalVolume->SetVisAttributes(VisAtt);
@@ -643,7 +643,7 @@ void BDSAcceleratorComponent::BuildGate()
 						  itsMarkerLogicalVolume,
 						  false,
 						   0,
-						  true);
+						   BDSGlobals->GetCheckOverlaps());
   SetMultiplePhysicalVolumes(itsGatePhysi);
   
   G4VisAttributes* VisAtt = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0));

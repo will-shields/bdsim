@@ -391,7 +391,7 @@ void BDSSectorBend::BuildSBBeampipe()
 		      itsName+"_InnerBmp",     // its name
 		      itsMarkerLogicalVolume,  // its mother volume
 		      false,		       // no booleanm operation
-		      0, true);		       // copy number
+		      0, BDSGlobals->GetCheckOverlaps());		       // copy number
   
   SetMultiplePhysicalVolumes(PhysiInner);
 
@@ -404,7 +404,7 @@ void BDSSectorBend::BuildSBBeampipe()
 		      itsName+"_bmp",	        // its name
 		      itsMarkerLogicalVolume,   // its mother volume
 		      false,		        // no boolean operation
-		      0, true);		        // copy number
+		      0, BDSGlobals->GetCheckOverlaps());		        // copy number
   
   SetMultiplePhysicalVolumes(PhysiComp);
 
@@ -523,7 +523,7 @@ void BDSSectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
                       itsName+"_solid",       // its name
                       itsMarkerLogicalVolume, // its mother  volume
                       false,                  // no boolean operation
-                      0, true);                     // copy number
+                      0, BDSGlobals->GetCheckOverlaps());                     // copy number
 
 SetMultiplePhysicalVolumes(itsPhysiComp);
  G4double  maxStepFactor=0.5;
