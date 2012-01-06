@@ -32,7 +32,7 @@ class BDSElement :public BDSAcceleratorComponent
 {
 public:
   BDSElement(G4String aName, G4String geometry, G4String bmap, G4double aLength, 
-             G4double bpRad, G4double outR, G4String aTunnelMaterial="", G4double tunnelRadius=0., G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX(), G4String aTunnelCavityMaterial="Air", G4double phiAngleIn=0, G4double phiAngleOut=0);
+             G4double bpRad, G4double outR, G4String aTunnelMaterial="", G4double tunnelRadius=0., G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX(), G4String aTunnelCavityMaterial="Air");
   ~BDSElement();
 
   void BuildElementMarkerLogicalVolume();
@@ -76,8 +76,6 @@ private:
   // (set during Geometery construction)
   G4VPhysicalVolume* align_out_volume;
 
-  G4double itsPhiAngleIn;
-  G4double itsPhiAngleOut;
 };
 
 

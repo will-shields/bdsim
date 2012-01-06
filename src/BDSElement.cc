@@ -60,12 +60,12 @@ extern G4RotationMatrix* RotY90;
 //============================================================
 
 BDSElement::BDSElement(G4String aName, G4String geometry, G4String bmap,
-		       G4double aLength, G4double bpRad, G4double outR, G4String aTunnelMaterial, G4double aTunnelRadius, G4double aTunnelOffsetX, G4String aTunnelCavityMaterial, G4double phiAngleIn, G4double phiAngleOut):
+		       G4double aLength, G4double bpRad, G4double outR, G4String aTunnelMaterial, G4double aTunnelRadius, G4double aTunnelOffsetX, G4String aTunnelCavityMaterial):
   BDSAcceleratorComponent(
 			  aName,
 			  aLength,bpRad,0,0,
 			  SetVisAttributes(), aTunnelMaterial, "", 0., 0., 0., 0., aTunnelRadius*m, aTunnelOffsetX*m, aTunnelCavityMaterial),
-  itsField(NULL), itsMagField(NULL), itsPhiAngleIn(phiAngleIn), itsPhiAngleOut(phiAngleOut)
+  itsField(NULL), itsMagField(NULL)
 {
   itsFieldVolName="";
   itsFieldIsUniform=false;
@@ -138,7 +138,7 @@ void BDSElement::BuildElementMarkerLogicalVolume(){
 
     //-----------------------------
     /*
-  G4RotationMatrix* rotMatrix1 = new G4RotationMatrix();
+      G4RotationMatrix* rotMatrix1 = new G4RotationMatrix();
   rotMatrix1->rotateY(itsPhiAngleIn);
   G4RotationMatrix* rotMatrix2 = new G4RotationMatrix();
   rotMatrix1->rotateY(itsPhiAngleOut);

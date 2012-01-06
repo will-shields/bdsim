@@ -452,7 +452,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
         if( (aperX>0) || (aperY>0)){  //aperX or aperY override aper, aper set to the largest of aperX or aperY
           aper=std::max((*it).aperX,(*it).aperY);
         }
-
+	
 
 	if ( (aperX !=0) || (aperY != 0) || (aper != 0) || (*it).phiAngleIn != 0 || (*it).phiAngleOut !=0){
 	  if (aperX==0 && aperY==0 && aper==0){
@@ -1350,8 +1350,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
                << " l= " << (*it).l << "m"
                << " aper= " << aper/m << "m"
                << " outR= " << (*it).outR << "m"
-               << " phiAngleIn= " << (*it).phiAngleIn 
-               << " phiAngleOut= " << (*it).phiAngleOut 
                << " tunnel material " << (*it).tunnelMaterial
                << " tunnel cavity material " << (*it).tunnelCavityMaterial
                << G4endl;
@@ -1364,8 +1362,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						(*it).bmapFile,
 						(*it).l * m,
 						aper,
-						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (*it).tunnelOffsetX, (*it).tunnelCavityMaterial,
-						(*it).phiAngleIn, (*it).phiAngleOut) );
+						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (*it).tunnelOffsetX, (*it).tunnelCavityMaterial) );
 	} 
 	else {
 	  theBeamline.push_back(new BDSElement( (*it).name,
@@ -1373,8 +1370,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						(*it).bmapFile,
 						(*it).l * m,
 						aper,
-						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (G4double)0, (*it).tunnelCavityMaterial,
-						(*it).phiAngleIn, (*it).phiAngleOut));
+						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (G4double)0, (*it).tunnelCavityMaterial));
 	}
 	
 
