@@ -171,7 +171,9 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
   G4RotationMatrix* RotY;
 
   if((itsPhiAngleIn==0)&&(itsPhiAngleOut==0)){
-    G4cout << "#%#%#%# Building ordinary beam pipe (not trapezoid) " << G4endl;
+#ifdef DEBUG
+    G4cout << "BDSMultipole.cc> Building ordinary beam pipe (not trapezoid) " << G4endl;
+#endif
     RotY=NULL;
     
 #ifdef DEBUG 
@@ -361,12 +363,7 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
     }
 
   G4RotationMatrix* RotY;
-
-  if(this->GetType()!="drift") {
-    RotY=NULL ;
-  } else {
-    RotY=RotY90;
-  }
+  RotY=NULL ;
   
   // build beampipe
   

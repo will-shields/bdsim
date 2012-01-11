@@ -189,13 +189,13 @@ int BDSDetectorConstruction::AddDriftToBeamline(G4String name, G4double l,std::l
 					      l*m,
 					      blmLocZ,
 					      blmLocTheta,
-					      startAper, endAper, aTunnelMaterial));
+					      startAper, endAper, aTunnelMaterial, false));
 	} else {
 	  theBeamline.push_back(new BDSDrift( name,
 					      l*m,
 					      blmLocZ,
 					      blmLocTheta,
-					      startAper, endAper, aTunnelMaterial, tunnelOffsetX ) );
+					      startAper, endAper, aTunnelMaterial, false, 0, tunnelOffsetX ) );
 	}
       } else {
       G4cerr << "---->NOT adding Drift,"
@@ -464,7 +464,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 	  if((*it).l > BDSGlobals->GetLengthSafety()) // skip too short elements                                                                                                         
 	    {
-#if 1
+#ifdef DEBUG
 	      	      G4cout << "---->adding Drift,"
 	      		     << " name= " << (*it).name
 	      		     << " l= " << (*it).l << "m"
