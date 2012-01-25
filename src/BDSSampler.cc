@@ -78,7 +78,7 @@ void BDSSampler::SamplerLogicalVolume()
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
 #ifndef NOUSERLIMITS
       itsOuterUserLimits =new G4UserLimits();
-      itsOuterUserLimits->SetMaxAllowedStep(itsLength/2e3);
+      itsOuterUserLimits->SetMaxAllowedStep(itsLength/5);
       itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
 #endif
      // Sensitive Detector:
