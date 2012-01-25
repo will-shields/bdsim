@@ -1102,6 +1102,8 @@ case _RING:
 	 //          if(BDSGlobals->GetParticleDefinition()->GetPDGEncoding() != 22){
 	 //}
        }
+     //Add the global offset Z
+     z0=z0+Z0*m;
      break;
     }
   default:

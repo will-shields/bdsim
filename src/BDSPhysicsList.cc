@@ -183,62 +183,79 @@ BDSPhysicsList::~BDSPhysicsList()
 }
 
 void BDSPhysicsList::ConstructProcess()
-{
+{ 
+  bool plistFound=false;
   //standard physics lists
   if(BDSGlobals->GetPhysListName() == "QGSP_BERT_HP"){
     QGSP_BERT_HP* physList = new QGSP_BERT_HP;
     physList->ConstructProcess();
-    return;
+    plistFound=true;
   } else if(BDSGlobals->GetPhysListName() == "QGSP_BERT"){
     QGSP_BERT* physList = new QGSP_BERT;
     physList->ConstructProcess();
-    return;
-  } else {
-    //Apply the following in all cases - transportation and step limiter
+    plistFound=true;
+  } else if (BDSGlobals->GetPhysListName() == "QGSP_BERT_HP_muon"){ //Modified standard physics lists
+    QGSP_BERT_HP* physList = new QGSP_BERT_HP;
+    physList->ConstructProcess();
+    ConstructMuon();
+    plistFound=true;
+  } else if (BDSGlobals->GetPhysListName() == "QGSP_BERT_muon"){
+    QGSP_BERT* physList = new QGSP_BERT;
+    physList->ConstructProcess();
+    ConstructMuon();
+    plistFound=true;
+  } 
+  
+  if(!plistFound){
+    //Need to add transportation if non-standard physics list
     AddTransportation();
-    theParticleIterator->reset();
-    while( (*theParticleIterator)() ){
-      G4ParticleDefinition* particle = theParticleIterator->value();
-      if((particle->GetParticleName()=="gamma")||(particle->GetParticleName()=="e-")||(particle->GetParticleName()=="e+")){
-	particle->SetApplyCutsFlag(true);
-      }
-      G4ProcessManager *pmanager = particle->GetProcessManager();
+  }
+  
+  //Apply the following in all cases - step limiter etc.
+  theParticleIterator->reset();
+  while( (*theParticleIterator)() ){
+    G4ParticleDefinition* particle = theParticleIterator->value();
+    if((particle->GetParticleName()=="gamma")||(particle->GetParticleName()=="e-")||(particle->GetParticleName()=="e+")){
+      particle->SetApplyCutsFlag(true);
+    }
+    G4ProcessManager *pmanager = particle->GetProcessManager();
 #ifndef NOSTEPLIMITER
-      //pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
-      pmanager->AddDiscreteProcess(new G4StepLimiter);
+    //pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
+    pmanager->AddDiscreteProcess(new G4StepLimiter);
 #endif
 #ifndef NOUSERSPECIALCUTS
-      pmanager->AddDiscreteProcess(new G4UserSpecialCuts);
+    pmanager->AddDiscreteProcess(new G4UserSpecialCuts);
 #endif
-    }
-    //===========================================
-    //Some options
-    //-------------------------------------------
-    //Build planck scattering if option is set
-    if(BDSGlobals->GetDoPlanckScattering()){
-      BDSPlanckScatterBuilder* psbuild = new BDSPlanckScatterBuilder();
-      psbuild->Build();
-    }
-    //A flag to switch on hadronic lead particle biasing
-    if (BDSGlobals->GetUseHadLPB() ){
-      setenv("SwitchLeadBiasOn","1",1); 
-    }
-    //Synchrotron radiation
-    if(BDSGlobals->GetSynchRadOn()) {
+  }
+  
+  //===========================================
+  //Some options
+  //-------------------------------------------
+  //Build planck scattering if option is set
+  if(BDSGlobals->GetDoPlanckScattering()){
+    BDSPlanckScatterBuilder* psbuild = new BDSPlanckScatterBuilder();
+    psbuild->Build();
+  }
+  //A flag to switch on hadronic lead particle biasing
+  if (BDSGlobals->GetUseHadLPB() ){
+    setenv("SwitchLeadBiasOn","1",1); 
+  }
+  //Synchrotron radiation
+  if(BDSGlobals->GetSynchRadOn()) {
 #ifdef DEBUG
-      G4cout << "BDSPhysics list: synch. rad. is turned on" << G4endl;
+    G4cout << "BDSPhysics list: synch. rad. is turned on" << G4endl;
 #endif
-      ConstructSR();
-    } else {
+    ConstructSR();
+  } else {
 #ifdef DEBUG
-      G4cout << "BDSPhysics list: synch. rad. is turned OFF!" << G4endl;
+    G4cout << "BDSPhysics list: synch. rad. is turned OFF!" << G4endl;
 #endif
-    }
-    //Particle decay
-    if(BDSGlobals->GetDecayOn()) ConstructDecay();
-    //============================================
-    
-    
+  }
+  //Particle decay
+  if(BDSGlobals->GetDecayOn()) ConstructDecay();
+  //============================================
+  
+  if(!plistFound){ //Search BDSIM physics lists
     if (BDSGlobals->GetPhysListName() != "standard"){ // register physics processes here
       
       // standard e+/e-/gamma electromagnetic interactions
@@ -345,6 +362,7 @@ void BDSPhysicsList::ConstructProcess()
       return;
     }
   }
+
 }
 
 void BDSPhysicsList::ConstructParticle()
@@ -354,6 +372,12 @@ void BDSPhysicsList::ConstructParticle()
     QGSP_BERT_HP* physList = new QGSP_BERT_HP;
     physList->ConstructParticle();
   } else if(BDSGlobals->GetPhysListName() == "QGSP_BERT"){
+    QGSP_BERT* physList = new QGSP_BERT;
+    physList->ConstructParticle();
+  } else if (BDSGlobals->GetPhysListName() == "QGSP_BERT_HP_muon"){
+    QGSP_BERT_HP* physList = new QGSP_BERT_HP;
+    physList->ConstructParticle();
+  } else if (BDSGlobals->GetPhysListName() == "QGSP_BERT_muon"){
     QGSP_BERT* physList = new QGSP_BERT;
     physList->ConstructParticle();
   } else {
