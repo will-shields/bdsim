@@ -114,7 +114,7 @@ G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
    G4double weight = aStep->GetTrack()->GetWeight();
    int ptype = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
    
-   //if ((HitID[nCopy]==-1) || ((zpos/m>75)&&(zpos/m<83))){ 
+   //   if ((HitID[nCopy]==-1) || ((zpos/m>75)&&(zpos/m<83))){ 
    if (HitID[nCopy]==-1){ 
      
      BDSEnergyCounterHit* ECHit = new BDSEnergyCounterHit(nCopy,enrg,xpos*enrg,ypos*enrg,zpos*enrg,itsName, ptype, weight);
