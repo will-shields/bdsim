@@ -26,6 +26,7 @@
 #include "TNtuple.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TH3F.h"
 #endif
 
 const G4int _ASCII = 0;
@@ -61,11 +62,12 @@ public:
   TTree *theLWCalorimeterTree;
 
   TH1F *EnergyLossHisto;
+  TH3F *EnergyLossHisto3d;
   TTree *EnergyLossTree;
 #endif
 
   G4int nSamplers;
-  G4double zMax;
+  G4double zMax, transMax; //Maximum values of longitudinal and transverse global position
   //BDSSamplerSD* BDSSamplerSensDet;
   std::vector <G4String> SampName;
   std::vector <G4String> CSampName;
@@ -79,7 +81,9 @@ private:
   float x,xp,y,yp,z,zp,E,Edep,t;
   float X,Xp,Y,Yp,Z,Zp,s,weight,EWeightZ;
   int part,nev, pID, theID, track_id;
-  char volumeName[100];
+  float x_el,y_el,z_el,E_el;
+  int part_el,pID_el, weight_el;
+  char volumeName_el[100];
 //#endif
 
 };

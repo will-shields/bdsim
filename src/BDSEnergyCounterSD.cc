@@ -31,6 +31,7 @@ extern G4bool verbose;
 BDSEnergyCounterSD::BDSEnergyCounterSD(G4String name)
 :G4VSensitiveDetector(name)
 {
+  itsName = name;
   collectionName.insert("EC_"+name);
   #define NMAXCOPY 5
   HitID = new G4int[NMAXCOPY];
@@ -85,28 +86,44 @@ G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
   G4ThreeVector LocalPosition = tf.TransformPoint(pos);
   G4ThreeVector LocalDirection = tf.TransformAxis(momDir);
 
-  zpos=0.5*(aStep->GetPreStepPoint()->GetPosition().z()
-	    + aStep->GetPostStepPoint()->GetPosition().z());
-
-  xpos=aStep->GetTrack()->GetPosition().x();//LocalPosition.x();
-  ypos=aStep->GetTrack()->GetPosition().y();//LocalPosition.y();
+  //  xpos=LocalPosition.x();
+  //  ypos=LocalPosition.y();
   //  zpos=LocalPosition.z();
-
   
-  if(verbose && BDSGlobals->GetStopTracks()) G4cout << "BDSEnergyCounterSD: Current Volume: " << aStep->GetTrack()->GetVolume()->GetName() <<"\tEvent: " << event_number << "\tEnergy: " << enrg/GeV << "GeV\tPosition: " << zpos/m <<"m"<< G4endl;
 
-  if (HitID[nCopy]==-1)
-    { 
-      BDSEnergyCounterHit* ECHit= 
-	new BDSEnergyCounterHit(nCopy,enrg,zpos*enrg,aStep->GetTrack()->GetDefinition()->GetPDGEncoding(),aStep->GetTrack()->GetParentID(), aStep->GetTrack()->GetVolume()->GetName(), aStep->GetTrack()->GetWeight(), xpos, ypos);
-      HitID[nCopy]= BDSEnergyCounterCollection->insert(ECHit)-1;
-    }
-  else
-    {
-      (*BDSEnergyCounterCollection)[HitID[nCopy]]-> AddEnergy(enrg);
-      (*BDSEnergyCounterCollection)[HitID[nCopy]]-> 
-	AddEnergyWeightedPosition(enrg*zpos);
-    }
+  zpos=0.5*(aStep->GetPreStepPoint()->GetPosition().z()
+  	    + aStep->GetPostStepPoint()->GetPosition().z());
+  
+    xpos=0.5*(aStep->GetPreStepPoint()->GetPosition().x()
+      + aStep->GetPostStepPoint()->GetPosition().x());
+  
+    ypos=0.5*(aStep->GetPreStepPoint()->GetPosition().y()
+  	    + aStep->GetPostStepPoint()->GetPosition().y());
+  
+   if(verbose && BDSGlobals->GetStopTracks()) G4cout << "BDSEnergyCounterSD: Current Volume: " << 	aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() <<"\tEvent: " << event_number << "\tEnergy: " << enrg/GeV << "GeV\tPosition: " << zpos/m <<"m"<< G4endl;
+
+   /*
+   cout << "E = " << enrg << endl;
+   cout << "x = " << xpos << endl;
+   cout << "y = " << ypos << endl;
+   cout << "z = " << zpos << endl;
+   cout << "vol1 = " << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() << endl;
+   cout << "vol2 = " << aStep->GetTrack()->GetVolume()->GetName() << endl;
+   */
+
+   G4double weight = aStep->GetTrack()->GetWeight();
+
+   //   if (HitID[nCopy]==-1){ 
+     BDSEnergyCounterHit* ECHit= 
+       //	new BDSEnergyCounterHit(nCopy,enrg,zpos,aStep->GetTrack()->GetDefinition()->GetPDGEncoding(),aStep->GetTrack()->GetParentID(), aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName(), aStep->GetTrack()->GetWeight(), xpos, ypos);
+       new BDSEnergyCounterHit(nCopy,enrg,xpos,ypos,zpos,itsName, aStep->GetTrack()->GetDefinition()->GetPDGEncoding(), weight);
+     HitID[nCopy]= BDSEnergyCounterCollection->insert(ECHit)-1; 
+     //   } else {
+     //     (*BDSEnergyCounterCollection)[HitID[nCopy]]-> AddEnergy(enrg);
+     //     (*BDSEnergyCounterCollection)[HitID[nCopy]]-> AddPos(xpos,ypos,zpos);
+     //(*BDSEnergyCounterCollection)[HitID[nCopy]]-> AddEnergyWeightedPosition(enrg*zpos);
+     //   }
+
   
     
   if(BDSGlobals->GetStopTracks())

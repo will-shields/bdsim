@@ -99,6 +99,7 @@ public:
   void SetLPBFraction(G4double val);
 
   G4double GetElossHistoBinWidth();
+  G4double GetElossHistoTransBinWidth(); //The transverse (x,y) bin width
   G4double GetDefaultRangeCut();
 
   G4double GetFFact();
@@ -274,6 +275,7 @@ private:
   G4UniformMagField* zeroMagField;
 
   G4double itsElossHistoBinWidth;
+  G4double itsElossHistoTransBinWidth;
   G4double itsDefaultRangeCut;
   G4double itsFFact;
   //PI
@@ -401,6 +403,10 @@ private:
 
 inline G4double ::BDSGlobalConstants::GetElossHistoBinWidth(){
   return itsElossHistoBinWidth;
+}
+
+inline G4double ::BDSGlobalConstants::GetElossHistoTransBinWidth(){
+  return itsElossHistoTransBinWidth;
 }
 
 inline G4double ::BDSGlobalConstants::GetDefaultRangeCut(){

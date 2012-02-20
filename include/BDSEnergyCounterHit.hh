@@ -15,9 +15,8 @@
 class BDSEnergyCounterHit :public G4VHit
 {
   public:
-   BDSEnergyCounterHit();
-   BDSEnergyCounterHit(G4int nCopy, G4double Energy=0, G4double EnWeightZ=0.,
-		       G4int partID=0, G4int parentID=0, G4String volumeName="", G4double weight=1, G4double x=0, G4double y=0);
+  BDSEnergyCounterHit();
+  BDSEnergyCounterHit(G4int nCopy, G4double Energy=0, G4double x=0, G4double y=0, G4double z=0, G4String name="", G4int partID=0, G4double weight=1);
 
   ~BDSEnergyCounterHit();
 
@@ -29,79 +28,63 @@ class BDSEnergyCounterHit :public G4VHit
 
   inline G4double GetEnergy();
   inline G4int GetCopyNumber();
-  inline G4int GetPartID();
-   inline G4int GetParentID();
-  inline G4String GetVolumeName();
-  inline G4double GetWeight();
+  inline G4String GetName();
   inline void SetEnergy(G4double Energy);
   inline void AddEnergy(G4double Energy);
-  inline void AddEnergyWeightedPosition(G4double EnergyWeightedPosition);
-  G4double GetEnergyWeightedPosition(); 
-  G4double GetX(); 
-  G4double GetY(); 
+  inline void AddPos(G4double x, G4double y, G4double z);
+  inline G4double GetZ(); 
+  inline G4double GetX(); 
+  inline G4double GetY(); 
+  inline G4int GetPartID(); 
+  inline G4double GetWeight(); 
   inline void SetWeight(G4double weight);
   
 private:
   G4double itsEnergy;
   G4double itsX;
   G4double itsY;
-  //   G4String itsName;
-   G4int itsCopyNumber;
-   G4int itsPartID;
-   G4int itsParentID;
-   G4String itsVolumeName;
-   G4double itsEnergyWeightedPosition;
-   G4double itsWeight;
+  G4double itsZ;
+  G4double itsWeight;
+  //   G4String itsName
+  G4int itsCopyNumber;
+  G4int itsPartID;
+  G4String itsName;
 };
 
-    inline G4double BDSEnergyCounterHit::GetEnergy()
-    {return itsEnergy;}
+inline G4double BDSEnergyCounterHit::GetEnergy()
+{return itsEnergy;}
 
-    inline G4double BDSEnergyCounterHit::GetX()
-    {return itsX;}
+inline G4double BDSEnergyCounterHit::GetX()
+{return itsX;}
 
-    inline G4double BDSEnergyCounterHit::GetY()
-    {return itsY;}
+inline G4double BDSEnergyCounterHit::GetY()
+{return itsY;}
 
-  //    inline G4String GetName()
-  //   {return itsName;}
-
-    inline G4int BDSEnergyCounterHit::GetCopyNumber()
-    {return itsCopyNumber;}
-
-    inline G4int BDSEnergyCounterHit::GetPartID()
-    {return itsPartID;}
-
-    inline G4int BDSEnergyCounterHit::GetParentID()
-    {return itsParentID;}
-
-    inline G4String BDSEnergyCounterHit::GetVolumeName()
-    {return itsVolumeName;}
+inline G4double BDSEnergyCounterHit::GetZ()
+{
+  return itsZ;
+}
 
 inline G4double BDSEnergyCounterHit::GetWeight()
-{return itsWeight;}
-
-   inline void BDSEnergyCounterHit::SetEnergy(G4double Energy)
-    {itsEnergy=Energy;}   
-
-   inline void BDSEnergyCounterHit::SetWeight(G4double weight)
-    {itsWeight=weight;}   
-
-   inline void BDSEnergyCounterHit::AddEnergy(G4double Energy)
-    {
-itsEnergy+=Energy;}   
-
-    inline void BDSEnergyCounterHit::
-       AddEnergyWeightedPosition(G4double EnergyWeightedPosition)
 {
- itsEnergyWeightedPosition += EnergyWeightedPosition;
+  return itsWeight;
 }
 
-    inline G4double BDSEnergyCounterHit::
-       GetEnergyWeightedPosition()
-{
-return itsEnergyWeightedPosition;
-}
+inline G4int BDSEnergyCounterHit::GetCopyNumber()
+{return itsCopyNumber;}
+
+inline G4int BDSEnergyCounterHit::GetPartID()
+{return itsPartID;}
+
+inline G4String BDSEnergyCounterHit::GetName()
+{return itsName;}
+
+inline void BDSEnergyCounterHit::SetEnergy(G4double Energy)
+{itsEnergy=Energy;}   
+
+
+inline void BDSEnergyCounterHit::AddEnergy(G4double Energy)
+{itsEnergy+=Energy;}   
 
 typedef G4THitsCollection<BDSEnergyCounterHit> BDSEnergyCounterHitsCollection;
 extern G4Allocator<BDSEnergyCounterHit> BDSEnergyCounterHitAllocator;

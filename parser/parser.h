@@ -1250,6 +1250,7 @@ void set_value(std::string name, double value )
   // numeric options for the "beam" command
   //
   if(name == "elossHistoBinWidth") {options.elossHistoBinWidth = value; return;}
+  if(name == "elossHistotransBinWidth") {options.elossHistoTransBinWidth = value; return;}
   if(name == "defaultRangeCut") {options.defaultRangeCut = value; return;}
   if(name == "ffact") {options.ffact = value; return;}
   if(name == "energy" ) {options.beamEnergy = value; return;}

@@ -10,17 +10,28 @@
 #include "G4Colour.hh"
 #include "G4VisAttributes.hh"
 #include "G4LogicalVolume.hh"
+#include <iostream>
+
+using namespace std;
 
 G4Allocator<BDSEnergyCounterHit> BDSEnergyCounterHitAllocator;
 
-BDSEnergyCounterHit::BDSEnergyCounterHit(G4int nCopy, G4double anEnergy, 
-					 G4double EnWeightZ, G4int partID, G4int parentID, G4String volumeName, G4double weight, G4double x, G4double y):
-    itsEnergy(anEnergy),itsCopyNumber(nCopy),
-    itsPartID(partID),itsParentID(parentID),
-    itsVolumeName(volumeName),
-    itsEnergyWeightedPosition(EnWeightZ),
-    itsWeight(weight), itsX(x), itsY(y)
-{;}
+BDSEnergyCounterHit::  BDSEnergyCounterHit(G4int nCopy, G4double Energy, G4double x, G4double y, G4double z, G4String name, G4int partID, G4double weight):
+  itsEnergy(Energy),itsCopyNumber(nCopy),
+  itsName(name),
+  itsZ(z),
+  itsX(x), itsY(y),
+  itsPartID(partID),
+  itsWeight(weight)
+{
+  /*
+  cout << "BDSEnergyCounterHit> E = " << itsEnergy << endl;
+  cout << "BDSEnergyCounterHit> x = " << itsX << endl;
+  cout << "BDSEnergyCounterHit> y = " << itsY << endl;
+  cout << "BDSEnergyCounterHit> z = " << itsZ << endl;
+  cout << "BDSEnergyCounterHit> vol = " << itsVolumeName << endl;
+  */
+}
 
 
 BDSEnergyCounterHit::BDSEnergyCounterHit()
@@ -34,24 +45,20 @@ BDSEnergyCounterHit::BDSEnergyCounterHit(const BDSEnergyCounterHit &right):G4VHi
 {
   itsEnergy = right.itsEnergy;
   itsCopyNumber = right.itsCopyNumber;
-  itsPartID = right.itsPartID;
-  itsParentID = right.itsParentID;
-  itsVolumeName = right.itsVolumeName;
+  itsName = right.itsName;
   itsX = right.itsX;
   itsY = right.itsY;
-  itsWeight = right.itsWeight;
+  itsZ = right.itsZ;
 }
 
 const BDSEnergyCounterHit& BDSEnergyCounterHit::operator=(const BDSEnergyCounterHit &right)
 {
   itsEnergy = right.itsEnergy;
   itsCopyNumber = right.itsCopyNumber;
-  itsPartID= right.itsPartID;
-  itsParentID = right.itsParentID;
-  itsVolumeName = right.itsVolumeName;
-  itsWeight = right.itsWeight;
+  itsName = right.itsName;
   itsX = right.itsX;
   itsY = right.itsY;
+  itsZ = right.itsZ;
   return *this;
 }
 

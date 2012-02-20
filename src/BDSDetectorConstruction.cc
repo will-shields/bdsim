@@ -1749,6 +1749,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
     }
 
   bdsOutput->zMax=s_tot;
+  bdsOutput->transMax=std::max(WorldSizeX, WorldSizeY);
 
   solidWorld = new G4Box("World", WorldSizeX, WorldSizeY, WorldSizeZ);
     

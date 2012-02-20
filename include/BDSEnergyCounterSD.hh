@@ -32,6 +32,7 @@ public:
                
 
 private:
+  G4String itsName;
   BDSEnergyCounterHitsCollection *BDSEnergyCounterCollection;
   G4int* HitID;
   G4double enrg;

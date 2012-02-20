@@ -101,6 +101,7 @@ void init()
   options.geometryBias = false;
   options.ffact = 1.0;
   options.elossHistoBinWidth = 1.0;
+  options.elossHistoTransBinWidth = 0.1;
   options.defaultRangeCut = 7e-4;
   options.prodCutPositrons=7e-4,
     options.prodCutElectrons=7e-4,

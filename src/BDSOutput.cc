@@ -154,17 +154,25 @@ void BDSOutput::Init(G4int FileNum)
 
   // build energy loss histogram
   G4int nBins = G4int(zMax/(BDSGlobals->GetElossHistoBinWidth()*m));
+  G4double wx=(BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelOffsetX())*2;
+  G4double wy=(BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelOffsetY())*2;
+  G4double bs=BDSGlobals->GetComponentBoxSize();
+  G4double wmax=std::max(wx,wy);
+  wmax=std::max(wmax,bs);
+
+  G4int nTransBins = G4int(wmax*m/(BDSGlobals->GetElossHistoTransBinWidth()*m));
 
   EnergyLossHisto = new TH1F("ElossHisto", "Energy Loss",nBins,0.,zMax/m);
+  //  EnergyLossHisto3d = new TH3F("ElossHisto3d", "Energy Loss 3d",nBins,0.,zMax/m, nTransBins, 0, transMax/m, nTransBins, 0, transMax/m);
+  EnergyLossHisto3d = new TH3F("ElossHisto3d", "Energy Loss 3d",100,0.,0., 100, 0, 0, 100, 0, 0);
   EnergyLossTree= new TTree("ElossTree", "Energy Loss");//"x:y:z:E:partID:parentID:weight:volumeName");
-  EnergyLossTree->Branch("x",&x,"x/F");
-  EnergyLossTree->Branch("y",&y,"y/F");
-  EnergyLossTree->Branch("z",&z,"z/F");
-  EnergyLossTree->Branch("E",&E,"E/F");
-  EnergyLossTree->Branch("partID",&part,"partID/I");
-  EnergyLossTree->Branch("parentID",&pID,"parentID/I");
-  EnergyLossTree->Branch("weight",&weight,"weight/F");
-  EnergyLossTree->Branch("volumeName",&volumeName,"volumeName/C");
+  EnergyLossTree->Branch("x",&x_el,"x (m)/F");
+  EnergyLossTree->Branch("y",&y_el,"y (m)/F");
+  EnergyLossTree->Branch("z",&z_el,"z (m)/F");
+  EnergyLossTree->Branch("E",&E_el,"E (GeV)/F");
+  EnergyLossTree->Branch("weight",&weight_el,"weight/F");
+  EnergyLossTree->Branch("partID",&part_el,"partID/I");
+  EnergyLossTree->Branch("volumeName",&volumeName_el,"volumeName/C");
 #endif
 }
 
@@ -377,16 +385,32 @@ void BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
     
     for (G4int i=0;i<n_hit;i++)
       {
-	weight = (*hc)[i]->GetWeight();
-        E=(*hc)[i]->GetEnergy()/GeV;
-	z=((*hc)[i]->GetEnergyWeightedPosition()/E)/(m*1000.0);
-	//	cout << "E = " << E << " z = " << z << endl;
-	part = (*hc)[i]->GetPartID();
-	pID = (*hc)[i]->GetParentID();
-	G4String temp = (*hc)[i]->GetVolumeName()+'\0';
+        E_el=(*hc)[i]->GetEnergy()/GeV;
+	x_el=(*hc)[i]->GetX()/m;
+	y_el=(*hc)[i]->GetY()/m;
+	z_el=(*hc)[i]->GetZ()/m;
+	part_el=(*hc)[i]->GetPartID();
+	weight_el=(*hc)[i]->GetWeight();
 
-	strcpy(volumeName,temp.c_str());
-	EnergyLossHisto->Fill(z,weight*E);
+	//	cout << "E = " << E << " z = " << z << endl;
+	G4String temp = (*hc)[i]->GetName()+'\0';
+	strcpy(volumeName_el,temp.c_str());
+
+	/*
+	cout << "BDSOutput> E = " << E_el << endl;
+	cout << "BDSOutput> x = " << x_el << endl;
+	cout << "BDSOutput> y = " << y_el << endl;
+	cout << "BDSOutput> z = " << z_el << endl;
+	cout << "BDSOutput> vol = " << volumeName_el << endl;
+	cout << "BDSOutput> weight = " << weight_el << endl;
+	cout << "BDSOutput> part = " << part_el << endl;
+	cout << "BDSOutput> pID = " << pID_el << endl;
+	*/
+
+	EnergyLossHisto->Fill(z_el,E_el*weight_el);
+	if(temp.contains("MAG5_COIL")){
+	  EnergyLossHisto3d->Fill(x_el,y_el,z_el,E_el*weight_el);
+	}
 	EnergyLossTree->Fill();
 	//EWeightZ/m,Energy/GeV,partID,parentID,weight,volumeName);
       }
@@ -400,13 +424,11 @@ void BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
     for (G4int i=0;i<n_hit;i++)
       {
         G4double Energy=(*hc)[i]->GetEnergy();
-	G4double EWeightZ=(*hc)[i]->
-	  GetEnergyWeightedPosition()/Energy;
+	G4double Zpos=(*hc)[i]->GetZ();;
 	G4int partID = (*hc)[i]->GetPartID();
-	G4int parentID = (*hc)[i]->GetParentID();
 	G4double weight = (*hc)[i]->GetWeight();
 
-	of<<EWeightZ/m<<"  "<<Energy/GeV<<"  "<<partID<<"  "<<parentID<<"  "<<weight<<G4endl;
+	of<< Zpos/m<<"  "<<Energy/GeV<<"  "<<partID<<"  " <<weight<<G4endl;
 
       }
       of.flush();

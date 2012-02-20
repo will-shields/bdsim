@@ -98,6 +98,7 @@ struct Options {
   int nlinesIgnore; // ignore first lines in the input bunch file
 
   double elossHistoBinWidth;
+  double elossHistoTransBinWidth;
   double defaultRangeCut;
   double ffact;
   double beamEnergy;
