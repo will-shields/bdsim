@@ -112,21 +112,21 @@ G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
    */
 
    G4double weight = aStep->GetTrack()->GetWeight();
-
-   //   if ((HitID[nCopy]==-1) || ((zpos/m>75)&&(zpos/m<83))){ 
+   int ptype = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+   
+   //if ((HitID[nCopy]==-1) || ((zpos/m>75)&&(zpos/m<83))){ 
    if (HitID[nCopy]==-1){ 
-     BDSEnergyCounterHit* ECHit= 
-       //	new BDSEnergyCounterHit(nCopy,enrg,zpos,aStep->GetTrack()->GetDefinition()->GetPDGEncoding(),aStep->GetTrack()->GetParentID(), aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName(), aStep->GetTrack()->GetWeight(), xpos, ypos);
-       new BDSEnergyCounterHit(nCopy,enrg,xpos,ypos,zpos,itsName, aStep->GetTrack()->GetDefinition()->GetPDGEncoding(), weight);
+     
+     BDSEnergyCounterHit* ECHit = new BDSEnergyCounterHit(nCopy,enrg,xpos*enrg,ypos*enrg,zpos*enrg,itsName, ptype, weight);
      HitID[nCopy]= BDSEnergyCounterCollection->insert(ECHit)-1; 
    } else {
-     (*BDSEnergyCounterCollection)[HitID[nCopy]]-> AddEnergy(enrg);
-     (*BDSEnergyCounterCollection)[HitID[nCopy]]-> AddPos(xpos,ypos,zpos);
-     (*BDSEnergyCounterCollection)[HitID[nCopy]]-> AddEnergyWeightedPosition(enrg*zpos);
+     //     (*BDSEnergyCounterCollection)[HitID[nCopy]]-> AddEnergy(enrg);
+     //     (*BDSEnergyCounterCollection)[HitID[nCopy]]-> AddPos(xpos, ypos, zpos);
+     (*BDSEnergyCounterCollection)[HitID[nCopy]]-> AddEnergyWeightedPosition(enrg, xpos, ypos, zpos, weight);
    }
-
+   
    if(BDSGlobals->GetStopTracks())
-    aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+     aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 
   
   return true;

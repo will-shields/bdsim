@@ -386,9 +386,9 @@ void BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
     for (G4int i=0;i<n_hit;i++)
       {
         E_el=(*hc)[i]->GetEnergy()/GeV;
-	x_el=(*hc)[i]->GetX()/m;
-	y_el=(*hc)[i]->GetY()/m;
-	z_el=(*hc)[i]->GetZ()/m;
+	x_el=(*hc)[i]->GetEnergyWeightedX()/m*E_el;
+	y_el=(*hc)[i]->GetEnergyWeightedY()/m*E_el;
+	z_el=(*hc)[i]->GetEnergyWeightedZ()/m*E_el;
 	part_el=(*hc)[i]->GetPartID();
 	weight_el=(*hc)[i]->GetWeight();
 
@@ -407,9 +407,9 @@ void BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
 	cout << "BDSOutput> pID = " << pID_el << endl;
 	*/
 
-	EnergyLossHisto->Fill(z_el,E_el*weight_el);
+	EnergyLossHisto->Fill(z_el,E_el);
 	if(temp.contains("MAG5_COIL")){
-	  EnergyLossHisto3d->Fill(x_el,y_el,z_el,E_el*weight_el);
+	  EnergyLossHisto3d->Fill(x_el,y_el,z_el,E_el);
 	}
 	EnergyLossTree->Fill();
 	//EWeightZ/m,Energy/GeV,partID,parentID,weight,volumeName);

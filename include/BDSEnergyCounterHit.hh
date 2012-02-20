@@ -30,17 +30,23 @@ class BDSEnergyCounterHit :public G4VHit
   inline G4int GetCopyNumber();
   inline G4String GetName();
   inline void SetEnergy(G4double Energy);
-  inline void AddEnergy(G4double Energy);
-  inline void AddPos(G4double x, G4double y, G4double z);
+  inline void AddEnergy(G4double Energy, G4double weight);
+  inline void AddEnergyWeightedPosition(G4double Energy, G4double xpos, G4double ypos, G4double zpos, G4double weight);
   inline G4double GetZ(); 
   inline G4double GetX(); 
   inline G4double GetY(); 
+  inline G4double GetEnergyWeightedY(); 
+  inline G4double GetEnergyWeightedZ(); 
+  inline G4double GetEnergyWeightedX(); 
   inline G4int GetPartID(); 
   inline G4double GetWeight(); 
   inline void SetWeight(G4double weight);
   
 private:
   G4double itsEnergy;
+  G4double itsEnergyWeightedX;
+  G4double itsEnergyWeightedY;
+  G4double itsEnergyWeightedZ;
   G4double itsX;
   G4double itsY;
   G4double itsZ;
@@ -65,6 +71,17 @@ inline G4double BDSEnergyCounterHit::GetZ()
   return itsZ;
 }
 
+inline G4double BDSEnergyCounterHit::GetEnergyWeightedX()
+{return itsEnergyWeightedX;}
+
+inline G4double BDSEnergyCounterHit::GetEnergyWeightedY()
+{return itsEnergyWeightedY;}
+
+inline G4double BDSEnergyCounterHit::GetEnergyWeightedZ()
+{
+  return itsEnergyWeightedZ;
+}
+
 inline G4double BDSEnergyCounterHit::GetWeight()
 {
   return itsWeight;
@@ -83,8 +100,15 @@ inline void BDSEnergyCounterHit::SetEnergy(G4double Energy)
 {itsEnergy=Energy;}   
 
 
-inline void BDSEnergyCounterHit::AddEnergy(G4double Energy)
-{itsEnergy+=Energy;}   
+inline void BDSEnergyCounterHit::AddEnergy(G4double Energy, G4double weight)
+{itsEnergy+=Energy*weight;}   
+
+inline void BDSEnergyCounterHit::AddEnergyWeightedPosition(G4double Energy, G4double X, G4double Y, G4double Z, G4double weight){
+  itsEnergyWeightedX+=Energy*X*weight;
+  itsEnergyWeightedY+=Energy*Y*weight;
+  itsEnergyWeightedZ+=Energy*Z*weight;
+  itsEnergy+=Energy*weight;
+}   
 
 typedef G4THitsCollection<BDSEnergyCounterHit> BDSEnergyCounterHitsCollection;
 extern G4Allocator<BDSEnergyCounterHit> BDSEnergyCounterHitAllocator;
