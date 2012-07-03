@@ -251,6 +251,7 @@ void copy_properties(std::list<struct Element>::iterator dest, std::list<struct 
   (*dest).geometryFile = (*src).geometryFile;
 
   (*dest).bmapFile = (*src).bmapFile;
+  (*dest).precisionRegion = (*src).precisionRegion;
 
   (*dest).material = (*src).material;
 
@@ -334,6 +335,7 @@ void inherit_properties(struct Element e)
   if(!params.tunnelcavitymaterialset) { strncpy(params.tunnelCavityMaterial,e.spec.c_str(),64); params.tunnelcavitymaterialset = 1; }
   if(!params.tunnelRadiusset) { params.tunnelRadius = e.tunnelRadius; params.tunnelRadiusset = 1; }
   if(!params.tunnelOffsetXset) { params.tunnelOffsetX = e.tunnelOffsetX; params.tunnelOffsetXset = 1; }
+  if(!params.precisionRegionset) { params.precisionRegion = e.precisionRegion; params.precisionRegionset = 1; }
 
 
 
@@ -470,6 +472,7 @@ int write_table(struct Parameters params,char* name, int type, std::list<struct 
   e.tunnelCavityMaterial = params.tunnelCavityMaterial;  
   e.tunnelRadius = params.tunnelRadius;
   e.tunnelOffsetX = params.tunnelOffsetX;
+  e.precisionRegion = params.precisionRegion;
   
   //specific parameters
   switch(type) {

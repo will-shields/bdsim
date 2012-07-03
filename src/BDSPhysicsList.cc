@@ -470,7 +470,7 @@ void BDSPhysicsList::SetCuts()
   
 
     
-  if(verbose)
+  if(1)
     DumpCutValuesTable(); 
 
 }

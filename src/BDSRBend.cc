@@ -66,7 +66,7 @@ BDSRBend::BDSRBend(G4String aName, G4double aLength,
       //
       //build tunnel 
       if(BDSGlobals->GetBuildTunnel()){
-        BuildTunnel();
+	BuildTunnel(); //Geometry problem, do not build tunnel
       }
       
       //

@@ -42,6 +42,10 @@
 extern BDSMaterials* theMaterials;
 extern G4RotationMatrix* RotY90;
 extern G4RotationMatrix* RotYM90;
+extern G4RotationMatrix* RotX90;
+extern G4RotationMatrix* RotXM90;
+extern G4RotationMatrix* RotYM90X90;
+extern G4RotationMatrix* RotYM90XM90;
 
 void BDSAcceleratorComponent::PrepareField(G4VPhysicalVolume*)
 {//do nothing by default
@@ -209,6 +213,7 @@ void BDSAcceleratorComponent::BuildTunnel()
    tunnelTrans.setX(itsTunnelOffsetX);
    tunnelTrans.setY(BDSGlobals->GetTunnelOffsetY());
    tunnelTrans.setZ(0);
+
    floorOffsetThreeVector = G4ThreeVector(0,-blockSize-BDSGlobals->GetTunnelFloorOffset(),0);
 
    
@@ -227,9 +232,11 @@ void BDSAcceleratorComponent::BuildTunnel()
                                          nullRotationMatrix,
                                          floorOffsetThreeVector
                                          );
-   
+
   } else {//Build a trapezoidal tunnel to follow the bends
 
+    G4double pi_ov_2 = asin(1.);
+    tunnelRot->rotateY(pi_ov_2);
 
     G4double xHalfLengthPlus, xHalfLengthMinus, tunHalfLen;
     xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
@@ -239,6 +246,12 @@ void BDSAcceleratorComponent::BuildTunnel()
       + fabs(cos(itsAngle/2)) * (itsTunnelRadius + BDSGlobals->GetTunnelThickness()) * tan(itsAngle/2)/2;
     
     tunHalfLen = std::max(xHalfLengthPlus,xHalfLengthMinus);
+    tunnelTrans.setZ(0);
+    tunnelTrans.setX(0);
+    tunnelTrans.setY(BDSGlobals->GetTunnelOffsetY());
+
+    
+
 #ifdef DEBUG
     G4cout << "Building a block" << G4endl;
 #endif
@@ -253,6 +266,7 @@ void BDSAcceleratorComponent::BuildTunnel()
 #ifdef DEBUG
     G4cout << "Building a tunnel solid" << G4endl;
 #endif
+
     itsTunnelSolid = new G4IntersectionSolid(
                                              itsName+"_tun_solid",
                                              new G4Tubs(
@@ -262,7 +276,7 @@ void BDSAcceleratorComponent::BuildTunnel()
                                                         tunHalfLen,
                                                         0,twopi*radian),			    
                                              itsMarkerLogicalVolume->GetSolid(),
-                                             RotYM90,
+					     RotYM90,
                                              nullThreeVector
                                              ); 
 #ifdef DEBUG
@@ -304,9 +318,6 @@ void BDSAcceleratorComponent::BuildTunnel()
                                           0,twopi*radian);
                                                        
     
-    tunnelTrans.setX(itsTunnelOffsetX);
-    tunnelTrans.setY(BDSGlobals->GetTunnelOffsetY());
-    tunnelTrans.setZ(0);
     floorOffsetThreeVector = G4ThreeVector(0,-blockSize-BDSGlobals->GetTunnelFloorOffset(),0);
     
 #ifdef DEBUG
@@ -329,7 +340,8 @@ void BDSAcceleratorComponent::BuildTunnel()
                                          nullRotationMatrix,
                                          floorOffsetThreeVector
                                          );
-  }
+  }   //End of "else" statement relevant to bending tunnel
+
   
 #ifdef DEBUG
   G4cout << "Building tunnel minus cavity" << G4endl;
@@ -417,7 +429,6 @@ void BDSAcceleratorComponent::BuildTunnel()
   */
   
 #ifndef NOUSERLIMITS
-  G4cout << "Setting user limits" << G4endl;
   itsTunnelUserLimits = new G4UserLimits("tunnel cuts");
   itsSoilTunnelUserLimits = new G4UserLimits("tunnel soil cuts");
   itsInnerTunnelUserLimits = new G4UserLimits("inner tunnel cuts");

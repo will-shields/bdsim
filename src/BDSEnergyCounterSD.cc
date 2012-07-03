@@ -112,12 +112,24 @@ G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
    */
 
    G4double weight = aStep->GetTrack()->GetWeight();
+   if (weight == 0){
+     cerr << "Error: BDSEnergyCounterSD: weight = 0" << endl;
+     exit(1);
+   }
    int ptype = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+   G4String volName = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
+   G4String regionName = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetRegion()->GetName();
+   G4bool precisionRegion=false;
+   if (regionName == (G4String)"precisionRegion") {
+     precisionRegion=true;
+   }
    
-   //   if ((HitID[nCopy]==-1) || ((zpos/m>75)&&(zpos/m<83))){ 
-   if (HitID[nCopy]==-1){ 
+   
+   if ((HitID[nCopy]==-1) || precisionRegion){
+       //|| (volName.contains("INTDMP"))){ 
+     //if (HitID[nCopy]==-1){ 
      
-     BDSEnergyCounterHit* ECHit = new BDSEnergyCounterHit(nCopy,enrg,xpos*enrg,ypos*enrg,zpos*enrg,itsName, ptype, weight);
+     BDSEnergyCounterHit* ECHit = new BDSEnergyCounterHit(nCopy,enrg,xpos,ypos,zpos,volName, ptype, weight, precisionRegion);
      HitID[nCopy]= BDSEnergyCounterCollection->insert(ECHit)-1; 
    } else {
      //     (*BDSEnergyCounterCollection)[HitID[nCopy]]-> AddEnergy(enrg);

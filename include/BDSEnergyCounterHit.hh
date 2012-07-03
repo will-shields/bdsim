@@ -16,7 +16,7 @@ class BDSEnergyCounterHit :public G4VHit
 {
   public:
   BDSEnergyCounterHit();
-  BDSEnergyCounterHit(G4int nCopy, G4double Energy=0, G4double x=0, G4double y=0, G4double z=0, G4String name="", G4int partID=0, G4double weight=1);
+  BDSEnergyCounterHit(G4int nCopy, G4double Energy=0, G4double x=0, G4double y=0, G4double z=0, G4String name="", G4int partID=0, G4double weight=1, G4bool precisionRegion=false);
 
   ~BDSEnergyCounterHit();
 
@@ -41,6 +41,7 @@ class BDSEnergyCounterHit :public G4VHit
   inline G4int GetPartID(); 
   inline G4double GetWeight(); 
   inline void SetWeight(G4double weight);
+  inline G4bool GetPrecisionRegion();
   
 private:
   G4double itsEnergy;
@@ -55,6 +56,7 @@ private:
   G4int itsCopyNumber;
   G4int itsPartID;
   G4String itsName;
+  G4bool itsPrecisionRegion; //Wether or not the hit is in the precision region
 };
 
 inline G4double BDSEnergyCounterHit::GetEnergy()
@@ -87,6 +89,13 @@ inline G4double BDSEnergyCounterHit::GetWeight()
   return itsWeight;
 }
 
+inline G4bool BDSEnergyCounterHit::GetPrecisionRegion()
+{
+  return itsPrecisionRegion;
+}
+
+
+
 inline G4int BDSEnergyCounterHit::GetCopyNumber()
 {return itsCopyNumber;}
 
@@ -99,7 +108,6 @@ inline G4String BDSEnergyCounterHit::GetName()
 inline void BDSEnergyCounterHit::SetEnergy(G4double Energy)
 {itsEnergy=Energy;}   
 
-
 inline void BDSEnergyCounterHit::AddEnergy(G4double Energy, G4double weight)
 {itsEnergy+=Energy*weight;}   
 
@@ -108,6 +116,8 @@ inline void BDSEnergyCounterHit::AddEnergyWeightedPosition(G4double Energy, G4do
   itsEnergyWeightedY+=Energy*Y*weight;
   itsEnergyWeightedZ+=Energy*Z*weight;
   itsEnergy+=Energy*weight;
+  //  G4cout << "BDSEnergyCounterHit.hh::AddEnergyWeightedPosition: weight = " << weight << G4endl;
+  //  G4cout << "BDSEnergyCounterHit.hh::AddEnergyWeightedPosition: itsWeight = " << itsWeight << G4endl;
 }   
 
 typedef G4THitsCollection<BDSEnergyCounterHit> BDSEnergyCounterHitsCollection;

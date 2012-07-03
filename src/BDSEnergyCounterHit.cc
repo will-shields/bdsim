@@ -16,15 +16,15 @@ using namespace std;
 
 G4Allocator<BDSEnergyCounterHit> BDSEnergyCounterHitAllocator;
 
-BDSEnergyCounterHit::  BDSEnergyCounterHit(G4int nCopy, G4double Energy, G4double x, G4double y, G4double z, G4String name, G4int partID, G4double weight):
+BDSEnergyCounterHit::  BDSEnergyCounterHit(G4int nCopy, G4double Energy, G4double x, G4double y, G4double z, G4String name, G4int partID, G4double weight, G4bool precisionRegion):
   itsEnergy(Energy*weight),itsCopyNumber(nCopy),
   itsName(name),
   itsZ(z),
+  itsWeight(weight),
   itsX(x), itsY(y),
   itsPartID(partID),
-  itsWeight(weight),
   itsEnergyWeightedZ(z*Energy*weight),
-  itsEnergyWeightedX(x*Energy*weight), itsEnergyWeightedY(y*Energy*weight)
+  itsEnergyWeightedX(x*Energy*weight), itsEnergyWeightedY(y*Energy*weight), itsPrecisionRegion(precisionRegion)
 {
   /*
   cout << "BDSEnergyCounterHit> E = " << itsEnergy << endl;

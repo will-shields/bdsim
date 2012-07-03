@@ -164,15 +164,20 @@ void BDSOutput::Init(G4int FileNum)
 
   EnergyLossHisto = new TH1F("ElossHisto", "Energy Loss",nBins,0.,zMax/m);
   //  EnergyLossHisto3d = new TH3F("ElossHisto3d", "Energy Loss 3d",nBins,0.,zMax/m, nTransBins, 0, transMax/m, nTransBins, 0, transMax/m);
+
+  /*
+    LCD dev 3/7/12
   EnergyLossHisto3d = new TH3F("ElossHisto3d", "Energy Loss 3d",100,0.,0., 100, 0, 0, 100, 0, 0);
-  EnergyLossTree= new TTree("ElossTree", "Energy Loss");//"x:y:z:E:partID:parentID:weight:volumeName");
-  EnergyLossTree->Branch("x",&x_el,"x (m)/F");
-  EnergyLossTree->Branch("y",&y_el,"y (m)/F");
-  EnergyLossTree->Branch("z",&z_el,"z (m)/F");
-  EnergyLossTree->Branch("E",&E_el,"E (GeV)/F");
-  EnergyLossTree->Branch("weight",&weight_el,"weight/F");
-  EnergyLossTree->Branch("partID",&part_el,"partID/I");
-  EnergyLossTree->Branch("volumeName",&volumeName_el,"volumeName/C");
+  */
+
+  PrecisionRegionEnergyLossTree= new TTree("PrecisionRegionElossTree", "Energy Loss");//"x:y:z:E:partID:parentID:weight:volumeName");
+  PrecisionRegionEnergyLossTree->Branch("x",&x_el,"x (m)/F");
+  PrecisionRegionEnergyLossTree->Branch("y",&y_el,"y (m)/F");
+  PrecisionRegionEnergyLossTree->Branch("z",&z_el,"z (m)/F");
+  PrecisionRegionEnergyLossTree->Branch("E",&E_el,"E (GeV)/F");
+  PrecisionRegionEnergyLossTree->Branch("weight",&weight_el,"weight/F");
+  PrecisionRegionEnergyLossTree->Branch("partID",&part_el,"partID/I");
+  PrecisionRegionEnergyLossTree->Branch("volumeName",&volumeName_el,"volumeName/C");
 #endif
 }
 
@@ -385,34 +390,23 @@ void BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
     
     for (G4int i=0;i<n_hit;i++)
       {
+	//all regions fill the energy loss tree....
         E_el=(*hc)[i]->GetEnergy()/GeV;
-	x_el=(*hc)[i]->GetEnergyWeightedX()/m*E_el;
-	y_el=(*hc)[i]->GetEnergyWeightedY()/m*E_el;
-	z_el=(*hc)[i]->GetEnergyWeightedZ()/m*E_el;
-	part_el=(*hc)[i]->GetPartID();
-	weight_el=(*hc)[i]->GetWeight();
-
-	//	cout << "E = " << E << " z = " << z << endl;
-	G4String temp = (*hc)[i]->GetName()+'\0';
-	strcpy(volumeName_el,temp.c_str());
-
-	/*
-	cout << "BDSOutput> E = " << E_el << endl;
-	cout << "BDSOutput> x = " << x_el << endl;
-	cout << "BDSOutput> y = " << y_el << endl;
-	cout << "BDSOutput> z = " << z_el << endl;
-	cout << "BDSOutput> vol = " << volumeName_el << endl;
-	cout << "BDSOutput> weight = " << weight_el << endl;
-	cout << "BDSOutput> part = " << part_el << endl;
-	cout << "BDSOutput> pID = " << pID_el << endl;
-	*/
-
+	z_el=(*hc)[i]->GetEnergyWeightedZ()*10*(1e-6)/(cm*E_el);
 	EnergyLossHisto->Fill(z_el,E_el);
-	if(temp.contains("MAG5_COIL")){
-	  EnergyLossHisto3d->Fill(x_el,y_el,z_el,E_el);
+
+	if((*hc)[i]->GetPrecisionRegion()){ //Only the precision region fills this tree, preserving every hit, its position and weight, instead of summing weighted energy in each beam line component.
+	  weight_el=(*hc)[i]->GetWeight();
+	  E_el=((*hc)[i]->GetEnergy()/GeV)/weight_el;
+	  x_el=((*hc)[i]->GetEnergyWeightedX()/(cm*1e5*E_el))/weight_el;
+	  y_el=((*hc)[i]->GetEnergyWeightedY()*10/(cm*E_el))/weight_el;
+	  z_el=((*hc)[i]->GetEnergyWeightedZ()*10*(1e-6)/(cm*E_el))/weight_el;
+	  part_el=(*hc)[i]->GetPartID();
+	  G4String temp = (*hc)[i]->GetName()+'\0';
+	  strcpy(volumeName_el,temp.c_str());
+	  PrecisionRegionEnergyLossTree->Fill();
 	}
-	EnergyLossTree->Fill();
-	//EWeightZ/m,Energy/GeV,partID,parentID,weight,volumeName);
+
       }
 #endif
   }

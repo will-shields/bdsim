@@ -58,7 +58,7 @@ BDSSectorBend::BDSSectorBend(G4String aName, G4double aLength,
 //       G4double oldTunnelRad=      BDSGlobals->GetTunnelRadius();
          
       if(BDSGlobals->GetBuildTunnel()){
-	BuildTunnel(); 
+	BuildTunnel();  //Do not build tunnel as there is a geometry problem
       }
       
       //      BDSGlobals->SetTunnelRadius(oldTunnelRad);
@@ -254,7 +254,7 @@ void BDSSectorBend::BuildSBMarkerLogicalVolume()
   xLength = std::max(xLength, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness() + 4*BDSGlobals->GetLengthSafety() );   
   yLength = std::max(yLength, this->GetTunnelRadius()+2*std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+4*BDSGlobals->GetLengthSafety() );
 
-  G4double transverseSize=std::max(xLength, yLength);
+  G4double transverseSize=2*std::max(xLength, yLength);
 
 #ifdef DEBUG 
   G4cout<<"marker volume : x/y="<<transverseSize/m<<
@@ -283,7 +283,7 @@ void BDSSectorBend::BuildSBMarkerLogicalVolume()
 				  xHalfLengthMinus,    // x hlf lgth at -z
 				  transverseSize/2,           // y hlf lgth at +z
 				  transverseSize/2,           // y hlf lgth at -z
-				  fabs(cos(itsAngle/2))*transverseSize/2);// z hlf lgth
+				     fabs(cos(itsAngle/2))*transverseSize/2);// z hlf lgth
 
   G4String LocalLogicalName=itsName;
   

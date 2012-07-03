@@ -215,6 +215,7 @@ struct Options {
 
 struct Element {
   short type;
+  int precisionRegion;
   char * name;
 
   double inR; double bpRad; // inner radius and beam pipe radius of muon spoiler  
@@ -308,6 +309,8 @@ struct Parameters {
   double tunnelOffsetX;
   int tunnelOffsetXset;
 
+  //which precision physics region the element is in (0 = none)
+  int precisionRegion; int precisionRegionset;
 
   double aperYUp; int aperYUpset;  
   double aperYDown; int aperYDownset; 
@@ -327,14 +330,13 @@ struct Parameters {
 
   // twiss parameters
   
-
   // for external geometry and field definition files
-  char geometry[64]; int geomset;
-  char bmap[64]; int bmapset;
-  char emap[64];
-  char material[64]; int materialset;
-  char tunnelMaterial[64]; int tunnelmaterialset;
-  char tunnelCavityMaterial[64]; int tunnelcavitymaterialset;
+  char geometry[256]; int geomset;
+  char bmap[256]; int bmapset;
+  char emap[256];
+  char material[256]; int materialset;
+  char tunnelMaterial[256]; int tunnelmaterialset;
+  char tunnelCavityMaterial[256]; int tunnelcavitymaterialset;
 
 
   // string to pass a custom type specification
@@ -391,6 +393,8 @@ struct Parameters {
     tunnelRadius = 0; tunnelRadiusset = 0;
     tunnelOffsetX = 0; tunnelOffsetXset = 0;
 
+    precisionRegion = 0; precisionRegionset = 0;
+
     aper = 0; aperset = 0;
     outR = 0; outRset = 0;
     tilt = 0; tiltset = 0;
@@ -419,6 +423,9 @@ struct Parameters {
     blmLocZset = 0;  blmLocThetaset = 0;
     blmLocZ.erase(blmLocZ.begin(), blmLocZ.end());
     blmLocTheta.erase(blmLocTheta.begin(), blmLocTheta.end());
+
+    //precisionRegion
+    precisionRegion = 0; precisionRegionset=0;
 
     strcpy(geometry,"");  geomset = 0;
 

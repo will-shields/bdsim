@@ -28,6 +28,8 @@
 #include "G4SimpleRunge.hh"
 #include "G4ExactHelixStepper.hh"
 #include "BDSAcceleratorComponent.hh"
+#include "BDS3DMagField.hh"
+#include "BDSXYMagField2.hh"
 #include "G4CashKarpRKF45.hh"
 
 // geometry drivers
@@ -60,11 +62,11 @@ extern G4RotationMatrix* RotY90;
 //============================================================
 
 BDSElement::BDSElement(G4String aName, G4String geometry, G4String bmap,
-		       G4double aLength, G4double bpRad, G4double outR, G4String aTunnelMaterial, G4double aTunnelRadius, G4double aTunnelOffsetX, G4String aTunnelCavityMaterial):
+		       G4double aLength, G4double bpRad, G4double outR, G4String aTunnelMaterial, G4double aTunnelRadius, G4double aTunnelOffsetX, G4String aTunnelCavityMaterial, G4int aPrecisionRegion):
   BDSAcceleratorComponent(
 			  aName,
 			  aLength,bpRad,0,0,
-			  SetVisAttributes(), aTunnelMaterial, "", 0., 0., 0., 0., aTunnelRadius*m, aTunnelOffsetX*m, aTunnelCavityMaterial),
+			  SetVisAttributes(), aTunnelMaterial, "", 0., 0., 0., 0., aTunnelRadius*m, aTunnelOffsetX*m, aTunnelCavityMaterial, aPrecisionRegion),
   itsField(NULL), itsMagField(NULL)
 {
   itsFieldVolName="";
@@ -122,7 +124,7 @@ void BDSElement::BuildElementMarkerLogicalVolume(){
     new G4LogicalVolume(new G4Box(itsName+"generic_element",
                                   elementSize,
                                   elementSize,   
-				  itsLength/2),
+				  itsLength/2.0),
 			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
 			itsName);
 
@@ -203,7 +205,7 @@ void BDSElement::BuildElementMarkerLogicalVolume(){
   */
   
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX, BDSGlobals->GetThresholdCutCharged());
-  G4double  maxStepFactor=1e-3;
+  G4double  maxStepFactor=0.2;
   itsMarkerUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
   itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
   
@@ -227,7 +229,7 @@ void BDSElement::BuildGeometry()
   (*LogVol)[itsName] = itsMarkerLogicalVolume;
 #ifndef NOUSERLIMITS
   itsOuterUserLimits = new G4UserLimits();
-  G4double stepfactor=1e-2;
+  G4double stepfactor=0.2;
   itsOuterUserLimits->SetMaxAllowedStep(itsLength*stepfactor);
   itsOuterUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
   if(BDSGlobals->GetThresholdCutCharged()>0){
@@ -297,7 +299,7 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
 #endif
 
   if(gFormat=="gmad") {
-
+    
     ggmad = new GGmadDriver(gFile);
     ggmad->Construct(itsMarkerLogicalVolume);
 
@@ -310,14 +312,16 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
     SetMultipleSensitiveVolumes(itsMarkerLogicalVolume);
 
     // attach magnetic field if present
-
-    if(bFormat=="XY")
-      {
-	itsMagField = new BDSXYMagField(bFile);
-
-	// build the magnetic field manager and transportation
-	BuildMagField();
-      }
+    if(bFormat=="3D"){
+      G4cout << "BDSElement.cc> Making BDS3DMagField..." << G4endl;
+      itsMagField = new BDS3DMagField(bFile, 0);
+      BuildMagField(true);
+    }else if(bFormat=="XY"){
+      G4cout << "BDSElement.cc> Making BDSXYMagField2..." << G4endl;
+      itsMagField = new BDSXYMagField2(bFile);
+      // build the magnetic field manager and transportation
+      BuildMagField(true);
+    }
   }
   else if(gFormat=="lcdd") {
 #ifdef USE_LCDD
@@ -378,7 +382,16 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
     align_out_volume = Mokka->align_out_volume;
     // attach magnetic field if present
 
-    if(bFormat=="mokka" || bFormat=="none")
+    if(bFormat=="3D"){
+      G4cout << "BDSElement.cc> Making BDS3DMagField..." << G4endl;
+      itsMagField = new BDS3DMagField(bFile, 0);
+      BuildMagField(true);
+    } else if(bFormat=="XY"){
+      G4cout << "BDSElement.cc> Making BDSXYMagField2..." << G4endl;
+      itsMagField = new BDSXYMagField2(bFile);
+      // build the magnetic field manager and transportation
+      BuildMagField(true);
+    } else if(bFormat=="mokka" || bFormat=="none")
       {
 	if(Mokka->HasFields || bFile!="")
 	  // Check for field file or volumes with fields
@@ -386,14 +399,14 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
 	  // in gmad file but fields might be set to volumes in SQL files
 	  {
 	    itsMagField = new BDSMagFieldSQL(bFile,itsLength,
-					  Mokka->QuadVolBgrad,
-					  Mokka->SextVolBgrad,
-					  Mokka->OctVolBgrad,
-					  Mokka->UniformFieldVolField,
-					  Mokka->nPoleField,
-					  Mokka->HasUniformField);
-
-
+					     Mokka->QuadVolBgrad,
+					     Mokka->SextVolBgrad,
+					     Mokka->OctVolBgrad,
+					     Mokka->UniformFieldVolField,
+					     Mokka->nPoleField,
+					     Mokka->HasUniformField);
+	    
+	    
 	    // build the magnetic field manager and transportation
 	    BuildMagField(true);
 	  }
@@ -451,12 +464,17 @@ G4VisAttributes* BDSElement::SetVisAttributes()
 
 void BDSElement::BuildMagField(G4bool forceToAllDaughters)
 {
+#ifdef DEBUG
   G4cout << "BDSElement.cc::BuildMagField Building magnetic field...." << G4endl;
+#endif
   // create a field manager
   G4FieldManager* fieldManager = new G4FieldManager();
 
 
   if(!itsFieldIsUniform){
+#ifdef DEBUG
+    G4cout << "BDSElement.cc> Building non-uniform magnetic field..." << endl;
+#endif
     itsEqRhs = new G4Mag_UsualEqRhs(itsMagField);
     if( (itsMagField->GetHasUniformField())&!(itsMagField->GetHasNPoleFields() || itsMagField->GetHasFieldMap())){
       //    itsFStepper = new G4ExactHelixStepper(itsEqRhs); 
@@ -472,6 +490,9 @@ void BDSElement::BuildMagField(G4bool forceToAllDaughters)
     //  itsFStepper = new G4HelixExplicitEuler(itsEqRhs); 
     fieldManager->SetDetectorField(itsMagField );
   } else {
+#ifdef DEBUG
+    G4cout << "BDSElement.cc> Building uniform magnetic field..." << endl;
+#endif
     itsEqRhs = new G4Mag_UsualEqRhs(itsUniformMagField);
     //    itsFStepper = new G4HelixImplicitEuler(itsEqRhs); 
     //  itsFStepper = new G4CashKarpRKF45(itsEqRhs); 
@@ -479,43 +500,50 @@ void BDSElement::BuildMagField(G4bool forceToAllDaughters)
     fieldManager->SetDetectorField(itsUniformMagField );
   }
 
+#ifdef DEBUG
+  G4cout << "BDSElement.cc> Setting stepping accuracy parameters..." << endl;
+#endif
+  
   if(BDSGlobals->GetDeltaOneStep()>0){
     fieldManager->SetDeltaOneStep(BDSGlobals->GetDeltaOneStep());
   }
   if(BDSGlobals->GetMaximumEpsilonStep()>0){
-  fieldManager->SetMaximumEpsilonStep(BDSGlobals->GetMaximumEpsilonStep());
+    fieldManager->SetMaximumEpsilonStep(BDSGlobals->GetMaximumEpsilonStep());
   }
   if(BDSGlobals->GetMinimumEpsilonStep()>=0){
-  fieldManager->SetMinimumEpsilonStep(BDSGlobals->GetMinimumEpsilonStep());
+    fieldManager->SetMinimumEpsilonStep(BDSGlobals->GetMinimumEpsilonStep());
   }
   if(BDSGlobals->GetDeltaIntersection()>0){
-  fieldManager->SetDeltaIntersection(BDSGlobals->GetDeltaIntersection());
+    fieldManager->SetDeltaIntersection(BDSGlobals->GetDeltaIntersection());
   }
 
   G4MagInt_Driver* fIntgrDriver = new G4MagInt_Driver(BDSGlobals->GetChordStepMinimum(),
-							itsFStepper, 
-							itsFStepper->GetNumberOfVariables() );
+						      itsFStepper, 
+						      itsFStepper->GetNumberOfVariables() );
   fChordFinder = new G4ChordFinder(fIntgrDriver);
   
   fChordFinder->SetDeltaChord(BDSGlobals->GetDeltaChord());
   
   fieldManager->SetChordFinder( fChordFinder ); 
 
-  /*
-    if(itsFieldVolName != ""){
-    itsFieldVolName=itsFieldVolName+"_PhysiComp";
-    G4cout << "Printing daughters... itsFieldVolName=" << itsFieldVolName << G4endl;
-    for(int i=0;itsMarkerLogicalVolume->IsAncestor(itsMarkerLogicalVolume->GetDaughter(i)); i++){
-    G4cout << itsMarkerLogicalVolume->GetDaughter(i)->GetName() << endl;
-    if( itsMarkerLogicalVolume->GetDaughter(i)->GetName() == itsFieldVolName){
-    itsMarkerLogicalVolume->GetDaughter(i)->GetLogicalVolume()->SetFieldManager(fieldManager,forceToAllDaughters);
-    G4cout << "Field volume set..." << G4endl;
-    break;
-    }
-    }
-    } else {
-    }
-  */
+  
+  //  if(itsFieldVolName != ""){
+  //    itsFieldVolName=itsFieldVolName+"_PhysiComp";
+  //    G4cout << "Printing daughters... itsFieldVolName=" << itsFieldVolName << G4endl;
+  //  for(int i=0;itsMarkerLogicalVolume->IsAncestor(itsMarkerLogicalVolume->GetDaughter(i)); i++){
+  //    G4cout << itsMarkerLogicalVolume->GetDaughter(i)->GetName() << endl;
+  //    if( itsMarkerLogicalVolume->GetDaughter(i)->GetName() == itsFieldVolName){
+  //      itsMarkerLogicalVolume->GetDaughter(i)->GetLogicalVolume()->SetFieldManager(fieldManager,forceToAllDaughters);
+  //      G4cout << "Field volume set..." << G4endl;
+  //      break;
+  //    }
+  //  }
+  //} else {
+  //  }
+  
+#ifdef DEBUG
+  G4cout << "BDSElement.cc> Setting the logical volume " << itsMarkerLogicalVolume->GetName() << " field manager... force to all daughters = " << forceToAllDaughters << endl;
+#endif
   itsMarkerLogicalVolume->SetFieldManager(fieldManager,forceToAllDaughters);
 }
 

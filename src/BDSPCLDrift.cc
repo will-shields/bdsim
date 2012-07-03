@@ -35,7 +35,7 @@ extern BDSMaterials* theMaterials;
 //============================================================
 
 BDSPCLDrift::BDSPCLDrift (G4String aName, G4double aLength, 
-			  std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double aperX, G4double aperYUp, G4double aperYDown, G4double aperDy, G4String tunnelMaterial, G4double aper, G4double tunnelRadius, G4double tunnelOffsetX):
+			  std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double aperX, G4double aperYUp, G4double aperYDown, G4double aperDy, G4String tunnelMaterial, G4double aper, G4double tunnelRadius, G4double tunnelOffsetX, G4String Material):
   BDSMultipole(aName, aLength, aper, aper, SetVisAttributes(),  blmLocZ, blmLocTheta, tunnelMaterial, "", aper, aper, 0, tunnelRadius, tunnelOffsetX),
   itsYAperUp(aperYUp), itsYAperDown(aperYDown), itsDyAper(aperDy)
 {
@@ -57,7 +57,7 @@ BDSPCLDrift::BDSPCLDrift (G4String aName, G4double aLength,
       }
       BuildBpFieldAndStepper();
       BuildBPFieldMgr(itsStepper, itsMagField);
-      BuildBeampipe();
+      BuildBeampipe(itsMaterial);
       BuildBLMs();
   
       //
@@ -99,12 +99,13 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
          << " r= " << itsBpRadius/m << " m"
          << " l= " << itsLength/(2.)/m << " m"
          << G4endl;
-#endif
-
   G4cout << "PCLDrift aperX: " << itsXAper/m << " m" << G4endl;
   G4cout << "PCLDrift aperYUp: " << itsYAperUp/m << " m" << G4endl;
   G4cout << "PCLDrift aperYDown: " << itsYAperDown/m << " m" << G4endl;
   G4cout << "PCLDrift Dy: " << itsDyAper/m << " m" << G4endl;
+#endif
+
+
 
   G4double ts = BDSGlobals->GetLengthSafety()+BDSGlobals->GetBeampipeThickness()/2;
 
@@ -117,8 +118,10 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
   inner_solid = innerTube->GetSolid();
   outer_solid = outerTube->GetSolid();
 
-  G4cout << "Making logical..." << G4endl;
-  
+#ifdef DEBUG
+  G4cout << "BDSPCLDrift.cc: Making logical..." << G4endl;
+#endif
+
   itsInnerBeamPipeLogicalVolume=	
     new G4LogicalVolume(inner_solid,
 			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
@@ -143,8 +146,10 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
   itsOuterBeamPipeLogicalVolume->SetVisAttributes(itsBeampipeVisAtt);
   itsInnerBeamPipeLogicalVolume->SetVisAttributes(itsInnerBeampipeVisAtt);
 
+#ifdef DEBUG  
+  G4cout << "BDSPCLDrift.cc: Placing..." << G4endl;
+#endif
 
-  G4cout << "Placing..." << G4endl;
   G4ThreeVector threeVector1;
   threeVector1.setY(0);
   itsPhysiInner = new G4PVPlacement(
@@ -206,7 +211,9 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
   itsMarkerLogicalVolume->
     SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
   
-  G4cout << "Finished making beam pipe..." << G4endl;
+#ifdef DEBUG
+  G4cout << "BDSPCLDrift.cc: Finished making beam pipe..." << G4endl;
+#endif
 }
 
 void BDSPCLDrift::BuildBpFieldAndStepper(){

@@ -181,11 +181,11 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
 	   << " r= " << itsBpRadius/m << " m"
 	   << " l= " << itsLength/(2.)/m << " m"
 	   << G4endl;
+    G4cout << "Drift aperX: " << this->GetAperX()/m << " m" << G4endl;
+    G4cout << "Drift aperY: " << this->GetAperY()/m << " m" << G4endl;
 #endif
     
-  G4cout << "Drift aperX: " << this->GetAperX()/m << " m" << G4endl;
-  G4cout << "Drift aperY: " << this->GetAperY()/m << " m" << G4endl;
-  
+    
   G4EllipticalTube* tmp_tube =new G4EllipticalTube(itsName+"_bmp_solid_tmp",
 						   this->GetAperX()+BDSGlobals->GetBeampipeThickness(),
 						   this->GetAperY()+BDSGlobals->GetBeampipeThickness(),
@@ -296,7 +296,6 @@ void BDSMultipole::BuildBeampipe(G4String materialName)
   SetMultiplePhysicalVolumes(itsPhysiComp);
   
 #ifndef NOUSERLIMITS
-  G4cout << "BDSMultipole::BuildBeamPipe() Using user limits." << G4endl;
   itsBeampipeUserLimits = new G4UserLimits("beampipe cuts");
   itsInnerBeampipeUserLimits = new G4UserLimits("inner beampipe cuts");
   

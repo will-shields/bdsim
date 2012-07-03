@@ -663,7 +663,7 @@ void BDSGeometrySQL::BuildTorus(BDSMySQLTable* aSQLTable)
 			    Name+"_LogVol");
 #ifndef NOUSERLIMITS
       G4UserLimits* TorusUserLimits = new G4UserLimits();
-      TorusUserLimits->SetMaxAllowedStep(rInner/2);
+      TorusUserLimits->SetMaxAllowedStep(rOuter/2);
       TorusUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
       if(BDSGlobals->GetThresholdCutCharged()>0){
 	TorusUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
@@ -1051,7 +1051,7 @@ void BDSGeometrySQL::BuildPCLTube(BDSMySQLTable* aSQLTable)
       // make sure that each name is unique!
       Name = itsMarkerVol->GetName()+"_"+Name;
 
-      BDSPCLTube* aPCLTubeBuilder = new BDSPCLTube(aperX/2.0, aperYUp/2.0, aperYDown/2.0, aperDy, thickness/2.0, length, Name+"_PCLTube");
+      BDSPCLTube* aPCLTubeBuilder = new BDSPCLTube(aperX, aperYUp, aperYDown, aperDy, thickness, length, Name+"_PCLTube");
       G4VSolid* aPCLTube = aPCLTubeBuilder->GetSolid();
 
 
@@ -1362,6 +1362,7 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
 	{
 	  HasFields = true;
 	  HasUniformField=true;
+	  G4cout << "BDSGeometrySQL> volume " << PhysiComp->GetName() << " has the following uniform field: " << FieldX << " " << FieldY << " " << FieldZ << " " << endl;
 	  UniformField.push_back(G4ThreeVector(FieldX*tesla,FieldY*tesla,FieldZ*tesla));
 	  Fieldvol.push_back(PhysiComp->GetName());
 	  UniformFieldVolField[PhysiComp->GetName()]=G4ThreeVector(FieldX*tesla,FieldY*tesla,FieldZ*tesla);

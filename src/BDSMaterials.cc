@@ -332,7 +332,40 @@ void BDSMaterials::Initialise()
   tmpMaterial->AddElement(elements["Ca"], 0.0228923054);//0.025);
   tmpMaterial->AddElement(elements["Si"], 0.0851593762);//0.093);
   materials[name] = tmpMaterial; 
-  
+  G4int natoms;
+  //The main component of epoxy resin commonly used to insulate magnet coils.
+  tmpMaterial = new G4Material
+    (name="aralditef", density = 1.175*g/cm3, 3, kStateSolid, 300*kelvin);
+  tmpMaterial->AddElement(elements["C"], natoms=12);
+  tmpMaterial->AddElement(elements["H"], natoms=18);
+  tmpMaterial->AddElement(elements["O"], natoms=4);
+  materials[name] = tmpMaterial;
+
+  //A hardener for the epoxy resin
+  tmpMaterial = new G4Material
+    (name="hy906", density = 1.225*g/cm3, 3, kStateSolid, 300*kelvin);
+  tmpMaterial->AddElement(elements["C"], natoms=10);
+  tmpMaterial->AddElement(elements["H"], natoms=5);
+  tmpMaterial->AddElement(elements["O"], natoms=3);
+  materials[name] = tmpMaterial;
+
+  //An accelerator for epoxy resin
+  tmpMaterial = new G4Material
+    (name="dy061", density = 1.025*g/cm3, 4, kStateSolid, 300*kelvin);
+  tmpMaterial->AddElement(elements["C"], natoms=15);
+  tmpMaterial->AddElement(elements["H"], natoms=25 );
+  tmpMaterial->AddElement(elements["O"], natoms=1 );
+  tmpMaterial->AddElement(elements["N"], natoms=3 );
+  materials[name] = tmpMaterial;
+
+  //Material type 3 from CERN 81-05, "The Selection and Properties of Epoxide Resins Used for the Insulation of Magnet Systems in Radiation Environments".
+  tmpMaterial = new G4Material
+    (name="epoxyresin3", density = 1.20*g/cm3, 3, kStateSolid, 300*kelvin);
+  tmpMaterial->AddMaterial(materials["aralditef"],fractionmass=0.497512);
+  tmpMaterial->AddMaterial(materials["hy906"],fractionmass=0.497512);
+  tmpMaterial->AddMaterial(materials["dy061"],fractionmass=0.004976);
+  materials[name] = tmpMaterial;
+
   //Invar.Temperature 2 kelvin. LDeacon 6th Feburary 2006
   tmpMaterial = new G4Material
     (name="invar"         , density=  8.1  *kg/m3, 2, kStateSolid, 2*kelvin);
@@ -716,6 +749,7 @@ void BDSMaterials::ListMaterials(){
   G4cout << "Available materials are:" << G4endl;
   G4cout << "Air" << G4endl;
   G4cout << "Aluminium" << G4endl;
+  G4cout << "AralditeF" << G4endl;
   G4cout << "Beryllium" << G4endl;
   G4cout << "CarbonMonoxide" << G4endl;
   G4cout << "CarbonSteel" << G4endl;

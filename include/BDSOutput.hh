@@ -63,7 +63,7 @@ public:
 
   TH1F *EnergyLossHisto;
   TH3F *EnergyLossHisto3d;
-  TTree *EnergyLossTree;
+  TTree *PrecisionRegionEnergyLossTree;
 #endif
 
   G4int nSamplers;

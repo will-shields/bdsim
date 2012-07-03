@@ -15,8 +15,6 @@
 //     
 //
 
-#define DEBUG
-
 #include "BDSGlobalConstants.hh" // global parameters
 
 #include "G4UImanager.hh"        // G4 session managers
@@ -416,32 +414,32 @@ int main(int argc,char** argv) {
   //
 
 #ifdef DEBUG 
-  G4cout<<"user action - runaction"<<G4endl;
+  G4cout<<"main: user action - runaction"<<G4endl;
 #endif
   runManager->SetUserAction(new BDSRunAction);
 
 #ifdef DEBUG 
-  G4cout<<"user action - eventaction"<<G4endl;
+  G4cout<<"main: user action - eventaction"<<G4endl;
 #endif
   runManager->SetUserAction(new BDSEventAction());
 
 #ifdef DEBUG 
-  G4cout<<"user action - steppingaction"<<G4endl;
+  G4cout<<"main: user action - steppingaction"<<G4endl;
 #endif
   runManager->SetUserAction(new BDSSteppingAction);
 
 #ifdef DEBUG 
-  G4cout<<"user action - trackingaction"<<G4endl;
+  G4cout<<"main: user action - trackingaction"<<G4endl;
 #endif
   runManager->SetUserAction(new BDSUserTrackingAction);
 
 #ifdef DEBUG 
-  G4cout<<"user action - stackingaction"<<G4endl;
+  G4cout<<"main: user action - stackingaction"<<G4endl;
 #endif
   runManager->SetUserAction(new BDSStackingAction);
 
 #ifdef DEBUG 
-  G4cout<<"user action - detector"<<G4endl;
+  G4cout<<"main: user action - detector"<<G4endl;
 #endif
   runManager->SetUserAction(new BDSPrimaryGeneratorAction(detector));
 
@@ -639,6 +637,9 @@ int main(int argc,char** argv) {
   //
   // job termination
   //
+
+  G4GeometryManager::GetInstance()->OpenGeometry();
+
 
 #ifdef DEBUG 
   G4cout<<"BDSOutput deleting..."<<G4endl;

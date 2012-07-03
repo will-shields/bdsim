@@ -60,6 +60,9 @@ public:
   //type 
   const G4String GetType () const;
   void SetType(G4String aType);
+
+  const G4int GetPrecisionRegion() const; //0 = no precision region, 1 = precision region 1, 2 = precision region 2.
+  void SetPrecisionRegion(G4int aPrecisionRegion);
   
 
   //
@@ -208,7 +211,8 @@ public:
 			  G4double ZOffset=0.,
 			  G4double tunnelRadius=0.,
 			  G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX(),
-                          G4String aTunnelCavityMaterial = "Air"
+                          G4String aTunnelCavityMaterial = "Air",
+			  G4int aPrecisionRegion=0
 );
 
   BDSAcceleratorComponent (
@@ -226,7 +230,8 @@ public:
 			  G4double ZOffset=0.,
 			  G4double tunnelRadius=0.,
 			  G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX(),
-			  G4String aTunnelCavityMaterial = "Air");
+			  G4String aTunnelCavityMaterial = "Air",
+			  G4int aPrecisionRegion=0);
 
 
 
@@ -294,7 +299,7 @@ protected:
   G4LogicalVolume* itsInnerMostLogicalVolume;
 
   G4String itsTunnelCavityMaterial;
-
+  G4int itsPrecisionRegion;
 
   //Marker solid
   G4VSolid* itsMarkerSolidVolume;
@@ -373,11 +378,11 @@ inline BDSAcceleratorComponent::BDSAcceleratorComponent (
 			G4VisAttributes* aVisAtt,
                         G4String aTunnelMaterial,
                         G4String aMaterial,G4double angle,
-			G4double XOffset, G4double YOffset,G4double ZOffset, G4double tunnelRadius, G4double tunnelOffsetX,G4String aTunnelCavityMaterial):
+			G4double XOffset, G4double YOffset,G4double ZOffset, G4double tunnelRadius, G4double tunnelOffsetX,G4String aTunnelCavityMaterial, G4int aPrecisionRegion):
   itsName(aName),itsLength(aLength),itsBpRadius(aBpRadius),
   itsXAper(aXAper),itsYAper(aYAper),itsAngle(angle),
   itsMaterial(aMaterial),itsVisAttributes(aVisAtt),itsTunnelMaterial(aTunnelMaterial),
-  itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset), itsTunnelRadius(tunnelRadius), itsTunnelOffsetX(tunnelOffsetX),itsTunnelCavityMaterial(aTunnelCavityMaterial)
+  itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset), itsTunnelRadius(tunnelRadius), itsTunnelOffsetX(tunnelOffsetX),itsTunnelCavityMaterial(aTunnelCavityMaterial), itsPrecisionRegion(aPrecisionRegion)
 {
   itsSensitiveVolume=NULL;
   itsInnerBeampipeUserLimits =new G4UserLimits();
@@ -401,12 +406,12 @@ inline BDSAcceleratorComponent::BDSAcceleratorComponent (
 			std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
                         G4String aTunnelMaterial,
                         G4String aMaterial,G4double angle,
-			G4double XOffset, G4double YOffset,G4double ZOffset, G4double tunnelRadius, G4double tunnelOffsetX, G4String aTunnelCavityMaterial):
+			G4double XOffset, G4double YOffset,G4double ZOffset, G4double tunnelRadius, G4double tunnelOffsetX, G4String aTunnelCavityMaterial, G4int aPrecisionRegion):
   itsName(aName),itsLength(aLength),itsBpRadius(aBpRadius),
   itsXAper(aXAper),itsYAper(aYAper),itsAngle(angle),
   itsMaterial(aMaterial),itsVisAttributes(aVisAtt), itsBlmLocZ(blmLocZ), itsBlmLocTheta(blmLocTheta),
   itsTunnelMaterial(aTunnelMaterial),
-  itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset), itsTunnelRadius(tunnelRadius), itsTunnelOffsetX(tunnelOffsetX), itsTunnelCavityMaterial(aTunnelCavityMaterial)
+  itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset), itsTunnelRadius(tunnelRadius), itsTunnelOffsetX(tunnelOffsetX), itsTunnelCavityMaterial(aTunnelCavityMaterial), itsPrecisionRegion(aPrecisionRegion)
 {
   itsSensitiveVolume=NULL;
   itsInnerBeampipeUserLimits =new G4UserLimits();
@@ -524,6 +529,12 @@ inline const G4String BDSAcceleratorComponent::GetType () const
 
 inline void BDSAcceleratorComponent::SetType (G4String aType)
 {itsType=aType;}
+
+inline const G4int BDSAcceleratorComponent::GetPrecisionRegion () const
+{return itsPrecisionRegion;}
+
+inline void BDSAcceleratorComponent::SetPrecisionRegion (G4int aPrecisionRegion)
+{itsPrecisionRegion=aPrecisionRegion;}
 
 inline G4LogicalVolume* BDSAcceleratorComponent::GetMarkerLogicalVolume() const
 {return itsMarkerLogicalVolume;}

@@ -19,8 +19,6 @@
 
 //=================================================================
 
-#define DEBUG
-
 #include "BDSGlobalConstants.hh"
 
 #include "BDSDetectorConstruction.hh"
@@ -127,6 +125,12 @@ LogVolMap* LogVol;
 G4RotationMatrix* RotY90=new G4RotationMatrix();
 G4RotationMatrix* RotYM90=new G4RotationMatrix();
 
+G4RotationMatrix* RotX90=new G4RotationMatrix();
+G4RotationMatrix* RotXM90=new G4RotationMatrix();
+
+G4RotationMatrix* RotYM90X90=new G4RotationMatrix();
+G4RotationMatrix* RotYM90XM90=new G4RotationMatrix();
+
 //G4Navigator* StepperNavigator;
 //G4Navigator* QuadNavigator;
 
@@ -150,8 +154,18 @@ BDSDetectorConstruction::BDSDetectorConstruction()
   G4double pi_ov_2 = asin(1.);
 
   RotY90->rotateY(pi_ov_2);
+
   RotYM90->rotateY(-pi_ov_2);
 
+  RotX90->rotateX(pi_ov_2);
+
+  RotXM90->rotateX(-pi_ov_2);
+
+  RotYM90X90->rotateY(-pi_ov_2);
+  RotYM90X90->rotateX( pi_ov_2);
+
+  RotYM90XM90->rotateY(-pi_ov_2);
+  RotYM90XM90->rotateX(-pi_ov_2);
 }
 
 //=================================================================
@@ -581,7 +595,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 	if((*it).l > BDSGlobals->GetLengthSafety()) // skip too short elements                                                                                                         
 	  {
-#if 1
+#ifdef DEBUG
 	    G4cout << "---->adding PCLDrift,"
 		   << " name= " << (*it).name
 		   << " l= " << (*it).l << "m"
@@ -603,7 +617,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						       (*it).l*m,
 						       (*it).blmLocZ,
 						       (*it).blmLocTheta,
-						       (*it).aperX*m, (*it).aperYUp*m, (*it).aperYDown*m,(*it).aperDy*m, (*it).tunnelMaterial, aper, (*it).tunnelRadius*m, (*it).tunnelOffsetX*m) );
+						       (*it).aperX*m, (*it).aperYUp*m, (*it).aperYDown*m,(*it).aperDy*m, (*it).tunnelMaterial, aper, (*it).tunnelRadius*m, (*it).tunnelOffsetX*m));
 	      }
 	  }
       }
@@ -1352,6 +1366,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
                << " outR= " << (*it).outR << "m"
                << " tunnel material " << (*it).tunnelMaterial
                << " tunnel cavity material " << (*it).tunnelCavityMaterial
+               << " precision region " << (*it).precisionRegion
                << G4endl;
 #endif
 
@@ -1362,7 +1377,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						(*it).bmapFile,
 						(*it).l * m,
 						aper,
-						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (*it).tunnelOffsetX, (*it).tunnelCavityMaterial) );
+						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (*it).tunnelOffsetX, (*it).tunnelCavityMaterial, (*it).precisionRegion ));
 	} 
 	else {
 	  theBeamline.push_back(new BDSElement( (*it).name,
@@ -1370,7 +1385,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						(*it).bmapFile,
 						(*it).l * m,
 						aper,
-						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (G4double)0, (*it).tunnelCavityMaterial));
+						(*it).outR * m , (*it).tunnelMaterial, (*it).tunnelRadius, (G4double)0, (*it).tunnelCavityMaterial, (*it).precisionRegion));
 	}
 	
 
@@ -1775,7 +1790,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 
   G4cout<<"Creating regions..."<<G4endl;
   
-  precisionRegion = new G4Region("precision");
+  precisionRegion = new G4Region("precisionRegion");
    
   G4ProductionCuts* theProductionCuts = new G4ProductionCuts();
   
@@ -1951,10 +1966,8 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 	  rotateComponent->rotateY(-twopi/4-angle/2); 						
 	} else {
 	if ((*iBeam)->GetMarkerLogicalVolume()->GetSolid()->GetName().contains("trapezoid") ){
-	  G4cout << "#%#%#%#%#%#%# this is a trapezoid " << G4endl;
 	  rotateComponent->rotateY(-twopi/4); //Drift trapezoids defined along z axis 
 	}
-	G4cout << "#%#%#%#%#%#%  " << (*iBeam)->GetMarkerLogicalVolume()->GetSolid()->GetName() << G4endl;
       }
     
     					
@@ -1975,10 +1988,10 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 
 
 	// add the wolume to one of the regions
-	if((*iBeam)->GetType() == _ELEMENT)
+	if((*iBeam)->GetPrecisionRegion())
 	  {
 #ifdef DEBUG
-	    G4cout<<"ENCOUNTERED ELEMENT : "<<_ELEMENT<<" ADDING TO PRECISION REG\n";
+	    G4cout<<"ELEMENT IS IN PRECISION REGION: "<<(*iBeam)->GetPrecisionRegion()<< G4endl;
 #endif
 	    LocalLogVol->SetRegion(precisionRegion);
 	    precisionRegion->AddRootLogicalVolume(LocalLogVol);
@@ -2109,8 +2122,10 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 	if(use_graphics)
 	  {
 	    	    (*iBeam)->GetVisAttributes()->SetVisibility(true);
-	                (*iBeam)->GetMarkerLogicalVolume()->
+#ifdef DEBUG
+		    (*iBeam)->GetMarkerLogicalVolume()->
 	    	      SetVisAttributes((*iBeam)->GetVisAttributes());
+#endif
 	  }
 	
       }

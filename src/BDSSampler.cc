@@ -83,7 +83,9 @@ void BDSSampler::SamplerLogicalVolume()
 #endif
      // Sensitive Detector:
 //SPM G4cout << "Sampler.cc Nsamplers " << bdsOutput->nSamplers << G4endl;
-      G4cout << "Sampler.cc Nsamplers " << nSamplers << G4endl;
+#ifdef DEBUG
+      G4cout << "BDSSampler.cc Nsamplers " << nSamplers << G4endl;
+#endif
 
 //SPM if(bdsOutput->nSamplers==0)
       if(nSamplers==0)

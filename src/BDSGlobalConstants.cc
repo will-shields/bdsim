@@ -125,7 +125,7 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
   itsSynchMeanFreeFactor = opt.synchMeanFreeFactor;
   //Synchrotron primary generator
   itsSynchPrimaryGen = false; //XXX check what this is 19/4/11
-  itsLengthSafety = opt.lengthSafety * m;
+  itsLengthSafety = opt.lengthSafety;
   itsNumberToGenerate = opt.numberToGenerate;
   itsNumberOfEventsPerNtuple = opt.numberOfEventsPerNtuple;
   itsEventNumberOffset = opt.eventNumberOffset;

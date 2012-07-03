@@ -218,6 +218,8 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 	  ThisStep->GetTrack()->GetVolume()->GetName()<<G4endl;
 	
 	G4cout<<" Global Position="<<ThisStep->GetTrack()->GetPosition()<<G4endl;
+	G4AffineTransform tf(ThisStep->GetPreStepPoint()->GetTouchableHandle()->GetHistory()->GetTopTransform());
+	G4cout<<" Local Position="<< tf.TransformPoint(ThisStep->GetTrack()->GetPosition()) <<G4endl;
 
 	if(ThisStep->GetTrack()->GetMaterial()->GetName() !="LCVacuum")
 	  G4cout<<"material="<<ThisStep->GetTrack()->GetMaterial()->GetName()<<G4endl;
@@ -238,23 +240,36 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 //====================================================
 
 // -------------  kill tracks according to cuts -------------------
-#ifndef NOSTEPPERCUT
+
 G4String pName=ThisStep->GetTrack()->GetDefinition()->GetParticleName();
+ 
+#ifndef NOSTEPPERCUT
 
 // this cuts apply to default region
-if(pName=="gamma"){
-  if(ThisStep->GetTrack()->GetKineticEnergy()<BDSGlobals->GetThresholdCutPhotons())
-    {
-      ThisStep->GetTrack()->SetTrackStatus(fStopAndKill);
-    }
+ if(pName=="gamma"){
+   if(ThisStep->GetTrack()->GetKineticEnergy()<BDSGlobals->GetThresholdCutPhotons())
+     {
+       ThisStep->GetTrack()->SetTrackStatus(fStopAndKill);
+     }
  } else if(pName=="e-"||pName=="e+"){
-  if(ThisStep->GetTrack()->GetKineticEnergy()<BDSGlobals->GetThresholdCutCharged())
-    {
-      ThisStep->GetTrack()->SetTrackStatus(fStopAndKill);
-    }
+   if(ThisStep->GetTrack()->GetKineticEnergy()<BDSGlobals->GetThresholdCutCharged())
+     {
+       ThisStep->GetTrack()->SetTrackStatus(fStopAndKill);
+     }
  }
 #endif
+
+ //Kill all neutrinos
+ G4bool killNeutrinos = true;
+ if( killNeutrinos ){
+   if( pName=="nu_e" || pName=="nu_mu" || pName=="nu_tau" || pName=="anti_nu_e" || pName=="anti_nu_mu" || pName=="anti_nu_tau" ){
+     ThisStep->GetTrack()->SetTrackStatus(fStopAndKill);
+   }
+ }
 }
+
+
+
 
 
 //====================================================
