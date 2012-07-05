@@ -219,10 +219,7 @@ void BDSPhysicsList::ConstructProcess()
       particle->SetApplyCutsFlag(true);
     }
     G4ProcessManager *pmanager = particle->GetProcessManager();
-#ifndef NOSTEPLIMITER
-    //pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
-    pmanager->AddDiscreteProcess(new G4StepLimiter);
-#endif
+    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
 #ifndef NOUSERSPECIALCUTS
     pmanager->AddDiscreteProcess(new G4UserSpecialCuts);
 #endif
@@ -484,10 +481,6 @@ void BDSPhysicsList::ConstructEM()
     G4ParticleDefinition* particle = theParticleIterator->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
-#ifndef NOSTEPLIMITER
-    //    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
-#endif
-
     if (particleName == "gamma") {
       // gamma         
       pmanager->AddDiscreteProcess(new G4PhotoElectricEffect);
@@ -740,9 +733,6 @@ void BDSPhysicsList::ConstructMuon()
     G4ParticleDefinition* particle = theParticleIterator->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
-#ifndef NOSTEPLIMITER
-    //    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
-#endif
 
     if (particleName == "gamma") {
       // gamma         
@@ -810,9 +800,6 @@ void BDSPhysicsList::ConstructDecay()
     G4ParticleDefinition* particle = theParticleIterator->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
-#ifndef NOSTEPLIMITER
-    //    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
-#endif
     
     if (theDecayProcess->IsApplicable(*particle)) { 
       pmanager -> AddProcess(theDecayProcess);
@@ -853,9 +840,6 @@ void BDSPhysicsList::ConstructEM_Low_Energy()
     G4ParticleDefinition* particle = theParticleIterator->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
-#ifndef NOSTEPLIMITER
-    //    pmanager->AddProcess(new G4StepLimiter,-1,-1,1);
-#endif
      
     if (particleName == "gamma") {
      

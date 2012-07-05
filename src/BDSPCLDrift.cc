@@ -186,7 +186,7 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
   itsInnerBeampipeUserLimits =  new G4UserLimits("inner beampipe cuts");
   itsInnerBeampipeUserLimits->SetUserMinEkine( BDSGlobals->GetThresholdCutCharged());
 
-  G4double stepfactor = 0.5;
+  G4double stepfactor = 5;
 
   itsBeampipeUserLimits->SetMaxAllowedStep(itsLength*stepfactor);
   itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsLength*stepfactor);
@@ -220,11 +220,7 @@ void BDSPCLDrift::BuildBpFieldAndStepper(){
     // set up the magnetic field and stepper
   itsMagField=new BDSMagField(); //Zero magnetic field.
   itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);
-#ifndef NODRIFTSTEPPER
   itsStepper = new BDSDriftStepper(itsEqRhs);
-#else
-  itsStepper = new G4ExactHelixStepper(itsEqRhs); //For constant magnetic field
-#endif
 }
 
 G4VisAttributes* BDSPCLDrift::SetVisAttributes()

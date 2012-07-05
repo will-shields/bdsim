@@ -258,10 +258,8 @@ BDSQuadrupole::BDSQuadrupole(G4String aName, G4double aLength,
 
 void BDSQuadrupole::SynchRescale(G4double factor)
 {
-#ifndef NOQUADSTEPPER
   itsStepper->SetBGrad(factor*itsBGrad);
   itsMagField->SetBGrad(factor*itsBGrad);
-#endif
 #ifdef DEBUG 
   G4cout << "Quad " << itsName << " has been scaled" << G4endl;
 #endif
@@ -276,18 +274,11 @@ G4VisAttributes* BDSQuadrupole::SetVisAttributes()
 void BDSQuadrupole::BuildBPFieldAndStepper()
 {
   // set up the magnetic field and stepper
-  itsMagField=new BDSQuadMagField(itsBGrad);
+  itsMagField=new BDSQuadMagField(1*itsBGrad); //L Deacon checking sign of field 4/7/12
   itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);
 
-#ifndef NOQUADSTEPPER  
   itsStepper=new BDSQuadStepper(itsEqRhs);
   itsStepper->SetBGrad(itsBGrad);
-#else
-  //  itsStepper = new G4HelixMixedStepper(itsEqRhs, 6); //For constant magnetic field
-  //  itsStepper = new G4SimpleRunge(itsEqRhs); //For constant magnetic field
-  //  itsStepper = new G4HelixImplicitEuler(itsEqRhs); //For constant magnetic field
-  itsStepper = new G4CashKarpRKF45(itsEqRhs); //For constant magnetic field
-#endif
 }
 
 void BDSQuadrupole::BuildOuterLogicalVolume()

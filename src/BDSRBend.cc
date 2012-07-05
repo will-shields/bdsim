@@ -281,7 +281,7 @@ void BDSRBend::BuildRBMarkerLogicalVolume()
 			LocalLogicalName+"_rbend_rectangle");
 #ifndef NOUSERLIMITS
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX);
-  itsMarkerUserLimits->SetMaxAllowedStep(itsMagFieldLength);
+  itsMarkerUserLimits->SetMaxAllowedStep(itsMagFieldLength*5);
   itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
   rbendRectangleLogicalVolume->SetUserLimits(itsMarkerUserLimits);
 #endif

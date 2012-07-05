@@ -293,7 +293,7 @@ void BDSSectorBend::BuildSBMarkerLogicalVolume()
 			LocalLogicalName+"_marker");
 
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX, BDSGlobals->GetThresholdCutCharged());
-G4double  maxStepFactor=1e-3;
+G4double  maxStepFactor=0.5;
   itsMarkerUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
   itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
   
@@ -418,7 +418,7 @@ void BDSSectorBend::BuildSBBeampipe()
   itsBeampipeUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
   itsBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
   
-  G4double maxStepFactorIn=1e-3;
+  G4double maxStepFactorIn=0.5;
   itsInnerBeampipeUserLimits =
     new G4UserLimits("inner beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
   		     BDSGlobals->GetThresholdCutCharged());

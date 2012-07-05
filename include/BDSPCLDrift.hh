@@ -57,12 +57,7 @@ private:
 
   //field related objects
   void BuildBpFieldAndStepper();
-#ifndef NODRIFTSTEPPER
   BDSDriftStepper* itsStepper;
-#else
-  //  G4CashKarpRKF45* itsStepper;
-  G4ExactHelixStepper* itsStepper;
-#endif
   BDSMagField* itsMagField;
   G4Mag_UsualEqRhs* itsEqRhs;
 };

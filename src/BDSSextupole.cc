@@ -204,10 +204,8 @@ BDSSextupole::BDSSextupole(G4String aName, G4double aLength,
 
 void BDSSextupole::SynchRescale(G4double factor)
 {
-#ifndef NOSEXTSTEPPER
   itsStepper->SetBDblPrime(factor*itsBDblPrime);
   itsMagField->SetBDblPrime(factor*itsBDblPrime);
-#endif
 #ifdef DEBUG 
   G4cout << "Sext " << itsName << " has been scaled" << G4endl;
 #endif
@@ -223,16 +221,11 @@ G4VisAttributes* BDSSextupole::SetVisAttributes()
 void BDSSextupole::BuildBPFieldAndStepper()
 {
   // set up the magnetic field and stepper
-  itsMagField=new BDSSextMagField(itsBDblPrime);
+  itsMagField=new BDSSextMagField(1*itsBDblPrime); //L Deacon testing field sign 4/7/12
   itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);
 
-#ifndef NOSEXTSTEPPER
   itsStepper=new BDSSextStepper(itsEqRhs);
   itsStepper->SetBDblPrime(itsBDblPrime);
-#else
-  //  itsStepper = new G4HelixImplicitEuler(itsEqRhs); 
-  itsStepper = new G4CashKarpRKF45(itsEqRhs); //For constant magnetic field
-#endif
 }
 
 BDSSextupole::~BDSSextupole()

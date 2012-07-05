@@ -104,11 +104,7 @@ void BDSDrift::BuildBpFieldAndStepper(){
     // set up the magnetic field and stepper
   itsMagField=new BDSMagField(); //Zero magnetic field.
   itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);
-#ifndef NODRIFTSTEPPER
   itsStepper=new BDSDriftStepper(itsEqRhs);
-#else
-  itsStepper = new G4CashKarpRKF45(itsEqRhs); //For constant magnetic field
-#endif
 }
 
 void BDSDrift::BuildBLMs(){

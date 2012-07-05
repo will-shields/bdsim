@@ -46,16 +46,6 @@ if test "$value" == "y"; then
 fi
 fi
 
-printf "The BDSIM magnet steppers and step limiter do not work well when the beam gas pressure is high (>4.5e-9 bar). A G4 stepper can be used instead, however, this will disable the synchRescale (rescaling of magentic field strengths to account for synchrotron radiation energy loss). Do you want to use a G4 stepper instead?\n"
-read -p "[y/n]" value
-if test "$value" == "y"; then
-    NOQUADSTEPPER="-DNOQUADSTEPPER"
-    NOSEXTSTEPPER="-DNOSEXTSTEPPER"
-    NODRIFTSTEPPER="-DNODRIFTSTEPPER"
-    NOSTEPLIMITER="-DNOSTEPLIMITER"
-	         echo "           G4 steppers will be used...."
-fi
-
 
 # Determine G4 installation directory
 
@@ -289,10 +279,6 @@ s%@CLHEP_VERSION@%$CLHEP_version%g;
 s%@USE_ROOT@%$USE_ROOT%g;
 s%@USE_GDML@%$USE_GDML%g;
 s%@USE_LCDD@%$USE_LCDD%g;
-s%@NOQUADSTEPPER@%$NOQUADSTEPPER%g;
-s%@NOSEXTSTEPPER@%$NOSEXTSTEPPER%g;
-s%@NODRIFTSTEPPER@%$NODRIFTSTEPPER%g;
-s%@NOSTEPLIMITER@%$NOSTEPLIMITER%g;
 s%@LCDD_CFLAGS@%$LCDD_CFLAGS%g;
 s%@LCDD_LIBS@%$LCDD_LIBS%g;
 s%@OGLLIBS@%$opengllib%g;
@@ -308,10 +294,6 @@ s%@CLHEP_VERSION@%$CLHEP_version%g;
 s%@USE_ROOT@%$USE_ROOT%g;
 s%@USE_GDML@%$USE_GDML%g;
 s%@USE_LCDD@%$USE_LCDD%g;
-s%@NOQUADSTEPPER@%$NOQUADSTEPPER%g;
-s%@NOSEXTSTEPPER@%$NOSEXTSTEPPER%g;
-s%@NODRIFTSTEPPER@%$NODRIFTSTEPPER%g;
-s%@NOSTEPLIMITER@%$NOSTEPLIMITER%g;
 s%@LCDD_CFLAGS@%$LCDD_CFLAGS%g;
 s%@LCDD_LIBS@%$LCDD_LIBSS%g;
 s%@OGLLIBS@%$opengllib%g;

@@ -61,14 +61,7 @@ private:
   G4VisAttributes* SetVisAttributes();
 
   // field related objects:
-#ifndef NOQUADSTEPPER
   BDSQuadStepper* itsStepper;
-#else
-  //  G4HelixMixedStepper* itsStepper;
-  //  G4SimpleRunge* itsStepper;
-  //  G4HelixImplicitEuler* itsStepper;
-  G4CashKarpRKF45* itsStepper;
-#endif
   BDSQuadMagField* itsMagField;
   G4Mag_UsualEqRhs* itsEqRhs;
 
