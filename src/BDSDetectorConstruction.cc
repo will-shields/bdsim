@@ -2138,7 +2138,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
       if((*it).type==_TUNNEL ) {
 	G4cout<<"BUILDING TUNNEL : "<<(*it).l<<"  "<<(*it).name<<G4endl;
 	
-	G4String gFormat="",  gFile="";
+	G4String gFormat="",  GFile="";
 	G4String geometry = (*it).geometryFile;
 
 	// get geometry format and file
@@ -2151,17 +2151,17 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 	
 	else {
 	  gFormat = geometry.substr(0,pos);
-	  gFile = geometry.substr(pos+1,geometry.length() - pos); 
+	  GFile = geometry.substr(pos+1,geometry.length() - pos); 
 	}
 	
 	G4cout<<"placing components\n: geometry format - "<<gFormat<<G4endl<<
-	  "file - "<<gFile<<G4endl;
+	  "file - "<<GFile<<G4endl;
 	
 	GGmadDriver *ggmad;
 	
 	if(gFormat=="gmad") {
 	 
-	  ggmad = new GGmadDriver(gFile);
+	  ggmad = new GGmadDriver(GFile);
 	  ggmad->Construct(logicWorld);
 
 	  
