@@ -61,7 +61,7 @@ public:
   const G4String GetType () const;
   void SetType(G4String aType);
 
-  const G4int GetPrecisionRegion() const; //0 = no precision region, 1 = precision region 1, 2 = precision region 2.
+  G4int GetPrecisionRegion() const; //0 = no precision region, 1 = precision region 1, 2 = precision region 2.
   void SetPrecisionRegion(G4int aPrecisionRegion);
   
 
@@ -530,7 +530,7 @@ inline const G4String BDSAcceleratorComponent::GetType () const
 inline void BDSAcceleratorComponent::SetType (G4String aType)
 {itsType=aType;}
 
-inline const G4int BDSAcceleratorComponent::GetPrecisionRegion () const
+inline G4int BDSAcceleratorComponent::GetPrecisionRegion () const
 {return itsPrecisionRegion;}
 
 inline void BDSAcceleratorComponent::SetPrecisionRegion (G4int aPrecisionRegion)
