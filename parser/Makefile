@@ -21,7 +21,7 @@ LIBEXT=dylib
 endif
 LIBNAME=libgmad.$(LIBEXT)
 
-CPPFLAGS += -Wno-deprecated
+CPPFLAGS += -Wno-write-strings
 
 ifeq ($(OS),Darwin)
 CPPFLAGS_PARSELIB = -O2
