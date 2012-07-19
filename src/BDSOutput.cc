@@ -49,9 +49,9 @@ void BDSOutput::SetFormat(G4int val)
 }
 
 // output initialization (ROOT only)
-#ifdef USE_ROOT
 void BDSOutput::Init(G4int FileNum)
 {
+#ifdef USE_ROOT
   if(format != _ROOT) return;
 
   // set up the root file
@@ -178,8 +178,8 @@ void BDSOutput::Init(G4int FileNum)
   PrecisionRegionEnergyLossTree->Branch("weight",&weight_el,"weight/F");
   PrecisionRegionEnergyLossTree->Branch("partID",&part_el,"partID/I");
   PrecisionRegionEnergyLossTree->Branch("volumeName",&volumeName_el,"volumeName/C");
-}
 #endif // USE_ROOT
+}
 
 void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
 {
@@ -444,14 +444,16 @@ void BDSOutput::Echo(G4String str)
 //G4int BDSOutput::Commit(G4int FileNum)
 G4int BDSOutput::Commit()
 {
+#ifdef USE_ROOT
   Write();
   Init(outputFileNumber++);
+#endif
   return 0;
 }
 
-#ifdef USE_ROOT
 void BDSOutput::Write()
 {
+#ifdef USE_ROOT
   if(format == _ROOT){
     if(theRootOutputFile->IsOpen())
       {
@@ -460,5 +462,5 @@ void BDSOutput::Write()
 	delete theRootOutputFile;
       }
   }
-}
 #endif
+}
