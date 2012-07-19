@@ -21,15 +21,15 @@ LIBEXT=dylib
 endif
 LIBNAME=libgmad.$(LIBEXT)
 
-CPPFLAGS_PARSELIB=-Wno-deprecated
+CPPFLAGS += -Wno-deprecated
 
 ifeq ($(OS),Darwin)
-CPPFLAGS_PARSELIB=$(CPPFLAGS_PARSELIB) -O2
+CPPFLAGS_PARSELIB = -O2
 LDFLAGS=-dynamiclib -undefined error
 endif
 
 ifeq ($(OS),Linux)
-CPPFLAGS_PARSELIB=$(CPPFLAGS_PARSELIB) -W1 -g
+CPPFLAGS_PARSELIB = -W1 -g
 LDFLAGS=-shared
 endif
 

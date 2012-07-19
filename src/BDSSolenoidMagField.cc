@@ -13,7 +13,7 @@ BDSSolenoidMagField::BDSSolenoidMagField(G4double aBField):itsBField(aBField){
 }
 BDSSolenoidMagField::~BDSSolenoidMagField(){}
 
-void BDSSolenoidMagField::GetFieldValue( const G4double /*Point[4]*/,
+void BDSSolenoidMagField::GetFieldValue( const G4double* /*Point[4]*/,
 				      G4double *Bfield ) const
 {
   G4Navigator* Navigator=
