@@ -105,7 +105,7 @@ BDSDetectorMessenger::~BDSDetectorMessenger()
 
 //=================================================================
 
-void BDSDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
+void BDSDetectorMessenger::SetNewValue(G4UIcommand* /*command*/,G4String /*newValue*/)
 { 
   //  if( command == AbsMaterCmd )
   //   { BDSDetector->SetAbsorberMaterial(newValue);}

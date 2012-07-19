@@ -63,7 +63,7 @@ G4VParticleChange* BDSXSBias::PostStepDoIt(
       pionEvent=true;
     }
     if(std::abs(pChange->GetSecondary(i)->GetDefinition()->GetPDGEncoding())==22){
-      if (pionEvent=true){
+      if (pionEvent==true){
         gammaInPionEvent = true;
       }
     }

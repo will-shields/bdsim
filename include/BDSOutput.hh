@@ -33,7 +33,6 @@ const G4int _ASCII = 0;
 const G4int _ROOT = 1;
 const G4int _ASCII_ROOT = 2;
 
-
 class BDSOutput {
 
 public: 
@@ -41,7 +40,6 @@ public:
   BDSOutput(G4int format);
 
   void SetFormat(G4int format);
-  void Init(G4int FileNum);
   ~BDSOutput();
 
   void WriteHits(BDSSamplerHitsCollection*);
@@ -52,12 +50,15 @@ public:
   void Echo(G4String str);
 
   G4int Commit(); //G4int FileNum);   // close the event
-  void Write();           // close the event
-
 
   // for root output
 
 #ifdef USE_ROOT
+private:
+  void Write();           // close the event
+  void Init(G4int FileNum);
+
+public:
   TFile* theRootOutputFile;
   TTree *theLWCalorimeterTree;
 

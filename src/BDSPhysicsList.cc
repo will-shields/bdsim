@@ -1339,6 +1339,7 @@ void BDSPhysicsList::ConstructHad()
    }
 }
 
+/*
 void BDSPhysicsList::ConstructPhotolepton_Hadron(){
   G4TheoFSGenerator * theModel;
   G4GeneratorPrecompoundInterface * theCascade;
@@ -1381,7 +1382,7 @@ void BDSPhysicsList::ConstructPhotolepton_Hadron(){
   thePositronNuclearProcess->RegisterMe(theElectroReaction);
   aProcMan->AddDiscreteProcess(thePositronNuclearProcess);
 }
-
+*/
 
 void BDSPhysicsList::ConstructHadronic()
 {

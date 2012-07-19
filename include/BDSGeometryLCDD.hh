@@ -367,7 +367,7 @@ inline G4double BDSGeometryLCDD::parseDblChar(xmlChar* value)
 		   val.data()[endpos] == '-' ||
 		   val.data()[endpos] == '*' ||
 		   val.data()[endpos] == '/' ||
-		   endpos>=val.length())     &&
+		   endpos>=(int)val.length())     &&
 		  (val.data()[startpos-1] == '+' ||
 		   val.data()[startpos-1] == '-' ||
 		   val.data()[startpos-1] == '*' ||

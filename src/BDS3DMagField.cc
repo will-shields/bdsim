@@ -52,7 +52,7 @@ BDS3DMagField::BDS3DMagField( const char* filename, double zOffset )
   
   // Read in the data
   double xval,yval,zval,bx,by,bz;
-  double permeability; // Not used in this example.
+  //  double permeability; // Not used in this example.
   for (ix=0; ix<nx; ix++) {
     for (iy=0; iy<ny; iy++) {
       for (iz=0; iz<nz; iz++) {

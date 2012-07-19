@@ -55,8 +55,10 @@ public:
   void ConstructLaserWire();
 
   void ConstructHadronic();
-
-  void ConstructPhotolepton_Hadron();
+  
+  // method not finished? (and not used) 
+  // I comment it out for now -- J. Snuverink, 16/07/12 
+  // void ConstructPhotolepton_Hadron();
 
   void ConstructHad();
 

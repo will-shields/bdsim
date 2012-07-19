@@ -17,14 +17,13 @@ using namespace std;
 G4Allocator<BDSEnergyCounterHit> BDSEnergyCounterHitAllocator;
 
 BDSEnergyCounterHit::  BDSEnergyCounterHit(G4int nCopy, G4double Energy, G4double x, G4double y, G4double z, G4String name, G4int partID, G4double weight, G4bool precisionRegion):
-  itsEnergy(Energy*weight),itsCopyNumber(nCopy),
-  itsName(name),
-  itsZ(z),
+  itsEnergy(Energy*weight), itsEnergyWeightedX(x*Energy*weight), itsEnergyWeightedY(y*Energy*weight), itsEnergyWeightedZ(z*Energy*weight),
+  itsX(x), itsY(y), itsZ(z),
   itsWeight(weight),
-  itsX(x), itsY(y),
+  itsCopyNumber(nCopy),
   itsPartID(partID),
-  itsEnergyWeightedZ(z*Energy*weight),
-  itsEnergyWeightedX(x*Energy*weight), itsEnergyWeightedY(y*Energy*weight), itsPrecisionRegion(precisionRegion)
+  itsName(name),
+  itsPrecisionRegion(precisionRegion)
 {
   /*
   cout << "BDSEnergyCounterHit> E = " << itsEnergy << endl;

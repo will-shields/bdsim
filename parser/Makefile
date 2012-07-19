@@ -21,18 +21,22 @@ LIBEXT=dylib
 endif
 LIBNAME=libgmad.$(LIBEXT)
 
+CPPFLAGS_PARSELIB=-Wno-deprecated
+
 ifeq ($(OS),Darwin)
-LDFLAGS=-O2 -dynamiclib -undefined error
+CPPFLAGS_PARSELIB=$(CPPFLAGS_PARSELIB) -O2
+LDFLAGS=-dynamiclib -undefined error
 endif
 
 ifeq ($(OS),Linux)
-LDFLAGS=-W1 -shared -g 
+CPPFLAGS_PARSELIB=$(CPPFLAGS_PARSELIB) -W1 -g
+LDFLAGS=-shared
 endif
 
 #parsing library
 
 $(LIBNAME) : $(OBJ)
-	$(CC) $(CPPFLAGS) $(LDFLAGS) -o $(LIBNAME) $(OBJ) $(LIB)
+	$(CC) $(CPPFLAGS) $(CPPFLAGS_PARSELIB) $(LDFLAGS) -o $(LIBNAME) $(OBJ) $(LIB)
 
 
 # gmad parser

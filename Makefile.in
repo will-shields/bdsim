@@ -62,7 +62,7 @@ CPPFLAGS += @USE_ROOT@ -DCLHEP_VERSION=@CLHEP_VERSION@
 CPPFLAGS += -I./parser
 CPPFLAGS += $(ROOTCFLAGS) 
 CPPFLAGS += @USE_GDML@ @USE_LCDD@ @LCDD_CFLAGS@ 
-CPPFLAGS += -g -Wall -Wno-non-virtual-dtor -I.
+CPPFLAGS += -g -Wall -Wno-non-virtual-dtor -Wno-deprecated -I.
 
 LDFLAGS += -L$(G4LIBDIR) -L./parser -lgmad @LCDD_LIBS@
 
