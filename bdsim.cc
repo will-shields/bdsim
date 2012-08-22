@@ -455,15 +455,15 @@ int main(int argc,char** argv) {
   runManager->Initialize();
 
   //Create a geometric importance sampling store
-  if(BDSGlobals->GetGeometryBias()){
-    G4VIStore *aIstore = 0;
-    aIstore = detector->CreateImportanceStore();
-    G4GeometrySampler mgs(detector->GetWorldVolume(),"neutron");
-    mgs.SetParallel(false);
-    G4ImportanceAlgorithm* importanceAlgorithm = new G4ImportanceAlgorithm();
-    mgs.PrepareImportanceSampling(aIstore, 0);//,0);
-    mgs.Configure();
-  }
+  //  if(BDSGlobals->GetGeometryBias()){
+  //    G4VIStore *aIstore = 0;
+  //    aIstore = detector->CreateImportanceStore();
+  //    G4GeometrySampler mgs(detector->GetWorldVolume(),"neutron");
+  //    mgs.SetParallel(false);
+  //    G4ImportanceAlgorithm* importanceAlgorithm = new G4ImportanceAlgorithm();
+  //    mgs.PrepareImportanceSampling(aIstore, 0);//,0);
+  //    mgs.Configure();
+  //  }
 
 
   //
@@ -479,7 +479,14 @@ int main(int argc,char** argv) {
     ->SetVerboseLevel(verboseSteppingLevel);
 
   //Close the geometry
-  G4bool bCloseGeometry = G4GeometryManager::GetInstance()->CloseGeometry(true,true);
+  try{
+    G4bool bCloseGeometry = G4GeometryManager::GetInstance()->CloseGeometry(true,true);
+    if(!bCloseGeometry) throw "bdsim.cc: error - geometry not closed.";
+  }
+  catch (char* strng) {
+    G4cerr << "Exception raised: " << strng << G4endl;
+    return 1;
+  }
 
   bdsOutput->Init(0); // activate the output - setting the first filename to 
                      // be appended with _0

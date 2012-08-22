@@ -98,29 +98,37 @@ void BDSCollimator::BuildInnerCollimator()
 {
 
   // zero aperture --> no aperture
-  if(itsXAper <= 0) itsXAper = BDSGlobals->GetComponentBoxSize()/2;
-  if(itsYAper <= 0) itsYAper = BDSGlobals->GetComponentBoxSize()/2;
+  if(itsXAper <= 0) itsXAper = DBL_MIN;//BDSGlobals->GetComponentBoxSize()/2;
+  if(itsYAper <= 0) itsYAper = DBL_MIN;//BDSGlobals->GetComponentBoxSize()/2;
 
-  if(itsType == "rcol")
-    {
-      itsInnerSolid=new G4Box(itsName+"_inner",
-			      itsXAper,
-			      itsYAper,
-			      itsLength/2);
-    }
+  if( (itsXAper>0) && (itsYAper>0) ){
+    G4cout << "BDSCollimator: building aperture" << G4endl;
+    if(itsType == "rcol")
+      {
+	itsInnerSolid=new G4Box(itsName+"_inner",
+				itsXAper,
+				itsYAper,
+				itsLength/2);
+      }
+    
+    if(itsType == "ecol")
+      {
+	itsInnerSolid=new G4EllipticalTube(itsName+"_inner",
+					   itsXAper,
+					   itsYAper,
+					   itsLength/2);
+      }
   
-  if(itsType == "ecol")
-    {
-      itsInnerSolid=new G4EllipticalTube(itsName+"_inner",
-					 itsXAper,
-					 itsYAper,
-					 itsLength/2);
-    }
-  
-  itsInnerLogVol=
-    new G4LogicalVolume(itsInnerSolid,
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
-			itsName+"_inner_log");
+    itsInnerLogVol=
+      new G4LogicalVolume(itsInnerSolid,
+			  theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			  itsName+"_inner_log");
+
+#ifndef NOUSERLIMITS
+  itsInnerLogVol-> SetUserLimits(itsUserLimits);
+#endif
+
+  }
   
   itsOuterSolid = new G4Box(itsName+"_outer_solid",
 			    itsOuterR,
@@ -130,21 +138,17 @@ void BDSCollimator::BuildInnerCollimator()
   G4ThreeVector nullThreeVector = G4ThreeVector(0,0,0);
   G4RotationMatrix *nullRotationMatrix = new G4RotationMatrix();  
 
-  
-  itsSolid = new G4SubtractionSolid(itsName+"_solid",itsOuterSolid,itsInnerSolid, nullRotationMatrix, nullThreeVector);
-
   itsSolidLogVol=
     new G4LogicalVolume(itsOuterSolid,
                         itsCollimatorMaterial,
 			itsName+"_solid_log");
   
- #ifndef NOUSERLIMITS
+#ifndef NOUSERLIMITS
   itsUserLimits = new G4UserLimits();
   itsUserLimits->SetMaxAllowedStep(itsLength);
   itsUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
   itsUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
   itsSolidLogVol-> SetUserLimits(itsUserLimits);
-  itsInnerLogVol-> SetUserLimits(itsUserLimits);
   itsMarkerLogicalVolume->SetUserLimits(itsUserLimits);
 #endif
   itsPhysiComp = 
@@ -157,22 +161,25 @@ void BDSCollimator::BuildInnerCollimator()
 		      false,		     // no boolean operation
 		      0, BDSGlobals->GetCheckOverlaps());		     // copy number  
 
-
+  if( (itsXAper>0) && (itsYAper>0) ){
+    G4cout << "BDSCollimator: placing aperture" << G4endl;
     itsPhysiComp2 = 
-    new G4PVPlacement(
-    nullRotationMatrix,  // no rotation
-    nullThreeVector,     // its position
-    itsInnerLogVol,      // its logical volume
-    itsName+"_inner_phys", // its name
-    itsSolidLogVol,      // its mother  volume
-    false,		   // no boolean operation
-    0, BDSGlobals->GetCheckOverlaps());		   // copy number 
-
+      new G4PVPlacement(
+			nullRotationMatrix,  // no rotation
+			nullThreeVector,     // its position
+			itsInnerLogVol,      // its logical volume
+			itsName+"_inner_phys", // its name
+			itsSolidLogVol,      // its mother  volume
+			false,		   // no boolean operation
+			0, BDSGlobals->GetCheckOverlaps());		   // copy number 
+    SetMultiplePhysicalVolumes(itsPhysiComp2);
+  } 
+  
   if(BDSGlobals->GetSensitiveComponents()){
     SetSensitiveVolume(itsSolidLogVol);
   }
   SetMultiplePhysicalVolumes(itsPhysiComp);
-  SetMultiplePhysicalVolumes(itsPhysiComp2);
+  G4cout << "BDSCollimator: finished building geometry" << G4endl;
 }
 
 
