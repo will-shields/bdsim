@@ -1,0 +1,1 @@
+../bdsimsvn-git/CTestConfig.cmake
