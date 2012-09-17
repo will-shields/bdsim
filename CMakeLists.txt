@@ -1,1 +1,0 @@
-../bdsimsvn-git/CMakeLists.txt

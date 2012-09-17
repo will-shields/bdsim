@@ -1,1 +1,0 @@
-../bdsimsvn-git/UseGeant4.cmake
