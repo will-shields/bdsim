@@ -62,10 +62,6 @@ set(G4MINORVERSION 4)
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/parser/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-# xerces library (to be fixed):
-set(XercesC_LIBRARY_DIR /afs/cern.ch/sw/lcg/external/XercesC/3.1.0/x86_64-slc5-gcc43-opt/lib)
-link_directories(${XercesC_LIBRARY_DIR})
-
 # For now suppressing a lot of the warnings...
 set(WFLAGS "-Wall  -Wno-non-virtual-dtor -Wno-write-strings -Wno-deprecated")
 set(CMAKE_FLAGS "${CMAKE_FLAGS} ${CLHEP_DEFINITIONS}  ${WFLAGS}")
@@ -84,6 +80,20 @@ set_target_properties(bdsimexec PROPERTIES OUTPUT_NAME bdsim)
 target_link_libraries(bdsimexec bdsim gmad)
 target_link_libraries(bdsim ${CLHEP_LIBRARIES})
 target_link_libraries(bdsim ${Geant4_LIBRARIES})
+
+# xercesc library (to be fixed):
+set(XercesC_LIBRARY_DIR /afs/cern.ch/sw/lcg/external/XercesC/3.1.0/x86_64-slc5-gcc43-opt/lib)
+if (XercesC_LIBRARY_DIR)
+    # YIL simple array with all libraries:
+    if(APPLE)
+        file(GLOB XercesC_LIBRARIES ${XercesC_LIBRARY_DIR}/libxerces-c*.dylib)
+    else()
+        file(GLOB XercesC_LIBRARIES ${XercesC_LIBRARY_DIR}/libxerces-c*.so)
+    endif()
+endif()
+#message("XercesC_LIBRARIES: ${XercesC_LIBRARIES}")
+
+target_link_libraries(bdsim ${XercesC_LIBRARIES})
 
 if(USE_ROOT)
     target_link_libraries(bdsimexec ${ROOT_LIBRARIES})
