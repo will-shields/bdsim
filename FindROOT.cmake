@@ -7,28 +7,32 @@
 # This module sets up ROOT information 
 # We suppose root-config to be in the PATH. Otherwise we stop.
 
-Find_program(ROOT_CONFIG root-config)
+MESSAGE(STATUS "Looking for ROOT...")
+Find_program(ROOT_CONFIG root-config ${ROOTSYS}/bin)
 
 If (${ROOT_CONFIG} MATCHES "ROOT_CONFIG-NOTFOUND")
   Set(ROOT_FOUND FALSE)
-  Message(STATUS "Install Root and make sure it is in the PATH")
 
-Else (${ROOT_CONFIG} MATCHES "ROOT_CONFIG-NOTFOUND")  
+  MESSAGE(STATUS "root-config not found in PATH")
+
+Else (${ROOT_CONFIG} MATCHES "ROOT_CONFIG-NOTFOUND")
   
+  MESSAGE(STATUS "Looking for ROOT... - found")
+
   Set(ROOT_FOUND TRUE)
 
   Execute_process(
-    COMMAND root-config --prefix 
+    COMMAND ${ROOT_CONFIG} --prefix 
     OUTPUT_VARIABLE ROOTSYS 
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
   Execute_process(
-    COMMAND root-config --arch
+    COMMAND ${ROOT_CONFIG} --arch
     OUTPUT_VARIABLE ALICE_TARGET
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
   Execute_process(
-    COMMAND root-config --f77 
+    COMMAND ${ROOT_CONFIG} --f77 
     OUTPUT_VARIABLE _f77 
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   If(APPLE)
@@ -42,7 +46,7 @@ Else (${ROOT_CONFIG} MATCHES "ROOT_CONFIG-NOTFOUND")
   Endif(APPLE)
 
   Execute_process(
-    COMMAND root-config --cc
+    COMMAND ${ROOT_CONFIG} --cc
     OUTPUT_VARIABLE _cc 
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   If(APPLE)
@@ -56,7 +60,7 @@ Else (${ROOT_CONFIG} MATCHES "ROOT_CONFIG-NOTFOUND")
   Endif(APPLE)
 
   Execute_process(
-    COMMAND root-config --cxx
+    COMMAND ${ROOT_CONFIG} --cxx
     OUTPUT_VARIABLE _cxx
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   If(APPLE)
@@ -70,21 +74,21 @@ Else (${ROOT_CONFIG} MATCHES "ROOT_CONFIG-NOTFOUND")
   Endif(APPLE)
 
   Execute_process(
-    COMMAND root-config --version 
+    COMMAND ${ROOT_CONFIG} --version 
     OUTPUT_VARIABLE ROOT_VERSION
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
   Execute_process(
-    COMMAND root-config --incdir
+    COMMAND ${ROOT_CONFIG} --incdir
     OUTPUT_VARIABLE ROOT_INCLUDE_DIR
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
   Execute_process(
-    COMMAND root-config --glibs
+    COMMAND ${ROOT_CONFIG} --glibs
     OUTPUT_VARIABLE ROOT_LIBRARIES
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-  Find_program(ROOTCINT rootcint)
+  Find_program(ROOTCINT rootcint ${ROOTSYS}/bin)
   If(NOT ROOTCINT)
     Message(FATAL_ERROR "Found ROOT but not rootcint, your ROOT installation is corrupted")
   EndIf(NOT ROOTCINT)
