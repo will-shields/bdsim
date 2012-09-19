@@ -3,9 +3,11 @@ CC=g++
 OBJ=gmad.o lex.yy.o parser.tab.o 
 LIB=-lfl
 
+#LEX=./flex-2.5.4/flex
 LEX=flex
 LOPT=-i
 
+#YACC=./bison-2.3/src/bison
 YACC=bison
 YOPT=-d -v
 
@@ -61,7 +63,9 @@ parser.tab.h parser.tab.c : parser.y parser.h
 	$(YACC) $(YOPT) parser.y
 
 clean :
-	rm -f parser $(LIBNAME) $(OBJ) lex.yy.c parser.tab.c parser.tab.h *~
+	rm -f parser $(LIBNAME) $(OBJ) *~
+#	rm -f parser $(LIBNAME) $(OBJ) lex.yy.c parser.tab.c parser.tab.h *~
+
 
 cleandist :
 	@echo "Cleaning up gmad parser temporary files..."

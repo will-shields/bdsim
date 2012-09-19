@@ -9,7 +9,7 @@
   extern int line_num;
   extern char* yyfilename;
 
-   const int ECHO_GRAMMAR = 0; // print grammar rule expansion (for debugging)
+  const int ECHO_GRAMMAR = 0; // print grammar rule expansion (for debugging)
   const int VERBOSE = 0; // print warnings and errors
   const int VERBOSE_EXPAND = 0; // print the process of line expansion 
   const int INTERACTIVE = 0; // print output of commands (like in interactive mode)

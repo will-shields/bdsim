@@ -401,19 +401,19 @@ private:
   G4AffineTransform itsRefTransform;
 };
 
-inline G4double ::BDSGlobalConstants::GetElossHistoBinWidth(){
+inline G4double BDSGlobalConstants::GetElossHistoBinWidth(){
   return itsElossHistoBinWidth;
 }
 
-inline G4double ::BDSGlobalConstants::GetElossHistoTransBinWidth(){
+inline G4double BDSGlobalConstants::GetElossHistoTransBinWidth(){
   return itsElossHistoTransBinWidth;
 }
 
-inline G4double ::BDSGlobalConstants::GetDefaultRangeCut(){
+inline G4double BDSGlobalConstants::GetDefaultRangeCut(){
   return itsDefaultRangeCut;
 }
 
-inline G4double ::BDSGlobalConstants::GetFFact(){
+inline G4double BDSGlobalConstants::GetFFact(){
   return itsFFact;
 }
 

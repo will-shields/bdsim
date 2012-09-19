@@ -40,7 +40,9 @@ BDSGen5Shell::BDSGen5Shell(G4double InnerRad, G4double OuterRad):
 
 BDSGen5Shell::~BDSGen5Shell()
 {
-  delete[] itsVec;
+  // Not allocated cannot be deleted SB
+  //  delete[] itsVec;
+  
 }
 
 
