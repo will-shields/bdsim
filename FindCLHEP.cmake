@@ -15,11 +15,10 @@
 # include directory:
 if (NOT CLHEP_INCLUDE_DIR)
   FIND_PATH(CLHEP_INCLUDE_DIR NAMES CLHEP clhep)
+  message(STATUS "CLHEP_INCLUDE_DIR: ${CLHEP_INCLUDE_DIR}")
 endif()
 
 #libraries:
-#FIND_LIBRARY(CLHEP_LIBRARIES NAMES CLHEP PATH_SUFFIXES clhep CLHEP)
-
 if (CLHEP_LIBRARY_DIR)
     # YIL simple array with all libraries:
     if(APPLE)
@@ -27,6 +26,8 @@ if (CLHEP_LIBRARY_DIR)
     else()
         file(GLOB CLHEP_LIBRARIES ${CLHEP_LIBRARY_DIR}/libCLHEP*.so)
     endif()
+else()
+    FIND_LIBRARY(CLHEP_LIBRARIES NAMES CLHEP PATH_SUFFIXES clhep CLHEP)
 endif()
 
 #message("CLHEP_LIBRARIES: ${CLHEP_LIBRARIES}")

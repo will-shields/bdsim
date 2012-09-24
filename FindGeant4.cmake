@@ -8,63 +8,54 @@
 #  Geant4_FOUND - system has Geant4
 #  Geant4_INCLUDE_DIR - the Geant4 include directory
 #  Geant4_LIBRARIES - The libraries needed to use Geant4
-#  Geant4_DEFINITIONS - Compiler switches required for using Geant4
 #
 
-if (Geant4_INCLUDE_DIR AND Geant4_LIBRARY_DIR)
-  SET (Geant4_INCLUDE_DIR Geant4_INCLUDE_DIR-NOTFOUND)
-  SET (Geant4_LIB_DIR Geant4_LIB_DIR-NOTFOUND)
-  SET (Geant4_PLISTS_LIB_DIR Geant4_PLISTS_LIB_DIR-NOTFOUND)
-  SET (Geant4_DIR Geant4_DIR-NOTFOUND)
-endif (Geant4_INCLUDE_DIR AND Geant4_LIBRARY_DIR)
+message(STATUS "Looking for Geant4...")
 
-MESSAGE(STATUS "Looking for Geant4...")
+# include directory
 
-#FIND_PATH(Geant4_DIR NAMES env.sh PATHS
-#  ${SIMPATH}/transport/geant4
-#  ${SIMPATH}/transport/geant4/source
-#  NO_DEFAULT_PATH
-#)
+if (NOT Geant4_INCLUDE_DIR)
+  FIND_PATH(Geant4_INCLUDE_DIR NAMES Geant4 geant4)
+endif (NOT Geant4_INCLUDE_DIR)
 
-# commented out for now - JS
-#FIND_PATH(Geant4_INCLUDE_DIR NAMES G4Event.hh PATHS
-#  ${SIMPATH}/transport/geant4/include
-#  NO_DEFAULT_PATH
-#)
+if (NOT Geant4_INCLUDE_DIR)
+   message(STATUS "Geant4 include directory not found, trying default, please provide it with -DGeant4_INCLUDE_DIR=")
+   if (APPLE)
+       set(Geant4_INCLUDE_DIR /opt/local/include)
+   else()
+       set(Geant4_INCLUDE_DIR /usr/include)
+   endif()
+endif()
 
-# SET(Geant4_INCLUDE_DIR
-# ${SIMPATH}/transport/geant4/include
-# ${SIMPATH}/transport/geant4/source/interfaces/common/include 
-# ${SIMPATH}/transport/geant4/physics_lists/hadronic/Packaging/include   
-# ${SIMPATH}/transport/geant4/physics_lists/hadronic/QGSP/include
-# )
+# library directory
 
-#FIND_PATH(Geant4_LIB_DIR NAMES libG4baryons.so libG4baryons.dylib PATHS
-#  ${SIMPATH}/transport/geant4/lib/Linux-g++
-#  ${SIMPATH}/transport/geant4/lib/Linux-icc
-#  ${SIMPATH}/transport/geant4/lib
-#  NO_DEFAULT_PATH
-#)
-
-IF (Geant4_LIB_DIR)
-  SET(Geant4_LIBRARY_DIR ${Geant4_LIB_DIR})
-ENDIF (Geant4_LIB_DIR)
-
-if (Geant4_INCLUDE_DIR AND Geant4_LIBRARY_DIR)
-   set(Geant4_FOUND TRUE)
-endif (Geant4_INCLUDE_DIR AND Geant4_LIBRARY_DIR)
+if(Geant4_LIBRARY_DIR)
+  FIND_LIBRARY(Geant4_LIBRARIES NAMES Geant4 PATH_SUFFIXES geant4 Geant4)
+else(Geant4_LIBRARY_DIR)
+   message(STATUS "Geant4 library directory not found, trying default, please provide it with -DGeant4_LIBRARY_DIR=")
+   if (APPLE)
+      set(Geant4_LIBRARY_DIR /opt/local/lib)
+   else()
+      set(Geant4_LIBRARY_DIR /usr/lib)
+   endif()
+endif(Geant4_LIBRARY_DIR)
 
 if (Geant4_LIBRARY_DIR)
     # YIL simple array with all libraries:
     if(APPLE)
-        file(GLOB Geant4_LIBRARIES ${Geant4_LIBRARY_DIR}/libG4*.dylib ${G4_SUPPORT)
+        file(GLOB Geant4_LIBRARIES ${Geant4_LIBRARY_DIR}/libG4*.dylib ${G4_SUPPORT})
     else()
         file(GLOB Geant4_LIBRARIES ${Geant4_LIBRARY_DIR}/libG4*.so)
     endif()
-endif()
+endif(Geant4_LIBRARY_DIR)
 
-#message("Geant4_LIBRARY_DIR: ${Geant4_LIBRARY_DIR}")
-#message("Geant4_LIBRARIES: ${Geant4_LIBRARIES}")
+if (Geant4_INCLUDE_DIR AND Geant4_LIBRARIES)
+   set(Geant4_FOUND TRUE)
+endif (Geant4_INCLUDE_DIR AND Geant4_LIBRARIES)
+
+message("Geant4_INCLUDE_DIR: ${Geant4_INCLUDE_DIR}")
+message("Geant4_LIBRARY_DIR: ${Geant4_LIBRARY_DIR}")
+message("Geant4_LIBRARIES: ${Geant4_LIBRARIES}")
 
 if (Geant4_FOUND)
   if (NOT Geant4_FIND_QUIETLY)
