@@ -53,9 +53,9 @@ if (Geant4_INCLUDE_DIR AND Geant4_LIBRARIES)
    set(Geant4_FOUND TRUE)
 endif (Geant4_INCLUDE_DIR AND Geant4_LIBRARIES)
 
-message("Geant4_INCLUDE_DIR: ${Geant4_INCLUDE_DIR}")
-message("Geant4_LIBRARY_DIR: ${Geant4_LIBRARY_DIR}")
-message("Geant4_LIBRARIES: ${Geant4_LIBRARIES}")
+message(STATUS "Geant4_INCLUDE_DIR: ${Geant4_INCLUDE_DIR}")
+message(STATUS "Geant4_LIBRARY_DIR: ${Geant4_LIBRARY_DIR}")
+#message(STATUS "Geant4_LIBRARIES: ${Geant4_LIBRARIES}")
 
 if (Geant4_FOUND)
   if (NOT Geant4_FIND_QUIETLY)

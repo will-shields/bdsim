@@ -31,7 +31,7 @@ else()
 endif()
 
 # CLHEP
-if (USE_AFS)
+if (USE_AFS AND NOT CLHEP_INCLUDE_DIR)
    set(CLHEP_INCLUDE_DIR /afs/cern.ch/sw/lcg/external/clhep/2.1.0.1/x86_64-slc5-gcc43-opt/include)
 endif()
 if (USE_AFS AND NOT CLHEP_LIBRARY_DIR)
@@ -63,14 +63,19 @@ if(USE_ROOT)
     include_directories(${ROOT_INCLUDE_DIR})
 endif()
 
-# GDML (off for now, as xerces include to be fixed)
+# add xercesc include path:
+if(USE_AFS)
+   set(XercesC_INCLUDE_DIR /afs/cern.ch/sw/lcg/external/XercesC/3.1.0/x86_64-slc5-gcc43-opt/include)
+   set(XercesC_LIBRARY_DIR /afs/cern.ch/sw/lcg/external/XercesC/3.1.0/x86_64-slc5-gcc43-opt/lib)
+endif()
+find_package(XercesC REQUIRED)
+include_directories(${XercesC_INCLUDE_DIR})
+
+# GDML (on for now, but xerces include to be fixed)
 
 option( USE_GDML "Include GDML support."  ON )
 if(USE_GDML)
    add_definitions("-DUSE_GDML")
-   # add xercesc include path:
-   set(XercesC_INCLUDE_DIR /afs/cern.ch/sw/lcg/external/XercesC/3.1.0/x86_64-slc5-gcc43-opt/include)
-   include_directories(${XercesC_INCLUDE_DIR})
 endif()
 
 # LCDD (off for now as xml includes hardcoded and xml include needs to be fixed)
@@ -83,8 +88,6 @@ endif()
 # GEANT4
 if (USE_AFS)
    set(Geant4_INCLUDE_DIR /afs/cern.ch/sw/lcg/external/geant4/9.4.p01/share/include)
-endif()
-if (USE_AFS)
    set(Geant4_LIBRARY_DIR /afs/cern.ch/sw/lcg/external/geant4/9.4.p01/x86_64-slc5-gcc43/lib)
 endif()
 find_package(Geant4 REQUIRED)
@@ -119,18 +122,7 @@ target_link_libraries(bdsimexec bdsim gmad)
 target_link_libraries(bdsim ${CLHEP_LIBRARIES})
 target_link_libraries(bdsim ${Geant4_LIBRARIES})
 
-# xercesc library (to be fixed):
-set(XercesC_LIBRARY_DIR /afs/cern.ch/sw/lcg/external/XercesC/3.1.0/x86_64-slc5-gcc43-opt/lib)
-if (XercesC_LIBRARY_DIR)
-    # YIL simple array with all libraries:
-    if(APPLE)
-        file(GLOB XercesC_LIBRARIES ${XercesC_LIBRARY_DIR}/libxerces-c*.dylib)
-    else()
-        file(GLOB XercesC_LIBRARIES ${XercesC_LIBRARY_DIR}/libxerces-c*.so)
-    endif()
-endif()
-#message("XercesC_LIBRARIES: ${XercesC_LIBRARIES}")
-
+# xercesc library:
 target_link_libraries(bdsim ${XercesC_LIBRARIES})
 
 if(USE_ROOT)
