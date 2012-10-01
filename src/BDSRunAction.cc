@@ -22,8 +22,11 @@
 #include "BDSAcceleratorComponent.hh"
 #include <list>
 #include <fstream>
-
 #include <string>
+
+#if defined(__unix__) || defined(__linux__) || defined(__APPLE__)
+#include <unistd.h> // for sleep, will not work on windows?
+#endif
 
 typedef list<BDSAcceleratorComponent*>  myBeamline;
 extern myBeamline theBeamline;
