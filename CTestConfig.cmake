@@ -6,7 +6,7 @@ else()
     set(binary ${CMAKE_CURRENT_BINARY_DIR}/./${binaryname})
 endif()
 
-add_test(NAME LHC1 COMMAND ${binary} --file=job_inj450_B1_blm.gmad --batch WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/lhc/injection/B1/)
+#add_test(NAME LHC1 COMMAND ${binary} --file=job_inj450_B1_blm.gmad --batch WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/lhc/injection/B1/)
 
 add_test(NAME GGMAD COMMAND ${binary} --file=line.gmad --batch WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/ggmad/)
 

@@ -13,8 +13,10 @@
 
 # include directory:
 if (NOT XercesC_INCLUDE_DIR)
-  FIND_PATH(XercesC_INCLUDE_DIR NAMES XercesC xercesc)
-  message(STATUS "XercesC_INCLUDE_DIR: ${XercesC_INCLUDE_DIR}")
+   find_path(XercesC_INCLUDE_DIR NAMES XercesC xercesc)
+   if($ENV{VERBOSE})
+       message(STATUS "XercesC_INCLUDE_DIR: ${XercesC_INCLUDE_DIR}")
+   endif()
 endif()
 
 #libraries:
@@ -29,7 +31,9 @@ else()
     FIND_LIBRARY(XercesC_LIBRARIES NAMES Xerces-C PATH_SUFFIXES xercesc XercesC)
 endif()
 
-message(STATUS "XercesC_LIBRARIES: ${XercesC_LIBRARIES}")
+if($ENV{VERBOSE})
+    message(STATUS "XercesC_LIBRARIES: ${XercesC_LIBRARIES}")
+endif()
 
 # final checks:
 IF (XercesC_INCLUDE_DIR AND XercesC_LIBRARIES)
