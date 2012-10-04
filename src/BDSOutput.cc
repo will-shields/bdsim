@@ -160,9 +160,8 @@ void BDSOutput::Init(G4int FileNum)
   G4double wmax=std::max(wx,wy);
   wmax=std::max(wmax,bs);
 
-  G4int nTransBins = G4int(wmax*m/(BDSGlobals->GetElossHistoTransBinWidth()*m));
-
   EnergyLossHisto = new TH1F("ElossHisto", "Energy Loss",nBins,0.,zMax/m);
+  //  G4int nTransBins = G4int(wmax*m/(BDSGlobals->GetElossHistoTransBinWidth()*m));
   //  EnergyLossHisto3d = new TH3F("ElossHisto3d", "Energy Loss 3d",nBins,0.,zMax/m, nTransBins, 0, transMax/m, nTransBins, 0, transMax/m);
 
   /*

@@ -234,7 +234,9 @@ G4Step* BDSConvParticleChange::UpdateStepForAlongStep(G4Step* pStep)
 
   G4StepPoint* pPreStepPoint  = pStep->GetPreStepPoint(); 
   G4StepPoint* pPostStepPoint = pStep->GetPostStepPoint(); 
+#ifdef G4VERBOSE
   G4Track*     aTrack  = pStep->GetTrack();
+#endif
   G4double     mass = theMassChange;
 
   // Set Mass/Charge
@@ -281,7 +283,6 @@ G4Step* BDSConvParticleChange::UpdateStepForAlongStep(G4Step* pStep)
 
   G4double newWeight= theWeightChange/(pPreStepPoint->GetWeight())*(pPostStepPoint->GetWeight());
   pPostStepPoint->SetWeight( newWeight );
-
 
 #ifdef G4VERBOSE
   if (debugFlag) CheckIt(*aTrack);
