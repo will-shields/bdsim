@@ -40,24 +40,25 @@ else()
   # hack to get correct libraries
 
   if (APPLE)
-     set(ROOT_LIBRARY_NAMES libCore.dylib libCint.dylib libRIO.dylib libNet.dylib libHist.dylib libGraf.dylib libGraf3d.dylib libGpad.dylib libTree.dylib libRint.dylib libPostscript.dylib libMatrix.dylib libPhysics.dylib libMathCore.dylib libThread.dylib)
+     file(GLOB ROOT_LIBRARIES_GLOB ${ROOT_LIBRARY_DIR}/lib*.dylib)
+     #set(ROOT_LIBRARY_NAMES libCore.dylib libCint.dylib libRIO.dylib libNet.dylib libHist.dylib libGraf.dylib libGraf3d.dylib libGpad.dylib libTree.dylib libRint.dylib libPostscript.dylib libMatrix.dylib libPhysics.dylib libMathCore.dylib libThread.dylib)
   else()
      set(ROOT_LIBRARY_NAMES libCore.so libCint.so libRIO.so libNet.so libHist.so libGraf.so libGraf3d.so libGpad.so libTree.so libRint.so libPostscript.so libMatrix.so libPhysics.so libMathCore.so libThread.so)
+     foreach (library_temp ${ROOT_LIBRARY_NAMES})
+        # special way to unset ROOT_LIBRARY_temp
+     	set(ROOT_LIBRARY_temp ${library_temp}-NOTFOUND)
+     	FIND_LIBRARY(ROOT_LIBRARY_temp NAMES ${library_temp} PATHS ${ROOT_LIBRARY_DIR})
+	# prevent trailing space character
+        if (ROOT_LIBRARIES_GLOB)
+           set(ROOT_LIBRARIES_GLOB "${ROOT_LIBRARIES_GLOB};${ROOT_LIBRARY_temp}")
+        else()
+           set(ROOT_LIBRARIES_GLOB "${ROOT_LIBRARY_temp}")
+     	endif()
+     	#message(STATUS "library_temp: ${library_temp} ${ROOT_LIBRARY_temp}")
+     endforeach()
   endif()
-  foreach (library_temp ${ROOT_LIBRARY_NAMES})
-     # special way to unset ROOT_LIBRARY_temp
-     set(ROOT_LIBRARY_temp ${library_temp}-NOTFOUND)
-     FIND_LIBRARY(ROOT_LIBRARY_temp NAMES ${library_temp} PATHS ${ROOT_LIBRARY_DIR})
-     # prevent trailing space character
-     if (ROOT_LIBRARIES_GLOB)
-         set(ROOT_LIBRARIES_GLOB "${ROOT_LIBRARIES_GLOB};${ROOT_LIBRARY_temp}")
-     else()
-         set(ROOT_LIBRARIES_GLOB "${ROOT_LIBRARY_temp}")
-     endif()
-     #message(STATUS "library_temp: ${library_temp} ${ROOT_LIBRARY_temp}")
-  endforeach()
   #message(STATUS "ROOT_LIBRARY_NAMES: ${ROOT_LIBRARY_NAMES}")
-  #message(STATUS "ROOT_LIBRARIES_GLOB: ${ROOT_LIBRARIES_GLOB}")
+  message(STATUS "ROOT_LIBRARIES_GLOB: ${ROOT_LIBRARIES_GLOB}")
 
 
   #if(APPLE)
