@@ -56,8 +56,8 @@ else()
      endif()
      #message(STATUS "library_temp: ${library_temp} ${ROOT_LIBRARY_temp}")
   endforeach()
-  message(STATUS "ROOT_LIBRARY_NAMES: ${ROOT_LIBRARY_NAMES}")
-  message(STATUS "ROOT_LIBRARIES_GLOB: ${ROOT_LIBRARIES_GLOB}")
+  #message(STATUS "ROOT_LIBRARY_NAMES: ${ROOT_LIBRARY_NAMES}")
+  #message(STATUS "ROOT_LIBRARIES_GLOB: ${ROOT_LIBRARIES_GLOB}")
 
 
   #if(APPLE)
@@ -71,9 +71,9 @@ else()
 
   if(NOT ROOT_FIND_QUIETLY)
     message(STATUS "Found ROOT ${ROOT_VERSION} in ${ROOTSYS}")
-    message(STATUS "ROOT_LIBRARIES: ${ROOT_LIBRARIES}")
-    message(STATUS "ROOT_LIBRARY_DIR: ${ROOT_LIBRARY_DIR}")
-    message(STATUS "ROOT_LIBRARIES_GLOB: ${ROOT_LIBRARIES_GLOB}")
+    #message(STATUS "ROOT_LIBRARIES: ${ROOT_LIBRARIES}")
+    #message(STATUS "ROOT_LIBRARY_DIR: ${ROOT_LIBRARY_DIR}")
+    #message(STATUS "ROOT_LIBRARIES_GLOB: ${ROOT_LIBRARIES_GLOB}")
   endif()
 endif()
 
@@ -81,10 +81,6 @@ endif()
 find_program(ROOTCINT_EXECUTABLE rootcint PATHS $ENV{ROOTSYS}/bin)
 find_program(GENREFLEX_EXECUTABLE genreflex PATHS $ENV{ROOTSYS}/bin)
 find_package(GCCXML)
-
-if (ROOT_FOUND)
-  MESSAGE(STATUS "Looking for ROOT...- found ${ROOT_LIBRARY_DIR}")
-endif()
 
 #----------------------------------------------------------------------------
 # function ROOT_GENERATE_DICTIONARY( dictionary   
