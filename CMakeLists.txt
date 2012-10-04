@@ -45,7 +45,7 @@ include_directories(${CLHEP_INCLUDE_DIR})
 # ROOT
 if(USE_AFS)
     # add ROOT afs library to PATH (only in cmake)
-    set(ROOTSYS "/afs/cern.ch/sw/lcg/app/releases/ROOT/5.34.01/x86_64-slc5-gcc43-opt/root")
+    set(ROOTSYS "/afs/cern.ch/sw/lcg/app/releases/ROOT/5.34.02/x86_64-slc5-gcc43-opt/root")
 endif()
 
 if(USE_ROOT)
@@ -145,12 +145,11 @@ target_link_libraries(bdsim ${CLHEP_LIBRARIES})
 target_link_libraries(bdsim ${Geant4_LIBRARIES})
 
 # xercesc library:
-if(USE_GDML)
-    target_link_libraries(bdsim ${XercesC_LIBRARIES})
-endif()
+target_link_libraries(bdsim ${XercesC_LIBRARIES})
 
 if(USE_ROOT)
-    target_link_libraries(bdsimexec ${ROOT_LIBRARIES})
+    target_link_libraries(bdsim ${ROOT_LIBRARIES_GLOB})
+    target_link_libraries(bdsim ${ROOT_LIBRARIES})
 endif()
 
 if(USE_LCDD)
