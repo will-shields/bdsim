@@ -57,6 +57,7 @@ else()
      	#message(STATUS "library_temp: ${library_temp} ${ROOT_LIBRARY_temp}")
      endforeach()
   endif()
+  unset(ROOT_LIBRARY_temp)
   #message(STATUS "ROOT_LIBRARY_NAMES: ${ROOT_LIBRARY_NAMES}")
   message(STATUS "ROOT_LIBRARIES_GLOB: ${ROOT_LIBRARIES_GLOB}")
 
