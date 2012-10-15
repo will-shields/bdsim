@@ -1,19 +1,16 @@
-
-# in case you did not run cmake we assume you want to test the "old style build"
-if(NOT binaryname)
-    set(binary ${CMAKE_CURRENT_SOURCE_DIR}/bin/Linux-g++/./bdsim)
-else()
-    set(binary ${CMAKE_CURRENT_BINARY_DIR}/./${binaryname})
-endif()
+## This file should be placed in the root directory of your project.
+## Then modify the CMakeLists.txt file in the root directory of your
+## project to incorporate the testing dashboard.
+## # The following are required to uses Dart and the Cdash dashboard
+##   ENABLE_TESTING()
+##   INCLUDE(CTest)
+set(CTEST_PROJECT_NAME "BDSIM")
+set(CTEST_NIGHTLY_START_TIME "00:00:00 CET")
+set(CTEST_DROP_METHOD "http")
+set(CTEST_DROP_SITE "ylevinse.web.cern.ch/ylevinse")
+set(CTEST_DROP_LOCATION "/cdash/submit.php?project=SUBMIT")
+set(CTEST_DROP_SITE_CDASH TRUE)
+set(CTEST_UPDATE_COMMAND "svn")
+#set(UPDATE_TYPE "cvs")
 
 #add_test(NAME LHC1 COMMAND ${binary} --file=job_inj450_B1_blm.gmad --batch WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/lhc/injection/B1/)
-
-add_test(NAME GGMAD COMMAND ${binary} --file=line.gmad --batch WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/ggmad/)
-
-add_test(NAME Mokka1 COMMAND ${binary} --file=2mradIR.gmad --batch WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/Mokka/2mradIR)
-
-add_test(NAME SR COMMAND ${binary} --file=line.gmad --batch WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/SR/)
-
-# Potentially needed if binary is compiled "old style"
-# set_tests_properties(LHC1 GGMAD Mokka1 SR PROPERTIES ENVIRONMENT 
-#                "PATH=${CMAKE_CURRENT_SOURCE_DIR}/bin/Linux-g++/:$ENV{PATH};LD_LIBRARY_PATH=${CMAKE_CURRENT_SOURCE_DIR}/parser/:$ENV{LD_LIBRARY_PATH}")

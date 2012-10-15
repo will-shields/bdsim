@@ -10,7 +10,7 @@ set( PROJECT_PATCH_LEVEL 0 )
 message(STATUS "Configuring BDSIM ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_LEVEL}")
 
 # add source dir as a place for CMake modules (e.g. FindGSL.cmake)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR})
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
 # With this true we automatically include current src/binary directory
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
@@ -120,6 +120,7 @@ endif()
 find_package(Geant4 REQUIRED)
 set(Geant4_USE_FILE UseGeant4.cmake)
 include(${Geant4_USE_FILE})
+include_directories(${Geant4_INCLUDE_DIR})
 
 GEANT4_COLLATE_APPLICATION_SOURCES(bdsim_sources)
 add_library(bdsim ${bdsim_sources})
@@ -162,6 +163,10 @@ if(USE_LCDD)
 endif()
     
 get_target_property(binaryname bdsimexec OUTPUT_NAME)
+set(binary ${CMAKE_CURRENT_BINARY_DIR}/./${binaryname})
 
+# Testing:
 enable_testing()
 include(CTest)
+include(bdsim_test_macros)
+add_subdirectory(examples)

@@ -399,7 +399,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   // convert the parsed element list to list of BDS elements
   //
   G4bool added_comp = false;
-  G4int addDriftReturn;
   G4double driftLength = 0.0;
   G4String driftName ;
   G4double driftStartAper = bpRad;
@@ -560,8 +559,9 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    }
 	    it--;
 	  } 
-	  addDriftReturn = AddDriftToBeamline(driftName, driftLength, (it)->blmLocZ,
-					      (it)->blmLocTheta, driftStartAper, driftEndAper, true , (*it).tunnelMaterial, (*it).tunnelOffsetX); 
+	  /* G4int addDriftReturn = */ 
+	  AddDriftToBeamline(driftName, driftLength, (it)->blmLocZ,
+			     (it)->blmLocTheta, driftStartAper, driftEndAper, true , (*it).tunnelMaterial, (*it).tunnelOffsetX); 
 	  added_comp = true;
 	}
       }
