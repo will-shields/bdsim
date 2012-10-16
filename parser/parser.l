@@ -15,15 +15,18 @@
 %{
   
 #include <iostream>
+#include <string>
 #include <cstring>
 #include "parser.tab.h"
 #include "sym_table.h"
-
+#include "getEnv.h"
 
 #define MAXFILENAMELENGTH 200
 
   
 using namespace std;
+
+string sBDSHOME = (string)getEnv("BDSIMHOME");
  
 int match_var(char *name);
 struct symtab * symlook(char *s);
@@ -145,7 +148,8 @@ dump  { return DUMP; }
 
 <incl>[ \t]*  // eat the whitespace
 <incl>[^ \t\n;]+ {
-  printf("reading file %s \n",yytext);
+string filename = sBDSHOME+(string)yytext;
+  printf("reading file %s \n",(char*)filename.c_str());//yytext
   if( include_stack_ptr >= MAX_INCLUDE_DEPTH )
     {
       fprintf(stderr , "Error : Include depth exceeds %d\n",MAX_INCLUDE_DEPTH);
@@ -153,7 +157,7 @@ dump  { return DUMP; }
     }
   else
     {
-      yyin = fopen(yytext, "r");
+      yyin = fopen((char*)filename.c_str(), "r"); //yytext
       if(yyin)
 	{
           //printf("saving to stack buffer n %d, file %s\n",include_stack_ptr,yyfilename );
@@ -161,7 +165,7 @@ dump  { return DUMP; }
           include_linenum_stack[include_stack_ptr] = line_num;
           line_num = 1;
           strncpy(include_filename_stack[include_stack_ptr], yyfilename, MAXFILENAMELENGTH);
-          strncpy(yyfilename,yytext,MAXFILENAMELENGTH); 
+          strncpy(yyfilename,(char*)filename.c_str(),MAXFILENAMELENGTH); //yytext
 	  include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
           strncpy(include_filename_stack[include_stack_ptr], yyfilename, MAXFILENAMELENGTH);
 	  yy_switch_to_buffer(yy_create_buffer( yyin, YY_BUF_SIZE ) );
@@ -169,7 +173,7 @@ dump  { return DUMP; }
     	}
       else
 	{
-	  fprintf(stderr, "Error : can't open %s\n", yytext);
+	  fprintf(stderr, "Error : can't open %s\n", (char*)filename.c_str()); //yytext
 	  exit(1);
 	}
     }

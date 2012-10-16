@@ -1,6 +1,6 @@
 CC=g++
 #CC=gcc32
-OBJ=gmad.o lex.yy.o parser.tab.o 
+OBJ=gmad.o lex.yy.o parser.tab.o getEnv.o
 LIB=-lfl
 
 #LEX=./flex-2.5.4/flex
@@ -49,6 +49,9 @@ parser : parser.cc gmad.h $(LIBNAME)
 
 gmad.o :gmad.cc gmad.h
 	$(CC) $(CPPFLAGS) -Wall -fPIC -g -c gmad.cc
+
+getEnv.o :getEnv.cc getEnv.h
+	$(CC) $(CPPFLAGS) -Wall -fPIC -g -c getEnv.cc
 
 lex.yy.o : lex.yy.c parser.tab.c parser.tab.h sym_table.h
 	$(CC) $(CPPFLAGS) -Wall -fPIC -g -c  lex.yy.c

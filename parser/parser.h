@@ -23,8 +23,11 @@
 #include <iostream>
 
 #include "gmad.h"
+#include "getEnv.h"
 
 //using namespace std;
+
+std::string sBDSIMHOME = std::string(getEnv("BDSIMHOME"));
 
 //double pow(double x, double y) {return exp( y * log(x));}
 
@@ -1430,7 +1433,7 @@ void set_value(std::string name, std::string value )
   //
   if(name == "particle") { options.particleName = value; return; }
   if(name == "distrType" ) { options.distribType = value; return; }
-  if(name == "distrFile" ) { options.distribFile = value; return; }  
+  if(name == "distrFile" ) { options.distribFile = sBDSIMHOME+value; return; }  
 
 
   //
@@ -1525,5 +1528,6 @@ int add_var(char *name, double value, int is_reserved = 0)
   sp->is_reserved = is_reserved;
   return 0;
 }
+
 
 #endif
