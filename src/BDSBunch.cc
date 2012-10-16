@@ -526,7 +526,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
   double r, phi;
   // Rescale must be at the top of GetNextParticle
 
-  if(BDSGlobals->isReference && partId<nptwiss){
+  if(BDSGlobalConstants::Instance()->isReference && partId<nptwiss){
     G4double phiX= twopi * G4UniformRand();
     G4double phiY= twopi * G4UniformRand();
     //    G4double ex=-log(G4UniformRand())*emitX;
@@ -543,12 +543,12 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
     else
       zp = sqrt(1.-xp*xp -yp*yp);
     t = 0; 
-    E = BDSGlobals->GetBeamKineticEnergy();
+    E = BDSGlobalConstants::Instance()->GetBeamKineticEnergy();
     ++partId;
     return;
   }
   
-  if(BDSGlobals->DoTwiss() && partId<nptwiss)
+  if(BDSGlobalConstants::Instance()->DoTwiss() && partId<nptwiss)
     {
       // temp numbers - to be replaced by parsed parameters
       
@@ -586,7 +586,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       xp*=radian;
       yp*=radian;
       
-      E = BDSGlobals->GetBeamTotalEnergy() - BDSGlobals->GetParticleDefinition()->GetPDGMass();
+      E = BDSGlobalConstants::Instance()->GetBeamTotalEnergy() - BDSGlobalConstants::Instance()->GetParticleDefinition()->GetPDGMass();
       zp = sqrt(1-xp*xp-yp*yp);
       t=0;
       z0=0;
@@ -629,7 +629,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       else
         zp = sqrt(1.-xp*xp -yp*yp);
       t = 0;
-      E = BDSGlobals->GetBeamKineticEnergy() * (1 + energySpread * GaussGen->shoot());
+      E = BDSGlobalConstants::Instance()->GetBeamKineticEnergy() * (1 + energySpread * GaussGen->shoot());
 
 
 
@@ -701,7 +701,7 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
       else
         zp = sqrt(1.-xp*xp -yp*yp);
       t = 0; // (T0 - sigmaT * (1.-2.*GaussGen->shoot())) * s;
-      E = BDSGlobals->GetBeamKineticEnergy() * (1 + energySpread * GaussGen->shoot());
+      E = BDSGlobalConstants::Instance()->GetBeamKineticEnergy() * (1 + energySpread * GaussGen->shoot());
       break;
     }
 case _RING:
@@ -734,7 +734,7 @@ case _RING:
      else
        zp = sqrt(1.-xp*xp -yp*yp);
      t = T0 * s;
-     E = BDSGlobals->GetBeamKineticEnergy()
+     E = BDSGlobalConstants::Instance()->GetBeamKineticEnergy()
        * (1 + energySpread/2. * (1. -2. * FlatGen->shoot()));
      break;
     }
@@ -774,7 +774,7 @@ case _RING:
         zp = sqrt(1.-xp*xp -yp*yp);
       
       t = T0 * s;
-      E = BDSGlobals->GetBeamKineticEnergy()
+      E = BDSGlobalConstants::Instance()->GetBeamKineticEnergy()
         * (1 + energySpread/2. * (1. -2. * FlatGen->shoot()));
       break;
     }
@@ -798,7 +798,7 @@ case _RING:
          zp=sqrt(1.-xp*xp -yp*yp);  
          t=0; 
          // use the Kinetic energy:
-         E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
+         E-=BDSGlobalConstants::Instance()->GetParticleDefinition()->GetPDGMass();
         }
       break;
     }
@@ -822,7 +822,7 @@ case _RING:
           t=0; 
 	  weight=1;
           // use the Kinetic energy:
-          E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
+          E-=BDSGlobalConstants::Instance()->GetParticleDefinition()->GetPDGMass();
         }
       else{
         InputBunchFile.clear();
@@ -842,10 +842,10 @@ case _RING:
           ReadValue(x0);
           ReadValue(y0);
           ReadValue(z0);
-          if(E>0) BDSGlobals->SetParticleDefinition(G4ParticleTable::
+          if(E>0) BDSGlobalConstants::Instance()->SetParticleDefinition(G4ParticleTable::
                                                     GetParticleTable()
                                                     ->FindParticle("e-"));
-          if(E<0) BDSGlobals->SetParticleDefinition(G4ParticleTable::
+          if(E<0) BDSGlobalConstants::Instance()->SetParticleDefinition(G4ParticleTable::
                                                     GetParticleTable()
                                                     ->FindParticle("e+"));
           E=fabs(E)*GeV;
@@ -861,7 +861,7 @@ case _RING:
           else zp = sqrt(1-(xp*xp+yp*yp));
           t=0; 
           // use the Kinetic energy:
-          E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
+          E-=BDSGlobalConstants::Instance()->GetParticleDefinition()->GetPDGMass();
         }
       break;
     }
@@ -965,16 +965,16 @@ case _RING:
           ReadValue(sz);
           
           if(type==1) 
-            BDSGlobals->SetParticleDefinition(G4ParticleTable::
+            BDSGlobalConstants::Instance()->SetParticleDefinition(G4ParticleTable::
                                               GetParticleTable()
                                               ->FindParticle("gamma"));
           else if(type==2) 
-            BDSGlobals->SetParticleDefinition(G4ParticleTable::
+            BDSGlobalConstants::Instance()->SetParticleDefinition(G4ParticleTable::
                                               GetParticleTable()
                                               ->FindParticle("e-"));
           
           else if(type==3) 
-            BDSGlobals->SetParticleDefinition(G4ParticleTable::
+            BDSGlobalConstants::Instance()->SetParticleDefinition(G4ParticleTable::
                                               GetParticleTable()
                                               ->FindParticle("e+"));
           
@@ -987,7 +987,7 @@ case _RING:
           py*=eV/c_light;
           pz*=eV/c_light;
           
-          part_mass = BDSGlobals->GetParticleDefinition()->GetPDGMass();
+          part_mass = BDSGlobalConstants::Instance()->GetParticleDefinition()->GetPDGMass();
           // use the Kinetic energy:
           E-=part_mass;
           
@@ -1044,10 +1044,10 @@ case _RING:
 #endif
          if(it->name=="E") { ReadValue(E); E *= ( GeV * it->unit ); 
 #ifdef DEBUG 
-         G4cout << "******** Particle Mass = " << BDSGlobals->GetParticleDefinition()->GetPDGMass() << G4endl;
+         G4cout << "******** Particle Mass = " << BDSGlobalConstants::Instance()->GetParticleDefinition()->GetPDGMass() << G4endl;
          G4cout << "******** Particle Total Energy = " << E << G4endl;
          
-         E-=BDSGlobals->GetParticleDefinition()->GetPDGMass();
+         E-=BDSGlobalConstants::Instance()->GetParticleDefinition()->GetPDGMass();
          G4cout << "******** Particle Kinetic Energy = " << E << G4endl;
 	 
 	 G4cout<< "BDSBunch : " << E <<G4endl;
@@ -1077,13 +1077,13 @@ case _RING:
          if(it->name=="pt") {
            ReadValue(type);
            if(InputBunchFile.good()){
-             BDSGlobals->SetParticleName(G4ParticleTable::GetParticleTable()->FindParticle(type)->GetParticleName());
-             BDSGlobals->SetParticleDefinition(G4ParticleTable::
+             BDSGlobalConstants::Instance()->SetParticleName(G4ParticleTable::GetParticleTable()->FindParticle(type)->GetParticleName());
+             BDSGlobalConstants::Instance()->SetParticleDefinition(G4ParticleTable::
                                                GetParticleTable()
                                                ->FindParticle(type));
-             if(!BDSGlobals->GetParticleDefinition()) 
+             if(!BDSGlobalConstants::Instance()->GetParticleDefinition()) 
                {
-                 G4Exception("Particle not found, quitting!");
+                 G4Exception("Particle not found, quitting!", "-1", FatalErrorInArgument, "");
                  exit(1);
                }
            }
@@ -1099,7 +1099,7 @@ case _RING:
 	 // compute t from z0 if it hasn't been read from file
 	 if (!tdef) t=0; 
 	 // use the Kinetic energy:
-	 //          if(BDSGlobals->GetParticleDefinition()->GetPDGEncoding() != 22){
+	 //          if(BDSGlobalConstants::Instance()->GetParticleDefinition()->GetPDGEncoding() != 22){
 	 //}
        }
      //Add the global offset Z
@@ -1108,7 +1108,7 @@ case _RING:
     }
   default:
     {
-      G4Exception("BDSBunch: Unknown distribution file type!");
+      G4Exception("BDSBunch: Unknown distribution file type!", "-1", FatalErrorInArgument, "");
     }
   }
 }

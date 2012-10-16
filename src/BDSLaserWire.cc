@@ -3,7 +3,7 @@
    Last modified 24.7.2002
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSLaserWire.hh"
 #include "G4Box.hh"
@@ -33,9 +33,9 @@ G4double aWavelength, G4ThreeVector aDirection):
     SetVisAttributes())
 {
   LaserWireLogicalVolume();
-  BDSGlobals->
+  BDSGlobalConstants::Instance()->
     SetLaserwireWavelength(itsMarkerLogicalVolume->GetName(),aWavelength);
-  BDSGlobals->
+  BDSGlobalConstants::Instance()->
     SetLaserwireDir(itsMarkerLogicalVolume->GetName(),aDirection);
 }
 
@@ -45,9 +45,9 @@ void BDSLaserWire::LaserWireLogicalVolume()
     {
       itsMarkerLogicalVolume=new G4LogicalVolume(
 						 new G4Box(itsName+"_solid",
-							   BDSGlobals->
+							   BDSGlobalConstants::Instance()->
 							   GetBeampipeRadius(),
-							   BDSGlobals->
+							   BDSGlobalConstants::Instance()->
 							   GetBeampipeRadius(),
 							   itsLength/2),
 						 theMaterials->GetMaterial("LaserVac"),

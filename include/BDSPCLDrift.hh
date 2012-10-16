@@ -29,7 +29,7 @@ class BDSPCLDrift :public BDSMultipole
 public:
   BDSPCLDrift(G4String aName, G4double aLength,
            std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, 
-	      G4double aperX, G4double aperyUp, G4double aperYDown, G4double aperDy,  G4String aTunnelMaterial="", G4double aper=0, G4double tunnelRadius=0., G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX(), G4String Material="");
+	      G4double aperX, G4double aperyUp, G4double aperYDown, G4double aperDy,  G4String aTunnelMaterial="", G4double aper=0, G4double tunnelRadius=0., G4double tunnelOffsetX=BDSGlobalConstants::Instance()->GetTunnelOffsetX(), G4String Material="");
   ~BDSPCLDrift();
 
 protected:

@@ -12,7 +12,7 @@ Last modified 15.11.2005 by Ilya Agapov
 
 
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSContinuousSR.hh"
 #include "G4ios.hh"
 #include "G4UnitsTable.hh"

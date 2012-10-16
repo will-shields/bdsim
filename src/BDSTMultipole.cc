@@ -8,7 +8,7 @@
 //==============================================================
 
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSTMultipole.hh"
 #include "G4Box.hh"
@@ -118,7 +118,7 @@ BDSTMultipole::BDSTMultipole(G4String aName, G4double aLength,
 
       //
       //build tunnel
-      if(BDSGlobals->GetBuildTunnel()){
+      if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
         BuildTunnel();
       }
       
@@ -141,10 +141,10 @@ BDSTMultipole::BDSTMultipole(G4String aName, G4double aLength,
       //
       // define sensitive volumes for hit generation
       //
-      if(BDSGlobals->GetSensitiveBeamPipe()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
         SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
       }
-      if(BDSGlobals->GetSensitiveComponents()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
         SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
       }
 

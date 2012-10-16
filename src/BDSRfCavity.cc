@@ -1,4 +1,4 @@
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSRfCavity.hh"
 #include "G4Box.hh"
@@ -56,7 +56,7 @@ BDSRfCavity::BDSRfCavity (G4String aName,G4double aLength, G4double bpRad,
       //
       // define sensitive volumes for hit generation
       //
-      if(BDSGlobals->GetSensitiveComponents()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
         SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
       }
     
@@ -105,7 +105,7 @@ void BDSRfCavity::BuildMarkerFieldAndStepper()
   fStepper = new G4ExplicitEuler( fEquation, nvar );
   //itsStepper = new G4ClassicalRK4( fEquation, nvar );
 
-  G4double fMinStep     = BDSGlobals->GetChordStepMinimum();
+  G4double fMinStep     = BDSGlobalConstants::Instance()->GetChordStepMinimum();
  
 
   fieldManager->SetDetectorField(itsField );
@@ -118,7 +118,7 @@ void BDSRfCavity::BuildMarkerFieldAndStepper()
   
   fChordFinder = new G4ChordFinder(fIntgrDriver);
 
-  fChordFinder->SetDeltaChord(BDSGlobals->GetDeltaChord());
+  fChordFinder->SetDeltaChord(BDSGlobalConstants::Instance()->GetDeltaChord());
   fieldManager->SetChordFinder( fChordFinder );
 
 

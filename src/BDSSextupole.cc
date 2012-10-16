@@ -7,7 +7,7 @@
    Changed StringFromInt to be the BDSGlobal version
 */
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSSextupole.hh"
 #include "G4Box.hh"
@@ -56,7 +56,7 @@ BDSSextupole::BDSSextupole(G4String aName, G4double aLength,
       //
       //build tunnel
       //
-      if(BDSGlobals->GetBuildTunnel()){
+      if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
         BuildTunnel();
       }
 
@@ -71,23 +71,23 @@ BDSSextupole::BDSSextupole(G4String aName, G4double aLength,
       // build magnet (geometry + magnetic field)
       //
       BuildDefaultOuterLogicalVolume(itsLength);
-      if(BDSGlobals->GetIncludeIronMagFields())
+      if(BDSGlobalConstants::Instance()->GetIncludeIronMagFields())
 	{
 	  G4double polePos[4];
 	  G4double Bfield[3];
 
 	  //coordinate in GetFieldValue
-	  polePos[0]=-BDSGlobals->GetMagnetPoleRadius()*sin(pi/6);
-	  polePos[1]=BDSGlobals->GetMagnetPoleRadius()*cos(pi/6);
+	  polePos[0]=-BDSGlobalConstants::Instance()->GetMagnetPoleRadius()*sin(pi/6);
+	  polePos[1]=BDSGlobalConstants::Instance()->GetMagnetPoleRadius()*cos(pi/6);
 	  polePos[2]=0.;
 	  polePos[3]=-999.;//flag to use polePos rather than local track
 
 	  itsMagField->GetFieldValue(polePos,Bfield);
 	  G4double BFldIron=
 	    sqrt(Bfield[0]*Bfield[0]+Bfield[1]*Bfield[1])*
-	    BDSGlobals->GetMagnetPoleSize()/
-	    (BDSGlobals->GetComponentBoxSize()/2-
-	     BDSGlobals->GetMagnetPoleRadius());
+	    BDSGlobalConstants::Instance()->GetMagnetPoleSize()/
+	    (BDSGlobalConstants::Instance()->GetComponentBoxSize()/2-
+	     BDSGlobalConstants::Instance()->GetMagnetPoleRadius());
 
 	  // Magnetic flux from a pole is divided in two directions
 	  BFldIron/=2.;
@@ -99,10 +99,10 @@ BDSSextupole::BDSSextupole(G4String aName, G4double aLength,
       //
       // define sensitive volumes for hit generation
       //
-      if(BDSGlobals->GetSensitiveBeamPipe()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
         SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
       }
-      if(BDSGlobals->GetSensitiveComponents()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
         SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
       }
 
@@ -122,12 +122,12 @@ BDSSextupole::BDSSextupole(G4String aName, G4double aLength,
   else
     {
       (*LogVolCount)[itsName]++;
-      if(BDSGlobals->GetSynchRadOn()&& BDSGlobals->GetSynchRescale())
+      if(BDSGlobalConstants::Instance()->GetSynchRadOn()&& BDSGlobalConstants::Instance()->GetSynchRescale())
 	{
 	  // with synchrotron radiation, the rescaled magnetic field
 	  // means elements with the same name must have different
 	  //logical volumes, becuase they have different fields
-	  itsName+=BDSGlobals->StringFromInt((*LogVolCount)[itsName]);
+	  itsName+=BDSGlobalConstants::Instance()->StringFromInt((*LogVolCount)[itsName]);
 
 	  //
 	  // build external volume
@@ -145,23 +145,23 @@ BDSSextupole::BDSSextupole(G4String aName, G4double aLength,
 	  // build magnet (geometry + magnetic field)
 	  //
 	  BuildDefaultOuterLogicalVolume(itsLength);
-	  if(BDSGlobals->GetIncludeIronMagFields())
+	  if(BDSGlobalConstants::Instance()->GetIncludeIronMagFields())
 	    {
 	      G4double polePos[4];
 	      G4double Bfield[3];
 	      
 	      //coordinate in GetFieldValue
-	      polePos[0]=-BDSGlobals->GetMagnetPoleRadius()*sin(pi/6);
-	      polePos[1]=BDSGlobals->GetMagnetPoleRadius()*cos(pi/6);
+	      polePos[0]=-BDSGlobalConstants::Instance()->GetMagnetPoleRadius()*sin(pi/6);
+	      polePos[1]=BDSGlobalConstants::Instance()->GetMagnetPoleRadius()*cos(pi/6);
 	      polePos[2]=0.;
 	      polePos[3]=-999.;//flag to use polePos rather than local track
 
 	      itsMagField->GetFieldValue(polePos,Bfield);
 	      G4double BFldIron=
 		sqrt(Bfield[0]*Bfield[0]+Bfield[1]*Bfield[1])*
-		BDSGlobals->GetMagnetPoleSize()/
-		(BDSGlobals->GetComponentBoxSize()/2-
-		 BDSGlobals->GetMagnetPoleRadius());
+		BDSGlobalConstants::Instance()->GetMagnetPoleSize()/
+		(BDSGlobalConstants::Instance()->GetComponentBoxSize()/2-
+		 BDSGlobalConstants::Instance()->GetMagnetPoleRadius());
 
 	      // Magnetic flux from a pole is divided in two directions
 	      BFldIron/=2.;
@@ -173,10 +173,10 @@ BDSSextupole::BDSSextupole(G4String aName, G4double aLength,
 	  //
 	  // define sensitive volumes for hit generation
 	  //
-          if(BDSGlobals->GetSensitiveBeamPipe()){
+          if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
             SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
           }
-          if(BDSGlobals->GetSensitiveComponents()){
+          if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
             SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
           }
 	

@@ -28,6 +28,7 @@
 extern G4int event_number;
 extern G4bool verbose;
 
+
 BDSEnergyCounterSD::BDSEnergyCounterSD(G4String name)
 :G4VSensitiveDetector(name)
 {
@@ -49,7 +50,7 @@ void BDSEnergyCounterSD::Initialize(G4HCofThisEvent*)
 
 G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
 { 
-  if(BDSGlobals->GetStopTracks())
+  if(BDSGlobalConstants::Instance()->GetStopTracks())
   #if G4VERSION_NUMBER > 940
     enrg = (aStep->GetTrack()->GetTotalEnergy() - aStep->GetTotalEnergyDeposit()); // Why subtract the energy deposit of the step? Why not add?
 #else
@@ -74,7 +75,7 @@ G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
       G4cerr<<" BDSEnergyCounterSD: nCopy too large: nCopy="<<nCopy<<
 	"NMAXCOPY="<<NMAXCOPY<<" Volume="<<
 	aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName()<<G4endl;
-      G4Exception("Killing program in BDSEnergyCounterSD::ProcessHits");
+      G4Exception("Killing program in BDSEnergyCounterSD::ProcessHits", "-1", FatalException, "");
     }
 
   // Get Translation and Rotation of Sampler Volume w.r.t the World Volume
@@ -100,7 +101,7 @@ G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
     ypos=0.5*(aStep->GetPreStepPoint()->GetPosition().y()
   	    + aStep->GetPostStepPoint()->GetPosition().y());
   
-   if(verbose && BDSGlobals->GetStopTracks()) G4cout << "BDSEnergyCounterSD: Current Volume: " << 	aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() <<"\tEvent: " << event_number << "\tEnergy: " << enrg/GeV << "GeV\tPosition: " << zpos/m <<"m"<< G4endl;
+   if(verbose && BDSGlobalConstants::Instance()->GetStopTracks()) G4cout << "BDSEnergyCounterSD: Current Volume: " << 	aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() <<"\tEvent: " << event_number << "\tEnergy: " << enrg/GeV << "GeV\tPosition: " << zpos/m <<"m"<< G4endl;
 
    /*
    cout << "E = " << enrg << endl;
@@ -137,12 +138,65 @@ G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
      (*BDSEnergyCounterCollection)[HitID[nCopy]]-> AddEnergyWeightedPosition(enrg, xpos, ypos, zpos, weight);
    }
    
-   if(BDSGlobals->GetStopTracks())
+   if(BDSGlobalConstants::Instance()->GetStopTracks())
      aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 
   
   return true;
 }
+
+
+
+G4bool BDSEnergyCounterSD::ProcessHits(G4GFlashSpot *aSpot,G4TouchableHistory*)
+{ 
+  enrg = aSpot->GetEnergySpot()->GetEnergy();
+#ifdef DEBUG
+  G4cout << "BDSEnergyCounterSD>gflash enrg = " << enrg << G4endl;
+#endif
+  if (enrg==0.) return false;      
+  G4VPhysicalVolume* pCurrentVolume = aSpot->GetTouchableHandle()->GetVolume();
+  G4String volName =  pCurrentVolume->GetName();
+  G4int nCopy=pCurrentVolume->GetCopyNo();
+#ifdef DEBUG
+  if(nCopy>0){
+    G4cout << "BDSEnergyCounterSD::ProcessHits>gFlash nCopy = " << nCopy << G4endl;
+  }
+#endif
+  if(nCopy>NMAXCOPY-1)
+    {
+      G4cerr<<" BDSEnergyCounterSD: nCopy too large: nCopy="<<nCopy<<
+	"NMAXCOPY="<<NMAXCOPY<<" Volume="<< volName;
+
+      G4Exception("Killing program in BDSEnergyCounterSD::ProcessHits", "-1", FatalException, "");
+    }
+
+  // Get Translation and Rotation of Sampler Volume w.r.t the World Volume
+  // as described in Geant4 FAQ's: http://geant4.cern.ch/support/faq.shtml
+  G4AffineTransform tf=(aSpot->GetTouchableHandle()->GetHistory()->GetTopTransform());
+  G4ThreeVector pos = aSpot->GetPosition();
+  G4ThreeVector LocalPosition = tf.TransformPoint(pos);
+
+  zpos=pos.z();
+  xpos=pos.x();
+  ypos=pos.y();
+  
+  if(verbose && BDSGlobalConstants::Instance()->GetStopTracks()) G4cout << "BDSEnergyCounterSD: Current Volume: " <<  volName <<"\tEvent: " << event_number << "\tEnergy: " << enrg/GeV << "GeV\tPosition: " << zpos/m <<"m"<< G4endl;
+  
+  G4double weight = aSpot->GetOriginatorTrack()->GetPrimaryTrack()->GetWeight();
+  if (weight == 0){
+    cerr << "Error: BDSEnergyCounterSD: weight = 0" << endl;
+    exit(1);
+  }
+  int ptype = aSpot->GetOriginatorTrack()->GetPrimaryTrack()->GetDefinition()->GetPDGEncoding();
+  if (HitID[nCopy]==-1){
+    BDSEnergyCounterHit* ECHit = new BDSEnergyCounterHit(nCopy,enrg,xpos,ypos,zpos,volName, ptype, weight, 0);
+    HitID[nCopy]= BDSEnergyCounterCollection->insert(ECHit)-1;
+  } else {
+    (*BDSEnergyCounterCollection)[HitID[nCopy]]-> AddEnergyWeightedPosition(enrg, xpos, ypos, zpos, weight);
+  }
+  return true;
+}
+
 
 void BDSEnergyCounterSD::EndOfEvent(G4HCofThisEvent*HCE)
 {

@@ -3,7 +3,7 @@
    Last modified 5.3.2005
    Copyright (c) 2005 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSSamplerCylinder.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
@@ -45,7 +45,7 @@ BDSSamplerCylinder (G4String aName,G4double aLength,G4double aRadius):
   itsRadius(aRadius)
 {
   nThisSampler = nSamplers + 1;
-  SetName("CSampler_"+BDSGlobals->StringFromInt(nThisSampler)+"_"+itsName);
+  SetName("CSampler_"+BDSGlobalConstants::Instance()->StringFromInt(nThisSampler)+"_"+itsName);
   SetType("csampler");
   SamplerCylinderLogicalVolume();
   nSamplers++;
@@ -65,14 +65,14 @@ void BDSSamplerCylinder::SamplerCylinderLogicalVolume()
 				       itsRadius,
 				       itsLength/2,
 				       0,twopi*radian),
-			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			    theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			    itsName);
       
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
 #ifndef NOUSERLIMITS
       itsOuterUserLimits =new G4UserLimits();
-      itsOuterUserLimits->SetMaxAllowedStep(BDSGlobals->GetSamplerDiameter()/2.0);
+      itsOuterUserLimits->SetMaxAllowedStep(BDSGlobalConstants::Instance()->GetSamplerDiameter()/2.0);
       itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
 #endif
       // Sensitive Detector:

@@ -24,7 +24,7 @@ extern BDSSamplerSD* BDSSamplerSensDet;
 extern BDSMaterials* theMaterials;
 extern G4RotationMatrix* RotY90;
 extern BDSOutput* bdsOutput;
-extern BDSGlobalConstants* BDSGlobals;
+//extern BDSGlobalConstants* BDSGlobalConstants::Instance();
 
 BDSGeometryGDML::BDSGeometryGDML(G4String GDMLfile){
   itsGDMLfile = GDMLfile;
@@ -57,7 +57,7 @@ void BDSGeometryGDML::Construct(G4LogicalVolume *marker){
                     topvol->GetName()+"_PhysiComp",
                     itsMarkerVol,
                     false,
-                    0, BDSGlobals->GetCheckOverlaps());
+                    0, BDSGlobalConstants::Instance()->GetCheckOverlaps());
 
   }
 #endif

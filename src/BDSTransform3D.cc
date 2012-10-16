@@ -1,7 +1,7 @@
 /* BDSIM code.    Version 1.0
 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSTransform3D.hh"
 #include "G4Box.hh"

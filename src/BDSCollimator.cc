@@ -2,7 +2,7 @@
    Author: Grahame I. Agapov, Royal Holloway, Univ. of London.
 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSCollimator.hh"
 #include "G4VisAttributes.hh"
 #include "G4LogicalVolume.hh"
@@ -40,25 +40,25 @@ BDSCollimator::BDSCollimator (G4String aName,G4double aLength,G4double bpRad,
   if(type==_RCOL) itsType="rcol";
   if(type==_ECOL) itsType="ecol";
 
-  if(itsOuterR==0) itsOuterR = BDSGlobals->GetComponentBoxSize()/2;
+  if(itsOuterR==0) itsOuterR = BDSGlobalConstants::Instance()->GetComponentBoxSize()/2;
 
   if ( (*LogVolCount)[itsName]==0)
     {
   G4double xLength, yLength;
-  xLength = yLength = std::max(itsOuterR,BDSGlobals->GetComponentBoxSize()/2);
+  xLength = yLength = std::max(itsOuterR,BDSGlobalConstants::Instance()->GetComponentBoxSize()/2);
 
-  xLength = std::max(xLength, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness() + 4*BDSGlobals->GetLengthSafety() );   
-  yLength = std::max(yLength, this->GetTunnelRadius()+2*std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+4*BDSGlobals->GetLengthSafety() );
+  xLength = std::max(xLength, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness() + 4*BDSGlobalConstants::Instance()->GetLengthSafety() );   
+  yLength = std::max(yLength, this->GetTunnelRadius()+2*std::abs(BDSGlobalConstants::Instance()->GetTunnelOffsetY()) + BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness()+4*BDSGlobalConstants::Instance()->GetLengthSafety() );
 
   itsMarkerLogicalVolume=new G4LogicalVolume
     (new G4Box( itsName+"_marker_log",
                 xLength,
 		yLength,
-		(itsLength+BDSGlobals->GetLengthSafety())/2), //z half length 
+		(itsLength+BDSGlobalConstants::Instance()->GetLengthSafety())/2), //z half length 
      theMaterials->GetMaterial("vacuum"),
      itsName+"_log");
 
-      if(BDSGlobals->GetBuildTunnel()){
+      if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
         BuildTunnel();
       }
       BuildInnerCollimator();
@@ -98,8 +98,8 @@ void BDSCollimator::BuildInnerCollimator()
 {
 
   // zero aperture --> no aperture
-  if(itsXAper <= 0) itsXAper = DBL_MIN;//BDSGlobals->GetComponentBoxSize()/2;
-  if(itsYAper <= 0) itsYAper = DBL_MIN;//BDSGlobals->GetComponentBoxSize()/2;
+  if(itsXAper <= 0) itsXAper = DBL_MIN;//BDSGlobalConstants::Instance()->GetComponentBoxSize()/2;
+  if(itsYAper <= 0) itsYAper = DBL_MIN;//BDSGlobalConstants::Instance()->GetComponentBoxSize()/2;
 
   if( (itsXAper>0) && (itsYAper>0) ){
     G4cout << "BDSCollimator: building aperture" << G4endl;
@@ -121,7 +121,7 @@ void BDSCollimator::BuildInnerCollimator()
   
     itsInnerLogVol=
       new G4LogicalVolume(itsInnerSolid,
-			  theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			  theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			  itsName+"_inner_log");
 
 #ifndef NOUSERLIMITS
@@ -146,8 +146,8 @@ void BDSCollimator::BuildInnerCollimator()
 #ifndef NOUSERLIMITS
   itsUserLimits = new G4UserLimits();
   itsUserLimits->SetMaxAllowedStep(itsLength);
-  itsUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
-  itsUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+  itsUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+  itsUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
   itsSolidLogVol-> SetUserLimits(itsUserLimits);
   itsMarkerLogicalVolume->SetUserLimits(itsUserLimits);
 #endif
@@ -159,7 +159,7 @@ void BDSCollimator::BuildInnerCollimator()
 		      itsName+"_solid_phys",	     // its name
 		      itsMarkerLogicalVolume, // its mother  volume
 		      false,		     // no boolean operation
-		      0, BDSGlobals->GetCheckOverlaps());		     // copy number  
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		     // copy number  
 
   if( (itsXAper>0) && (itsYAper>0) ){
     G4cout << "BDSCollimator: placing aperture" << G4endl;
@@ -171,11 +171,11 @@ void BDSCollimator::BuildInnerCollimator()
 			itsName+"_inner_phys", // its name
 			itsSolidLogVol,      // its mother  volume
 			false,		   // no boolean operation
-			0, BDSGlobals->GetCheckOverlaps());		   // copy number 
+			0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		   // copy number 
     SetMultiplePhysicalVolumes(itsPhysiComp2);
   } 
   
-  if(BDSGlobals->GetSensitiveComponents()){
+  if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
     SetSensitiveVolume(itsSolidLogVol);
   }
   SetMultiplePhysicalVolumes(itsPhysiComp);

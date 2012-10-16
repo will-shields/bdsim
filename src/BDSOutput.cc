@@ -56,7 +56,7 @@ void BDSOutput::Init(G4int FileNum)
 
   // set up the root file
   G4String filename = outputFilename + "_" 
-    + BDSGlobals->StringFromInt(FileNum) + ".root";
+    + BDSGlobalConstants::Instance()->StringFromInt(FileNum) + ".root";
   
   G4cout<<"Setting up new file: "<<filename<<G4endl;
   theRootOutputFile=new TFile(filename,"RECREATE", "BDS output file");
@@ -64,7 +64,7 @@ void BDSOutput::Init(G4int FileNum)
   //build sampler tree
   for(G4int i=0;i<BDSSampler::GetNSamplers();i++)
     {
-      //G4String name="samp"+BDSGlobals->StringFromInt(i+1);
+      //G4String name="samp"+BDSGlobalConstants::Instance()->StringFromInt(i+1);
       G4String name=SampName[i];
       TTree* SamplerTree = new TTree(name, "Sampler output");
       
@@ -103,7 +103,7 @@ void BDSOutput::Init(G4int FileNum)
     }
   for(G4int i=0;i<BDSSamplerCylinder::GetNSamplers();i++)
     {
-      //G4String name="samp"+BDSGlobals->StringFromInt(i+1);
+      //G4String name="samp"+BDSGlobalConstants::Instance()->StringFromInt(i+1);
       G4String name=CSampName[i];
       TTree* SamplerTree = new TTree(name, "Sampler output");
       
@@ -141,7 +141,7 @@ void BDSOutput::Init(G4int FileNum)
       SamplerTree->Branch("trackID",&track_id,"trackID/I");
     }
 
-  if(BDSGlobals->GetStoreTrajectory() || BDSGlobals->GetStoreMuonTrajectories() || BDSGlobals->GetStoreNeutronTrajectories()) 
+  if(BDSGlobalConstants::Instance()->GetStoreTrajectory() || BDSGlobalConstants::Instance()->GetStoreMuonTrajectories() || BDSGlobalConstants::Instance()->GetStoreNeutronTrajectories()) 
     // create a tree with trajectories
     {
       //G4cout<<"BDSOutput::storing trajectories set"<<G4endl;
@@ -153,30 +153,26 @@ void BDSOutput::Init(G4int FileNum)
     }
 
   // build energy loss histogram
-  G4int nBins = G4int(zMax/(BDSGlobals->GetElossHistoBinWidth()*m));
-  G4double wx=(BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelOffsetX())*2;
-  G4double wy=(BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelOffsetY())*2;
-  G4double bs=BDSGlobals->GetComponentBoxSize();
+  G4int nBins = G4int(zMax/(BDSGlobalConstants::Instance()->GetElossHistoBinWidth()*m));
+  G4double wx=(BDSGlobalConstants::Instance()->GetTunnelRadius()+BDSGlobalConstants::Instance()->GetTunnelOffsetX())*2;
+  G4double wy=(BDSGlobalConstants::Instance()->GetTunnelRadius()+BDSGlobalConstants::Instance()->GetTunnelOffsetY())*2;
+  G4double bs=BDSGlobalConstants::Instance()->GetComponentBoxSize();
   G4double wmax=std::max(wx,wy);
   wmax=std::max(wmax,bs);
 
   EnergyLossHisto = new TH1F("ElossHisto", "Energy Loss",nBins,0.,zMax/m);
-  //  G4int nTransBins = G4int(wmax*m/(BDSGlobals->GetElossHistoTransBinWidth()*m));
-  //  EnergyLossHisto3d = new TH3F("ElossHisto3d", "Energy Loss 3d",nBins,0.,zMax/m, nTransBins, 0, transMax/m, nTransBins, 0, transMax/m);
-
-  /*
-    LCD dev 3/7/12
-  EnergyLossHisto3d = new TH3F("ElossHisto3d", "Energy Loss 3d",100,0.,0., 100, 0, 0, 100, 0, 0);
-  */
+  EnergyLossTree=new TTree("ElossTree", "Energy Loss");
+  EnergyLossTree->Branch("z",&z_el,"z (m)/F");
+  EnergyLossTree->Branch("E",&E_el,"E (GeV)/F");
 
   PrecisionRegionEnergyLossTree= new TTree("PrecisionRegionElossTree", "Energy Loss");//"x:y:z:E:partID:parentID:weight:volumeName");
-  PrecisionRegionEnergyLossTree->Branch("x",&x_el,"x (m)/F");
-  PrecisionRegionEnergyLossTree->Branch("y",&y_el,"y (m)/F");
-  PrecisionRegionEnergyLossTree->Branch("z",&z_el,"z (m)/F");
-  PrecisionRegionEnergyLossTree->Branch("E",&E_el,"E (GeV)/F");
-  PrecisionRegionEnergyLossTree->Branch("weight",&weight_el,"weight/F");
-  PrecisionRegionEnergyLossTree->Branch("partID",&part_el,"partID/I");
-  PrecisionRegionEnergyLossTree->Branch("volumeName",&volumeName_el,"volumeName/C");
+  PrecisionRegionEnergyLossTree->Branch("x",&x_el_p,"x (m)/F");
+  PrecisionRegionEnergyLossTree->Branch("y",&y_el_p,"y (m)/F");
+  PrecisionRegionEnergyLossTree->Branch("z",&z_el_p,"z (m)/F");
+  PrecisionRegionEnergyLossTree->Branch("E",&E_el_p,"E (GeV)/F");
+  PrecisionRegionEnergyLossTree->Branch("weight",&weight_el_p,"weight/F");
+  PrecisionRegionEnergyLossTree->Branch("partID",&part_el_p,"partID/I");
+  PrecisionRegionEnergyLossTree->Branch("volumeName",&volumeName_el_p,"volumeName/C");
 #endif // USE_ROOT
 }
 
@@ -222,11 +218,11 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
 	//name="samp";
 	//else if ((*hc)[i]->GetType()=="cylinder")
 	//name ="cyln";
-	//name="samp" + BDSGlobals->StringFromInt((*hc)[i]->GetNumber());
+	//name="samp" + BDSGlobalConstants::Instance()->StringFromInt((*hc)[i]->GetNumber());
 	
 	TTree* sTree=(TTree*)gDirectory->Get((*hc)[i]->GetName());
 	
-	if(!sTree) G4Exception("BDSOutput: ROOT Sampler not found!");
+	if(!sTree) G4Exception("BDSOutput: ROOT Sampler not found!", "-1", FatalException, "");
 	
 	E0=(*hc)[i]->GetInitMom() / GeV;
 	x0=(*hc)[i]->GetInitX() / micrometer;
@@ -393,16 +389,17 @@ void BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
         E_el=(*hc)[i]->GetEnergy()/GeV;
 	z_el=(*hc)[i]->GetEnergyWeightedZ()*10*(1e-6)/(cm*E_el);
 	EnergyLossHisto->Fill(z_el,E_el);
+	EnergyLossTree->Fill();
 
 	if((*hc)[i]->GetPrecisionRegion()){ //Only the precision region fills this tree, preserving every hit, its position and weight, instead of summing weighted energy in each beam line component.
-	  weight_el=(*hc)[i]->GetWeight();
-	  E_el=((*hc)[i]->GetEnergy()/GeV)/weight_el;
-	  x_el=((*hc)[i]->GetEnergyWeightedX()/(cm*1e5*E_el))/weight_el;
-	  y_el=((*hc)[i]->GetEnergyWeightedY()*10/(cm*E_el))/weight_el;
-	  z_el=((*hc)[i]->GetEnergyWeightedZ()*10*(1e-6)/(cm*E_el))/weight_el;
-	  part_el=(*hc)[i]->GetPartID();
+	  weight_el_p=(*hc)[i]->GetWeight();
+	  E_el_p=((*hc)[i]->GetEnergy()/GeV)/weight_el_p;
+	  x_el_p=((*hc)[i]->GetEnergyWeightedX()/(cm*1e5*E_el_p))/weight_el_p;
+	  y_el_p=((*hc)[i]->GetEnergyWeightedY()*10/(cm*E_el_p))/weight_el_p;
+	  z_el_p=((*hc)[i]->GetEnergyWeightedZ()*10*(1e-6)/(cm*E_el_p))/weight_el_p;
+	  part_el_p=(*hc)[i]->GetPartID();
 	  G4String temp = (*hc)[i]->GetName()+'\0';
-	  strcpy(volumeName_el,temp.c_str());
+	  strcpy(volumeName_el_p,temp.c_str());
 	  PrecisionRegionEnergyLossTree->Fill();
 	}
 

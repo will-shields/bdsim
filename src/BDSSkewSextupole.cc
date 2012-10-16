@@ -4,9 +4,9 @@
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 
    Modified 22.03.05 by J.C.Carter, Royal Holloway, Univ. of London.
-   Changed StringFromInt to BDSGlobals version
+   Changed StringFromInt to BDSGlobalConstants::Instance() version
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSSkewSextupole.hh"
 #include "G4Box.hh"
@@ -48,20 +48,20 @@ BDSSkewSextupole::BDSSkewSextupole(G4String& aName,G4double aLength,
 
       BuildDefaultOuterLogicalVolume(itsLength);
 
-      if(BDSGlobals->GetSensitiveBeamPipe()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
         SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
       }
-      if(BDSGlobals->GetSensitiveComponents()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
         SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
       }
 
-      if(BDSGlobals->GetIncludeIronMagFields())
+      if(BDSGlobalConstants::Instance()->GetIncludeIronMagFields())
 	{
 	  G4double polePos[4];
 	  G4double Bfield[3];
 
-	  polePos[0]=-BDSGlobals->GetMagnetPoleRadius()*sin(pi/6);
-	  polePos[1]=BDSGlobals->GetMagnetPoleRadius()*cos(pi/6);
+	  polePos[0]=-BDSGlobalConstants::Instance()->GetMagnetPoleRadius()*sin(pi/6);
+	  polePos[1]=BDSGlobalConstants::Instance()->GetMagnetPoleRadius()*cos(pi/6);
 	  polePos[2]=0.;
 	  polePos[3]=-999.;//flag to use polePos rather than local track
 	                   //coordinate in GetFieldValue	    
@@ -69,9 +69,9 @@ BDSSkewSextupole::BDSSkewSextupole(G4String& aName,G4double aLength,
 	  itsMagField->GetFieldValue(polePos,Bfield);
 	  G4double BFldIron=
 	    sqrt(Bfield[0]*Bfield[0]+Bfield[1]*Bfield[1])*
-	    BDSGlobals->GetMagnetPoleSize()/
-	    (BDSGlobals->GetComponentBoxSize()/2-
-	     BDSGlobals->GetMagnetPoleRadius());
+	    BDSGlobalConstants::Instance()->GetMagnetPoleSize()/
+	    (BDSGlobalConstants::Instance()->GetComponentBoxSize()/2-
+	     BDSGlobalConstants::Instance()->GetMagnetPoleRadius());
 	  // Magnetic flux from a pole is divided in two directions
 	  BFldIron/=2.;
 
@@ -85,17 +85,17 @@ BDSSkewSextupole::BDSSkewSextupole(G4String& aName,G4double aLength,
   else
     {
       (*LogVolCount)[itsName]++;
-      if(BDSGlobals->GetSynchRadOn()&& BDSGlobals->GetSynchRescale())
+      if(BDSGlobalConstants::Instance()->GetSynchRadOn()&& BDSGlobalConstants::Instance()->GetSynchRescale())
 	{
 	  // with synchrotron radiation, the rescaled magnetic field
 	  // means elements with the same name must have different
 	  //logical volumes, becuase they have different fields
-	  itsName+=BDSGlobals->StringFromInt((*LogVolCount)[itsName]);
+	  itsName+=BDSGlobalConstants::Instance()->StringFromInt((*LogVolCount)[itsName]);
 	  BuildBPFieldAndStepper();
 	  BuildBPFieldMgr(itsStepper,itsMagField);
 	  BuildDefaultMarkerLogicalVolume();
 	  
-          if(BDSGlobals->GetBuildTunnel()){
+          if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
             BuildTunnel();
           }
           BuildBeampipe();
@@ -104,10 +104,10 @@ BDSSkewSextupole::BDSSkewSextupole(G4String& aName,G4double aLength,
           //Build the beam loss monitors
           BuildBLMs();
 
-          if(BDSGlobals->GetSensitiveBeamPipe()){
+          if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
             SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
           }
-          if(BDSGlobals->GetSensitiveComponents()){
+          if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
             SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
           }
 

@@ -15,7 +15,7 @@
 //
 
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSSolenoid.hh"
 #include "G4Mag_UsualEqRhs.hh"
@@ -73,7 +73,7 @@ BDSSolenoid::BDSSolenoid(G4String aName, G4double aLength,
       // build magnet (geometry + magnetic field)
       //
       BuildDefaultOuterLogicalVolume(itsLength);
-      if(BDSGlobals->GetIncludeIronMagFields())
+      if(BDSGlobalConstants::Instance()->GetIncludeIronMagFields())
 	{
 	  G4cerr<<"IncludeIronMagFields option not implemented for solenoid class"<<G4endl;
 	}
@@ -83,10 +83,10 @@ BDSSolenoid::BDSSolenoid(G4String aName, G4double aLength,
       //
       // define sensitive volumes for hit generation
       //
-      if(BDSGlobals->GetSensitiveBeamPipe()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
         SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
       }
-      if(BDSGlobals->GetSensitiveComponents()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
         SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
       }
 
@@ -106,12 +106,12 @@ BDSSolenoid::BDSSolenoid(G4String aName, G4double aLength,
   else
     {
       (*LogVolCount)[itsName]++;
-      if(BDSGlobals->GetSynchRadOn()&& BDSGlobals->GetSynchRescale())
+      if(BDSGlobalConstants::Instance()->GetSynchRadOn()&& BDSGlobalConstants::Instance()->GetSynchRescale())
 	{
 	  // with synchrotron radiation, the rescaled magnetic field
 	  // means elements with the same name must have different
 	  //logical volumes, becuase they have different fields
-	  itsName+=BDSGlobals->StringFromInt((*LogVolCount)[itsName]);
+	  itsName+=BDSGlobalConstants::Instance()->StringFromInt((*LogVolCount)[itsName]);
 
 	  //
 	  // build external volume
@@ -129,7 +129,7 @@ BDSSolenoid::BDSSolenoid(G4String aName, G4double aLength,
 	  // build magnet (geometry + magnetic field)
 	  //
 	  BuildDefaultOuterLogicalVolume(itsLength);
-	  if(BDSGlobals->GetIncludeIronMagFields())
+	  if(BDSGlobalConstants::Instance()->GetIncludeIronMagFields())
 	    {
 	      G4cerr<<"IncludeIronMagFields option not implemented for solenoid class"<<G4endl;
 	    }
@@ -138,10 +138,10 @@ BDSSolenoid::BDSSolenoid(G4String aName, G4double aLength,
 	  //
 	  // define sensitive volumes for hit generation
 	  //
-          if(BDSGlobals->GetSensitiveBeamPipe()){
+          if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
             SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
           }
-          if(BDSGlobals->GetSensitiveComponents()){
+          if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
             SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
           }
           

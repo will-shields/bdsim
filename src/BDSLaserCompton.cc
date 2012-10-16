@@ -5,7 +5,7 @@
 */
 //      ------------ BDSLaserCompton physics process --------
 //                     by Grahame Blair, 18 October 2001
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSLaserCompton.hh"
 #include "G4ios.hh"
@@ -19,8 +19,8 @@ BDSLaserCompton::BDSLaserCompton(const G4String& processName)
   :  G4VeEnergyLoss(processName)
 #endif
 {
-  itsLaserWavelength=BDSGlobals->GetLaserwireWavelength();
-  itsLaserDirection=BDSGlobals->GetLaserwireDir();
+  itsLaserWavelength=BDSGlobalConstants::Instance()->GetLaserwireWavelength();
+  itsLaserDirection=BDSGlobalConstants::Instance()->GetLaserwireDir();
 
 
   //	if(itsLaserWavelength<=0.)
@@ -56,12 +56,12 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
  
  if(aMaterial==theMaterials->GetMaterial("LaserVac"))
    {
-     itsLaserWavelength=BDSGlobals->GetLaserwireWavelength();
-     itsLaserDirection=BDSGlobals->GetLaserwireDir();
+     itsLaserWavelength=BDSGlobalConstants::Instance()->GetLaserwireWavelength();
+     itsLaserDirection=BDSGlobalConstants::Instance()->GetLaserwireDir();
      
      //G4cout << "&&&&&" << itsLaserDirection << "&&&&&\n";
      if(itsLaserWavelength<=0.)
-       {G4Exception("BDSLaserCompton::PostStepDoIt - Invalid Wavelength");}
+       {G4Exception("BDSLaserCompton::PostStepDoIt - Invalid Wavelength", "-1", FatalException, "");}
      itsLaserEnergy=twopi*hbarc/itsLaserWavelength;
      // point laserwire in x:     P_x        Py Pz   E
      G4LorentzVector Laser4mom(itsLaserEnergy*itsLaserDirection.unit(),itsLaserEnergy);
@@ -74,7 +74,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
      
      itsComptonEngine->PerformCompton();
      
-     if(BDSGlobals->GetLaserwireTrackPhotons())
+     if(BDSGlobalConstants::Instance()->GetLaserwireTrackPhotons())
        {
 
 	 // create G4DynamicParticle object for the Gamma 
@@ -87,7 +87,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
 	 
 	 aParticleChange.SetNumberOfSecondaries(1);
 	 aParticleChange.AddSecondary(aGamma); 
-	 if(!BDSGlobals->GetLaserwireTrackElectrons())
+	 if(!BDSGlobalConstants::Instance()->GetLaserwireTrackElectrons())
 	 	   {
 #if G4VERSION_NUMBER > 699
 	     aParticleChange.ProposeEnergy( 0. );

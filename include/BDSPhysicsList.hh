@@ -27,6 +27,8 @@ public:
 
 
   void AddScoringProcess();
+
+  void AddParameterisation();
   
   void ConstructParticle();
   void ConstructProcess();

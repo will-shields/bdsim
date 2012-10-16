@@ -72,7 +72,7 @@ inline G4LorentzVector BDSComptonEngine::GetScatteredGamma()
 inline void BDSComptonEngine::SetIncomingPhoton4Vec(G4LorentzVector inGam)
 {itsIncomingGam=inGam;
  if(itsIncomingEl.e()<electron_mass_c2)
-      {G4Exception("BDSComptonEngine: Invalid Electron Energy");}
+      {G4Exception("BDSComptonEngine: Invalid Electron Energy", "-1", FatalException, "");}
 
 }
 inline void BDSComptonEngine::SetIncomingElectron4Vec(G4LorentzVector inEl)

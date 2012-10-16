@@ -4,7 +4,7 @@
    Copyright (c) 2003 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSMagFieldSQL.hh"
 #include "G4Navigator.hh"
@@ -149,7 +149,7 @@ void BDSMagFieldSQL::GetFieldValue( const G4double Point[4],
 	// the mokka region length is not set properly, or that the BDSRKStepper
 	// is asking for a step length greater than the Mokka marker length
 	G4cout << "Z position in Mokka region less than 0 - check step lengths!!" << G4endl;
-	G4Exception("Quitting BDSIM in BDSMagFieldSQL.cc");
+	G4Exception("Quitting BDSIM in BDSMagFieldSQL.cc", "-1", FatalException, "");
       }
     G4double zlow = floor(tempz);
     G4int ilow = (G4int)(zlow);
@@ -218,7 +218,7 @@ void BDSMagFieldSQL::Prepare(G4VPhysicalVolume *referenceVolume)
     if(!ifs)
       {
 	G4cerr<<"\nBDSMagFieldSQL.cc: Unable to open Field Map File: " << FieldFile << G4endl;
-	G4Exception("Aborting Program");
+	G4Exception("Aborting Program", "-1", FatalException, "");
       }
     else
       G4cout << "Loading SQL Field Map file: " << FieldFile << G4endl;

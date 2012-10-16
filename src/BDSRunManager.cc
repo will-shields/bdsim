@@ -46,35 +46,35 @@ void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
 
     if(BDSDump::GetNumberOfDumps()!=0){
       // Run reference bunch for dumps
-      BDSGlobals->isReference=true;
+      BDSGlobalConstants::Instance()->isReference=true;
       DoEventLoop(nptwiss,macroFile,0);
-      BDSGlobals->isReference=false;
+      BDSGlobalConstants::Instance()->isReference=false;
     }
 
     if(n_event>0) DoEventLoop(n_event,macroFile,n_select);
     RunTermination();
-    while(!BDSGlobals->holdingQueue.empty()){
-      BDSGlobals->setReadFromStack(true);
+    while(!BDSGlobalConstants::Instance()->holdingQueue.empty()){
+      BDSGlobalConstants::Instance()->setReadFromStack(true);
       SM->ClearPostponeStack();
 
       RunInitialization();
 //      DoEventLoop(n_event,macroFile,n_select);
-      DoEventLoop(BDSGlobals->holdingQueue.size(),macroFile,n_select);
+      DoEventLoop(BDSGlobalConstants::Instance()->holdingQueue.size(),macroFile,n_select);
       RunTermination();
 
-      BDSGlobals->setReadFromStack(false);
+      BDSGlobalConstants::Instance()->setReadFromStack(false);
     }
-    BDSGlobals->referenceQueue.clear();
+    BDSGlobalConstants::Instance()->referenceQueue.clear();
 
     while(BDSDump::nUsedDumps < BDSDump::GetNumberOfDumps())
     {
       int token;
-      FILE* fifo = fopen(BDSGlobals->GetFifo(),"w");
+      FILE* fifo = fopen(BDSGlobalConstants::Instance()->GetFifo(),"w");
       fprintf(fifo,"# nparticles = 0\n");
       printf("# nparticles read from fifo = 0\n");
       fclose(fifo);
 
-      fifo = fopen(BDSGlobals->GetFifo(),"r");
+      fifo = fopen(BDSGlobalConstants::Instance()->GetFifo(),"r");
       fscanf(fifo,"# nparticles = %i",&token);
       fclose(fifo);
 

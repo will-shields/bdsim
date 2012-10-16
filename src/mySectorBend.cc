@@ -1,4 +1,4 @@
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "mySectorBend.hh"
 #include "G4Box.hh"
@@ -37,7 +37,7 @@ mySectorBend::mySectorBend(G4String aName,G4double aLength,
 {
 
   if (outR==0) 
-    SetOuterRadius(BDSGlobals->GetComponentBoxSize()/2);
+    SetOuterRadius(BDSGlobalConstants::Instance()->GetComponentBoxSize()/2);
   else
     SetOuterRadius(outR);
   itsTilt = tilt;
@@ -50,7 +50,7 @@ mySectorBend::mySectorBend(G4String aName,G4double aLength,
     {
       BuildSBMarkerLogicalVolume();
 
-      if(BDSGlobals->GetBuildTunnel()){
+      if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
         BuildTunnel();
       }
 
@@ -62,20 +62,20 @@ mySectorBend::mySectorBend(G4String aName,G4double aLength,
 
       BuildSBOuterLogicalVolume();
 
-      if(BDSGlobals->GetSensitiveBeamPipe()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
         SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
       }
-      if(BDSGlobals->GetSensitiveComponents()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
         SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
       }
 
-      if(BDSGlobals->GetIncludeIronMagFields())
+      if(BDSGlobalConstants::Instance()->GetIncludeIronMagFields())
 	{
 	  G4double polePos[4];
 	  G4double Bfield[3];
 
 	  polePos[0]=0.;
-	  polePos[1]=BDSGlobals->GetMagnetPoleRadius();
+	  polePos[1]=BDSGlobalConstants::Instance()->GetMagnetPoleRadius();
 	  polePos[2]=0.;
 	  polePos[0]=-999.;//flag to use polePos rather than local track
 	  //coordinate in GetFieldValue	    
@@ -83,9 +83,9 @@ mySectorBend::mySectorBend(G4String aName,G4double aLength,
       	  itsMagField->GetFieldValue(polePos,Bfield);
 	  G4double BFldIron=
 	  sqrt(Bfield[0]*Bfield[0]+Bfield[1]*Bfield[1])*
-	  BDSGlobals->GetMagnetPoleSize()/
-	  (BDSGlobals->GetComponentBoxSize()/2-
-	  BDSGlobals->GetMagnetPoleRadius());
+	  BDSGlobalConstants::Instance()->GetMagnetPoleSize()/
+	  (BDSGlobalConstants::Instance()->GetComponentBoxSize()/2-
+	  BDSGlobalConstants::Instance()->GetMagnetPoleRadius());
 
 	  // Magnetic flux from a pole is divided in two directions
 	  BFldIron/=2.;
@@ -117,12 +117,12 @@ mySectorBend::mySectorBend(G4String aName,G4double aLength,
   else
     {
       (*LogVolCount)[itsName]++;
-      if(BDSGlobals->GetSynchRadOn()&& BDSGlobals->GetSynchRescale())
+      if(BDSGlobalConstants::Instance()->GetSynchRadOn()&& BDSGlobalConstants::Instance()->GetSynchRescale())
 	{
 	  // with synchrotron radiation, the rescaled magnetic field
 	  // means elements with the same name must have different
 	  //logical volumes, becuase they have different fields
-	  itsName+=BDSGlobals->StringFromInt((*LogVolCount)[itsName]);
+	  itsName+=BDSGlobalConstants::Instance()->StringFromInt((*LogVolCount)[itsName]);
 
 	  BuildSBMarkerLogicalVolume();
 
@@ -195,7 +195,7 @@ void mySectorBend::BuildBPFieldAndStepper()
 
   BuildBPFieldMgr(itsStepper,itsMagField);
 
-  itsBeampipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
+  itsBeampipeLogicalVolume->SetFieldManager(BDSGlobalConstants::Instance()->GetZeroFieldManager(),false);
   itsInnerBPLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
 
 }
@@ -213,7 +213,7 @@ void mySectorBend::BuildSBMarkerLogicalVolume()
 				    rho,             // swept R
 				    0,               // starting phi
 				    fabs(itsAngle)), // delta phi
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			itsName+"_marker");
 #ifndef NOUSERLIMITS
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX);
@@ -235,7 +235,7 @@ void mySectorBend::BuildSBBeampipe()
 
   // *** toroidal beampipes - problems with G4Torus::DistanceToTorus
   // *** when calling G4PolynomialSolver.Solve()
-  G4double bpThickness = BDSGlobals->GetBeampipeThickness();
+  G4double bpThickness = BDSGlobalConstants::Instance()->GetBeampipeThickness();
   G4Torus *pipeTube = new G4Torus(itsName+"_pipe_outer",
 				  itsBpRadius-bpThickness, // innerR
 				  itsBpRadius,             // outer R
@@ -257,7 +257,7 @@ void mySectorBend::BuildSBBeampipe()
   //
 
   // use default beampipe material
-  G4Material *material =  theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName());
+  G4Material *material =  theMaterials->GetMaterial( BDSGlobalConstants::Instance()->GetPipeMaterialName());
   
   itsBeampipeLogicalVolume=	
     new G4LogicalVolume(pipeTube,
@@ -266,7 +266,7 @@ void mySectorBend::BuildSBBeampipe()
   
   itsInnerBPLogicalVolume=	
     new G4LogicalVolume(pipeInner,
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			itsName+"_bmp_Inner_log");
 
 
@@ -298,15 +298,15 @@ void mySectorBend::BuildSBBeampipe()
 #ifndef NOUSERLIMITS
   itsBeampipeUserLimits =
     new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
+  		     BDSGlobalConstants::Instance()->GetThresholdCutCharged());
   
   itsInnerBeampipeUserLimits =
     new G4UserLimits("inner beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
+  		     BDSGlobalConstants::Instance()->GetThresholdCutCharged());
   /*  
       itsOuterUserLimits =
       new G4UserLimits("sbend cut",itsLength,DBL_MAX,DBL_MAX,
-      BDSGlobals->GetThresholdCutCharged());
+      BDSGlobalConstants::Instance()->GetThresholdCutCharged());
   
       itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
   */
@@ -318,7 +318,7 @@ void mySectorBend::BuildSBBeampipe()
 #endif
   // zero field in the marker volume
   itsMarkerLogicalVolume->
-    SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
+    SetFieldManager(BDSGlobalConstants::Instance()->GetZeroFieldManager(),false);
 
 }
 
@@ -347,7 +347,7 @@ void mySectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum)
 				      rho,                // swept R
 				      0,                  // starting phi
 				      fabs(itsAngle) ),   // delta phi
-                          theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+                          theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
                           itsName+"_outer");
     }
 
@@ -377,7 +377,7 @@ void mySectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum)
 #ifndef NOUSERLIMITS
   itsOuterUserLimits =
     new G4UserLimits("multipole cut",itsLength,DBL_MAX,DBL_MAX,
-                     BDSGlobals->GetThresholdCutCharged());
+                     BDSGlobalConstants::Instance()->GetThresholdCutCharged());
   //  itsOuterUserLimits->SetMaxAllowedStep(aLength);
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
 #endif

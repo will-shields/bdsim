@@ -15,7 +15,7 @@
    Added ListMaterials function
 */
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSMaterials.hh"
 #include "G4NistManager.hh"
@@ -517,7 +517,7 @@ void BDSMaterials::Initialise()
   materials[name] = tmpMaterial; 
 
   //Vacuum (same composition as residual vacuum in warm sections of LHC).
-  pressure=BDSGlobals->GetVacuumPressure();
+  pressure=BDSGlobalConstants::Instance()->GetVacuumPressure();
   density = (STP_Temperature/temperature) * (pressure/(1.*atmosphere))  * 29*g/(22.4*1.e-3*m3) ;
 #ifdef DEBUG 
   G4cout<< " ***************** defining Vacuum"<<G4endl;
@@ -553,8 +553,11 @@ void BDSMaterials::AddMaterial(G4Material* aMaterial, G4String aName)
 #ifdef DEBUG
     G4cout << "New material : " << aName << " added to material table" << G4endl;
 #endif
+
+  }else{
+    G4String exceptionString = "Material "+aName+" already exists\n";
+    G4Exception(exceptionString.c_str(), "-1", FatalException, "");
   }
-  else G4Exception("Material "+aName+" already exists\n");
 }
 
 // add material with default state (kSolidState), temperature (273.15K)
@@ -567,8 +570,10 @@ void BDSMaterials::AddMaterial(G4String aName, G4double itsZ, G4double itsA, G4d
 #ifdef DEBUG
     G4cout << "New material : " << aName << " added to material table" << G4endl;
 #endif
+  }else{
+    G4String exceptionString = "Material "+aName+" already exists\n";
+    G4Exception(exceptionString.c_str(), "-1", FatalException, "");
   }
-  else G4Exception("Material "+aName+" already exists\n");
 }
 
 void BDSMaterials::AddMaterial(G4String aName, G4double itsDensity, G4State itsState,
@@ -595,9 +600,10 @@ list<const char*> itsComponents, list<G4double> itsComponentsFractions)
 #ifdef DEBUG
     G4cout << "New material : " << aName << " added to material table" << G4endl;
 #endif
+  }else{
+    G4String exceptionString = "Material "+aName+" already exists\n";
+    G4Exception(exceptionString.c_str(), "-1", FatalException, "");  
   }
-  else G4Exception("Material "+aName+" already exists\n");
-  
 }
 
 void BDSMaterials::AddMaterial(G4String aName, G4double itsDensity, G4State itsState,
@@ -624,8 +630,10 @@ list<const char*> itsComponents, list<G4int> itsComponentsWeights)
 #ifdef DEBUG
     G4cout << "New material : " << aName << " added to material table" << G4endl;
 #endif
+  }else{
+    G4String exceptionString = "Material "+aName+" already exists\n";
+    G4Exception(exceptionString.c_str(), "-1", FatalException, "");
   }
-  else G4Exception("Material "+aName+" already exists\n");
 }
 
 void BDSMaterials::AddElement(G4Element* aElement, G4String aSymbol)
@@ -634,8 +642,10 @@ void BDSMaterials::AddElement(G4Element* aElement, G4String aSymbol)
 #ifdef DEBUG
     G4cout << "New atom : " << aSymbol << G4endl;
 #endif
+  }else{
+    G4String exceptionString = "Atom "+aSymbol+" already exists\n";
+    G4Exception(exceptionString.c_str(), "-1", FatalException, "");
   }
-  else G4Exception("Atom "+aSymbol+" already exists\n");
 }
 
 void BDSMaterials::AddElement(G4String aName, G4String aSymbol, G4double itsZ, G4double itsA)
@@ -645,8 +655,10 @@ void BDSMaterials::AddElement(G4String aName, G4String aSymbol, G4double itsZ, G
 #ifdef DEBUG
     G4cout << "New atom : " << aSymbol << G4endl;
 #endif
+  }else{
+    G4String exceptionString = "Atom "+aSymbol+" already exists\n";
+    G4Exception(exceptionString.c_str(), "-1", FatalException, "");
   }
-  else G4Exception("Atom "+aSymbol+" already exists\n");
 }
 
 G4Material* BDSMaterials::GetMaterial(G4String aMaterial)
@@ -667,7 +679,8 @@ G4Material* BDSMaterials::GetMaterial(G4String aMaterial)
     map<G4String,G4Material*>::iterator iter = materials.find(aMaterial);
     if(iter != materials.end()) return (*iter).second;
     else{
-      G4Exception("BDSMaterials::GetMaterial - Material "+aMaterial+" not known. Aborting.");
+      G4String exceptionString = "BDSMaterials::GetMaterial - Material "+aMaterial+" not known. Aborting.";
+      G4Exception(exceptionString.c_str(), "-1", FatalException, "");
       exit(1);
     }
   }
@@ -690,7 +703,8 @@ G4Element* BDSMaterials::GetElement(G4String aSymbol)
     map<G4String,G4Element*>::iterator iter = elements.find(aSymbol);
     if(iter != elements.end()) return (*iter).second;
     else{
-      G4Exception("BDSMaterials::GetElement - Element "+aSymbol+" not known. Aborting.");
+      G4String exceptionString="BDSMaterials::GetElement - Element "+aSymbol+" not known. Aborting.";
+      G4Exception(exceptionString.c_str(), "-1", FatalException, "");
       exit(1);
     }
   }

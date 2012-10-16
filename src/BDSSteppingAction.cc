@@ -19,7 +19,7 @@
 //
 //====================================================
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSSteppingAction.hh"
 
@@ -125,7 +125,7 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 { 
 
   // check that there actually is a next volume as it may be the end of the optics line
-  if(BDSGlobals->DoTwiss()){
+  if(BDSGlobalConstants::Instance()->DoTwiss()){
     if(ThisStep->GetTrack()->GetNextVolume() && ThisStep->GetTrack()->GetParentID() <= 0) 
       {
 	
@@ -171,14 +171,14 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 		      type = (*iBeam)->GetType();
 		      if(verbose) G4cout << "Next Element is: " << (*iBeam)->GetName() << G4endl;
 		      if(verbose) G4cout << "Element Type: " << type << G4endl;
-		      G4double old_P0 = BDSGlobals->GetBeamTotalEnergy();
+		      G4double old_P0 = BDSGlobalConstants::Instance()->GetBeamTotalEnergy();
 		      G4double old_brho = 
 			sqrt(pow(old_P0,2)- pow(electron_mass_c2,2))/(0.299792458 * (GeV/(tesla*m)));
 		      G4double new_P0 = postponedEnergy/nptwiss;
 		      G4double new_brho = 
 			sqrt(pow(new_P0,2)- pow(electron_mass_c2,2))/(0.299792458 * (GeV/(tesla*m)));
 		      
-		      if(BDSGlobals->GetSynchRescale()) 
+		      if(BDSGlobalConstants::Instance()->GetSynchRescale()) 
 			{
 			  (*iBeam)->SynchRescale(new_brho/old_brho);
 			  if(verbose) G4cout << "Rescaling " << (*iBeam)->GetName() << "by: " << new_brho/old_brho << G4endl;
@@ -198,7 +198,7 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
   // ------------  output in case of verbose step ---------------------
 
 
-  if((verboseStep || verboseEventNumber == event_number) && (!BDSGlobals->GetSynchRescale()) )
+  if((verboseStep || verboseEventNumber == event_number) && (!BDSGlobalConstants::Instance()->GetSynchRescale()) )
     {
 	int ID=ThisStep->GetTrack()->GetTrackID();
 
@@ -247,12 +247,12 @@ G4String pName=ThisStep->GetTrack()->GetDefinition()->GetParticleName();
 
 // this cuts apply to default region
  if(pName=="gamma"){
-   if(ThisStep->GetTrack()->GetKineticEnergy()<BDSGlobals->GetThresholdCutPhotons())
+   if(ThisStep->GetTrack()->GetKineticEnergy()<BDSGlobalConstants::Instance()->GetThresholdCutPhotons())
      {
        ThisStep->GetTrack()->SetTrackStatus(fStopAndKill);
      }
  } else if(pName=="e-"||pName=="e+"){
-   if(ThisStep->GetTrack()->GetKineticEnergy()<BDSGlobals->GetThresholdCutCharged())
+   if(ThisStep->GetTrack()->GetKineticEnergy()<BDSGlobalConstants::Instance()->GetThresholdCutCharged())
      {
        ThisStep->GetTrack()->SetTrackStatus(fStopAndKill);
      }

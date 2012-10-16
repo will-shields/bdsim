@@ -10,7 +10,7 @@
 //    beam dumper/reader for online exchange with external codes
 //
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSDump.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
@@ -46,10 +46,10 @@ BDSDump::BDSDump (G4String aName,G4double aLength, G4String aTunnelMaterial):
 			 aLength,0,0,0,
 			 SetVisAttributes(), aTunnelMaterial)
 {
-  SetName("Dump_"+BDSGlobals->StringFromInt(nDumps)+"_"+itsName);
+  SetName("Dump_"+BDSGlobalConstants::Instance()->StringFromInt(nDumps)+"_"+itsName);
   DumpLogicalVolume();
   const int nParticles = nptwiss;
-  BDSGlobals->referenceQueue.push_back(new G4double[nParticles]);
+  BDSGlobalConstants::Instance()->referenceQueue.push_back(new G4double[nParticles]);
   ++nDumps;
   //G4int nDumps=(*LogVolCount)[itsName];
   //BDSRoot->SetDumpNumber(nDumps);
@@ -72,7 +72,7 @@ void BDSDump::DumpLogicalVolume()
     {
 
       G4double SampTransSize;
-      SampTransSize=2.*BDSGlobals->GetTunnelRadius();
+      SampTransSize=2.*BDSGlobalConstants::Instance()->GetTunnelRadius();
 
       itsMarkerLogicalVolume=
 	new G4LogicalVolume(
@@ -80,7 +80,7 @@ void BDSDump::DumpLogicalVolume()
 				      SampTransSize,
 				      SampTransSize,
 				      itsLength/2.0),
-			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			    theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			    itsName);
 
       (*LogVolCount)[itsName]=1;
@@ -88,7 +88,7 @@ void BDSDump::DumpLogicalVolume()
 #ifndef NOUSERLIMITS
       itsOuterUserLimits =new G4UserLimits();
       itsOuterUserLimits->SetMaxAllowedStep(itsLength);
-      itsOuterUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+      itsOuterUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
       itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
 #endif
       // Sensitive Detector:

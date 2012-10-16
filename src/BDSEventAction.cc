@@ -4,14 +4,14 @@
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 
    Modified 22.03.05 by J.C.Carter, Royal Holloway, Univ. of London.
-   Removed StringFromInt function - using BDSGlobals version
+   Removed StringFromInt function - using BDSGlobalConstants::Instance() version
    Added/Changed Sampler code for Plane Sampler or Cylinder Sampler (GABs Code)
 */
 
 
 //======================================================
 //======================================================
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSEventAction.hh"
 
@@ -120,16 +120,16 @@ void BDSEventAction::BeginOfEventAction(const G4Event* evt)
   htot=0.;
 
   
-   if(BDSGlobals->DoTwiss())
+   if(BDSGlobalConstants::Instance()->DoTwiss())
      {
        if(event_number==0) {
-         if(!BDSGlobals->GetSynchRescale()) G4cout << "\n---> Calculating Twiss Parameters"<<G4endl;
-         if(BDSGlobals->GetSynchRescale()) G4cout<<"\n---> Calculating Twiss Parameters and Rescaling magnets" <<G4endl;
+         if(!BDSGlobalConstants::Instance()->GetSynchRescale()) G4cout << "\n---> Calculating Twiss Parameters"<<G4endl;
+         if(BDSGlobalConstants::Instance()->GetSynchRescale()) G4cout<<"\n---> Calculating Twiss Parameters and Rescaling magnets" <<G4endl;
        }
      }
    else
      {
-       if (BDSGlobals->isReference==false && (event_number+1)%printModulo ==0)
+       if (BDSGlobalConstants::Instance()->isReference==false && (event_number+1)%printModulo ==0)
          {
            G4cout << "\n---> Begin of event: " << event_number ;
            G4cout << G4endl;
@@ -170,7 +170,7 @@ void BDSEventAction::EndOfEventAction(const G4Event* evt)
   G4cout<<"BDSEventAction : processing end of event action"<<G4endl;
 #endif
   
-  if(BDSGlobals->DoTwiss())
+  if(BDSGlobalConstants::Instance()->DoTwiss())
     {
       if(event_number==nptwiss-1)
 	{
@@ -259,11 +259,11 @@ G4cout<<"BDSEventAction : processing cylinder hits collection"<<G4endl;
 
   // if 0 events per ntuples - set max allowed events per ntuples  
 
-  int evntsPerNtuple = BDSGlobals->GetNumberOfEventsPerNtuple();
+  int evntsPerNtuple = BDSGlobalConstants::Instance()->GetNumberOfEventsPerNtuple();
 
   if(evntsPerNtuple>0)
     if ((event_number+1)% evntsPerNtuple == 0 && 
-		event_number+1 != BDSGlobals->GetNumberToGenerate())
+		event_number+1 != BDSGlobalConstants::Instance()->GetNumberToGenerate())
       {
 #ifdef DEBUG 
         G4cout<<"writing to file "<<G4endl;
@@ -290,9 +290,9 @@ G4cout<<"BDSEventAction : processing cylinder hits collection"<<G4endl;
   TrajectoryVector::iterator iT1;
 
   
-  if(BDSGlobals->GetStoreTrajectory() ||
-     BDSGlobals->GetStoreMuonTrajectories() ||
-     BDSGlobals->GetStoreNeutronTrajectories()){
+  if(BDSGlobalConstants::Instance()->GetStoreTrajectory() ||
+     BDSGlobalConstants::Instance()->GetStoreMuonTrajectories() ||
+     BDSGlobalConstants::Instance()->GetStoreNeutronTrajectories()){
 #ifdef DEBUG
   G4cout<<"BDSEventAction : storing trajectories"<<G4endl;
 #endif
@@ -301,8 +301,8 @@ G4cout<<"BDSEventAction : processing cylinder hits collection"<<G4endl;
       this->Traj=(G4VTrajectory*)(*iT1);
       this->trajEndPoint = this->Traj->GetPoint((int)Traj->GetPointEntries()-1);
       this->trajEndPointThreeVector = this->trajEndPoint->GetPosition();
-      if(trajEndPointThreeVector.z()/1000.0>BDSGlobals->GetTrajCutGTZ()  && 
-         (sqrt(pow(trajEndPointThreeVector.x()/1000.0,2) + pow(trajEndPointThreeVector.y()/1000.0,2))<BDSGlobals->GetTrajCutLTR())
+      if(trajEndPointThreeVector.z()/1000.0>BDSGlobalConstants::Instance()->GetTrajCutGTZ()  && 
+         (sqrt(pow(trajEndPointThreeVector.x()/1000.0,2) + pow(trajEndPointThreeVector.y()/1000.0,2))<BDSGlobalConstants::Instance()->GetTrajCutLTR())
          ){ 
         this->interestingTrajectories.push_back(Traj);
       }

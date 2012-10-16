@@ -63,11 +63,11 @@ class BDSGlobalConstants
 {
 public:
  
-  BDSGlobalConstants(struct Options&);
-
+  static BDSGlobalConstants* Instance();
   ~BDSGlobalConstants();
   
 
+ 
   G4double GetPI();
 
   G4bool GetDoPlanckScattering();
@@ -171,6 +171,9 @@ public:
   G4double GetProdCutPositrons();
   G4double GetProdCutPositronsP();
 
+  //Environment variables
+  G4String GetBDSIMHOME();
+
   // physical processes etc.
 
   G4String GetPhysListName();
@@ -271,7 +274,13 @@ public:
   G4bool isReference;
 
 protected:
+
+  BDSGlobalConstants(struct Options&);
+
+
 private:
+  static BDSGlobalConstants* _instance;
+
   G4UniformMagField* zeroMagField;
 
   G4double itsElossHistoBinWidth;
@@ -336,6 +345,7 @@ private:
   G4double itsProdCutElectronsP;
   G4double itsProdCutPositrons;
   G4double itsProdCutPositronsP;
+  G4String itsBDSIMHOME;
   G4String itsPhysListName;
   G4bool itsSynchRadOn;
   G4bool itsDecayOn;
@@ -675,6 +685,10 @@ inline void BDSGlobalConstants::SetTotalS(G4double TotalS)
 // inline G4double BDSGlobalConstants::GetHorizontalComponentOffset()
 // {return itsHorizontalComponentOffset;}
 
+inline G4String BDSGlobalConstants::GetBDSIMHOME()
+{
+  return itsBDSIMHOME;
+}
 
 inline G4String BDSGlobalConstants::GetPhysListName()
 {
@@ -865,6 +879,5 @@ inline const G4AffineTransform* BDSGlobalConstants::GetRefTransform() { return &
 inline void BDSGlobalConstants::SetRefTransform(G4AffineTransform& aTransform)
 {itsRefTransform=aTransform;}
 
-extern BDSGlobalConstants* BDSGlobals;
 #endif
 

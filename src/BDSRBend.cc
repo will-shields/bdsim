@@ -1,4 +1,4 @@
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSRBend.hh"
 #include "G4Tubs.hh"
@@ -65,7 +65,7 @@ BDSRBend::BDSRBend(G4String aName, G4double aLength,
 
       //
       //build tunnel 
-      if(BDSGlobals->GetBuildTunnel()){
+      if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
 	BuildTunnel(); //Geometry problem, do not build tunnel
       }
       
@@ -80,23 +80,23 @@ BDSRBend::BDSRBend(G4String aName, G4double aLength,
       // build magnet (geometry + magnetic field)
       //
       BuildRBOuterLogicalVolume();
-      if(BDSGlobals->GetIncludeIronMagFields())
+      if(BDSGlobalConstants::Instance()->GetIncludeIronMagFields())
 	{
 	  G4double polePos[4];
 	  G4double Bfield[3];
 
 	  //coordinate in GetFieldValue
 	  polePos[0]=0.;
-	  polePos[1]=BDSGlobals->GetMagnetPoleRadius();
+	  polePos[1]=BDSGlobalConstants::Instance()->GetMagnetPoleRadius();
 	  polePos[2]=0.;
 	  polePos[3]=-999.;//flag to use polePos rather than local track
 
 	  itsMagField->GetFieldValue(polePos,Bfield);
 	  G4double BFldIron=
 	    sqrt(Bfield[0]*Bfield[0]+Bfield[1]*Bfield[1])*
-	    BDSGlobals->GetMagnetPoleSize()/
-	    (BDSGlobals->GetComponentBoxSize()/2-
-	     BDSGlobals->GetMagnetPoleRadius());
+	    BDSGlobalConstants::Instance()->GetMagnetPoleSize()/
+	    (BDSGlobalConstants::Instance()->GetComponentBoxSize()/2-
+	     BDSGlobalConstants::Instance()->GetMagnetPoleRadius());
 
 	  // Magnetic flux from a pole is divided in two directions
 	  BFldIron/=2.;
@@ -107,10 +107,10 @@ BDSRBend::BDSRBend(G4String aName, G4double aLength,
       //
       // define sensitive volumes for hit generation
       //
-      if(BDSGlobals->GetSensitiveBeamPipe()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
         SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
       }
-      if(BDSGlobals->GetSensitiveComponents()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
         SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
       }
 
@@ -130,12 +130,12 @@ BDSRBend::BDSRBend(G4String aName, G4double aLength,
   else
     {
       (*LogVolCount)[itsName]++;
-      if(BDSGlobals->GetSynchRadOn()&& BDSGlobals->GetSynchRescale())
+      if(BDSGlobalConstants::Instance()->GetSynchRadOn()&& BDSGlobalConstants::Instance()->GetSynchRescale())
 	{
 	  // with synchrotron radiation, the rescaled magnetic field
 	  // means elements with the same name must have different
 	  // logical volumes, because they have different fields
-	  itsName+=BDSGlobals->StringFromInt((*LogVolCount)[itsName]);
+	  itsName+=BDSGlobalConstants::Instance()->StringFromInt((*LogVolCount)[itsName]);
 
 	  //
 	  // build external volume
@@ -153,23 +153,23 @@ BDSRBend::BDSRBend(G4String aName, G4double aLength,
 	  // build magnet (geometry + magnetic field)
 	  //
 	  BuildRBOuterLogicalVolume();
-	  if(BDSGlobals->GetIncludeIronMagFields())
+	  if(BDSGlobalConstants::Instance()->GetIncludeIronMagFields())
 	    {
 	      G4double polePos[4];
 	      G4double Bfield[3];
 	      
 	      //coordinate in GetFieldValue
 	      polePos[0]=0.;
-	      polePos[1]=BDSGlobals->GetMagnetPoleRadius();
+	      polePos[1]=BDSGlobalConstants::Instance()->GetMagnetPoleRadius();
 	      polePos[2]=0.;
 	      polePos[3]=-999.;//flag to use polePos rather than local track
 	      
 	      itsMagField->GetFieldValue(polePos,Bfield);
 	      G4double BFldIron=
 		sqrt(Bfield[0]*Bfield[0]+Bfield[1]*Bfield[1])*
-		BDSGlobals->GetMagnetPoleSize()/
-		(BDSGlobals->GetComponentBoxSize()/2-
-		 BDSGlobals->GetMagnetPoleRadius());
+		BDSGlobalConstants::Instance()->GetMagnetPoleSize()/
+		(BDSGlobalConstants::Instance()->GetComponentBoxSize()/2-
+		 BDSGlobalConstants::Instance()->GetMagnetPoleRadius());
 	      
 	      // Magnetic flux from a pole is divided in two directions
 	      BFldIron/=2.;
@@ -243,7 +243,7 @@ void BDSRBend::BuildRBMarkerLogicalVolume()
 {
   if (markerSolidVolume==0) {
 
-    G4double boxSize=BDSGlobals->GetComponentBoxSize()+BDSGlobals->GetTunnelRadius();
+    G4double boxSize=BDSGlobalConstants::Instance()->GetComponentBoxSize()+BDSGlobalConstants::Instance()->GetTunnelRadius();
 
     G4double xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
       - fabs(cos(itsAngle/2))*boxSize*tan(itsAngle/2)/2;
@@ -272,12 +272,12 @@ void BDSRBend::BuildRBMarkerLogicalVolume()
   
   itsMarkerLogicalVolume=    
     new G4LogicalVolume(markerSolidVolume,
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			LocalLogicalName+"_marker");
 
   rbendRectangleLogicalVolume=    
     new G4LogicalVolume(rbendRectangleSolidVolume,
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			LocalLogicalName+"_rbend_rectangle");
 #ifndef NOUSERLIMITS
   itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX);
@@ -289,7 +289,7 @@ void BDSRBend::BuildRBMarkerLogicalVolume()
   // zero field in the marker volume
   //
   itsMarkerLogicalVolume->
-    SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
+    SetFieldManager(BDSGlobalConstants::Instance()->GetZeroFieldManager(),false);
 }
 
 
@@ -299,13 +299,13 @@ void BDSRBend::BuildRBBeampipe()
   //
   // use default beampipe material
   //
-  G4Material *material =  theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName());
+  G4Material *material =  theMaterials->GetMaterial( BDSGlobalConstants::Instance()->GetPipeMaterialName());
   
   //
   // compute some geometrical parameters
   //
-  G4double bpThickness = BDSGlobals->GetBeampipeThickness();
-  G4double boxSize = BDSGlobals->GetComponentBoxSize();
+  G4double bpThickness = BDSGlobalConstants::Instance()->GetBeampipeThickness();
+  G4double boxSize = BDSGlobalConstants::Instance()->GetComponentBoxSize();
 
   G4double xHalfLengthMinus =
     (itsLength/itsAngle)*sin(itsAngle/2)
@@ -323,7 +323,7 @@ void BDSRBend::BuildRBBeampipe()
   // build beampipe
   //
   G4Tubs *pipeTubsEnv = new G4Tubs(itsName+"_pipe_outer_env",
-				   itsBpRadius+BDSGlobals->GetLengthSafety()/2.0, // inner R
+				   itsBpRadius+BDSGlobalConstants::Instance()->GetLengthSafety()/2.0, // inner R
 				   itsBpRadius+bpThickness,             // outer R
 				   tubLen,                  // length
 				   0,                       // starting phi
@@ -399,7 +399,7 @@ void BDSRBend::BuildRBBeampipe()
   
   itsInnerBPLogicalVolume=	
     new G4LogicalVolume(pipeInner,
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			itsName+"_bmp_Inner_log");
 
   middleBeampipeLogicalVolume=	
@@ -409,7 +409,7 @@ void BDSRBend::BuildRBBeampipe()
   
  middleInnerBPLogicalVolume=	
     new G4LogicalVolume(pipeMiddleInner,
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			itsName+"_bmp_Inner_log_middle");
 
  endsBeampipeLogicalVolume=	
@@ -419,7 +419,7 @@ void BDSRBend::BuildRBBeampipe()
   
  endsInnerBPLogicalVolume=	
     new G4LogicalVolume(pipeEndsInner,
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			itsName+"_bmp_Inner_log_ends");
 
 
@@ -427,7 +427,7 @@ void BDSRBend::BuildRBBeampipe()
    //
   // set magnetic field inside beampipe
   //
- middleBeampipeLogicalVolume->SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
+ middleBeampipeLogicalVolume->SetFieldManager(BDSGlobalConstants::Instance()->GetZeroFieldManager(),false);
  middleInnerBPLogicalVolume->SetFieldManager(itsBPFieldMgr,false);
 
 
@@ -440,7 +440,7 @@ void BDSRBend::BuildRBBeampipe()
 		      itsName+"_InnerBmp",     // its name
 		      itsMarkerLogicalVolume,  // its mother volume
 		      false,		       // no booleanm operation
-		      0, BDSGlobals->GetCheckOverlaps());		       // copy number
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		       // copy number
 
 
   G4VPhysicalVolume* PhysiComp;
@@ -452,7 +452,7 @@ void BDSRBend::BuildRBBeampipe()
 		      itsName+"_bmp",	        // its name
 		      itsMarkerLogicalVolume,   // its mother volume
 		      false,		        // no boolean operation
-		      0, BDSGlobals->GetCheckOverlaps()
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps()
 );		        // copy number
 
   G4VPhysicalVolume* PhysiInnerEnds;
@@ -464,7 +464,7 @@ void BDSRBend::BuildRBBeampipe()
 		      itsName+"_InnerBmp",     // its name
 		      itsMarkerLogicalVolume,  // its mother volume
 		      false,		       // no booleanm operation
-		      0, BDSGlobals->GetCheckOverlaps() );		       // copy number
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps() );		       // copy number
   
   G4VPhysicalVolume* PhysiCompEnds;
   PhysiCompEnds =
@@ -475,7 +475,7 @@ void BDSRBend::BuildRBBeampipe()
 		      itsName+"_bmp",	        // its name
 		      itsMarkerLogicalVolume,   // its mother volume
 		      false,		        // no boolean operation
-		      0, BDSGlobals->GetCheckOverlaps());		        // copy number
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		        // copy number
   
   SetMultiplePhysicalVolumes(PhysiInner);
   SetMultiplePhysicalVolumes(PhysiComp);
@@ -487,7 +487,7 @@ void BDSRBend::BuildRBBeampipe()
   //
   itsBeampipeUserLimits =
     new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
+  		     BDSGlobalConstants::Instance()->GetThresholdCutCharged());
   itsBeampipeUserLimits->SetMaxAllowedStep(itsMagFieldLength);
   middleBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
 
@@ -496,19 +496,19 @@ void BDSRBend::BuildRBBeampipe()
 
   endsBeampipeUserLimits =
     new G4UserLimits("beampipe ends cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
+  		     BDSGlobalConstants::Instance()->GetThresholdCutCharged());
   endsBeampipeUserLimits->SetMaxAllowedStep(endsMaxAllowedStep);
   endsBeampipeLogicalVolume->SetUserLimits(endsBeampipeUserLimits);
   
   itsInnerBeampipeUserLimits =
     new G4UserLimits("inner beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
+  		     BDSGlobalConstants::Instance()->GetThresholdCutCharged());
   itsInnerBeampipeUserLimits->SetMaxAllowedStep(itsMagFieldLength);
   middleInnerBPLogicalVolume->SetUserLimits(itsInnerBeampipeUserLimits);
 
   endsInnerBeampipeUserLimits =
     new G4UserLimits("inner beampipe ends cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
+  		     BDSGlobalConstants::Instance()->GetThresholdCutCharged());
   endsInnerBeampipeUserLimits->SetMaxAllowedStep(endsMaxAllowedStep);
   endsInnerBPLogicalVolume->SetUserLimits(endsInnerBeampipeUserLimits);
 
@@ -534,7 +534,7 @@ void BDSRBend::BuildRBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
   else
     material = theMaterials->GetMaterial("Iron");
 
-  G4double boxSize = BDSGlobals->GetComponentBoxSize();
+  G4double boxSize = BDSGlobalConstants::Instance()->GetComponentBoxSize();
  
   G4double xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
     - fabs(cos(itsAngle/2)) * boxSize * tan(itsAngle/2)/2;
@@ -546,7 +546,7 @@ void BDSRBend::BuildRBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
   
   G4Tubs *magTubsEnv =
     new G4Tubs(itsName+"_solid_env",
-	       itsInnerIronRadius+BDSGlobals->GetLengthSafety()/2.0, // inner R + overlap safety
+	       itsInnerIronRadius+BDSGlobalConstants::Instance()->GetLengthSafety()/2.0, // inner R + overlap safety
 	       itsOuterR,          // outer R
 	       tubLen,             // length
 	       0,                  // starting phi
@@ -563,7 +563,7 @@ void BDSRBend::BuildRBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
     {
       itsOuterLogicalVolume = 
 	new G4LogicalVolume(magTubs,
-			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			    theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			    itsName+"_outer");
     }
   else
@@ -582,13 +582,13 @@ void BDSRBend::BuildRBOuterLogicalVolume(G4bool OuterMaterialIsVacuum){
                       itsName+"_solid",       // its name
                       itsMarkerLogicalVolume, // its mother  volume
                       false,                  // no boolean operation
-                      0, BDSGlobals->GetCheckOverlaps());                     // copy number
+                      0, BDSGlobalConstants::Instance()->GetCheckOverlaps());                     // copy number
 
   SetMultiplePhysicalVolumes(itsPhysiComp);
 
   itsOuterUserLimits =
     new G4UserLimits("multipole cut",DBL_MAX,DBL_MAX,DBL_MAX,
-                     BDSGlobals->GetThresholdCutCharged());
+                     BDSGlobalConstants::Instance()->GetThresholdCutCharged());
   itsOuterUserLimits->SetMaxAllowedStep(itsMagFieldLength);
   itsOuterLogicalVolume->SetUserLimits(itsOuterUserLimits);
 }

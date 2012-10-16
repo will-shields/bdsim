@@ -1,6 +1,6 @@
 //This class descibes an inner and an outer solenoid field. Derived from BDSQuadMagField.cc.
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSDetectorSolenoidMagField.hh"
 #include "G4Navigator.hh"
 #include "G4TransportationManager.hh"

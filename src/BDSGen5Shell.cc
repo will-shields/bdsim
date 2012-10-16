@@ -15,7 +15,7 @@ BDSGen5Shell::BDSGen5Shell(G4double InnerRad, G4double OuterRad):
   ShellInnerRadius(InnerRad),ShellOuterRadius(OuterRad)
 {
   if(ShellInnerRadius>ShellOuterRadius)
-    G4Exception("BDSGen5Shell: Outer Radius smaller than Inner one!");
+    G4Exception("BDSGen5Shell: Outer Radius smaller than Inner one!", "-1", FatalErrorInArgument, "");
 
   // generate area of approximate function for sin^2 theta
   area2=1./3. +   2.*(pi/2-1)     + 1./3;

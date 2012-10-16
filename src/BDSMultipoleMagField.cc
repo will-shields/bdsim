@@ -9,7 +9,7 @@
 
 
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSMultipoleMagField.hh"
 
@@ -31,9 +31,9 @@ BDSMultipoleMagField::BDSMultipoleMagField(list<G4double> kn, list<G4double> ks)
   // formula: B(Tesla)*rho(m) = p(GeV)/(0.299792458 * |charge(e)|)
   //
   // charge (in |e| units)
-  G4double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();
+  G4double charge = BDSGlobalConstants::Instance()->GetParticleDefinition()->GetPDGCharge();
   // momentum (in GeV/c)
-  G4double momentum = (BDSGlobals->GetBeamMomentum())/GeV;
+  G4double momentum = (BDSGlobalConstants::Instance()->GetBeamMomentum())/GeV;
   // rigidity (in T*m)
   G4double brho = ( momentum / (0.299792458 * fabs(charge)));
   // rigidity (in Geant4 units)

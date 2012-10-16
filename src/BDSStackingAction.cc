@@ -53,14 +53,14 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
     G4RunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEvent()<<G4endl;
 #endif
   
-  if(BDSGlobals->DoTwiss())
+  if(BDSGlobalConstants::Instance()->DoTwiss())
     {
       if((aTrack->GetParentID() <= 0) &&
          (aTrack->GetTrackStatus()==fPostponeToNextEvent) )
 	classification = fPostpone;
     }
   
-  if(BDSGlobals->GetStopTracks()) // if tracks killed after interaction
+  if(BDSGlobalConstants::Instance()->GetStopTracks()) // if tracks killed after interaction
     {
       
       // kill secondary electrons
@@ -74,7 +74,7 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 	  //classification = fUrgent;
 
 	  // if we are in the twiss module - aperture hit is suspicious
-	  if( BDSGlobals->DoTwiss() ) 
+	  if( BDSGlobalConstants::Instance()->DoTwiss() ) 
 	    G4cout<<"WARNING : Electron "<<aTrack->GetParentID()<<" outside of aperture, twiss results will be incorrect"<<
 	      G4endl;;
 
@@ -96,7 +96,7 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 	  classification = fKill;
 
 	  // if we are in the twiss module - aperture hit is suspicious
-	  if( BDSGlobals->DoTwiss() ) 
+	  if( BDSGlobalConstants::Instance()->DoTwiss() ) 
 	    G4cout<<"WARNING : Positron outside of aperture, twiss results will be incorrect"<<
 	      G4endl;
 	}
@@ -110,28 +110,28 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 	  classification = fKill;
 	  
 	  // if we are in the twiss module - aperture hit is suspicious
-	  if( BDSGlobals->DoTwiss() ) 
+	  if( BDSGlobalConstants::Instance()->DoTwiss() ) 
 	    G4cout<<"WARNING : Proton outside of aperture, twiss results will be incorrect"<<
 	      G4endl;
 	}
       
     }
 
-  if(BDSGlobals->getWaitingForDump()) // if waiting for placet synchronization
+  if(BDSGlobalConstants::Instance()->getWaitingForDump()) // if waiting for placet synchronization
     {
        // when waiting to synchronize with placet - put on postponed stack
       if( aTrack->GetTrackStatus()==fPostponeToNextEvent )
 	classification = fPostpone;
      }
   
-  if(BDSGlobals->getDumping()) // in the process of dumping
+  if(BDSGlobalConstants::Instance()->getDumping()) // in the process of dumping
     {
 #ifdef DEBUG
       G4cout<<"reclassifying track "<<aTrack->GetTrackID()<<G4endl;
       G4cout<<"r= "<<aTrack->GetPosition()<<G4endl;
 #endif
       
-      G4AffineTransform tf = BDSGlobals->GetDumpTransform().Inverse();
+      G4AffineTransform tf = BDSGlobalConstants::Instance()->GetDumpTransform().Inverse();
       G4ThreeVector initialPos=aTrack->GetPosition();
       G4ThreeVector momDir=aTrack->GetMomentumDirection().unit();
       G4ThreeVector transformedPos = initialPos;
@@ -152,9 +152,9 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
       G4double yPrime=LocalDirection.y()/(1e-6*radian);
       G4double t=aTrack->GetGlobalTime();
       
-      BDSGlobals->fileDump.precision(15);
+      BDSGlobalConstants::Instance()->fileDump.precision(15);
       // TODO : dump the file
-      //        BDSGlobals->fileDump << aTrack->GetTotalEnergy()/GeV << "\t"
+      //        BDSGlobalConstants::Instance()->fileDump << aTrack->GetTotalEnergy()/GeV << "\t"
       //<< x << "\t" << y << "\t" << z << "\t"
       //<< xPrime << "\t" << yPrime << "\t" << t <<"\n"; // SPM
 #ifdef DEBUG
@@ -183,21 +183,21 @@ BDSStackingAction::ClassifyNewTrack(const G4Track * aTrack)
       transformedParticle.E=aTrack->GetTotalEnergy()/GeV;
       transformedParticle.parentID=aTrack->GetParentID();
       
-      BDSGlobals->outputQueue.push_back(outputParticle);
-      BDSGlobals->transformedQueue.push_back(transformedParticle);
+      BDSGlobalConstants::Instance()->outputQueue.push_back(outputParticle);
+      BDSGlobalConstants::Instance()->transformedQueue.push_back(transformedParticle);
       classification = fPostpone;
     }
   
-  if(BDSGlobals->getReading()){
+  if(BDSGlobalConstants::Instance()->getReading()){
     classification = fWaiting_1;
   }
 
   //For improvement in efficiency 
   //  if(aTrack->GetNextVolume() != aTrack->GetVolume()) classification = fWaiting; //Track all particles in same volume first
   //  if(aTrack->GetTrackID()!=1) classification = fWaiting_1;  //Not a secondary
-  //  if(aTrack->GetTotalEnergy()<0.1*BDSGlobals->GetBeamTotalEnergy()) classification = fWaiting_2;  //Below certain thresholds
-  //  if(aTrack->GetTotalEnergy()<0.01*BDSGlobals->GetBeamTotalEnergy()) classification = fWaiting_3; 
-  //  if(aTrack->GetTotalEnergy()<0.001*BDSGlobals->GetBeamTotalEnergy()) classification = fWaiting_4; 
+  //  if(aTrack->GetTotalEnergy()<0.1*BDSGlobalConstants::Instance()->GetBeamTotalEnergy()) classification = fWaiting_2;  //Below certain thresholds
+  //  if(aTrack->GetTotalEnergy()<0.01*BDSGlobalConstants::Instance()->GetBeamTotalEnergy()) classification = fWaiting_3; 
+  //  if(aTrack->GetTotalEnergy()<0.001*BDSGlobalConstants::Instance()->GetBeamTotalEnergy()) classification = fWaiting_4; 
   
   return classification;
 }

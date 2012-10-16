@@ -17,7 +17,7 @@
 //
 //
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSAcceleratorComponent.hh"
 #include "BDSMaterials.hh"
@@ -53,9 +53,9 @@ void BDSAcceleratorComponent::PrepareField(G4VPhysicalVolume*)
 }
 
 void BDSAcceleratorComponent::CalculateLengths(){
-  itsXLength = itsYLength = std::max(itsOuterR,BDSGlobals->GetComponentBoxSize()/2);
-  itsXLength = std::max(itsXLength, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness() + 4*BDSGlobals->GetLengthSafety() );   
-  itsYLength = std::max(itsYLength, this->GetTunnelRadius()+2*std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+4*BDSGlobals->GetLengthSafety() );
+  itsXLength = itsYLength = std::max(itsOuterR,BDSGlobalConstants::Instance()->GetComponentBoxSize()/2);
+  itsXLength = std::max(itsXLength, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness() + 4*BDSGlobalConstants::Instance()->GetLengthSafety() );   
+  itsYLength = std::max(itsYLength, this->GetTunnelRadius()+2*std::abs(BDSGlobalConstants::Instance()->GetTunnelOffsetY()) + BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness()+4*BDSGlobalConstants::Instance()->GetLengthSafety() );
   
 }
 
@@ -130,10 +130,10 @@ BDSAcceleratorComponent::~BDSAcceleratorComponent ()
 void BDSAcceleratorComponent::BuildTunnel()
 {
   //Make sure length is not zero
-  if(itsLength <= BDSGlobals->GetLengthSafety()){
+  if(itsLength <= BDSGlobalConstants::Instance()->GetLengthSafety()){
     G4cout << "BDSAcceleratorComponent::BuildTunnel() - WARNING - " << G4endl;
-    G4cout << "Components length, " << itsLength << ", less than or equal to safety length, " << BDSGlobals->GetLengthSafety() << ". Not building tunnel." << G4endl;
-    G4Exception("Error: length of component less than safety length");
+    G4cout << "Components length, " << itsLength << ", less than or equal to safety length, " << BDSGlobalConstants::Instance()->GetLengthSafety() << ". Not building tunnel." << G4endl;
+    G4Exception("Error: length of component less than safety length", "-1", JustWarning, "");
     return;
   }
 
@@ -141,11 +141,11 @@ void BDSAcceleratorComponent::BuildTunnel()
   if(itsTunnelMaterial!=""){
     tunnelMaterialName=itsTunnelMaterial;
   } else {
-    tunnelMaterialName =BDSGlobals->GetTunnelMaterialName();
+    tunnelMaterialName =BDSGlobalConstants::Instance()->GetTunnelMaterialName();
   }
   G4Material *tunnelMaterial=theMaterials->GetMaterial(tunnelMaterialName);
   
-  std::string soilMaterialName =BDSGlobals->GetSoilMaterialName();
+  std::string soilMaterialName =BDSGlobalConstants::Instance()->GetSoilMaterialName();
   G4Material *soilMaterial=theMaterials->GetMaterial(soilMaterialName);
 
 
@@ -154,12 +154,12 @@ void BDSAcceleratorComponent::BuildTunnel()
 
 #ifdef DEBUG
   G4cout << "Soil :"
-         << " r= " << (itsTunnelRadius+BDSGlobals->GetTunnelThickness())/m + BDSGlobals->GetTunnelSoilThickness()/m<< " m"
+         << " r= " << (itsTunnelRadius+BDSGlobalConstants::Instance()->GetTunnelThickness())/m + BDSGlobalConstants::Instance()->GetTunnelSoilThickness()/m<< " m"
          << " l= " << itsLength/m << " m"
          << " material = " << soilMaterialName << " m"
          << G4endl;
   G4cout << "Outer tunnel :"
-         << " r= " << (itsTunnelRadius+BDSGlobals->GetTunnelThickness())/m << " m"
+         << " r= " << (itsTunnelRadius+BDSGlobalConstants::Instance()->GetTunnelThickness())/m << " m"
          << " l= " << itsLength/m << " m"
          << " material = " << tunnelMaterialName << " m"
          << G4endl;
@@ -183,38 +183,38 @@ void BDSAcceleratorComponent::BuildTunnel()
                                   itsName+"_bnd_sized_block_solid", 
                                   blockSize,
                                   blockSize,
-                                  (itsLength-BDSGlobals->GetLengthSafety())
+                                  (itsLength-BDSGlobalConstants::Instance()->GetLengthSafety())
                                   );
 
    itsTunnelSolid=new G4Tubs(itsName+"_tun_solid",
                              0,
-                             itsTunnelRadius+BDSGlobals->GetTunnelThickness(),
-                             (itsLength-BDSGlobals->GetLengthSafety())/2.0,
+                             itsTunnelRadius+BDSGlobalConstants::Instance()->GetTunnelThickness(),
+                             (itsLength-BDSGlobalConstants::Instance()->GetLengthSafety())/2.0,
                              0,twopi*radian);
    
    itsSoilSolid=new G4Tubs(itsName+"_tun_soil_solid",
-                           itsTunnelRadius+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetLengthSafety(),
-                           itsTunnelRadius+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetLengthSafety()+BDSGlobals->GetTunnelSoilThickness(),	
-                           (itsLength-BDSGlobals->GetLengthSafety())/2.0,
+                           itsTunnelRadius+BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetLengthSafety(),
+                           itsTunnelRadius+BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetLengthSafety()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness(),	
+                           (itsLength-BDSGlobalConstants::Instance()->GetLengthSafety())/2.0,
                            0,twopi*radian);
    
    itsInnerTunnelSolid=new G4Tubs(itsName+"_inner_tun_solid",
                                   0.,
                                   itsTunnelRadius,
-                                  (itsLength-BDSGlobals->GetLengthSafety())/2,
+                                  (itsLength-BDSGlobalConstants::Instance()->GetLengthSafety())/2,
                                   0,twopi*radian);
    
    itsLargerInnerTunnelSolid=new G4Tubs(itsName+"_inner_tun_solid",
 					0.,
-					itsTunnelRadius+BDSGlobals->GetLengthSafety(),
-					(itsLength-BDSGlobals->GetLengthSafety()),
+					itsTunnelRadius+BDSGlobalConstants::Instance()->GetLengthSafety(),
+					(itsLength-BDSGlobalConstants::Instance()->GetLengthSafety()),
 					0,twopi*radian);
    
    tunnelTrans.setX(itsTunnelOffsetX);
-   tunnelTrans.setY(BDSGlobals->GetTunnelOffsetY());
+   tunnelTrans.setY(BDSGlobalConstants::Instance()->GetTunnelOffsetY());
    tunnelTrans.setZ(0);
 
-   floorOffsetThreeVector = G4ThreeVector(0,-blockSize-BDSGlobals->GetTunnelFloorOffset(),0);
+   floorOffsetThreeVector = G4ThreeVector(0,-blockSize-BDSGlobalConstants::Instance()->GetTunnelFloorOffset(),0);
 
    
    itsTunnelCavity = new G4SubtractionSolid(
@@ -240,15 +240,15 @@ void BDSAcceleratorComponent::BuildTunnel()
 
     G4double xHalfLengthPlus, xHalfLengthMinus, tunHalfLen;
     xHalfLengthMinus = (itsLength/itsAngle)*sin(itsAngle/2)
-      - fabs(cos(itsAngle/2)) * (itsTunnelRadius + BDSGlobals->GetTunnelThickness()) * tan(itsAngle/2)/2;
+      - fabs(cos(itsAngle/2)) * (itsTunnelRadius + BDSGlobalConstants::Instance()->GetTunnelThickness()) * tan(itsAngle/2)/2;
     
     xHalfLengthPlus = (itsLength/itsAngle)*sin(itsAngle/2)
-      + fabs(cos(itsAngle/2)) * (itsTunnelRadius + BDSGlobals->GetTunnelThickness()) * tan(itsAngle/2)/2;
+      + fabs(cos(itsAngle/2)) * (itsTunnelRadius + BDSGlobalConstants::Instance()->GetTunnelThickness()) * tan(itsAngle/2)/2;
     
     tunHalfLen = std::max(xHalfLengthPlus,xHalfLengthMinus);
     tunnelTrans.setZ(0);
     tunnelTrans.setX(0);
-    tunnelTrans.setY(BDSGlobals->GetTunnelOffsetY());
+    tunnelTrans.setY(BDSGlobalConstants::Instance()->GetTunnelOffsetY());
 
     
 
@@ -272,7 +272,7 @@ void BDSAcceleratorComponent::BuildTunnel()
                                              new G4Tubs(
                                                         itsName+"_temp_tun_solid",
                                                         0,
-                                                        itsTunnelRadius+BDSGlobals->GetTunnelThickness(),
+                                                        itsTunnelRadius+BDSGlobalConstants::Instance()->GetTunnelThickness(),
                                                         tunHalfLen,
                                                         0,twopi*radian),			    
                                              itsMarkerLogicalVolume->GetSolid(),
@@ -286,8 +286,8 @@ void BDSAcceleratorComponent::BuildTunnel()
                                            itsName+"_soil_solid",
                                            new G4Tubs(
                                                       itsName+"_temp_soil_solid",
-                                                      itsTunnelRadius+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetLengthSafety(),
-                                                      itsTunnelRadius+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetLengthSafety()+BDSGlobals->GetTunnelSoilThickness(),
+                                                      itsTunnelRadius+BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetLengthSafety(),
+                                                      itsTunnelRadius+BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetLengthSafety()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness(),
                                                       tunHalfLen,
                                                       0,twopi*radian),
                                            itsMarkerLogicalVolume->GetSolid(),
@@ -313,12 +313,12 @@ void BDSAcceleratorComponent::BuildTunnel()
 #endif
     itsLargerInnerTunnelSolid= new G4Tubs(itsName+"_temp_inner_tun_solid",
                                           0.,
-                                          itsTunnelRadius+BDSGlobals->GetLengthSafety(),
+                                          itsTunnelRadius+BDSGlobalConstants::Instance()->GetLengthSafety(),
                                           2*tunHalfLen,
                                           0,twopi*radian);
                                                        
     
-    floorOffsetThreeVector = G4ThreeVector(0,-blockSize-BDSGlobals->GetTunnelFloorOffset(),0);
+    floorOffsetThreeVector = G4ThreeVector(0,-blockSize-BDSGlobalConstants::Instance()->GetTunnelFloorOffset(),0);
     
 #ifdef DEBUG
     G4cout << "Building tunnel cavity" << G4endl;
@@ -382,7 +382,7 @@ void BDSAcceleratorComponent::BuildTunnel()
   if(itsTunnelCavityMaterial!=""){
     tunnelCavityMaterialName=itsTunnelCavityMaterial;
   } else {
-    tunnelCavityMaterialName =BDSGlobals->GetTunnelCavityMaterialName();
+    tunnelCavityMaterialName =BDSGlobalConstants::Instance()->GetTunnelCavityMaterialName();
   }
 
   itsTunnelCavityLogicalVolume=	
@@ -399,7 +399,7 @@ void BDSAcceleratorComponent::BuildTunnel()
                                          itsName+"_tun_phys",	     // its name
                                          itsMarkerLogicalVolume,    // its mother  volume
                                          true,		     // no boolean operation
-                                         0, BDSGlobals->GetCheckOverlaps());		             // copy number
+                                         0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		             // copy number
   
   
   SetMultiplePhysicalVolumes(itsTunnelPhysiComp);
@@ -414,7 +414,7 @@ void BDSAcceleratorComponent::BuildTunnel()
                                              itsName+"_tun_phys_soil",	     // its name
                                              itsMarkerLogicalVolume,    // its mother  volume
                                              true,		     // no boolean operation
-                                             0, BDSGlobals->GetCheckOverlaps());		             // copy number
+                                             0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		             // copy number
   
   SetMultiplePhysicalVolumes(itsTunnelPhysiCompSoil);
   /*
@@ -425,23 +425,23 @@ void BDSAcceleratorComponent::BuildTunnel()
     itsName+"_inner_tun_phys",// its name
     itsMarkerLogicalVolume,   // its mother  volume
     false,		        // no boolean operation
-    0, BDSGlobals->GetCheckOverlaps());		        // copy number
+    0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		        // copy number
   */
   
 #ifndef NOUSERLIMITS
   itsTunnelUserLimits = new G4UserLimits("tunnel cuts");
   itsSoilTunnelUserLimits = new G4UserLimits("tunnel soil cuts");
   itsInnerTunnelUserLimits = new G4UserLimits("inner tunnel cuts");
-  G4double tcut = BDSGlobals->GetThresholdCutCharged();
+  G4double tcut = BDSGlobalConstants::Instance()->GetThresholdCutCharged();
   if(tcut>0){
     itsTunnelUserLimits->SetUserMinEkine(tcut);
     itsSoilTunnelUserLimits->SetUserMinEkine(tcut);
     itsInnerTunnelUserLimits->SetUserMinEkine(tcut);
   }
   
-  itsTunnelUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
-  itsSoilTunnelUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
-  itsInnerTunnelUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
+  itsTunnelUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+  itsSoilTunnelUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+  itsInnerTunnelUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
 
   itsTunnelUserLimits->SetMaxAllowedStep(itsLength);
   itsSoilTunnelUserLimits->SetMaxAllowedStep(itsLength);
@@ -464,7 +464,7 @@ void BDSAcceleratorComponent::BuildTunnel()
   
   itsSoilTunnelLogicalVolume->SetVisAttributes(VisAtt);
   VisAtt1 = new G4VisAttributes(G4Colour(0.4, 0.4, 0.4));
-  VisAtt1->SetVisibility(BDSGlobals->GetShowTunnel());
+  VisAtt1->SetVisibility(BDSGlobalConstants::Instance()->GetShowTunnel());
   VisAtt1->SetForceSolid(true);
   VisAtt2 = new G4VisAttributes(G4Colour(0.0, 0.5, 0.5));
   VisAtt2->SetVisibility(false);
@@ -514,7 +514,7 @@ void BDSAcceleratorComponent::BuildBLMs()
    //set case thickness
    blmCaseThickness = 1e-20*m;
 
-   itsBlmLocationR = itsBlmLocationR + BDSGlobals->GetBlmRad() + BDSGlobals->GetLengthSafety() +itsBpRadius + blmCaseThickness;
+   itsBlmLocationR = itsBlmLocationR + BDSGlobalConstants::Instance()->GetBlmRad() + BDSGlobalConstants::Instance()->GetLengthSafety() +itsBpRadius + blmCaseThickness;
    
 #ifdef DEBUG
    G4cout << "BDSAccleratorComponent::BuildBLMs() itsBlmLocationRadius = " << itsBlmLocationR/mm << " mm" << G4endl;
@@ -524,15 +524,15 @@ void BDSAcceleratorComponent::BuildBLMs()
    
    //Make sure BLM length can never exceed component length
 #ifdef DEBUG
-   G4cout << "BLM length = " << BDSGlobals->GetBlmLength()/m << " m" << G4endl;
-   G4cout << "BLM radius = " << BDSGlobals->GetBlmRad()/m << " m" << G4endl;
+   G4cout << "BLM length = " << BDSGlobalConstants::Instance()->GetBlmLength()/m << " m" << G4endl;
+   G4cout << "BLM radius = " << BDSGlobalConstants::Instance()->GetBlmRad()/m << " m" << G4endl;
    G4cout << "Component length = " << itsLength/m << " m" << G4endl;
 #endif
-   if(BDSGlobals->GetBlmLength()>=(itsLength-BDSGlobals->GetLengthSafety())){
+   if(BDSGlobalConstants::Instance()->GetBlmLength()>=(itsLength-BDSGlobalConstants::Instance()->GetLengthSafety())){
      G4cout << itsName << "Warning: BLM longer than element. Setting BLM length to element length." << G4endl;
-     localLength = itsLength-BDSGlobals->GetLengthSafety();
+     localLength = itsLength-BDSGlobalConstants::Instance()->GetLengthSafety();
    } else {
-     localLength=BDSGlobals->GetBlmLength();
+     localLength=BDSGlobalConstants::Instance()->GetBlmLength();
    }
    
    G4int i = 0;
@@ -563,13 +563,13 @@ void BDSAcceleratorComponent::BuildBLMs()
      
      itsBLMSolid = new G4Tubs(itsName + "_BLM_sol_" + index,
 				      0,
-				      BDSGlobals->GetBlmRad(),
+				      BDSGlobalConstants::Instance()->GetBlmRad(),
 				      localLength/2, 0, twopi*radian);
      
      
      itsBlmOuterSolid = new G4Tubs(itsName + "_Blm_outCase_sol_" + index, 
 					   0,
-					   BDSGlobals->GetBlmRad() + blmCaseThickness,
+					   BDSGlobalConstants::Instance()->GetBlmRad() + blmCaseThickness,
 					   localLength/2 + blmCaseThickness, 0, twopi*radian);
      
      G4SubtractionSolid *itsBlmCaseSolid = new G4SubtractionSolid(itsName + "_blm_case_subsolid_" + index,
@@ -581,7 +581,7 @@ void BDSAcceleratorComponent::BuildBLMs()
 						 itsName + "_blm_logvol_" + index);
        
        //Set BLM gas as sensitive if option is chosen
-       if(BDSGlobals->GetSensitiveBLMs()){
+       if(BDSGlobalConstants::Instance()->GetSensitiveBLMs()){
          SetMultipleSensitiveVolumes(itsBLMLogicalVolume);
        }
 
@@ -629,7 +629,7 @@ void BDSAcceleratorComponent::BuildGate()
   G4double gateY = 1.0*m;
   G4double gateZ = 0.63*0.99*m;//1.5*m;
   G4double gateXOffset = 3*m;
-  G4double gateYOffset = -BDSGlobals->GetTunnelFloorOffset()/2 + gateY/2;
+  G4double gateYOffset = -BDSGlobalConstants::Instance()->GetTunnelFloorOffset()/2 + gateY/2;
   G4double gateZOffset = -4.095*m; //Shifted along z 4.095m from centre of dipole
   gateMaterial = theMaterials->GetMaterial("iron");
   
@@ -654,7 +654,7 @@ void BDSAcceleratorComponent::BuildGate()
 						  itsMarkerLogicalVolume,
 						  false,
 						   0,
-						   BDSGlobals->GetCheckOverlaps());
+						   BDSGlobalConstants::Instance()->GetCheckOverlaps());
   SetMultiplePhysicalVolumes(itsGatePhysi);
   
   G4VisAttributes* VisAtt = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0));

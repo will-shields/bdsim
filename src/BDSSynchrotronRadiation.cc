@@ -18,7 +18,7 @@
 		flag, SYNCH_MEANFREE_FACTOR
 */
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSSynchrotronRadiation.hh"
 #include "G4ios.hh"
 #include "G4UnitsTable.hh"
@@ -127,14 +127,14 @@ G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nParticle charge != 0.0" << G4e
           G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nperpB>0.0" << G4endl;
 #endif
           //Loop over multiplicity
-	  for (int i=0; i<BDSGlobals->GetSynchPhotonMultiplicity(); i++){
+	  for (int i=0; i<BDSGlobalConstants::Instance()->GetSynchPhotonMultiplicity(); i++){
 #ifdef DEBUG 
             G4cout  << "BDSSynchrotronRadiation::PostStepDoIt\nSynchPhotonMultiplicity" << G4endl;
 #endif
             //if(fabs(R)==0)
 	    G4double R=(aDynamicParticle->GetTotalMomentum()/GeV)/
 	      (0.299792458*particleCharge*perpB);
-	    GamEnergy=SynGenC(BDSGlobals->GetSynchLowX())*
+	    GamEnergy=SynGenC(BDSGlobalConstants::Instance()->GetSynchLowX())*
 	      CritEngFac*pow(eEnergy,3)/fabs(R);
 	    
 	    if(GamEnergy>0 && GamEnergy < NewKinEnergy)
@@ -142,8 +142,8 @@ G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nParticle charge != 0.0" << G4e
 #ifdef DEBUG 
                 G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nGamEnergy in range" << G4endl;
 #endif
-                if((BDSGlobals->GetSynchTrackPhotons())&&
-		   (GamEnergy>BDSGlobals->GetSynchLowGamE()) )
+                if((BDSGlobalConstants::Instance()->GetSynchTrackPhotons())&&
+		   (GamEnergy>BDSGlobalConstants::Instance()->GetSynchLowGamE()) )
 		  {
 #ifdef DEBUG 
                     G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nTrackPhotons" << G4endl;
@@ -199,7 +199,7 @@ G4cout << "BDSSynchrotronRadiation::PostStepDoIt\nParticle charge != 0.0" << G4e
 #endif
 	  }
 	  //Find out the weight of the gammas
-	  G4double gammaWeight = aParticleChange.GetParentWeight()/BDSGlobals->GetSynchPhotonMultiplicity();
+	  G4double gammaWeight = aParticleChange.GetParentWeight()/BDSGlobalConstants::Instance()->GetSynchPhotonMultiplicity();
 	  //Set the weights of the gammas
 	  for(int n=0;n<(int)listOfSecondaries.size();n++){
 	    aParticleChange.GetSecondary(n)->SetWeight(gammaWeight);

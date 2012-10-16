@@ -7,7 +7,7 @@
    Changed Samplers to account for plane and cylinder types (GABs code)
 */
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSSamplerSD.hh"
 #include "BDSSamplerHit.hh"
@@ -62,14 +62,16 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
 {
   G4Track* theTrack = aStep->GetTrack();
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+  G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
   //  // tmp - only store muons
   //     G4String pName=theTrack->GetDefinition()->GetParticleName();
   //    if(pName=="mu+"||pName=="mu-")
   // 	{ // tm
-  if(BDSGlobals->DoTwiss() || BDSGlobals->isReference) StoreHit=false;
+  if(BDSGlobalConstants::Instance()->DoTwiss() || BDSGlobalConstants::Instance()->isReference) StoreHit=false;
   
-  if(StoreHit)
-    {
+  if(StoreHit){
+    //Check if the particle is on the boundary 
+    if(preStepPoint->GetStepStatus()==fGeomBoundary){
       //unique ID of track
       G4int TrackID = theTrack->GetTrackID();
       //unique ID of track's mother
@@ -118,7 +120,7 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
 
       // Changed z output by Samplers to be the position of the sampler
       // not time of flight of the particle JCC 15/10/05
-      //G4double z=-(time*c_light-(pos.z()+BDSGlobals->GetWorldSizeZ()));
+      //G4double z=-(time*c_light-(pos.z()+BDSGlobalConstants::Instance()->GetWorldSizeZ()));
       //G4double z=pos.z();
       if(zPrime<0) energy*=-1;
       // apply a correction that takes ac... gab to do later!
@@ -126,10 +128,10 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
       G4int nEvent= 
 	G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
 
-      nEvent+=BDSGlobals->GetEventNumberOffset();
+      nEvent+=BDSGlobalConstants::Instance()->GetEventNumberOffset();
 
       G4int nSampler=theTrack->GetVolume()->GetCopyNo()+1;
-      G4String SampName = theTrack->GetVolume()->GetName()+"_"+BDSGlobals->StringFromInt(nSampler);
+      G4String SampName = theTrack->GetVolume()->GetName()+"_"+BDSGlobalConstants::Instance()->StringFromInt(nSampler);
       G4int PDGtype=theTrack->GetDefinition()->GetPDGEncoding();
       G4String pName=theTrack->GetDefinition()->GetParticleName();
       
@@ -177,7 +179,7 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
       G4double weight=theTrack->GetWeight();
 
       /*
-      if(BDSGlobals->GetStoreMuonTrajectories())
+      if(BDSGlobalConstants::Instance()->GetStoreMuonTrajectories())
 	if(pName=="mu+"||pName=="mu-") 
 	  theMuonTrackVector->push_back(theTrack->GetTrackID());
       */
@@ -215,24 +217,11 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
 #ifdef DEBUG
       G4cout << "BDSSamplerSD> entries in hits collection after inserting hit: " << SamplerCollection->entries() << G4endl;
 #endif
-      if(theTrack->GetVolume()!=theTrack->GetNextVolume())StoreHit=true;
-      else StoreHit=false;
       nStepsInSampler=0;
       return true;
     }
-  else
-    {
-#ifdef DEBUG
-      G4cout << "BDSSamplerSD> Not storing hit. This volume: " << theTrack->GetVolume()->GetName() << ", next volume:  " << theTrack->GetNextVolume()->GetName() << G4endl;
-#endif
-      if(theTrack->GetVolume()!=theTrack->GetNextVolume())StoreHit=true;
-      else StoreHit=false;
-      //      nStepsInSampler++;
-      //      if(nStepsInSampler>maxNStepsInSampler){ //In rare cases, a particle can get stuck in the sampler if they have a trajectory near 90 degrees, freezing the program.
-      //      	theTrack->SetTrackStatus(fStopAndKill);
-      //      }
-      return false;
-    }
+  }
+  return false;
 }
 
 void BDSSamplerSD::EndOfEvent(G4HCofThisEvent*HCE)

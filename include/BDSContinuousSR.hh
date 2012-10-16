@@ -91,11 +91,11 @@ BDSContinuousSR::GetMeanFreePath(const G4Track& track,
   G4FieldManager* TheFieldManager=
     track.GetVolume()->GetLogicalVolume()->GetFieldManager();
 
-  if(track.GetTotalEnergy()<BDSGlobals->GetThresholdCutCharged())
+  if(track.GetTotalEnergy()<BDSGlobalConstants::Instance()->GetThresholdCutCharged())
     return DBL_MAX;
   /*
   G4double SynchOnZPos = (7.184+4.0) * m;
-  if(track.GetPosition().z() + BDSGlobals->GetWorldSizeZ() < SynchOnZPos)
+  if(track.GetPosition().z() + BDSGlobalConstants::Instance()->GetWorldSizeZ() < SynchOnZPos)
     return DBL_MAX;
   */
   if(TheFieldManager)

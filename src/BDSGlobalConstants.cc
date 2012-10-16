@@ -4,6 +4,7 @@ Last modified 23.10.2007 by Steve Malton
 
 **/
 #include "BDSGlobalConstants.hh"
+#include "../parser/getEnv.h"
 #include "G4UniformMagField.hh"
 #include "G4ParticleTypes.hh"
 #include "G4ParticleTable.hh"
@@ -16,8 +17,19 @@ Last modified 23.10.2007 by Steve Malton
 
 using namespace std;
 
+BDSGlobalConstants* BDSGlobalConstants::_instance = 0;
+
+BDSGlobalConstants* BDSGlobalConstants::Instance(){
+  if(_instance==0) {
+    _instance = new BDSGlobalConstants(options);
+  }
+  return _instance;
+}
+
 BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
 {
+  //environment variables
+  itsBDSIMHOME=(G4String)getEnv("BDSIMHOME");
   PI = 4.0 * atan(1.0);
   // defaults:
   if(opt.physicsList == "") 
@@ -114,11 +126,11 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
   itsCheckOverlaps = opt.checkOverlaps;
   itsTurnOnCerenkov = opt.turnOnCerenkov;
   itsSynchRadOn = opt.synchRadOn;
-  G4cout << "BDSGlobals synchRadOn = " << itsSynchRadOn << G4endl;
+  G4cout << "BDSGlobalConstants::Instance() synchRadOn = " << itsSynchRadOn << G4endl;
   itsDecayOn = opt.decayOn;
   itsSynchRescale = opt.synchRescale; // rescale due to synchrotron
   itsSynchTrackPhotons= opt.synchTrackPhotons;
-  G4cout << "BDSGlobals synchTrackphotons = " << itsSynchTrackPhotons << G4endl;
+  G4cout << "BDSGlobalConstants::Instance() synchTrackphotons = " << itsSynchTrackPhotons << G4endl;
   itsSynchLowX = opt.synchLowX;
   itsSynchLowGamE = opt.synchLowGamE * GeV;  // lowest gamma energy
   itsSynchPhotonMultiplicity = opt.synchPhotonMultiplicity;
@@ -184,7 +196,7 @@ G4String BDSGlobalConstants::StringFromInt(G4int N)
 G4String BDSGlobalConstants::StringFromDigit(G4int N) 
 {
   if(N<0 || N>9)
-    G4Exception("Invalid Digit in BDSGlobalConstants::StringFromDigit");
+    G4Exception("Invalid Digit in BDSGlobalConstants::StringFromDigit", "-1", FatalException, "");
   G4String Cnum;
   if(N==0)Cnum="0";
   else if(N==1)Cnum="1";

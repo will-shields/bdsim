@@ -20,7 +20,7 @@ BDSComptonEngine::BDSComptonEngine(G4LorentzVector InGam,
   : itsIncomingEl(InEl),itsIncomingGam(InGam)
 {
  if(itsIncomingGam.e()<=0.)
-      {G4Exception("BDSComptonEngine: Invalid Photon Energy");}
+   {G4Exception("BDSComptonEngine: Invalid Photon Energy", "-1", FatalException, "");}
 } 
  
  
@@ -76,7 +76,7 @@ void BDSComptonEngine::PerformCompton()
   } while(ntry<ntryMax && G4UniformRand()>weight_CovT);
   
   if(ntry==ntryMax)
-    G4Exception("BDSComptonEngine:Max number of loops exceeded");
+    G4Exception("BDSComptonEngine:Max number of loops exceeded", "-1", FatalException, "");
   
   // G4LorentzVector ElInLab=BoostToLab*(itsIncomingEl);
   

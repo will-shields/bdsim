@@ -106,7 +106,10 @@ ECList* theECList;
 
 BDSMaterials* theMaterials;
 
-extern BDSGlobalConstants* BDSGlobals;
+//extern BDSGlobalConstants* BDSGlobalConstants::Instance();
+extern G4int gflash;
+extern G4double gflashemax;
+extern G4double gflashemin;
 
 //--------------------------
 // SYNCHROTRON RAD ***
@@ -139,6 +142,7 @@ extern BDSOutput* bdsOutput;
 extern G4bool verbose;
 extern G4bool outline;
 
+
 #ifdef DEBUG
 bool debug = true;
 #else
@@ -166,6 +170,31 @@ BDSDetectorConstruction::BDSDetectorConstruction()
 
   RotYM90XM90->rotateY(-pi_ov_2);
   RotYM90XM90->rotateX(-pi_ov_2);
+
+  // GlashStuff                                                                                                                                                         
+  theParticleBounds  = new GFlashParticleBounds();              // Energy Cuts to kill particles                                                                
+  theParticleBounds->SetMaxEneToParametrise(*G4Electron::ElectronDefinition(),gflashemax*GeV);
+  theParticleBounds->SetMinEneToParametrise(*G4Electron::ElectronDefinition(),gflashemin*GeV);
+  theParticleBounds->SetEneToKill(*G4Electron::ElectronDefinition(),BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+  
+  theParticleBounds->SetMaxEneToParametrise(*G4Positron::PositronDefinition(),gflashemax*GeV);
+  theParticleBounds->SetMinEneToParametrise(*G4Positron::PositronDefinition(),gflashemin*GeV);
+  theParticleBounds->SetEneToKill(*G4Positron::PositronDefinition(),BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+
+  theParticleBoundsVac  = new GFlashParticleBounds();              // Energy Cuts to kill particles                                                                
+  theParticleBoundsVac->SetMaxEneToParametrise(*G4Electron::ElectronDefinition(),0*GeV);
+  theParticleBoundsVac->SetMaxEneToParametrise(*G4Positron::PositronDefinition(),0*GeV);
+
+  G4cout << "BDSDetectorConstruction: theParticleBounds - min E - electron: " << theParticleBounds->GetMinEneToParametrise(*G4Electron::ElectronDefinition())/GeV<< " GeV" << G4endl;
+  G4cout << "BDSDetectorConstruction: theParticleBounds - max E - electron: " << theParticleBounds->GetMaxEneToParametrise(*G4Electron::ElectronDefinition())/GeV<< G4endl;
+  G4cout << "BDSDetectorConstruction: theParticleBounds - kill E - electron: " << theParticleBounds->GetEneToKill(*G4Electron::ElectronDefinition())/GeV<< G4endl;
+
+G4cout << "BDSDetectorConstruction: theParticleBounds - min E - positron: " << theParticleBounds->GetMinEneToParametrise(*G4Positron::PositronDefinition())/GeV<< G4endl;
+G4cout << "BDSDetectorConstruction: theParticleBounds - max E - positron: " << theParticleBounds->GetMaxEneToParametrise(*G4Positron::PositronDefinition())/GeV<< G4endl;
+G4cout << "BDSDetectorConstruction: theParticleBounds - kill E - positron: " << theParticleBounds->GetEneToKill(*G4Positron::PositronDefinition())/GeV<< G4endl;
+
+  theHitMaker          = new GFlashHitMaker();                    // Makes the EnergieSpots 
+
 }
 
 //=================================================================
@@ -180,9 +209,24 @@ G4VPhysicalVolume* BDSDetectorConstruction::Construct()
 
   theMaterials=new BDSMaterials();
 
+
+  gasRegion = new G4Region("gasRegion");
+  G4ProductionCuts* theGasProductionCuts = new G4ProductionCuts();
+  theGasProductionCuts->SetProductionCut(1*m,G4ProductionCuts::GetIndex("gamma"));
+  theGasProductionCuts->SetProductionCut(1*m,G4ProductionCuts::GetIndex("e-"));
+  theGasProductionCuts->SetProductionCut(1*m,G4ProductionCuts::GetIndex("e+"));
+  gasRegion->SetProductionCuts(theGasProductionCuts);
+
+
   if (verbose || debug) G4cout << "-->starting BDS construction \n"<<G4endl;
 
   return ConstructBDS(beamline_list);
+
+
+
+
+
+
 
 }
 
@@ -330,12 +374,12 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 				  (*it).componentsFractions);
       }
       else {
-	G4Exception("Badly defined material - number of components is not equal to number of weights or mass fractions!");
+	G4Exception("Badly defined material - number of components is not equal to number of weights or mass fractions!", "-1", FatalErrorInArgument, "");
 	exit(1);
       }
     }
     else {
-      G4Exception("Badly defined material - need more information!");
+      G4Exception("Badly defined material - need more information!", "-1", FatalErrorInArgument, "");
       exit(1);
     }
   }
@@ -353,11 +397,11 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   // formula: B(Tesla)*rho(m) = p(GeV)/(0.299792458 * |charge(e)|)
   //
   // charge (in |e| units)
-  G4double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();
+  G4double charge = BDSGlobalConstants::Instance()->GetParticleDefinition()->GetPDGCharge();
   // momentum (in GeV/c)
-  G4double momentum = BDSGlobals->GetBeamMomentum()/GeV;
+  G4double momentum = BDSGlobalConstants::Instance()->GetBeamMomentum()/GeV;
   // rigidity (in T*m)
-  G4double brho = BDSGlobals->GetFFact()*( momentum / (0.299792458 * charge));
+  G4double brho = BDSGlobalConstants::Instance()->GetFFact()*( momentum / (0.299792458 * charge));
   
   // rigidity (in Geant4 units)
   brho *= (tesla*m);
@@ -367,7 +411,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
   //
   // beampipe default outer radius (if not overridden by "aper" option)
   //
-  G4double bpRad=BDSGlobals->GetBeampipeRadius();
+  G4double bpRad=BDSGlobalConstants::Instance()->GetBeampipeRadius();
   if (verbose || debug) G4cout<<"Default pipe outer radius= "<<bpRad/m<< "m"
 			      << G4endl;
 
@@ -469,13 +513,13 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 
 	if ( (aperX !=0) || (aperY != 0) || (aper != 0) || (*it).phiAngleIn != 0 || (*it).phiAngleOut !=0){
 	  if (aperX==0 && aperY==0 && aper==0){
-	    aperX=BDSGlobals->GetBeampipeRadius()/m;
-	    aperY=BDSGlobals->GetBeampipeRadius()/m;
-	    aper=BDSGlobals->GetBeampipeRadius()/m;
+	    aperX=BDSGlobalConstants::Instance()->GetBeampipeRadius()/m;
+	    aperY=BDSGlobalConstants::Instance()->GetBeampipeRadius()/m;
+	    aper=BDSGlobalConstants::Instance()->GetBeampipeRadius()/m;
 	  }
 	  
 
-	  if((*it).l > BDSGlobals->GetLengthSafety()) // skip too short elements                                                                                                         
+	  if((*it).l > BDSGlobalConstants::Instance()->GetLengthSafety()) // skip too short elements                                                                                                         
 	    {
 #ifdef DEBUG
 	      	      G4cout << "---->adding Drift,"
@@ -510,7 +554,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 						    (*it).l*m,
 						    (*it).blmLocZ,
 						    (*it).blmLocTheta,
-						    aperX, aperY, (*it).tunnelMaterial, aperset, aper, BDSGlobals->GetTunnelOffsetX(), (*it).phiAngleIn, (*it).phiAngleOut));
+						    aperX, aperY, (*it).tunnelMaterial, aperset, aper, BDSGlobalConstants::Instance()->GetTunnelOffsetX(), (*it).phiAngleIn, (*it).phiAngleOut));
 	      } else {
 		theBeamline.push_back(new BDSDrift( (*it).name,
 						    (*it).l*m,
@@ -570,20 +614,20 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
       if((*it).type==_PCLDRIFT ) {
 	G4double aper=0;
 	//Check all apertures are set.
-	if ((*it).aperY>BDSGlobals->GetLengthSafety()){
+	if ((*it).aperY>BDSGlobalConstants::Instance()->GetLengthSafety()){
 	  (*it).aperYUp = (*it).aperY;
 	  (*it).aperYDown = (*it).aperY;
 	}
 
-	if ((*it).aperX<BDSGlobals->GetLengthSafety()){
+	if ((*it).aperX<BDSGlobalConstants::Instance()->GetLengthSafety()){
 	  G4cerr << "Error: BDSDetectorConstruction.cc, in building PCLDrift, aperX = " << (*it).aperX << " is less than lengthSafety." << G4endl;
           exit(1);
 	} 
-	if ((*it).aperYUp<BDSGlobals->GetLengthSafety()){
+	if ((*it).aperYUp<BDSGlobalConstants::Instance()->GetLengthSafety()){
 	  G4cerr << "Error: BDSDetectorConstruction.cc, in building PCLDrift, aperYUp = " << (*it).aperYUp << " is less than lengthSafety." << G4endl;
           exit(1);
 	} 
-	if ((*it).aperYDown<BDSGlobals->GetLengthSafety()){
+	if ((*it).aperYDown<BDSGlobalConstants::Instance()->GetLengthSafety()){
 	  G4cerr << "Error: BDSDetectorConstruction.cc, in building PCLDrift, aperYDown = " << (*it).aperYDown << " is less than lengthSafety." << G4endl;
           exit(1);
 	} 
@@ -593,7 +637,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	  aper=std::max(aper,(*it).aperYDown+(*it).aperDy);
         }
 
-	if((*it).l > BDSGlobals->GetLengthSafety()) // skip too short elements                                                                                                         
+	if((*it).l > BDSGlobalConstants::Instance()->GetLengthSafety()) // skip too short elements                                                                                                         
 	  {
 #ifdef DEBUG
 	    G4cout << "---->adding PCLDrift,"
@@ -670,8 +714,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
-	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
+		   << BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m);
 	  }
 	
 	// arc length
@@ -796,8 +840,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
-	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
+		   << BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m);
 	  }
 
 	G4double length = (*it).l*m; //geometrical length
@@ -903,8 +947,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
-	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
+		   << BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m);
 	  }
 	
 	G4double length = (*it).l*m;
@@ -994,8 +1038,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
-	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
+		   << BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m);
 	  }
 
 	G4double length = (*it).l*m;
@@ -1085,8 +1129,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
-	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
+		   << BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m);
 	  }
 	
 	//
@@ -1158,8 +1202,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
-	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
+		   << BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m);
 	  }
 
 	//
@@ -1215,8 +1259,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
-	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
+		   << BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m);
 	  }
 
 	//
@@ -1273,8 +1317,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
-	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
+		   << BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m);
 	  }
 
 #ifdef DEBUG 
@@ -1389,6 +1433,53 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	}
 	
 
+	//Add the requested parts to the shower parameterisation region
+	if(0){
+	  G4cout << theBeamline.back()->GetGFlashVolumes().size() << G4endl;
+	  for(unsigned int i=0; i<theBeamline.back()->GetGFlashVolumes().size(); i++){
+	    
+	    /**********************************************                                                                                                                       
+   * Initialise shower model                                                                                                                                          
+   ***********************************************/
+	    G4String rname = "gFlashRegion_" + theBeamline.back()->GetGFlashVolumes()[i]->GetName();
+	    /*
+	      G4bool regionExists=false;
+	      for(unsigned int j=0; j<gFlashRegion.size(); j++){
+	      G4String matNameRegion = (*gFlashRegion[j]->GetMaterialIterator())->GetName();
+	      G4cout << "Region material name: " << matNameRegion << G4endl;
+	      G4String matNameVolume = theBeamline.back()->GetGFlashVolumes()[i]->GetMaterial()->GetName();
+	      G4cout << "Volume material name: " << matNameVolume << G4endl;
+	      
+	      if(matNameRegion==matNameVolume){ //Add volume to region with the relevant material
+	      regionExists=true;
+	      theBeamline.back()->GetGFlashVolumes()[i]->SetRegion(gFlashRegion[j]);
+	      gFlashRegion[j]->AddRootLogicalVolume(theBeamline.back()->GetGFlashVolumes()[i]);
+	      continue;
+	      } 
+	      }
+	    */
+	    //	  if(!regionExists) {
+	    gFlashRegion.push_back(new G4Region(rname.c_str()));
+	    G4cout << "...adding " << theBeamline.back()->GetGFlashVolumes()[i]->GetName() << " to gFlashRegion.back()" << G4endl;
+	    G4cout << "material name = " << theBeamline.back()->GetGFlashVolumes()[i]->GetMaterial()->GetName() << G4endl;
+	    
+	    //	    if(theBeamline.back()->GetGFlashVolumes()[i]->GetMaterial()->GetState()!=kStateGas){ //If the region material state is not gas, associate with a parameterisation
+	    if(0){
+	      G4cout << "Making parameterisation..." << G4endl;
+	      G4String mname = "fastShowerModel" + rname;
+	      theFastShowerModel.push_back(new BDSShowerModel(mname.c_str(),gFlashRegion.back()));
+	      theFastShowerModel.back()->SetFlagParticleContainment(1);//Turn on containment
+	      theParameterisation.push_back(new GFlashHomoShowerParameterisation(theMaterials->GetMaterial(theBeamline.back()->GetGFlashVolumes()[i]->GetMaterial()->GetName().c_str()))); 
+	      theFastShowerModel.back()->SetParameterisation(*theParameterisation.back());
+	      theFastShowerModel.back()->SetParticleBounds(*theParticleBounds) ;
+	      theFastShowerModel.back()->SetFlagParamType(1);//Turn on the parameterisation for e-m showers starting in sensitive material and fitting in the current stack.
+	      theFastShowerModel.back()->SetHitMaker(*theHitMaker);
+	    }
+	    theBeamline.back()->GetGFlashVolumes()[i]->SetRegion(gFlashRegion.back());
+	    gFlashRegion.back()->AddRootLogicalVolume(theBeamline.back()->GetGFlashVolumes()[i]); 
+	    //	  }
+	  }
+	}
 	added_comp=true;
       }
 
@@ -1407,8 +1498,8 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	    G4cerr << (*it).name << ": outer radius smaller than aperture: "
 		   << "aper= "<<aper/m<<"m outR= "<<(*it).outR<<"m"<<G4endl;
 	    G4cerr << (*it).name << ": setting outer radius to default = "
-		   << BDSGlobals->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
-	    (*it).outR = BDSGlobals->GetComponentBoxSize()/(2*m);
+		   << BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m)<< "m" << G4endl;
+	    (*it).outR = BDSGlobalConstants::Instance()->GetComponentBoxSize()/(2*m);
 	  }
 
 	//
@@ -1553,7 +1644,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
         //        if((*it).aperSet){
         beamPipeRadius = (*it).aper*m;
           //        } else {
-          //          beamPipeRadius = BDSGlobals->GetBeampipeRadius();
+          //          beamPipeRadius = BDSGlobalConstants::Instance()->GetBeampipeRadius();
           //        }
         G4double innerRadius;
         //        if ((*it).inRset){
@@ -1733,7 +1824,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 
     }
     
-  BDSGlobals->SetTotalS(s_tot);
+  BDSGlobalConstants::Instance()->SetTotalS(s_tot);
   
   // -----------------------------------
   
@@ -1759,7 +1850,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
       G4cout<<"WorldSizeY = "<<WorldSizeY/m<<G4endl;
       G4cout<<"WorldSizeZ = "<<WorldSizeZ/m<<G4endl;
       
-      G4cout<<"box size="<<BDSGlobals->GetComponentBoxSize()/m<<" m"<<G4endl;
+      G4cout<<"box size="<<BDSGlobalConstants::Instance()->GetComponentBoxSize()/m<<" m"<<G4endl;
       G4cout<<"s_tot="<<s_tot/m<<" m"<<G4endl;
     }
 
@@ -1769,7 +1860,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
   solidWorld = new G4Box("World", WorldSizeX, WorldSizeY, WorldSizeZ);
     
   logicWorld = new G4LogicalVolume(solidWorld,	       //its solid
-				   theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()), //its material
+				   theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()), //its material
 				   "World");	       //its name
   
   logicWorld->SetVisAttributes (G4VisAttributes::Invisible);
@@ -1783,8 +1874,8 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 #ifndef NOUSERLIMITS
   G4UserLimits* WorldUserLimits =new G4UserLimits();
   WorldUserLimits->SetMaxAllowedStep(10*m);
-  WorldUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
-  WorldUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
+  WorldUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+  WorldUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
   logicWorld->SetUserLimits(WorldUserLimits);
 #endif
 
@@ -1794,14 +1885,14 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
    
   G4ProductionCuts* theProductionCuts = new G4ProductionCuts();
   
-  if(BDSGlobals->GetProdCutPhotonsP()>0)
-    theProductionCuts->SetProductionCut(BDSGlobals->GetProdCutPhotonsP(),G4ProductionCuts::GetIndex("gamma"));
+  if(BDSGlobalConstants::Instance()->GetProdCutPhotonsP()>0)
+    theProductionCuts->SetProductionCut(BDSGlobalConstants::Instance()->GetProdCutPhotonsP(),G4ProductionCuts::GetIndex("gamma"));
 
-  if(BDSGlobals->GetProdCutElectronsP()>0)
-    theProductionCuts->SetProductionCut(BDSGlobals->GetProdCutElectronsP(),G4ProductionCuts::GetIndex("e-"));
+  if(BDSGlobalConstants::Instance()->GetProdCutElectronsP()>0)
+    theProductionCuts->SetProductionCut(BDSGlobalConstants::Instance()->GetProdCutElectronsP(),G4ProductionCuts::GetIndex("e-"));
 
-  if(BDSGlobals->GetProdCutPositronsP()>0)
-    theProductionCuts->SetProductionCut(BDSGlobals->GetProdCutPositronsP(),G4ProductionCuts::GetIndex("e+"));
+  if(BDSGlobalConstants::Instance()->GetProdCutPositronsP()>0)
+    theProductionCuts->SetProductionCut(BDSGlobalConstants::Instance()->GetProdCutPositronsP(),G4ProductionCuts::GetIndex("e+"));
   
   precisionRegion->SetProductionCuts(theProductionCuts);
 #ifndef NOUSERLIMITS
@@ -1816,7 +1907,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
                                  NULL,		// its mother  volume
                                  false,		// no boolean operation
                                  0,             // copy number
-				 BDSGlobals->GetCheckOverlaps());		// overlap checking
+				 BDSGlobalConstants::Instance()->GetCheckOverlaps());		// overlap checking
 
 
 
@@ -1924,7 +2015,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 #endif
       
       // target position
-      TargetPos = rlast + zHalfAngle *  ( length/2 + BDSGlobals->GetLengthSafety()/2 ) ;
+      TargetPos = rlast + zHalfAngle *  ( length/2 + BDSGlobalConstants::Instance()->GetLengthSafety()/2 ) ;
 
 #ifdef DEBUG 
       G4cout<<"TargetPos="<<TargetPos<<G4endl;
@@ -1938,8 +2029,8 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
                  << (*iBeam)->GetName() << " "
                  << G4endl;
 #endif
-	  rtot = rlast + zHalfAngle * ( length/2 + BDSGlobals->GetLengthSafety()/2 );
-	  rlast = rtot + zHalfAngle * ( length/2 + BDSGlobals->GetLengthSafety()/2 );
+	  rtot = rlast + zHalfAngle * ( length/2 + BDSGlobalConstants::Instance()->GetLengthSafety()/2 );
+	  rlast = rtot + zHalfAngle * ( length/2 + BDSGlobalConstants::Instance()->GetLengthSafety()/2 );
 	}
 
       // rotate to the previous reference frame
@@ -2025,21 +2116,71 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 	    for(G4int i=0; i<(G4int)MultipleSensVols.size(); i++)
 	      {
 		BDSEnergyCounterSD* ECounter=
-		  new BDSEnergyCounterSD(LogVolName+BDSGlobals->StringFromInt(i));
+		  new BDSEnergyCounterSD(LogVolName+BDSGlobalConstants::Instance()->StringFromInt(i));
 		(*iBeam)->SetBDSEnergyCounter(ECounter);
 		MultipleSensVols.at(i)->SetSensitiveDetector(ECounter);
 		SDman->AddNewDetector(ECounter);
 		theECList->push_back(ECounter);	     
+		
+		if(gflash){
+		  if((MultipleSensVols.at(i)->GetRegion() != precisionRegion) && ((*iBeam)->GetType()==_ELEMENT)){//If not in the precision region....
+		    //		    if(MultipleSensVols[i]->GetMaterial()->GetState()!=kStateGas){ //If the region material state is not gas, associate with a parameterisation
+		    G4cout << "...adding " << MultipleSensVols[i]->GetName() << " to gFlashRegion" << G4endl;
+		    /**********************************************                                                                                                                       
+		     * Initialise shower model                                                                                                                                          
+		     ***********************************************/
+		    G4String rname = "gFlashRegion_" + MultipleSensVols[i]->GetName();
+		    gFlashRegion.push_back(new G4Region(rname.c_str()));
+		    G4String mname = "fastShowerModel" + rname;
+		    G4cout << "...making parameterisation..." << G4endl;
+		    theFastShowerModel.push_back(new BDSShowerModel(mname.c_str(),gFlashRegion.back()));
+		    theParameterisation.push_back(new GFlashHomoShowerParameterisation(theMaterials->GetMaterial(MultipleSensVols[i]->GetMaterial()->GetName().c_str()))); 
+		    theFastShowerModel.back()->SetParameterisation(*theParameterisation.back());
+		    theFastShowerModel.back()->SetParticleBounds(*theParticleBounds) ;
+		    theFastShowerModel.back()->SetHitMaker(*theHitMaker);
+		    if(MultipleSensVols[i]->GetMaterial()->GetState()!=kStateGas){ //If the region material state is not gas, associate with a parameterisation
+		      theFastShowerModel.back()->SetFlagParamType(1);//Turn on the parameterisation for e-m showers starting in sensitive material and fitting in the current stack.
+		      theFastShowerModel.back()->SetFlagParticleContainment(1);//Turn on containment
+		    } else {
+		      theFastShowerModel.back()->SetFlagParamType(0);//Turn on the parameterisation for e-m showers starting in sensitive material and fitting in the current stack.
+		      theFastShowerModel.back()->SetFlagParticleContainment(0);//Turn on containment
+
+		    }
+		    MultipleSensVols[i]->SetRegion(gFlashRegion.back());
+		    gFlashRegion.back()->AddRootLogicalVolume(MultipleSensVols[i]);
+		    //		    gFlashRegion.back()->SetUserLimits(new G4UserLimits((*iBeam)->GetLength()/10.0));
+		    //		    MultipleSensVols[i]->SetUserLimits(new G4UserLimits((*iBeam)->GetLength()/10.0));
+		  }		  
+		}
 	      }
+
 	  }
+
+
+	    //Loop through again, unsetting gas regions
+
+	//	if(MultipleSensVols.size()>0){
+	//	  for(G4int i=0; i<(G4int)MultipleSensVols.size(); i++){
+	//	    if(MultipleSensVols[i]->GetMaterial()->GetState()==kStateGas){ //If the region material state is not gas, associate with a parameterisation
+	//	      MultipleSensVols[i]->GetRegion()->RemoveRootLogicalVolume(MultipleSensVols[i]);
+	      //	      MultipleSensVols[i]->SetRegion(NULL);
+
+	      //	      MultipleSensVols[i]->SetRegion(gasRegion);
+	      //	      MultipleSensVols[i]->SetUserLimits(new G4UserLimits((*iBeam)->GetLength()/10.0));
+	//      }
+	//      }
+	//      }
+
 	
+	
+  
 	if((*iBeam)->GetType()=="sampler") {
 	  LocalName=(*iBeam)->GetName()+"_phys";
-	  bdsOutput->SampName.push_back(LocalName + "_" + BDSGlobals->StringFromInt(nCopy+1));
+	  bdsOutput->SampName.push_back(LocalName + "_" + BDSGlobalConstants::Instance()->StringFromInt(nCopy+1));
 	} 
 	else if((*iBeam)->GetType()=="csampler") {
 	  LocalName=(*iBeam)->GetName()+"_phys";
-	  bdsOutput->CSampName.push_back(LocalName + "_" + BDSGlobals->StringFromInt(nCopy+1));
+	  bdsOutput->CSampName.push_back(LocalName + "_" + BDSGlobalConstants::Instance()->StringFromInt(nCopy+1));
 	} else {
 	  //it would be nice to set correctly names also for other elements...
 	  //but need to count them!
@@ -2056,7 +2197,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 	  Rot->rotateX(-pi/2 * rad);
 	  //Rot->rotateZ(pi * rad);
 	  //Rot->rotateZ(- ( pi/2 - fabs(angle)/2 ) * rad);
-	  TargetPos -= zHalfAngle *  ( length/2 + BDSGlobals->GetLengthSafety()/2 ) ;
+	  TargetPos -= zHalfAngle *  ( length/2 + BDSGlobalConstants::Instance()->GetLengthSafety()/2 ) ;
 	  TargetPos+=G4ThreeVector(-rho,0,0);
 	  //TargetPos=G4ThreeVector(0,0,rho);
 	  //if(angle < 0)
@@ -2097,7 +2238,7 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 			    physiWorld,	      // its mother  volume
 			    false,	      // no boolean operation
 			    nCopy,            // copy number
-			    BDSGlobals->GetCheckOverlaps());	      //overlap checking
+			    BDSGlobalConstants::Instance()->GetCheckOverlaps());	      //overlap checking
 
 	  fPhysicalVolumeVector.push_back(PhysiComponentPlace);
 	  vector<G4VPhysicalVolume*> MultiplePhysicalVolumes = (*iBeam)->GetMultiplePhysicalVolumes();
@@ -2108,13 +2249,13 @@ if (verbose || debug) G4cout << "size of beamline element list: "<< beamline_lis
 #ifdef DEBUG 
         G4cout << "Volume name: " << LocalName << G4endl;
 #endif
-        if(BDSGlobals->GetRefVolume()+"_phys"==LocalName && 
-           BDSGlobals->GetRefCopyNo()==nCopy){
+        if(BDSGlobalConstants::Instance()->GetRefVolume()+"_phys"==LocalName && 
+           BDSGlobalConstants::Instance()->GetRefCopyNo()==nCopy){
 #ifdef DEBUG 
           G4cout << "Setting new transform" <<G4endl;
 #endif
 	  G4AffineTransform tf(globalRotation,TargetPos-G4ThreeVector(0,0,length/2));
-	  BDSGlobals->SetRefTransform(tf);
+	  BDSGlobalConstants::Instance()->SetRefTransform(tf);
         }
 
 	(*iBeam)->PrepareField(PhysiComponentPlace);
@@ -2224,6 +2365,7 @@ BDSDetectorConstruction::~BDSDetectorConstruction()
   theBeamline.clear();
 
   delete precisionRegion;
+  gFlashRegion.clear();
 }
 
 
@@ -2243,7 +2385,7 @@ G4VIStore *BDSDetectorConstruction::CreateImportanceStore(){
 
    if (!fPhysicalVolumeVector.size())
     {
-      G4Exception("B01-DetectorConstruction: no physical volumes created yet!");
+      G4Exception("B01-DetectorConstruction: no physical volumes created yet!", "-1", FatalException, "");
     }
   
   // creating and filling the importance store

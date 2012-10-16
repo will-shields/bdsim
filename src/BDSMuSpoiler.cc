@@ -3,7 +3,7 @@
    Last modified 12.12.2004
    Copyright (c) 2004 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSMuSpoiler.hh"
 #include "G4VisAttributes.hh"
 #include "G4LogicalVolume.hh"
@@ -42,7 +42,7 @@ BDSMuSpoiler::BDSMuSpoiler (G4String& aName,G4double aLength,G4double bpRad,
   itsBField(aBField)
 
 {
-  G4double minInnRad =  itsBeampipeRadius + BDSGlobals->GetBeampipeThickness() + BDSGlobals->GetLengthSafety()/2.0;
+  G4double minInnRad =  itsBeampipeRadius + BDSGlobalConstants::Instance()->GetBeampipeThickness() + BDSGlobalConstants::Instance()->GetLengthSafety()/2.0;
   if( itsInnerRadius < minInnRad ){
     G4cout << "BDSMuSpoiler - WARNING - inner radius less than minimum. Changing inner radius from " << itsInnerRadius << " to " << minInnRad << G4endl;
     itsInnerRadius = minInnRad;
@@ -54,21 +54,21 @@ BDSMuSpoiler::BDSMuSpoiler (G4String& aName,G4double aLength,G4double bpRad,
   if ( (*LogVolCount)[itsName]==0)
     {
   G4double xLength, yLength;
-  G4double totalTunnelRadius = BDSGlobals->GetTunnelRadius()+BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+std::max(BDSGlobals->GetTunnelOffsetX(),BDSGlobals->GetTunnelOffsetY());
+  G4double totalTunnelRadius = BDSGlobalConstants::Instance()->GetTunnelRadius()+BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness()+std::max(BDSGlobalConstants::Instance()->GetTunnelOffsetX(),BDSGlobalConstants::Instance()->GetTunnelOffsetY());
   
-  xLength = yLength = std::max(itsOuterRadius,BDSGlobals->GetComponentBoxSize()/2);
+  xLength = yLength = std::max(itsOuterRadius,BDSGlobalConstants::Instance()->GetComponentBoxSize()/2);
   xLength = yLength = std::max(xLength,totalTunnelRadius);
 
 #ifdef DEBUG 
   G4cout<<"marker volume : x/y="<<xLength/m<<
-    " m, l= "<<  (itsLength+BDSGlobals->GetLengthSafety())/2/m <<" m"<<G4endl;
+    " m, l= "<<  (itsLength+BDSGlobalConstants::Instance()->GetLengthSafety())/2/m <<" m"<<G4endl;
 #endif
 
   itsMarkerLogicalVolume=new G4LogicalVolume
     (new G4Box( itsName+"_solid",
                 xLength,
 		yLength,
-		(itsLength-BDSGlobals->GetLengthSafety())/2), //z half length 
+		(itsLength-BDSGlobalConstants::Instance()->GetLengthSafety())/2), //z half length 
      theMaterials->GetMaterial("vacuum"),
      itsName+"_log");
 
@@ -79,9 +79,9 @@ BDSMuSpoiler::BDSMuSpoiler (G4String& aName,G4double aLength,G4double bpRad,
   // pDaughterLogical->SetFieldManager(fFieldManager, true) - the
   // latter 'true' over-writes all the other fields
       itsMarkerLogicalVolume->
-	SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
+	SetFieldManager(BDSGlobalConstants::Instance()->GetZeroFieldManager(),false);
       
-      if(BDSGlobals->GetBuildTunnel()){
+      if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
         BuildTunnel();
       }
       BuildMuSpoiler();
@@ -100,9 +100,9 @@ void BDSMuSpoiler::BuildMuSpoiler()
 {
   itsSolidLogVol=
     new G4LogicalVolume(new G4Tubs(itsName+"_solid",
-				   itsInnerRadius+BDSGlobals->GetLengthSafety()/2.0,
-				   itsOuterRadius-BDSGlobals->GetLengthSafety()/2.0,
-				   itsLength/2-BDSGlobals->GetLengthSafety()/2.0,
+				   itsInnerRadius+BDSGlobalConstants::Instance()->GetLengthSafety()/2.0,
+				   itsOuterRadius-BDSGlobalConstants::Instance()->GetLengthSafety()/2.0,
+				   itsLength/2-BDSGlobalConstants::Instance()->GetLengthSafety()/2.0,
 				   0,twopi*radian),
 			theMaterials->GetMaterial("Iron"), 
 			itsName+"_solid");
@@ -113,10 +113,10 @@ void BDSMuSpoiler::BuildMuSpoiler()
 				   itsInnerRadius,
 				   itsLength/2,
 				   0,twopi*radian),
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			itsName+"_inner");
 
-  G4Material *bpMaterial = theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName() );
+  G4Material *bpMaterial = theMaterials->GetMaterial( BDSGlobalConstants::Instance()->GetPipeMaterialName() );
 
   // build beampipe
 
@@ -128,14 +128,14 @@ void BDSMuSpoiler::BuildMuSpoiler()
 #endif
 
   itsBPTube=new G4Tubs(itsName+"_bmp_solid",
-		       itsBpRadius+BDSGlobals->GetLengthSafety()/2.0,
-		       itsBpRadius+BDSGlobals->GetBeampipeThickness(),
+		       itsBpRadius+BDSGlobalConstants::Instance()->GetLengthSafety()/2.0,
+		       itsBpRadius+BDSGlobalConstants::Instance()->GetBeampipeThickness(),
 		       itsLength/(2.),
 		       0,twopi*radian);
 
 #ifdef DEBUG
   G4cout << "Inner pipe :"
-         << " r= " << (itsBpRadius-BDSGlobals->GetBeampipeThickness() )/m
+         << " r= " << (itsBpRadius-BDSGlobalConstants::Instance()->GetBeampipeThickness() )/m
          << " m"
          << " l= " << itsLength/(2.)/m << " m"
          << G4endl;
@@ -144,7 +144,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
   itsInnerBPTube=new G4Tubs(itsName+"_inner_bmp_solid",
 				0.,
 				itsBpRadius,
-			    itsLength/2 - BDSGlobals->GetLengthSafety()/2.0,
+			    itsLength/2 - BDSGlobalConstants::Instance()->GetLengthSafety()/2.0,
 				0,twopi*radian);
 
   itsBeampipeLogicalVolume=	
@@ -154,27 +154,27 @@ void BDSMuSpoiler::BuildMuSpoiler()
 
   itsInnerBPLogicalVolume=	
     new G4LogicalVolume(itsInnerBPTube,
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			itsName+"_inner_bmp_log");
 
 
 #ifndef NOUSERLIMITS
   G4UserLimits* AbsUserLimits =
     new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
-		     BDSGlobals->GetThresholdCutCharged());
+		     BDSGlobalConstants::Instance()->GetThresholdCutCharged());
 
   AbsUserLimits->SetMaxAllowedStep(itsLength);
   itsInnerLogVol->SetUserLimits(AbsUserLimits);
 
   itsSolidLogVol->
     SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
-				       BDSGlobals->GetThresholdCutCharged()));
+				       BDSGlobalConstants::Instance()->GetThresholdCutCharged()));
 
   itsInnerBPLogicalVolume->SetUserLimits(AbsUserLimits);
 
   itsBeampipeLogicalVolume->
     SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
-				       BDSGlobals->GetThresholdCutCharged()));
+				       BDSGlobalConstants::Instance()->GetThresholdCutCharged()));
 #endif
   itsSolidLogVol->SetVisAttributes(itsVisAttributes);
   itsBeampipeLogicalVolume->SetVisAttributes(itsBPVisAttributes);
@@ -194,15 +194,15 @@ void BDSMuSpoiler::BuildMuSpoiler()
 		      itsName+"_combined", // its name
 		      itsSolidLogVol,      // its mother  volume
 		      false,		   // no boolean operation
-		      0, BDSGlobals->GetCheckOverlaps());		   // copy number 
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		   // copy number 
 
   //For geometric biasing etc.
   SetMultiplePhysicalVolumes(itsPhysiComp2);
 
-  if(BDSGlobals->GetSensitiveComponents()){
+  if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
     SetMultipleSensitiveVolumes(itsSolidLogVol);
   }
-  if(BDSGlobals->GetSensitiveBeamPipe()){
+  if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
     SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
   }
 
@@ -215,7 +215,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
 		      itsName+"_inner_bmp_phys",// its name
 		      itsMarkerLogicalVolume,   // its mother  volume
 		      false,		        // no boolean operation
-				   0, BDSGlobals->GetCheckOverlaps());		        // copy number
+				   0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		        // copy number
   
       itsPhysiBP = new G4PVPlacement(
 				  (G4RotationMatrix*)0,			     // no rotation
@@ -224,7 +224,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
 			  itsName+"_bmp_phys",	     // its name
 			  itsMarkerLogicalVolume,    // its mother  volume
 			  false,		     // no boolean operation
-				  0, BDSGlobals->GetCheckOverlaps());		             // copy number
+				  0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		             // copy number
 
   itsPhysiComp = 
     new G4PVPlacement(
@@ -234,7 +234,7 @@ void BDSMuSpoiler::BuildMuSpoiler()
 		      itsName+"_solid",	     // its name
 		      itsMarkerLogicalVolume, // its mother  volume
 		      false,		     // no boolean operation
-		      0, BDSGlobals->GetCheckOverlaps());		     // copy number  
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		     // copy number  
 
   //For geometric biasing etc.
   SetMultiplePhysicalVolumes(itsPhysiInnerBP);

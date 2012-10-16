@@ -4,7 +4,7 @@
    Copyright (c) 2004 by J.C.Carter.  ALL RIGHTS RESERVED. 
 */
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSLWCalorimeter.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
@@ -59,7 +59,7 @@ void BDSLWCalorimeter::LWCalorimeterLogicalVolume()
     {
 
       G4double SampTransSize;
-      SampTransSize=2.*BDSGlobals->GetTunnelRadius();
+      SampTransSize=2.*BDSGlobalConstants::Instance()->GetTunnelRadius();
 
       itsMarkerLogicalVolume=
 	new G4LogicalVolume(
@@ -67,7 +67,7 @@ void BDSLWCalorimeter::LWCalorimeterLogicalVolume()
 				      SampTransSize,
 				      SampTransSize,
 				      itsLength/2),
-			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			    theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			    itsName);
 
       (*LogVolCount)[itsName]=1;
@@ -91,8 +91,8 @@ void BDSLWCalorimeter::BuildCal(G4double aLength)
   // build the Calorimeter
    
   itsLWCal=new G4Box(itsName+"_LWCal",
-		     BDSGlobals->GetLWCalWidth()/2,
-		     BDSGlobals->GetLWCalWidth()/2,
+		     BDSGlobalConstants::Instance()->GetLWCalWidth()/2,
+		     BDSGlobalConstants::Instance()->GetLWCalWidth()/2,
 		     aLength/2);
   itsLWCalLogicalVolume=new G4LogicalVolume(itsLWCal,
 					    theMaterials->GetMaterial("LeadTungstate"),
@@ -103,12 +103,12 @@ void BDSLWCalorimeter::BuildCal(G4double aLength)
   G4VPhysicalVolume* PhysiLWCal;
   PhysiLWCal = new G4PVPlacement(
 		      Rot,			     // rotation
-		      G4ThreeVector(BDSGlobals->GetLWCalOffset(),0.,0.),
+		      G4ThreeVector(BDSGlobalConstants::Instance()->GetLWCalOffset(),0.,0.),
 		      itsLWCalLogicalVolume,  // its logical volume
 		      itsName+"_cal",	     // its name
 		      itsMarkerLogicalVolume,     // its mother  volume
 		      false,		     // no boolean operation
-		      0, BDSGlobals->GetCheckOverlaps());		             // copy number
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		             // copy number
   
   // Sensitive Detector:
   G4SDManager* SDMan = G4SDManager::GetSDMpointer();
@@ -128,7 +128,7 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
   
   itsInnerBPTube=new G4Tubs(itsName+"_InnerTube",
 			    0.,
-			    itsBpRadius-BDSGlobals->GetBeampipeThickness(),
+			    itsBpRadius-BDSGlobalConstants::Instance()->GetBeampipeThickness(),
 			    aLength/2,
 			    0,twopi*radian);
   itsBeampipeLogicalVolume=	
@@ -139,7 +139,7 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
   
   itsInnerBPLogicalVolume=	
     new G4LogicalVolume(itsInnerBPTube,
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			itsName+"_bmp_Inner_log");
   
   G4VPhysicalVolume* PhysiInner;
@@ -150,7 +150,7 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
 		      itsName+"_InnerBmp",     // its name
 		      itsBeampipeLogicalVolume, // its mother  volume
 		      false,		       // no boolean operation
-				  0, BDSGlobals->GetCheckOverlaps());		       // copy number
+				  0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		       // copy number
   
   
    G4RotationMatrix* Rot=NULL;
@@ -164,15 +164,15 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
 		       itsName+"_bmp",	     // its name
 		       itsMarkerLogicalVolume,     // its mother  volume
 		       false,		     // no boolean operation
-		       0, BDSGlobals->GetCheckOverlaps());		             // copy number
+		       0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		             // copy number
 #ifndef NOUSERLIMITS
    itsBeampipeUserLimits =
      new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-		      BDSGlobals->GetThresholdCutCharged());
+		      BDSGlobalConstants::Instance()->GetThresholdCutCharged());
    
    itsInnerBeampipeUserLimits =
      new G4UserLimits("inner beamipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-		      BDSGlobals->GetThresholdCutCharged());
+		      BDSGlobalConstants::Instance()->GetThresholdCutCharged());
    
    itsBeampipeUserLimits->SetMaxAllowedStep(itsLength);
    
@@ -192,7 +192,7 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
    // latter 'true' over-writes all the other fields
    
    itsMarkerLogicalVolume->
-     SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
+     SetFieldManager(BDSGlobalConstants::Instance()->GetZeroFieldManager(),false);
    
 }
 

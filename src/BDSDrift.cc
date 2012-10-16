@@ -3,7 +3,7 @@
    Last modified 24.7.2002
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSDrift.hh"
 #include "G4Box.hh"
@@ -33,8 +33,8 @@ BDSDrift::BDSDrift (G4String aName, G4double aLength,
   BDSMultipole(aName, aLength, aper, aper, SetVisAttributes(),  blmLocZ, blmLocTheta, tunnelMaterial, "", aperX, aperY, 0, 0, tunnelOffsetX, phiAngleIn, phiAngleOut)
 {
   if(!aperset){
-    itsStartOuterR=aperX + BDSGlobals->GetBeampipeThickness();
-    itsEndOuterR=aperY + BDSGlobals->GetBeampipeThickness();
+    itsStartOuterR=aperX + BDSGlobalConstants::Instance()->GetBeampipeThickness();
+    itsEndOuterR=aperY + BDSGlobalConstants::Instance()->GetBeampipeThickness();
     SetStartOuterRadius(itsStartOuterR);
     SetEndOuterRadius(itsEndOuterR);
   }
@@ -54,7 +54,7 @@ BDSDrift::BDSDrift (G4String aName, G4double aLength,
       //
       // build beampipe (geometry + magnetic field)
       //
-      if(BDSGlobals->GetBuildTunnel()){
+      if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
         BuildTunnel();
       }
 
@@ -70,7 +70,7 @@ BDSDrift::BDSDrift (G4String aName, G4double aLength,
       //
       // define sensitive volumes for hit generation
       //
-      if(BDSGlobals->GetSensitiveBeamPipe()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
         SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
       }
       

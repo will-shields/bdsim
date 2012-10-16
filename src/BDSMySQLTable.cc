@@ -9,7 +9,7 @@
 */
 
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include <cstdlib>
 #include "BDSMaterials.hh"

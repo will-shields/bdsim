@@ -53,7 +53,7 @@ public:
 		G4double aYAper=0.,
 		G4double angle=0.,
 		G4double tunnelRadius=0.,
-		G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX());
+		G4double tunnelOffsetX=BDSGlobalConstants::Instance()->GetTunnelOffsetX());
 
 
   //Contructor for components with blms and tunnel material added
@@ -69,7 +69,7 @@ public:
 		G4double aYAper=0.,
 		G4double angle=0.,
 		G4double tunnelRadius=0.,
-		G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX(),
+		G4double tunnelOffsetX=BDSGlobalConstants::Instance()->GetTunnelOffsetX(),
 		G4double phiAngleIn=0,
 		G4double phiAngleOut=0);
 

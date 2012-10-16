@@ -491,7 +491,7 @@ G4bool BDSConvParticleChange::CheckIt(const G4Track& aTrack)
   }
 
   // Exit with error
-  if (exitWithError) G4Exception("BDSConvParticleChange::CheckIt");
+  if (exitWithError) G4Exception("BDSConvParticleChange::CheckIt", "-1", FatalException, "");
 
   //correction
   if (!itsOKforMomentum) {

@@ -16,7 +16,7 @@ void BDSUserTrackingAction::PreUserTrackingAction(const G4Track* aTrack)
 {
   
   // store muon trajectories
-  if(BDSGlobals->GetStoreMuonTrajectories())
+  if(BDSGlobalConstants::Instance()->GetStoreMuonTrajectories())
     {
 #ifdef DEBUG 
       G4cout<<"STORING MUON TRAJECTORIES"<<G4endl;
@@ -28,7 +28,7 @@ void BDSUserTrackingAction::PreUserTrackingAction(const G4Track* aTrack)
     }
 
   // store neutron trajectories
-  if(BDSGlobals->GetStoreNeutronTrajectories())
+  if(BDSGlobalConstants::Instance()->GetStoreNeutronTrajectories())
     {
 #ifdef DEBUG 
       G4cout<<"STORING NEUTRON TRAJECTORIES"<<G4endl;
@@ -41,7 +41,7 @@ void BDSUserTrackingAction::PreUserTrackingAction(const G4Track* aTrack)
     
     
   // store trajectories for primaries
-  if(BDSGlobals->GetStoreTrajectory())
+  if(BDSGlobalConstants::Instance()->GetStoreTrajectory())
     { 
 #ifdef DEBUG 
       G4cout<<"STORING PRIMARY TRAJECTORIES"<<G4endl;

@@ -1,4 +1,4 @@
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSElement.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
@@ -42,7 +42,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
   G4double FieldX, FieldY, FieldZ;
   FieldX = FieldY = FieldZ = 0.0;
 
-  G4Material *theMaterial = theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial());
+  G4Material *theMaterial = theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial());
 
   G4Box *aBox;
   G4Tubs *aTubs;
@@ -116,7 +116,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 		      "vol_"+G4String(count),	     // its name
 		      marker,     // its mother  volume
 		      false,		     // no boolean operation
-		      0, BDSGlobals->GetCheckOverlaps());		   
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		   
 
 	    count++;
 
@@ -185,7 +185,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 				"vol_"+G4String(count),	     // its name
 				marker,     // its mother  volume
 				false,		     // no boolean operation
-				0, BDSGlobals->GetCheckOverlaps());		   
+				0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		   
 	    
 	    count++;
 	    
@@ -259,7 +259,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 				"vol_"+G4String(count),	     // its name
 				marker,     // its mother  volume
 				false,		     // no boolean operation
-				0, BDSGlobals->GetCheckOverlaps());		   
+				0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		   
 	    
 	    count++;
 	    
@@ -321,7 +321,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 				"vol_"+G4String(count),	     // its name
 				marker,     // its mother  volume
 				false,		     // no boolean operation
-				0, BDSGlobals->GetCheckOverlaps());		   
+				0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		   
 	    
 	    count++;
 	    

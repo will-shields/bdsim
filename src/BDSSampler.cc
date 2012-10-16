@@ -7,7 +7,7 @@
    Changed Samplers to account for plane and cylinder types (GABs code)
 */
 // gab:
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSSampler.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
@@ -48,7 +48,7 @@ BDSSampler::BDSSampler (G4String aName,G4double aLength):
 			 SetVisAttributes())
 {
   nThisSampler= nSamplers + 1;
-  SetName("Sampler_"+BDSGlobals->StringFromInt(nThisSampler)+"_"+itsName);
+  SetName("Sampler_"+BDSGlobalConstants::Instance()->StringFromInt(nThisSampler)+"_"+itsName);
   SetType("sampler");
   SamplerLogicalVolume();
   nSamplers++;
@@ -68,19 +68,19 @@ void BDSSampler::SamplerLogicalVolume()
       itsMarkerLogicalVolume=
 	new G4LogicalVolume(
 			    new G4Box(itsName+"_solid",
-				      BDSGlobals->GetSamplerDiameter()/2,
-				      BDSGlobals->GetSamplerDiameter()/2,
+				      BDSGlobalConstants::Instance()->GetSamplerDiameter()/2,
+				      BDSGlobalConstants::Instance()->GetSamplerDiameter()/2,
 				      itsLength/2.0),
-			    theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			    theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			    itsName);
 
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
 #ifndef NOUSERLIMITS
-      itsOuterUserLimits =new G4UserLimits();
-      double stepFactor=0.5;
-      itsOuterUserLimits->SetMaxAllowedStep(itsLength*stepFactor);
-      itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
+      //      itsOuterUserLimits =new G4UserLimits();
+      //double stepFactor=5;
+      //      itsOuterUserLimits->SetMaxAllowedStep(itsLength*stepFactor);
+      //itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
 #endif
      // Sensitive Detector:
 //SPM G4cout << "Sampler.cc Nsamplers " << bdsOutput->nSamplers << G4endl;

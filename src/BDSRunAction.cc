@@ -7,7 +7,7 @@
 //==========================================================
 //==========================================================
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSRunAction.hh"
 #include "BDSRunManager.hh"
@@ -64,37 +64,37 @@ void BDSRunAction::BeginOfRunAction(const G4Run* aRun)
 void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 {
 
-  if(BDSGlobals->getWaitingForDump()) // synchronization with placet
+  if(BDSGlobalConstants::Instance()->getWaitingForDump()) // synchronization with placet
     {
       G4cout<<"last event reached! dumping"<<G4endl;
       
       G4StackManager* SM = G4EventManager::GetEventManager()->GetStackManager();
       
-      BDSGlobals->setWaitingForDump(false);
-      BDSGlobals->setDumping(true);
-      BDSGlobals->outputQueue.clear();
-      BDSGlobals->transformedQueue.clear();
+      BDSGlobalConstants::Instance()->setWaitingForDump(false);
+      BDSGlobalConstants::Instance()->setDumping(true);
+      BDSGlobalConstants::Instance()->outputQueue.clear();
+      BDSGlobalConstants::Instance()->transformedQueue.clear();
       SM->TransferStackedTracks(fPostpone, fUrgent);// so that they can be reclassified
       SM->ReClassify();
 
       G4double tmpT = 0;
 
-      G4double* referenceTimes = BDSGlobals->referenceQueue.front();
+      G4double* referenceTimes = BDSGlobalConstants::Instance()->referenceQueue.front();
       for(int i=0;i<nptwiss;++i){
 	tmpT += referenceTimes[i];
       }
       tmpT /= nptwiss;
 
-      FILE* fifo = fopen(BDSGlobals->GetFifo(),"w");
-      fprintf(fifo,"# nparticles = %i\n",(int)BDSGlobals->transformedQueue.size());
+      FILE* fifo = fopen(BDSGlobalConstants::Instance()->GetFifo(),"w");
+      fprintf(fifo,"# nparticles = %i\n",(int)BDSGlobalConstants::Instance()->transformedQueue.size());
 
 
 #ifdef DEBUG
       G4cout << "reftime = " << tmpT << G4endl;
 #endif
       std::deque<tmpParticle>::iterator iter;
-      for(iter=BDSGlobals->transformedQueue.begin();
-	  iter!=BDSGlobals->transformedQueue.end();iter++)
+      for(iter=BDSGlobalConstants::Instance()->transformedQueue.begin();
+	  iter!=BDSGlobalConstants::Instance()->transformedQueue.end();iter++)
 	{
 	  (*iter).x -= ((*iter).t-tmpT)*(*iter).xp*c_light/micrometer;
 	  (*iter).y -= ((*iter).t-tmpT)*(*iter).yp*c_light/micrometer;
@@ -109,23 +109,23 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 		  (*iter).t);
 	}
       fclose(fifo);
-      BDSGlobals->setDumping(false);
-      BDSGlobals->setReading(true);
+      BDSGlobalConstants::Instance()->setDumping(false);
+      BDSGlobalConstants::Instance()->setReading(true);
       
       // read in the stuff from placet
       
       int token;
       G4double x,y,z,t,xp,yp,zp,E;
       x = y = z = xp = yp = zp = t = E = 0;
-      BDSGlobals->holdingQueue.clear();
+      BDSGlobalConstants::Instance()->holdingQueue.clear();
       
-      G4AffineTransform tf = BDSGlobals->GetDumpTransform();
+      G4AffineTransform tf = BDSGlobalConstants::Instance()->GetDumpTransform();
       G4ThreeVector pos;
       G4ThreeVector momDir;
       G4ThreeVector LocalPosition;
       G4ThreeVector LocalDirection;
       
-      fifo = fopen(BDSGlobals->GetFifo(),"r");
+      fifo = fopen(BDSGlobalConstants::Instance()->GetFifo(),"r");
 
       if(fifo != NULL){
         fscanf(fifo,"# nparticles = %i",&token);
@@ -158,7 +158,7 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
           G4cout << "LocalDir: mom = " << LocalDirection << G4endl;
 #endif
 	  tmpParticle holdingParticle;
-	  holdingParticle.E = E*GeV - BDSGlobals->GetParticleDefinition()->GetPDGMass();
+	  holdingParticle.E = E*GeV - BDSGlobalConstants::Instance()->GetParticleDefinition()->GetPDGMass();
 	  holdingParticle.t = t;
 	  holdingParticle.xp = LocalDirection.x();
 	  holdingParticle.yp = LocalDirection.y();
@@ -168,25 +168,25 @@ void BDSRunAction::EndOfRunAction(const G4Run* aRun)
 	  holdingParticle.y = LocalPosition.y();
 	  holdingParticle.z = LocalPosition.z();
 	  
-	  BDSGlobals->holdingQueue.push_back(holdingParticle);
+	  BDSGlobalConstants::Instance()->holdingQueue.push_back(holdingParticle);
 #ifdef DEBUG 
           G4cout << "Read particle number " << i << G4endl;
 #endif
         }
         sleep(1);
 	fclose(fifo);
-        BDSGlobals->setReading(false);
-        BDSGlobals->setReadFromStack(false);
-//	BDSGlobals->referenceQueue.pop_front();
-	delete[] BDSGlobals->referenceQueue.front();
-	BDSGlobals->referenceQueue.pop_front();
+        BDSGlobalConstants::Instance()->setReading(false);
+        BDSGlobalConstants::Instance()->setReadFromStack(false);
+//	BDSGlobalConstants::Instance()->referenceQueue.pop_front();
+	delete[] BDSGlobalConstants::Instance()->referenceQueue.front();
+	BDSGlobalConstants::Instance()->referenceQueue.pop_front();
 
 #ifdef DEBUG 
-        G4cout << "Number read in = " << BDSGlobals->holdingQueue.size() << G4endl;
+        G4cout << "Number read in = " << BDSGlobalConstants::Instance()->holdingQueue.size() << G4endl;
 #endif
       }
       else{
-	G4Exception("Read from fifo failed: bad file name\n");
+	G4Exception("Read from fifo failed: bad file name\n", "-1", FatalException, "");
 	exit(1);
       }
       BDSDump::nUsedDumps++;

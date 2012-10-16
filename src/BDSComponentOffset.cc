@@ -7,7 +7,7 @@
    Author: John C.Carter, Royal Holloway, Univ. of London
    Date: 10 Mar 2005
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSComponentOffset.hh"
 
 //============================================================

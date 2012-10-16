@@ -3,7 +3,7 @@
    Last modified 24.7.2002
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSPCLDrift.hh"
 #include "BDSMagField.hh"
@@ -52,7 +52,7 @@ BDSPCLDrift::BDSPCLDrift (G4String aName, G4double aLength,
       //
       // build beampipe (geometry + magnetic field)
       //
-      if(BDSGlobals->GetBuildTunnel()){
+      if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
         BuildTunnel();
       }
       BuildBpFieldAndStepper();
@@ -63,7 +63,7 @@ BDSPCLDrift::BDSPCLDrift (G4String aName, G4double aLength,
       //
       // define sensitive volumes for hit generation
       //
-      if(BDSGlobals->GetSensitiveBeamPipe()){
+      if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
 	SetMultipleSensitiveVolumes(itsOuterBeamPipeLogicalVolume);	
       }
       
@@ -89,7 +89,7 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
   if(materialName != ""){
     material = theMaterials->GetMaterial( materialName );
   } else {
-    material = theMaterials->GetMaterial( BDSGlobals->GetPipeMaterialName());
+    material = theMaterials->GetMaterial( BDSGlobalConstants::Instance()->GetPipeMaterialName());
   }
   
   // build beampipe
@@ -107,11 +107,11 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
 
 
 
-  G4double ts = BDSGlobals->GetLengthSafety()+BDSGlobals->GetBeampipeThickness()/2;
+  G4double ts = BDSGlobalConstants::Instance()->GetLengthSafety()+BDSGlobalConstants::Instance()->GetBeampipeThickness()/2;
 
   BDSPCLTube* innerTube = new BDSPCLTube(itsXAper-ts, itsYAperUp-ts, itsYAperDown-ts, itsDyAper, -1, itsLength, itsName+"_inner");
 
-  BDSPCLTube* outerTube = new BDSPCLTube(itsXAper, itsYAperUp, itsYAperDown, itsDyAper, BDSGlobals->GetBeampipeThickness(), itsLength, itsName+"_outer");
+  BDSPCLTube* outerTube = new BDSPCLTube(itsXAper, itsYAperUp, itsYAperDown, itsDyAper, BDSGlobalConstants::Instance()->GetBeampipeThickness(), itsLength, itsName+"_outer");
   
   //The inner beam pipe solids need to be fused together to form one seamless shape in order to create a vacuum and field without gaps in it.
 
@@ -124,7 +124,7 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
 
   itsInnerBeamPipeLogicalVolume=	
     new G4LogicalVolume(inner_solid,
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			itsName+"_inner_bmp_log");
 
   itsOuterBeamPipeLogicalVolume=	
@@ -159,7 +159,7 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
 				    itsName+"_inner_bmp_phys",// its name
 				    itsMarkerLogicalVolume,   // its mother  volume
 				    false,		        // no boolean operation
-				    0, BDSGlobals->GetCheckOverlaps());		        // copy number
+				    0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		        // copy number
 
 
   itsPhysiOuter = new G4PVPlacement(
@@ -169,7 +169,7 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
 				    itsName+"_inner_bmp_phys",// its name
 				    itsMarkerLogicalVolume,   // its mother  volume
 				    false,		        // no boolean operation
-				    0, BDSGlobals->GetCheckOverlaps());		        // copy number
+				    0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		        // copy number
 
 
 
@@ -181,10 +181,10 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
 
 #ifndef NOUSERLIMITS
   itsBeampipeUserLimits =  new G4UserLimits("beampipe cuts");
-  itsBeampipeUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+  itsBeampipeUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
 
   itsInnerBeampipeUserLimits =  new G4UserLimits("inner beampipe cuts");
-  itsInnerBeampipeUserLimits->SetUserMinEkine( BDSGlobals->GetThresholdCutCharged());
+  itsInnerBeampipeUserLimits->SetUserMinEkine( BDSGlobalConstants::Instance()->GetThresholdCutCharged());
 
   G4double stepfactor = 5;
 
@@ -209,7 +209,7 @@ void BDSPCLDrift::BuildBeampipe(G4String materialName){
   // latter 'true' over-writes all the other fields
   
   itsMarkerLogicalVolume->
-    SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
+    SetFieldManager(BDSGlobalConstants::Instance()->GetZeroFieldManager(),false);
   
 #ifdef DEBUG
   G4cout << "BDSPCLDrift.cc: Finished making beam pipe..." << G4endl;

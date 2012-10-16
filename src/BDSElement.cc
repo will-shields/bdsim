@@ -4,7 +4,7 @@
    Copyright (c) 2004 by J.C.Carter.  ALL RIGHTS RESERVED. 
 */
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSElement.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
@@ -111,11 +111,11 @@ void BDSElement::BuildElementMarkerLogicalVolume(){
 #ifdef DEBUG 
   G4cout<<"BDSElement : creating logical volume"<<G4endl;
 #endif
-  G4double elementSizeX=itsOuterR+BDSGlobals->GetLengthSafety()/2, elementSizeY = itsOuterR+BDSGlobals->GetLengthSafety()/2;
+  G4double elementSizeX=itsOuterR+BDSGlobalConstants::Instance()->GetLengthSafety()/2, elementSizeY = itsOuterR+BDSGlobalConstants::Instance()->GetLengthSafety()/2;
   
   
-  elementSizeX = std::max(elementSizeX, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness() + 4*BDSGlobals->GetLengthSafety() );   
-  elementSizeY = std::max(elementSizeY, this->GetTunnelRadius()+2*std::abs(BDSGlobals->GetTunnelOffsetY()) + BDSGlobals->GetTunnelThickness()+BDSGlobals->GetTunnelSoilThickness()+4*BDSGlobals->GetLengthSafety() );
+  elementSizeX = std::max(elementSizeX, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness() + 4*BDSGlobalConstants::Instance()->GetLengthSafety() );   
+  elementSizeY = std::max(elementSizeY, this->GetTunnelRadius()+2*std::abs(BDSGlobalConstants::Instance()->GetTunnelOffsetY()) + BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness()+4*BDSGlobalConstants::Instance()->GetLengthSafety() );
 
   G4double elementSize=std::max(elementSizeX, elementSizeY); 
   
@@ -125,7 +125,7 @@ void BDSElement::BuildElementMarkerLogicalVolume(){
                                   elementSize,
                                   elementSize,   
 				  itsLength/2.0),
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			itsName);
 
   
@@ -171,7 +171,7 @@ void BDSElement::BuildElementMarkerLogicalVolume(){
 							    sin(itsPhiAngleIn)*elementSize,
 							    elementSize,
 							    itsLength/2),
-						  theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+						  theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 						  itsName+"tempBox1Log"
 						  );
   
@@ -200,12 +200,12 @@ void BDSElement::BuildElementMarkerLogicalVolume(){
   
   itsMarkerLogicalVolume=    
     new G4LogicalVolume(itsMarkerSolidVolume,
-			theMaterials->GetMaterial(BDSGlobals->GetVacuumMaterial()),
+			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			LocalLogicalName+"_marker");
   */
   
-  itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX, BDSGlobals->GetThresholdCutCharged());
-  G4double  maxStepFactor=0.2;
+  itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX, BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+  G4double  maxStepFactor=5;
   itsMarkerUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
   itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
   
@@ -214,7 +214,7 @@ void BDSElement::BuildElementMarkerLogicalVolume(){
   // zero field in the marker volume
   //
   itsMarkerLogicalVolume->
-    SetFieldManager(BDSGlobals->GetZeroFieldManager(),false);
+    SetFieldManager(BDSGlobalConstants::Instance()->GetZeroFieldManager(),false);
 }
 
 void BDSElement::BuildGeometry()
@@ -229,17 +229,17 @@ void BDSElement::BuildGeometry()
   (*LogVol)[itsName] = itsMarkerLogicalVolume;
 #ifndef NOUSERLIMITS
   itsOuterUserLimits = new G4UserLimits();
-  G4double stepfactor=0.2;
+  G4double stepfactor=5;
   itsOuterUserLimits->SetMaxAllowedStep(itsLength*stepfactor);
-  itsOuterUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
-  if(BDSGlobals->GetThresholdCutCharged()>0){
-    itsOuterUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+  itsOuterUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+  if(BDSGlobalConstants::Instance()->GetThresholdCutCharged()>0){
+    itsOuterUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
   }
   itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
 #endif
 
   //Build the tunnel
-  if(BDSGlobals->GetBuildTunnel()){
+  if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
     BuildTunnel();
   }
 }
@@ -260,7 +260,12 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
     }
     else {
       gFormat = geometry.substr(0,pos);
-      gFile = geometry.substr(pos+1,geometry.length() - pos); 
+      gFile = BDSGlobalConstants::Instance()->GetBDSIMHOME();
+      G4String temp = geometry.substr(pos+1,geometry.length() - pos);     
+      G4cout << "BDSElement::PlaceComponents SQL file is " << temp << G4endl;
+      G4cout << "BDSElement::PlaceComponents Full path is " << gFile << G4endl;
+      gFile+=temp;
+      G4cout << "BDSElement::PlaceComponents Full path is " << gFile << G4endl;
     }
   }
 
@@ -273,7 +278,9 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
     }
     else {
       bFormat = bmap.substr(0,pos);
-      bFile = bmap.substr(pos+1,bmap.length() - pos); 
+      bFile = BDSGlobalConstants::Instance()->GetBDSIMHOME();
+      bFile += bmap.substr(pos+1,bmap.length() - pos); 
+      G4cout << "BDSElement::PlaceComponents bmap file is " << bFile << G4endl;
     }
   }
 
@@ -365,19 +372,25 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
 
 #else
     G4cout << "LCDD support not selected during BDSIM configuration" << G4endl;
-    G4Exception("Please re-compile BDSIM with USE_LCDD flag in Makefile");
+    G4Exception("Please re-compile BDSIM with USE_LCDD flag in Makefile", "-1", FatalException, "");
 #endif
   }
   else if(gFormat=="mokka") {
-
+    G4cout << "BDSElement.cc: loading geometry sql file: BDSGeometrySQL(" << gFile << "," << itsLength << ")" << G4endl,
     Mokka = new BDSGeometrySQL(gFile,itsLength);
     Mokka->Construct(itsMarkerLogicalVolume);
-    vector<G4LogicalVolume*> SensComps = Mokka->SensitiveComponents;
     for(unsigned int i=0; i<Mokka->GetMultiplePhysicalVolumes().size(); i++){
       SetMultiplePhysicalVolumes(Mokka->GetMultiplePhysicalVolumes().at(i));
     }
+
+    vector<G4LogicalVolume*> SensComps = Mokka->SensitiveComponents;
     for(G4int id=0; id<(G4int)SensComps.size(); id++)
       SetMultipleSensitiveVolumes(SensComps[id]);
+
+    vector<G4LogicalVolume*> GFlashComps =Mokka->itsGFlashComponents;
+    for(G4int id=0; id<(G4int)GFlashComps.size(); id++)
+      SetGFlashVolumes(GFlashComps[id]);
+
     align_in_volume = Mokka->align_in_volume;
     align_out_volume = Mokka->align_out_volume;
     // attach magnetic field if present
@@ -418,7 +431,7 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
     GDML->Construct(itsMarkerLogicalVolume);
 #else
     G4cout << "GDML support not selected during BDSIM configuration" << G4endl;
-    G4Exception("Please re-compile BDSIM with USE_GDML flag in Makefile");
+    G4Exception("Please re-compile BDSIM with USE_GDML flag in Makefile", "-1", FatalException, "");
 #endif
   }
   else {
@@ -504,25 +517,25 @@ void BDSElement::BuildMagField(G4bool forceToAllDaughters)
   G4cout << "BDSElement.cc> Setting stepping accuracy parameters..." << endl;
 #endif
   
-  if(BDSGlobals->GetDeltaOneStep()>0){
-    fieldManager->SetDeltaOneStep(BDSGlobals->GetDeltaOneStep());
+  if(BDSGlobalConstants::Instance()->GetDeltaOneStep()>0){
+    fieldManager->SetDeltaOneStep(BDSGlobalConstants::Instance()->GetDeltaOneStep());
   }
-  if(BDSGlobals->GetMaximumEpsilonStep()>0){
-    fieldManager->SetMaximumEpsilonStep(BDSGlobals->GetMaximumEpsilonStep());
+  if(BDSGlobalConstants::Instance()->GetMaximumEpsilonStep()>0){
+    fieldManager->SetMaximumEpsilonStep(BDSGlobalConstants::Instance()->GetMaximumEpsilonStep());
   }
-  if(BDSGlobals->GetMinimumEpsilonStep()>=0){
-    fieldManager->SetMinimumEpsilonStep(BDSGlobals->GetMinimumEpsilonStep());
+  if(BDSGlobalConstants::Instance()->GetMinimumEpsilonStep()>=0){
+    fieldManager->SetMinimumEpsilonStep(BDSGlobalConstants::Instance()->GetMinimumEpsilonStep());
   }
-  if(BDSGlobals->GetDeltaIntersection()>0){
-    fieldManager->SetDeltaIntersection(BDSGlobals->GetDeltaIntersection());
+  if(BDSGlobalConstants::Instance()->GetDeltaIntersection()>0){
+    fieldManager->SetDeltaIntersection(BDSGlobalConstants::Instance()->GetDeltaIntersection());
   }
 
-  G4MagInt_Driver* fIntgrDriver = new G4MagInt_Driver(BDSGlobals->GetChordStepMinimum(),
+  G4MagInt_Driver* fIntgrDriver = new G4MagInt_Driver(BDSGlobalConstants::Instance()->GetChordStepMinimum(),
 						      itsFStepper, 
 						      itsFStepper->GetNumberOfVariables() );
   fChordFinder = new G4ChordFinder(fIntgrDriver);
   
-  fChordFinder->SetDeltaChord(BDSGlobals->GetDeltaChord());
+  fChordFinder->SetDeltaChord(BDSGlobalConstants::Instance()->GetDeltaChord());
   
   fieldManager->SetChordFinder( fChordFinder ); 
 

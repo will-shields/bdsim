@@ -81,6 +81,9 @@ static void usage()
 	<<"--outfile=<file>      : output file name. Will be appended with _N"<<G4endl
         <<"                        where N = 0, 1, 2, 3... etc."<<G4endl
 	<<"--vis_mac=<file>      : file with the visualization macro script, default vis.mac"<<G4endl
+	<<"--gflash=N            : wether or not to turn on gFlash fast shower parameterisation. Default 0."<<G4endl
+	<<"--gflashemax=N            : maximum energy for gflash shower parameterisation in GeV. Default 10000."<<G4endl
+	<<"--gflashemin=N            : minimum energy for gflash shower parameterisation in GeV. Default 0.1."<<G4endl
 	<<"--help                : display this message"<<G4endl
 	<<"--verbose             : display general parameters before run"<<G4endl
     	<<"--verbose_event       : display information for every event "<<G4endl
@@ -92,10 +95,11 @@ static void usage()
 	<<"                        where fmt = optics | survey"<<G4endl
 	<<"--materials           : list materials included in bdsim by default"<<G4endl;
 
+
 }
 
 
-BDSGlobalConstants* BDSGlobals;  // global options instance
+//BDSGlobalConstants* BDSGlobals;  // global options instance
 BDSOutput* bdsOutput; // output interface
 BDSBunch theBunch;  // bunch information
 G4int outputFormat=_ASCII;
@@ -111,6 +115,9 @@ G4bool verbose = false;  // run options
 G4bool verboseStep = false;
 G4bool verboseEvent = false;
 G4int verboseEventNumber = -1;
+G4int gflash = 0;
+G4double gflashemax = 10000;
+G4double gflashemin = 0.1;
 G4bool isBatch = false;
 
 G4int verboseRunLevel = 0;
@@ -149,6 +156,9 @@ int main(int argc,char** argv) {
     { "verbose_G4stepping", 1, 0, 0 },
     { "file", 1, 0, 0 },
     { "vis_mac", 1, 0, 0 },
+    { "gflash", 1, 0, 0 },
+    { "gflashemax", 1, 0, 0 },
+    { "gflashemin", 1, 0, 0 },
     { "output", 1, 0, 0 },
     { "outfile", 1, 0, 0 },
     { "fifo", 1, 0, 0 },
@@ -271,6 +281,21 @@ int main(int argc,char** argv) {
 	      G4cout<<"please specify the visualization macro file"<<G4endl;
 	    }
 	  }
+	if( !strcmp(LongOptions[OptionIndex].name , "gflash") )
+	  {
+	    if(optarg)
+	      gflash = atoi(optarg); 
+	  }
+	if( !strcmp(LongOptions[OptionIndex].name , "gflashemax") )
+	  {
+	    if(optarg)
+	      gflashemax = atof(optarg); 
+	  }
+	if( !strcmp(LongOptions[OptionIndex].name , "gflashemin") )
+	  {
+	    if(optarg)
+	      gflashemin = atof(optarg); 
+	  }
 	if( !strcmp(LongOptions[OptionIndex].name, "materials") )
 	  {
 	    BDSMaterials::ListMaterials();
@@ -309,9 +334,10 @@ int main(int argc,char** argv) {
   G4cout << "Setting global constants." << G4endl;
 #endif  
 
-  BDSGlobals = new BDSGlobalConstants(options);
+  //  BDSGlobals = new BDSGlobalConstants(options);
   if (fifoName) {
-    BDSGlobals->SetFifo(fifoName);
+    //    BDSGlobals->SetFifo(fifoName);
+    BDSGlobalConstants::Instance()->SetFifo(fifoName);
   }
 
 #ifdef DEBUG
@@ -346,8 +372,8 @@ int main(int argc,char** argv) {
   // get the seed from options if positive, else
   // user time as a seed
 #include <time.h>
-  if(BDSGlobals->GetRandomSeed()>=0)
-    seed = BDSGlobals->GetRandomSeed();
+  if(BDSGlobalConstants::Instance()->GetRandomSeed()>=0)
+    seed = BDSGlobalConstants::Instance()->GetRandomSeed();
   else
     seed = time(NULL);
   
@@ -355,7 +381,7 @@ int main(int argc,char** argv) {
   HepRandom::setTheSeed(seed);
 
 #ifdef DEBUG
-  G4cout<<"Seed from BDSGlobals="<<BDSGlobals->GetRandomSeed()<<G4endl;
+  G4cout<<"Seed from BDSGlobalConstants="<<BDSGlobalConstants::Instance()->GetRandomSeed()<<G4endl;
 #endif
 
   G4cout<<"Random number generator's seed="<<HepRandom::getTheSeed()<<G4endl;
@@ -455,7 +481,7 @@ int main(int argc,char** argv) {
   runManager->Initialize();
 
   //Create a geometric importance sampling store
-  //  if(BDSGlobals->GetGeometryBias()){
+  //  if(BDSGlobalConstants::Instance()->GetGeometryBias()){
   //    G4VIStore *aIstore = 0;
   //    aIstore = detector->CreateImportanceStore();
   //    G4GeometrySampler mgs(detector->GetWorldVolume(),"neutron");
@@ -518,7 +544,7 @@ int main(int argc,char** argv) {
   // and SR Rescaling. SR rescaling is adjusting the magnet fields according to
   // k-values considering the beam energy loss due to SR
 
-  if(BDSGlobals->DoTwiss())
+  if(BDSGlobalConstants::Instance()->DoTwiss())
     {
 
       G4cout<<"do twiss"<<G4endl;
@@ -548,7 +574,7 @@ int main(int argc,char** argv) {
 	}
 
       // do not need secondaries whatsoever
-      BDSGlobals->SetStopTracks(true);
+      BDSGlobalConstants::Instance()->SetStopTracks(true);
 
       runManager->BeamOn(nptwiss);
 
@@ -556,10 +582,10 @@ int main(int argc,char** argv) {
       G4EventManager::GetEventManager()->GetStackManager()->ClearPostponeStack();
       
       // turn  SR back on
-      BDSGlobals->SetSynchTrackPhotons(options.synchTrackPhotons);
+      BDSGlobalConstants::Instance()->SetSynchTrackPhotons(options.synchTrackPhotons);
 
       //restore the stoptracks flag
-      BDSGlobals->SetStopTracks(options.stopTracks);
+      BDSGlobalConstants::Instance()->SetStopTracks(options.stopTracks);
 
       for(G4int iProc=0;iProc<nProc;iProc++) 	 
 	{ 	 
@@ -585,8 +611,8 @@ int main(int argc,char** argv) {
     }
   
   // now turn off SR Rescaling 
-  BDSGlobals->SetDoTwiss(false);
-  BDSGlobals->SetSynchRescale(false);
+  BDSGlobalConstants::Instance()->SetDoTwiss(false);
+  BDSGlobalConstants::Instance()->SetSynchRescale(false);
 
 
   //
@@ -637,7 +663,7 @@ int main(int argc,char** argv) {
     }
   else           // Batch mode
     { 
-      runManager->BeamOn(BDSGlobals->GetNumberToGenerate());
+      runManager->BeamOn(BDSGlobalConstants::Instance()->GetNumberToGenerate());
     }
 
 
@@ -655,9 +681,9 @@ int main(int argc,char** argv) {
 
   
 #ifdef DEBUG 
-  G4cout<<"BDSGlobals deleting..."<<G4endl;
+  G4cout<<"BDSGlobalConstants::Instance() deleting..."<<G4endl;
 #endif
-  delete BDSGlobals;
+  delete BDSGlobalConstants::Instance();
   
 #ifdef DEBUG 
   //G4cout<<"BDSRunManager deleting..."<<G4endl;

@@ -61,6 +61,7 @@ public:
   TH1F *EnergyLossHisto;
   TH3F *EnergyLossHisto3d;
   TTree *PrecisionRegionEnergyLossTree;
+  TTree *EnergyLossTree;
 #endif
 
   G4int nSamplers;
@@ -78,9 +79,10 @@ private:
   float x,xp,y,yp,z,zp,E,Edep,t;
   float X,Xp,Y,Yp,Z,Zp,s,weight,EWeightZ;
   int part,nev, pID, theID, track_id;
-  float x_el,y_el,z_el,E_el;
-  int part_el,pID_el, weight_el;
-  char volumeName_el[100];
+  float z_el,E_el;
+  float x_el_p,y_el_p,z_el_p,E_el_p;
+  int part_el_p,pID_el_p, weight_el_p;
+  char volumeName_el_p[100];
 //#endif
 
 };

@@ -22,6 +22,14 @@ Last modified 15.11.2005 by Ilya Agapov
 #include "G4IStore.hh"
 #include "G4GeometrySampler.hh"
 
+//GFlash parameterisation                                                                                                                                                     
+#include "GFlashHomoShowerParameterisation.hh"
+#include "G4FastSimulationManager.hh"
+#include "BDSShowerModel.hh"
+#include "GFlashHitMaker.hh"
+#include "GFlashParticleBounds.hh"
+
+
 class G4Box;
 class G4Tubs;
 class G4LogicalVolume;
@@ -69,6 +77,7 @@ public:
   G4GeometrySampler* itsGeometrySampler;
 
   G4Region* precisionRegion;
+  G4Region* gasRegion;
 
   G4Box*            solidWorld;    //pointer to the solid World 
   G4LogicalVolume*   logicWorld;    //pointer to the logical World
@@ -77,7 +86,7 @@ public:
 
   void DefineMaterials();
 
-  int AddDriftToBeamline(G4String name, G4double l,std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double startAper, G4double endAper, G4bool added_drift, G4String aTunnelMaterial="", G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX() );
+  int AddDriftToBeamline(G4String name, G4double l,std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double startAper, G4double endAper, G4bool added_drift, G4String aTunnelMaterial="", G4double tunnelOffsetX=BDSGlobalConstants::Instance()->GetTunnelOffsetX() );
   G4VPhysicalVolume* ConstructBDS(std::list<struct Element>& beamline_list);
   G4UniformMagField* magField;      //pointer to the magnetic field
   G4UserLimits* BDSUserLimits;
@@ -85,6 +94,15 @@ public:
   G4VSensitiveDetector *  BDSSensitiveDetector;
   
   G4IStore* itsIStore;
+
+  // Gflash members                                                                                                                                                     
+  std::vector<GFlashHomoShowerParameterisation*> theParameterisation;
+  GFlashHitMaker *theHitMaker;
+  GFlashParticleBounds *theParticleBounds;
+  GFlashParticleBounds *theParticleBoundsVac;
+  std::vector<BDSShowerModel*> theFastShowerModel;
+  std::vector<G4Region*> gFlashRegion;
+
 };
 
 #endif

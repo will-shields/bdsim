@@ -10,7 +10,7 @@
 //    beam dumper/reader for online exchange - Sensitive Detector
 //
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSDumpSD.hh"
 #include "BDSDump.hh"
@@ -55,14 +55,14 @@ G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
 
   // postpone the track
 //  if(theTrack->GetParentID() == 0){
-  if(BDSGlobals->isReference){
+  if(BDSGlobalConstants::Instance()->isReference){
     G4double referenceTime = theTrack->GetGlobalTime();
 #ifdef DEBUG 
     G4cout << "refTime= " << referenceTime <<G4endl;
     G4cout << theTrack->GetVolume()->GetName() << G4endl;
 #endif
     if(lastVolume!=theTrack->GetVolume()->GetName())
-      BDSGlobals->referenceQueue.at(nCounter++)[trackCounter] = referenceTime;
+      BDSGlobalConstants::Instance()->referenceQueue.at(nCounter++)[trackCounter] = referenceTime;
     
 #ifdef DEBUG 
     G4cout << "Track: " << trackCounter
@@ -83,12 +83,12 @@ G4bool BDSDumpSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
 #ifdef DEBUG
     G4cout<<"Dump: postponing track..."<<G4endl;
 #endif
-    BDSGlobals->setWaitingForDump(true);
+    BDSGlobalConstants::Instance()->setWaitingForDump(true);
     theTrack->SetTrackStatus(fPostponeToNextEvent);
 
     G4AffineTransform tf(aStep->GetPreStepPoint()->GetTouchableHandle()->
 				GetHistory()->GetTopTransform().Inverse());
-    BDSGlobals->SetDumpTransform(tf);
+    BDSGlobalConstants::Instance()->SetDumpTransform(tf);
   }
   return true;
 }

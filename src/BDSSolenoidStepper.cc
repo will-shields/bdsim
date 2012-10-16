@@ -45,7 +45,7 @@ void BDSSolenoidStepper::AdvanceHelix( const G4double  yIn[],
   // Get B field
   //
   G4double Bz;
-  if(BDSGlobals->GetSynchRescale())
+  if(BDSGlobalConstants::Instance()->GetSynchRescale())
     {
       G4double B[3];
       fPtrMagEqOfMot->GetFieldValue(yIn, B);

@@ -64,6 +64,7 @@ public:
   G4VPhysicalVolume* align_in_volume;
   G4VPhysicalVolume* align_out_volume;
   std::vector<G4LogicalVolume*> SensitiveComponents;
+  std::vector<G4LogicalVolume*> itsGFlashComponents;
   std::vector<G4VPhysicalVolume*> itsMultiplePhysicalVolumes;
 
   std::vector<G4LogicalVolume*> VOL_LIST;
@@ -72,6 +73,7 @@ public:
   G4bool HasUniformField;
 
   std::vector<G4VPhysicalVolume*> GetMultiplePhysicalVolumes();
+  std::vector<G4LogicalVolume*> GetGFlashComponents();
 
 private:
 
@@ -101,6 +103,7 @@ private:
   G4UserLimits* itsUserLimits;
 
 void  SetMultiplePhysicalVolumes(G4VPhysicalVolume* aPhysVol);
+
 protected:
 };
 
@@ -109,5 +112,8 @@ inline void BDSGeometrySQL::SetMultiplePhysicalVolumes(G4VPhysicalVolume* aPhysV
 
 inline  std::vector<G4VPhysicalVolume*> BDSGeometrySQL::GetMultiplePhysicalVolumes()
 {return itsMultiplePhysicalVolumes;}
+
+inline  std::vector<G4LogicalVolume*> BDSGeometrySQL::GetGFlashComponents()
+{return itsGFlashComponents;}
 
 #endif

@@ -22,7 +22,7 @@ BDSSbendMagField::BDSSbendMagField(const G4ThreeVector& aField,
       // check for synchrotron radiation factors
 #ifdef DEBUG
       G4double B_inferred= 
-        (BDSGlobals->GetBeamMomentum()/GeV)/
+        (BDSGlobalConstants::Instance()->GetBeamMomentum()/GeV)/
         (0.299792458 * (GeV/tesla/m)*itsLocalRadius/m);
       G4cout<<"B_inferred="<<B_inferred/tesla<<
 	" aField="<<aField/tesla<<G4endl;

@@ -4,7 +4,7 @@
    Copyright (c) 2004 by J.C.Carter.  ALL RIGHTS RESERVED. 
 */
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSLWCalorimeterSD.hh"
 #include "BDSLWCalorimeterHit.hh"

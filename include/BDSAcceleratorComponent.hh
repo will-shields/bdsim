@@ -23,7 +23,7 @@
 #ifndef __BDSACCELERATORCOMPONENT_H
 #define __BDSACCELERATORCOMPONENT_H
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include <cstring>
 #include "G4LogicalVolume.hh"
@@ -153,6 +153,10 @@ public:
 
   std::vector<G4LogicalVolume*> GetMultipleSensitiveVolumes();
 
+  void SetGFlashVolumes(G4LogicalVolume* aLogVol);
+
+  std::vector<G4LogicalVolume*> GetGFlashVolumes();
+
   void SetMultiplePhysicalVolumes(G4VPhysicalVolume* aPhysVol);
 
   std::vector<G4VPhysicalVolume*> GetMultiplePhysicalVolumes();
@@ -162,6 +166,7 @@ public:
   G4LogicalVolume* GetInnerMostLogicalVolume() const;
   
   G4UserLimits* GetInnerBPUserLimits();
+  G4UserLimits* GetUserLimits();
 
   G4double GetZLower();
   G4double GetZUpper();
@@ -210,7 +215,7 @@ public:
 			  G4double YOffset=0.,
 			  G4double ZOffset=0.,
 			  G4double tunnelRadius=0.,
-			  G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX(),
+			  G4double tunnelOffsetX=BDSGlobalConstants::Instance()->GetTunnelOffsetX(),
                           G4String aTunnelCavityMaterial = "Air",
 			  G4int aPrecisionRegion=0
 );
@@ -229,7 +234,7 @@ public:
 			  G4double YOffset=0.,
 			  G4double ZOffset=0.,
 			  G4double tunnelRadius=0.,
-			  G4double tunnelOffsetX=BDSGlobals->GetTunnelOffsetX(),
+			  G4double tunnelOffsetX=BDSGlobalConstants::Instance()->GetTunnelOffsetX(),
 			  G4String aTunnelCavityMaterial = "Air",
 			  G4int aPrecisionRegion=0);
 
@@ -360,6 +365,7 @@ private:
   G4int itsCollectionID;
   G4LogicalVolume* itsSensitiveVolume;
   std::vector<G4LogicalVolume*> itsMultipleSensitiveVolumes;
+  std::vector<G4LogicalVolume*> itsGFlashVolumes;
   //A vector containing the physical volumes in the accelerator component- to be used for geometric importance sampling etc.
   std::vector<G4VPhysicalVolume*> itsMultiplePhysicalVolumes;
   G4double itsZLower;
@@ -392,8 +398,8 @@ inline BDSAcceleratorComponent::BDSAcceleratorComponent (
   itsTilt = 0;
   itsOuterR=0;
   itsMagScaleFactor = 1;
-  if (itsTunnelRadius<=BDSGlobals->GetLengthSafety()){
-    itsTunnelRadius=BDSGlobals->GetTunnelRadius();
+  if (itsTunnelRadius<=BDSGlobalConstants::Instance()->GetLengthSafety()){
+    itsTunnelRadius=BDSGlobalConstants::Instance()->GetTunnelRadius();
   }
   CalculateLengths();
 }
@@ -428,8 +434,8 @@ inline BDSAcceleratorComponent::BDSAcceleratorComponent (
     G4cerr << "blmLocTheta.size() = " << blmLocTheta.size() << G4endl;
     exit(1);
   }
-  if (itsTunnelRadius<=BDSGlobals->GetLengthSafety()){
-    itsTunnelRadius=BDSGlobals->GetTunnelRadius();
+  if (itsTunnelRadius<=BDSGlobalConstants::Instance()->GetLengthSafety()){
+    itsTunnelRadius=BDSGlobalConstants::Instance()->GetTunnelRadius();
   }
   itsOuterR=0;
   CalculateLengths();
@@ -587,8 +593,14 @@ inline  G4LogicalVolume* BDSAcceleratorComponent::GetSensitiveVolume()
 inline void BDSAcceleratorComponent::SetMultipleSensitiveVolumes(G4LogicalVolume* aLogVol)
 { itsMultipleSensitiveVolumes.push_back(aLogVol);}
 
+inline void BDSAcceleratorComponent::SetGFlashVolumes(G4LogicalVolume* aLogVol)
+{ itsGFlashVolumes.push_back(aLogVol);}
+
 inline  std::vector<G4LogicalVolume*> BDSAcceleratorComponent::GetMultipleSensitiveVolumes()
 {return itsMultipleSensitiveVolumes;}
+
+inline  std::vector<G4LogicalVolume*> BDSAcceleratorComponent::GetGFlashVolumes()
+{return itsGFlashVolumes;}
 
 inline void BDSAcceleratorComponent::SetMultiplePhysicalVolumes(G4VPhysicalVolume* aPhysVol)
 { itsMultiplePhysicalVolumes.push_back(aPhysVol);}
@@ -614,6 +626,10 @@ BDSAcceleratorComponent::AddSynchEnergyLoss(G4double SynchEnergyLoss)
 
 inline  G4double BDSAcceleratorComponent::GetSynchEnergyLoss()
 {return itsSynchEnergyLoss;}
+
+inline  G4UserLimits* BDSAcceleratorComponent::GetUserLimits(){
+  return GetInnerBPUserLimits();
+}
 
 inline  G4UserLimits* BDSAcceleratorComponent::GetInnerBPUserLimits()
   {return itsInnerBeampipeUserLimits;}

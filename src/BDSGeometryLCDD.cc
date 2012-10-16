@@ -1,5 +1,5 @@
 #ifdef USE_LCDD
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSGeometryLCDD.hh"
 #include "BDSSbendMagField.hh"
 #include "G4Box.hh"
@@ -41,15 +41,15 @@ extern BDSSamplerSD* BDSSamplerSensDet;
 extern BDSMaterials* theMaterials;
 extern G4RotationMatrix* RotY90;
 extern BDSOutput* bdsOutput;
-extern BDSGlobalConstants* BDSGlobals;
+//extern BDSGlobalConstants* BDSGlobalConstants::Instance();
 
 BDSGeometryLCDD::BDSGeometryLCDD(G4String LCDDfile)
 {
 #ifndef NOUSERLIMITS
   itsUserLimits = new G4UserLimits();
-  itsUserLimits->SetUserMaxTime(BDSGlobals->GetMaxTime());
-  if(BDSGlobals->GetThresholdCutCharged()>0){
-    itsUserLimits->SetUserMinEkine(BDSGlobals->GetThresholdCutCharged());
+  itsUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+  if(BDSGlobalConstants::Instance()->GetThresholdCutCharged()>0){
+    itsUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
   }
 #endif
 
@@ -166,7 +166,7 @@ void BDSGeometryLCDD::parseDoc()
 
   if (doc == NULL )
   {
-  G4Exception("Document not parsed successfully");
+  G4Exception("Document not parsed successfully", "-1", FatalException, "");
   }
 
   cur = xmlDocGetRootElement(doc); //GO the first node
@@ -174,14 +174,14 @@ void BDSGeometryLCDD::parseDoc()
   if (cur == NULL)
   {
    xmlFreeDoc(doc);
-   G4Exception("empty document");
+   G4Exception("empty document", "-1", FatalException, "");
   }
 
 //test the xml format, must be start by lcdd
    if (xmlStrcmp(cur->name, (const xmlChar *) "lcdd"))
    {
    xmlFreeDoc(doc);
-   G4Exception("XML document of the wrong type, root node != lcdd\nCheck your XML file\n");
+   G4Exception("XML document of the wrong type, root node != lcdd\nCheck your XML file\n", "-1", FatalException, "");
    }
 
    cur = cur->xmlChildrenNode;
@@ -281,11 +281,11 @@ void BDSGeometryLCDD::parseDISPLAY(xmlNodePtr cur)
 	 }
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"VisType")))
 	 {
-	   G4Exception("LCDD VisType not currently implemented in BDSIM");
+	   G4Exception("LCDD VisType not currently implemented in BDSIM", "-1", FatalException, "");
 	 }
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"DisplayType")))
 	 {
-	   G4Exception("LCDD DisplayType not currently implemented in BDSIM");
+	   G4Exception("LCDD DisplayType not currently implemented in BDSIM", "-1", FatalException, "");
 	 }
        cur = cur->next;
      }
@@ -389,7 +389,7 @@ void BDSGeometryLCDD::parseLCDD(xmlNodePtr cur)
 				     topvol->GetName()+"_PhysiComp",
 				     itsMarkerVol,
 				     false,
-				     0, BDSGlobals->GetCheckOverlaps());
+				     0, BDSGlobalConstants::Instance()->GetCheckOverlaps());
 #ifndef NOUSERLIMITS
 	   	   topvol->SetUserLimits(itsUserLimits);
 #endif
@@ -406,7 +406,7 @@ void BDSGeometryLCDD::parseFIELDS(xmlNodePtr cur)
   while (tempcur != NULL){
     if ((!xmlStrcmp(tempcur->name, (const xmlChar *)"solenoid"))){
       if(itsFieldIsUniform==true){
-	G4Exception("BDSGeometryLCDD::parseFIELDS> making solenoid field but already built dipole field...");
+	G4Exception("BDSGeometryLCDD::parseFIELDS> making solenoid field but already built dipole field...", "-1", FatalException, "");
       } 
       G4String name = parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"name"));
       G4double lunit = parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"lunit"));
@@ -431,7 +431,7 @@ void BDSGeometryLCDD::parseFIELDS(xmlNodePtr cur)
     }else if ((!xmlStrcmp(tempcur->name, (const xmlChar *)"text"))){
     }  else {
       G4cout << tempcur->name << G4endl;
-      G4Exception("BDSGeometryLCDD.cc: parsing <fields - types other than solenoid and bdsimdipole are not currently implemented in BDSIM");      
+      G4Exception("BDSGeometryLCDD.cc: parsing <fields - types other than solenoid and bdsimdipole are not currently implemented in BDSIM", "-1", FatalException, "");      
     }
     tempcur=tempcur->next;
   }
@@ -489,11 +489,11 @@ void BDSGeometryLCDD::parseDEFINE(xmlNodePtr cur)
 	 }
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"expression")))
 	 {
-	   G4Exception("LCDD expression not currently implemented in BDSIM");
+	   G4Exception("LCDD expression not currently implemented in BDSIM", "-1", FatalException, "");
 	 }
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"quantity")))
 	 {
-	   G4Exception("LCDD quantity not currently implemented in BDSIM");
+	   G4Exception("LCDD quantity not currently implemented in BDSIM", "-1", FatalException, "");
 	 }
        cur = cur->next;
      }
@@ -508,12 +508,12 @@ void BDSGeometryLCDD::parseMATERIALS(xmlNodePtr cur)
     {
       if ((!xmlStrcmp(cur->name, (const xmlChar *)"define")))
 	{
-	  G4Exception("LCDD define not currently implemented in BDSIM");
+	  G4Exception("LCDD define not currently implemented in BDSIM", "-1", FatalException, "");
 	  //Not coded yet
 	}
       else if ((!xmlStrcmp(cur->name, (const xmlChar *)"isotope")))
 	{
-	  G4Exception("LCDD isotop not currently implemented in BDSIM");
+	  G4Exception("LCDD isotop not currently implemented in BDSIM", "-1", FatalException, "");
 	  //Not coded yet
 	}
       else if ((!xmlStrcmp(cur->name, (const xmlChar *)"element")))
@@ -530,7 +530,7 @@ void BDSGeometryLCDD::parseMATERIALS(xmlNodePtr cur)
 	    if(!xmlStrcmp(tempcur->name, (const xmlChar *)"atom")){
 	      type = parseStrChar(xmlGetProp(tempcur,(const xmlChar*)"type"));	 
 	      if (strcmp("A",type)){
-		G4Exception("BDSGeometryLCDD.cc: parsing <element - types other than A are not currently implemented in BDSIM");  
+		G4Exception("BDSGeometryLCDD.cc: parsing <element - types other than A are not currently implemented in BDSIM", "-1", FatalException, "");  
 	      }
 	      unit = parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"unit"));	 
 	      name = parseStrChar(xmlGetProp(cur,(const xmlChar*)"name"));	   
@@ -539,7 +539,7 @@ void BDSGeometryLCDD::parseMATERIALS(xmlNodePtr cur)
 	      value = parseDblChar(xmlGetProp(tempcur,(const xmlChar*)"value"));	   
 	      theMaterials->AddElement(name, formula, Z, value*unit/(g/mole)); 
 	    } else {
-	       G4Exception("BDSGeometryLCDD.cc: not an atom, not currently implemented in BDSIM");  
+	       G4Exception("BDSGeometryLCDD.cc: not an atom, not currently implemented in BDSIM", "-1", FatalException, "");  
 	    }
 	  } else {
 	    G4cout << "Warning: BDSGeometryLCDD.cc: element " << formula << " already defined in BDSMaterials.cc" << endl; 
@@ -584,14 +584,14 @@ void BDSGeometryLCDD::parseMATERIALS(xmlNodePtr cur)
 		 if (!strcmp("",type)){
 		   G4cout << "Warning - BDSGeometryLCDD.cc: parsing <material - type not defined, assuming type density." << G4endl;
 		 } else if (strcmp("density",type)){
-		   G4Exception("BDSGeometryLCDD.cc: parsing <material - types other than density are not currently implemented in BDSIM");  
+		   G4Exception("BDSGeometryLCDD.cc: parsing <material - types other than density are not currently implemented in BDSIM", "-1", FatalException, "");  
 		 }
 	       }
 	       tempcur = tempcur->next;
 	     }
 
 	     if(fraction==composite){
-	       G4Exception("BDSGeometry LCDD: Ill defined material fractions.");
+	       G4Exception("BDSGeometry LCDD: Ill defined material fractions.", "-1", FatalException, "");
 	     }
 	     
 	     std::list<const char*> components;
@@ -661,7 +661,7 @@ void BDSGeometryLCDD::parseMATERIALS(xmlNodePtr cur)
 	     G4cout << "Size of fractions: " << fractions.size() << G4endl;
 #endif
 	     theMaterials->AddMaterial(name, value*unit/(g/cm3), kStateSolid, 300, 1, components, fractions);
-	     } else G4Exception("BDSGeometry LCDD: Ill defined material fractions - list of fractions and weights empty.");
+	     } else G4Exception("BDSGeometry LCDD: Ill defined material fractions - list of fractions and weights empty.", "-1", FatalException, "");
 
 	 }
     }
@@ -686,42 +686,42 @@ void BDSGeometryLCDD::parseSOLID(xmlNodePtr cur)
 
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"cone")))
 	 {
-	   G4Exception("LCDD cone not currently implemented in BDSIM");
+	   G4Exception("LCDD cone not currently implemented in BDSIM", "-1", FatalException, "");
 	 }
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"eltube")))
 	 {
-	   G4Exception("LCDD eltube not currently implemented in BDSIM");
+	   G4Exception("LCDD eltube not currently implemented in BDSIM", "-1", FatalException, "");
 	 }
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"hype")))
 	 {
-	   G4Exception("LCDD hype not currently implemented in BDSIM");
+	   G4Exception("LCDD hype not currently implemented in BDSIM", "-1", FatalException, "");
 	 }
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"intersection")))
 	 {
-	   G4Exception("LCDD intersection not currently implemented in BDSIM");
+	   G4Exception("LCDD intersection not currently implemented in BDSIM", "-1", FatalException, "");
 	 }
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"orb")))
 	 {
-	   G4Exception("LCDD orb not currently implemented in BDSIM");
+	   G4Exception("LCDD orb not currently implemented in BDSIM", "-1", FatalException, "");
 	 }
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"sphere")))
 	 {
-	   G4Exception("LCDD sphere not currently implemented in BDSIM");
+	   G4Exception("LCDD sphere not currently implemented in BDSIM", "-1", FatalException, "");
 	 }
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"trap")))
 	 {
-	   G4Exception("LCDD trap not currently implemented in BDSIM");
+	   G4Exception("LCDD trap not currently implemented in BDSIM", "-1", FatalException, "");
 	 }
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"subtraction")))
 	 BuildSubtraction(cur);
 
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"torus")))
 	 {
-	   G4Exception("LCDD torus not currently implemented in BDSIM");
+	   G4Exception("LCDD torus not currently implemented in BDSIM", "-1", FatalException, "");
 	 }
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"union")))
 	 {
-	   G4Exception("LCDD union not currently implemented in BDSIM");
+	   G4Exception("LCDD union not currently implemented in BDSIM", "-1", FatalException, "");
 	 }
 
        else if ((!xmlStrcmp(cur->name, (const xmlChar *)"polycone")))
@@ -817,7 +817,7 @@ void BDSGeometryLCDD::parseVOLUME(xmlNodePtr cur)
   else
     {
       G4cout << "Can't build" << volume_name << " : " << solidref << G4endl;
-      G4Exception();
+      G4Exception("Can't build volume","-1", FatalException, "");
     }
   
 
@@ -865,7 +865,7 @@ void BDSGeometryLCDD::parsePHYSVOL(xmlNodePtr cur, G4String volume_name)
 		    currentVol->GetName()+"_PhysiComp",
 		    parentVol,
 		    false,
-		    0, BDSGlobals->GetCheckOverlaps());
+		    0, BDSGlobalConstants::Instance()->GetCheckOverlaps());
   
 
   return;

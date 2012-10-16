@@ -3,7 +3,7 @@
    Last modified 18.10.2002
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 //
 #include "BDSHelixStepper.hh"
 #include "G4ThreeVector.hh"
@@ -54,7 +54,7 @@ void BDSHelixStepper::AdvanceHelix( const G4double  yIn[],
    
   G4double R;
 
-  if(BDSGlobals->GetSynchRescale())
+  if(BDSGlobalConstants::Instance()->GetSynchRescale())
     {
       G4double B[3];
       its_EqRhs->GetFieldValue(yIn, B);

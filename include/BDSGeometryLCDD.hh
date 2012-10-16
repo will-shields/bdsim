@@ -203,7 +203,7 @@ inline G4ThreeVector BDSGeometryLCDD::GetPosition(G4String name)
   if(ID==-1) // couldn't find it.
     {
       G4cout << "Couldn't find position: " << name<<G4endl;
-      G4Exception("Quitting in BDSGeometryLCDD");
+      G4Exception("Quitting in BDSGeometryLCDD", "-1", FatalException, "");
     } 
 #ifdef DEBUG
   G4cout << "pos: " <<name << " " << POS_LIST[ID].value << G4endl;
@@ -248,7 +248,7 @@ inline G4RotationMatrix* BDSGeometryLCDD::GetRotation(G4String name)
   if(ID==-1) // couldn't find it.
     {
       G4cout << "Couldn't find rotation: " << name<<G4endl;
-      G4Exception("Quitting in BDSGeometryLCDD");
+      G4Exception("Quitting in BDSGeometryLCDD", "-1", FatalException, "");
     } 
 #ifdef DEBUG
   G4cout << "rot: " << name << " "<<ROT_LIST[ID].value << G4endl;
@@ -291,7 +291,7 @@ inline G4VSolid* BDSGeometryLCDD::GetSolidByName(G4String name)
   if(ID==-1) // couldn't find it.
     {
       G4cout << "Couldn't find solid: " << name<<G4endl;
-      G4Exception("Quitting in BDSGeometryLCDD");
+      G4Exception("Quitting in BDSGeometryLCDD", "-1", FatalException, "");
     } 
   return SOLID_LIST[ID];
 }
@@ -311,7 +311,7 @@ inline G4LogicalVolume* BDSGeometryLCDD::GetLogVolByName(G4String name)
   if(ID==-1) // couldn't find it.
     {
       G4cout << "Couldn't find logical volume: " << name<<G4endl;
-      G4Exception("Quitting in BDSGeometryLCDD");
+      G4Exception("Quitting in BDSGeometryLCDD", "-1", FatalException, "");
     }
   return LOGVOL_LIST[ID];
 }
@@ -397,7 +397,7 @@ inline G4double BDSGeometryLCDD::parseDblChar(xmlChar* value)
 #ifdef DEBUG
       G4cout << "BDSGeometryLCDD::ParseDbl Unable to evaluate expression: " << value << G4endl;
 #endif
-      G4Exception("Check spellings and that constants are declared properly");
+      G4Exception("Check spellings and that constants are declared properly", "-1", FatalException, "");
     }
     
 
