@@ -9,7 +9,7 @@
 class BDSShowerModel:public GFlashShowerModel
 {
 public:
-  BDSShowerModel(G4String, G4Envelope*);
+  BDSShowerModel(G4String, G4Region*);
   BDSShowerModel(G4String);
   ~BDSShowerModel();
 private: 

@@ -3,7 +3,7 @@
 #include "G4ThreeVector.hh"
 #include "GVFlashShowerParameterisation.hh"
 
-BDSShowerModel::BDSShowerModel(G4String modelName, G4Envelope* envelope):GFlashShowerModel(modelName, envelope){
+BDSShowerModel::BDSShowerModel(G4String modelName, G4Region* envelope):GFlashShowerModel(modelName, envelope){
 }
 
 BDSShowerModel::BDSShowerModel(G4String modelName):GFlashShowerModel(modelName){
