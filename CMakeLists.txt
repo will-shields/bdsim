@@ -21,6 +21,9 @@ if(NOT CMAKE_BUILD_TYPE)
        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel DebugProf DebugCoverage."
        FORCE)
 endif()
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    add_definitions("-g -DDEBUG")
+endif()
 message(STATUS "Build Type   ${CMAKE_BUILD_TYPE}")
 
 # We use afs version of Geant4/CLHEP if we are on afs by default:
