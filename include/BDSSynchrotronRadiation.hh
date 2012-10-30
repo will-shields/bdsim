@@ -100,7 +100,7 @@ BDSSynchrotronRadiation::GetMeanFreePath(const G4Track& track,
     {
       const G4Field* pField = TheFieldManager->GetDetectorField() ;
       G4ThreeVector  globPosition = track.GetPosition() ;
-      G4double  globPosVec[3], FieldValueVec[3] ;
+      G4double  globPosVec[3], FieldValueVec[3]={0.} ;
       globPosVec[0] = globPosition.x() ;
       globPosVec[1] = globPosition.y() ;
       globPosVec[2] = globPosition.z() ;

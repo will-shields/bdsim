@@ -120,13 +120,11 @@ void BDSSpoiler::BuildInnerSpoiler()
 
 BDSSpoiler::~BDSSpoiler()
 {
-  if(itsVisAttributes) delete itsVisAttributes;
-  if(itsUserLimits) delete itsUserLimits;
+  delete itsVisAttributes;
 
-  if(itsMarkerLogicalVolume)delete itsMarkerLogicalVolume;
-  if(itsSolidLogVol)delete itsSolidLogVol;
-  if(itsInnerLogVol)delete itsInnerLogVol;
+  //  delete itsSolidLogVol;
+  //  delete itsInnerLogVol;
 
-  if(itsPhysiComp) delete itsPhysiComp;
-  if(itsPhysiComp2) delete itsPhysiComp2;
+  //delete itsPhysiComp;
+  //delete itsPhysiComp2;
 }

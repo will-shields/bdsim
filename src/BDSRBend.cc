@@ -37,7 +37,8 @@ BDSRBend::BDSRBend(G4String aName, G4double aLength,
                    G4double tilt, G4double bGrad, 
                    G4String aTunnelMaterial, G4String aMaterial):
   BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), blmLocZ, blmLocTheta, aTunnelMaterial, aMaterial,
-	       0, 0, angle)
+	       0, 0, angle),
+  itsStepper(NULL),itsMagField(NULL),itsEqRhs(NULL)
 {
   SetOuterRadius(outR);
   itsTilt=tilt;
@@ -598,21 +599,17 @@ BDSRBend::~BDSRBend()
   delete itsVisAttributes;
   delete innerBeampipeVisAtt;
   delete beampipeVisAtt;
-  delete itsVisAttributes;
-  delete itsMarkerLogicalVolume;
-  delete rbendRectangleLogicalVolume;
-  delete middleBeampipeLogicalVolume;
-  delete middleInnerBPLogicalVolume;
-  delete endsBeampipeLogicalVolume;
-  delete endsInnerBPLogicalVolume;
-  delete itsBeampipeUserLimits;
-  delete endsBeampipeUserLimits;
-  delete endsInnerBeampipeUserLimits;
-  delete itsOuterLogicalVolume;
-  delete itsPhysiComp;
+//   delete markerSolidVolume;
+//   delete rbendRectangleSolidVolume;
+//   delete rbendRectangleLogicalVolume;
+//   delete middleBeampipeLogicalVolume;
+//   delete middleInnerBPLogicalVolume;
+//   delete endsBeampipeLogicalVolume;
+//   delete endsInnerBPLogicalVolume;
+//   delete itsBeampipeUserLimits;
+//   delete endsBeampipeUserLimits;
+//   delete endsInnerBeampipeUserLimits;
   delete itsMagField;
   delete itsEqRhs;
   delete itsStepper;
-  delete rbendRectangleSolidVolume;
-  if (markerSolidVolume) delete markerSolidVolume;
 }

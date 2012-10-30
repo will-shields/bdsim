@@ -100,7 +100,6 @@ private:
   std::vector<BDSMySQLTable*> itsSQLTable;
   BDSMagFieldSQL* itsMagField;
   BDSSamplerSD* SensDet;
-  G4UserLimits* itsUserLimits;
 
 void  SetMultiplePhysicalVolumes(G4VPhysicalVolume* aPhysVol);
 

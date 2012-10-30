@@ -58,7 +58,11 @@ BDSBunch::~BDSBunch()
 
 // set options from gmad
 
-G4double val;
+G4double dummy_val;
+
+void BDSBunch::skip(G4int nvalues){
+  for(G4int i=0;i<nvalues;i++) ReadValue(dummy_val);
+}
 
 void BDSBunch::SetOptions(struct Options& opt)
 {
@@ -76,7 +80,7 @@ void BDSBunch::SetOptions(struct Options& opt)
 
   nlinesIgnore = opt.nlinesIgnore;
   inputfile=opt.distribFile;
-#define _skip(nvalues) for(G4int i=0;i<nvalues;i++) ReadValue(val);
+  //#define _skip(nvalues) for(G4int i=0;i<nvalues;i++) ReadValue(dummy_val);
   
   // twiss parameters - set always if present
   SetBetaX(opt.betx);
@@ -155,7 +159,7 @@ void BDSBunch::SetOptions(struct Options& opt)
 #ifdef DEBUG 
       G4cout<< "BDSBunch : " <<"GUINEAPIG_BUNCH: skipping "<<nlinesIgnore<<"  lines"<<G4endl;
 #endif
-      _skip(nlinesIgnore * 6);
+      skip(nlinesIgnore * 6);
       break;
     } 
     
@@ -165,7 +169,7 @@ void BDSBunch::SetOptions(struct Options& opt)
 #ifdef DEBUG 
       G4cout<< "BDSBunch : " <<"GUINEAPIG_SLAC: skipping "<<nlinesIgnore<<"  lines"<<G4endl;
 #endif
-      _skip(nlinesIgnore * 6);
+      skip(nlinesIgnore * 6);
       break;
     } 
 
@@ -175,7 +179,7 @@ void BDSBunch::SetOptions(struct Options& opt)
 #ifdef DEBUG 
       G4cout<< "BDSBunch : " <<"GUINEAPIG_PAIRS: skipping "<<nlinesIgnore<<"  lines"<<G4endl;
 #endif
-      _skip(nlinesIgnore * 7);
+      skip(nlinesIgnore * 7);
       break;
     }
     
@@ -185,7 +189,7 @@ void BDSBunch::SetOptions(struct Options& opt)
 #ifdef DEBUG 
       G4cout<< "BDSBunch : " <<"CAIN: skipping "<<nlinesIgnore<<"  lines"<<G4endl;
 #endif
-      _skip(nlinesIgnore * 14);
+      skip(nlinesIgnore * 14);
       break;
     } 
     //else
@@ -827,7 +831,7 @@ case _RING:
       else{
         InputBunchFile.clear();
         InputBunchFile.seekg(0);
-        _skip(nlinesIgnore * 6);
+        skip(nlinesIgnore * 6);
         GetNextParticle(x0,y0,z0,xp,yp,zp,t,E,weight);
       }
       break;
@@ -1034,7 +1038,7 @@ case _RING:
 #ifdef DEBUG 
       G4cout<< "BDSBunch : " <<"UDEF_BUNCH: skipping "<<nlinesIgnore<<"  lines"<<G4endl;
 #endif
-      _skip(nlinesIgnore * fields.size());
+      skip((G4int)(nlinesIgnore * fields.size()));
      
       list<struct Doublet>::iterator it;
      for(it=fields.begin();it!=fields.end();it++)

@@ -34,7 +34,8 @@ BDSSectorBend::BDSSectorBend(G4String aName, G4double aLength,
 			     G4double tilt, G4double bGrad, 
 			     G4String aTunnelMaterial, G4String aMaterial, G4double aXAper, G4double aYAper):
   BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), blmLocZ, blmLocTheta, aTunnelMaterial, aMaterial,
-	       aXAper, aYAper, angle)
+	       aXAper, aYAper, angle),
+  itsStepper(NULL),itsMagField(NULL),itsEqRhs(NULL)
 {
   SetOuterRadius(outR);
   itsTilt=tilt;
@@ -537,9 +538,6 @@ SetMultiplePhysicalVolumes(itsPhysiComp);
 BDSSectorBend::~BDSSectorBend()
 {
   delete itsVisAttributes;
-  delete itsMarkerLogicalVolume;
-  delete itsOuterLogicalVolume;
-  delete itsPhysiComp;
   delete itsMagField;
   delete itsEqRhs;
   delete itsStepper;

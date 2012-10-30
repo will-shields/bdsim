@@ -142,10 +142,9 @@ BDSSpline::~BDSSpline()
 {
   size_t i;
   for(i=0;i<tab.size();i++)
-    if(tab[i]) delete tab[i];
-  if(&tab)delete &tab;
+    delete tab[i];
+  delete &tab;
 
-  if(&u) delete &u;
-
+  delete &u;
 }
 

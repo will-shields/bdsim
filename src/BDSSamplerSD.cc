@@ -62,7 +62,7 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
 {
   G4Track* theTrack = aStep->GetTrack();
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
-  G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
+  //  G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
   //  // tmp - only store muons
   //     G4String pName=theTrack->GetDefinition()->GetParticleName();
   //    if(pName=="mu+"||pName=="mu-")

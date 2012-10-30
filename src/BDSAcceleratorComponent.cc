@@ -83,48 +83,47 @@ void BDSAcceleratorComponent::AlignComponent(G4ThreeVector& TargetPos,
 
 BDSAcceleratorComponent::~BDSAcceleratorComponent ()
 {
-  if(itsOuterLogicalVolume)delete itsOuterLogicalVolume;
-  //  if(itsBeamPipe)delete itsBeamPipe;
-  if(itsBDSEnergyCounter)delete itsBDSEnergyCounter;
-  if(itsOuterUserLimits)delete itsOuterUserLimits;
-  if(itsOuterLogicalVolume)delete itsOuterLogicalVolume;
-  if(itsMarkerLogicalVolume)delete itsMarkerLogicalVolume;
-  if(itsInnerBeampipeUserLimits)delete itsInnerBeampipeUserLimits;
-  //Solid shapes used in building tunnel
-  delete itsTunnelSolid;
-  delete itsSoilSolid;
-  delete itsInnerTunnelSolid;
-  delete itsTunnelCavity;
-  delete itsLargerTunnelCavity;
-  delete itsLargerInnerTunnelSolid; 
-  delete itsTunnelMinusCavity;
-  delete itsTunnelSizedBlock;
-  delete itsMarkerSolidVolume;
-  //Tunnel logical volumes
-  delete itsSoilTunnelLogicalVolume;
-  delete itsTunnelCavityLogicalVolume;
-  delete  itsTunnelMinusCavityLogicalVolume;
-  //Tunnel physical volumes
-  delete itsTunnelPhysiInner;
-  delete itsTunnelPhysiComp;
-  delete itsTunnelPhysiCompSoil;
-  //Tunnel user limits
-  delete itsTunnelUserLimits;
-  delete itsSoilTunnelUserLimits;
-  delete itsInnerTunnelUserLimits;
+//   delete itsOuterLogicalVolume;
+//   // delete itsBeamPipe;
+//   delete itsBDSEnergyCounter;
+//   delete itsOuterUserLimits;
+//   //  delete itsMarkerLogicalVolume;
+//   delete itsInnerBeampipeUserLimits;
+//   //Solid shapes used in building tunnel
+//   delete itsTunnelSolid;
+//   delete itsSoilSolid;
+//   delete itsInnerTunnelSolid;
+//   delete itsTunnelCavity;
+//   delete itsLargerTunnelCavity;
+//   delete itsLargerInnerTunnelSolid; 
+//   delete itsTunnelMinusCavity;
+//   delete itsTunnelSizedBlock;
+//   delete itsMarkerSolidVolume;
+//   //Tunnel logical volumes
+//   delete itsSoilTunnelLogicalVolume;
+//   delete itsTunnelCavityLogicalVolume;
+//   delete itsTunnelMinusCavityLogicalVolume;
+//   //Tunnel physical volumes
+//   delete itsTunnelPhysiInner;
+//   delete itsTunnelPhysiComp;
+//   delete itsTunnelPhysiCompSoil;
+//   //Tunnel user limits
+//   delete itsTunnelUserLimits;
+//   delete itsSoilTunnelUserLimits;
+//   delete itsInnerTunnelUserLimits;
 
-  delete nullRotationMatrix;
-  delete tunnelRot;
-  delete gateRot;
-  delete gateMaterial;
+//   delete nullRotationMatrix;
+//   delete tunnelRot;
+//   delete gateRot;
+//   delete gateMaterial;
   delete VisAtt;
   delete VisAtt1;
   delete VisAtt2;
   delete VisAtt3;
   delete VisAtt4;
   delete VisAtt5;
-  delete itsBLMSolid;
-  delete itsBlmOuterSolid;
+//   delete itsBLMSolid;
+//   delete itsBlmOuterSolid;
 }
 
 void BDSAcceleratorComponent::BuildTunnel()

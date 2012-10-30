@@ -133,6 +133,7 @@ BDSGeometryLCDD::~BDSGeometryLCDD()
 {
   delete itsUniformMagField;
   delete itsMagField;
+  delete itsUserLimits;
 }
 
 void BDSGeometryLCDD::Construct(G4LogicalVolume *marker)

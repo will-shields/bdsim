@@ -204,9 +204,8 @@ G4VisAttributes* BDSLWCalorimeter::SetVisAttributes()
 
 BDSLWCalorimeter::~BDSLWCalorimeter()
 {
-  if(itsVisAttributes) delete itsVisAttributes;
-  if(itsUserLimits) delete itsUserLimits;
-  if(itsBPTube) delete itsBPTube;
-  if(itsLWCal) delete itsLWCal;
-  if(itsBeampipeLogicalVolume) delete itsBeampipeLogicalVolume;
+  delete itsVisAttributes;
+  delete itsBPTube;
+  delete itsLWCal;
+  delete itsBeampipeLogicalVolume;
 }

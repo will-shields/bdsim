@@ -98,6 +98,5 @@ G4VisAttributes* BDSSamplerCylinder::SetVisAttributes()
 BDSSamplerCylinder::~BDSSamplerCylinder()
 {
   delete itsVisAttributes;
-  delete itsUserLimits;
   --nSamplers;
 }

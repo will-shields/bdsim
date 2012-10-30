@@ -75,6 +75,5 @@ G4VisAttributes* BDSLaserWire::SetVisAttributes()
 BDSLaserWire::~BDSLaserWire()
 {
   delete itsVisAttributes;
-  delete itsUserLimits;
   delete itsLaserCompton;
 }

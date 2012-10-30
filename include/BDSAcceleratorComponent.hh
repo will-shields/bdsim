@@ -293,11 +293,8 @@ protected:
   G4RotationMatrix* itsRotation;
   G4ThreeVector itsPosition;
   //  BDSBeamPipe* itsBeamPipe;
-  G4MagneticField* itsOuterMagField;
   G4Mag_EqRhs* itsOuterEqRhs;
   G4MagIntegratorStepper*  itsOuterStepper;
-  G4ChordFinder* itsOuterChordFinder;
-  G4FieldManager*  itsOuterFieldMgr;
   G4UserLimits* itsOuterUserLimits;
   G4UserLimits* itsMarkerUserLimits;
   G4UserLimits* itsInnerBeampipeUserLimits;
@@ -308,8 +305,6 @@ protected:
 
   //Marker solid
   G4VSolid* itsMarkerSolidVolume;
-
-
 
   //Solid shapes used in building tunnel
   G4VSolid* itsTunnelSolid;
@@ -347,6 +342,9 @@ protected:
 
 
 private:
+  /// constructor initialisation
+  void ConstructorInit();
+
   G4RotationMatrix* nullRotationMatrix;
   G4RotationMatrix* tunnelRot;
   G4RotationMatrix* gateRot;
@@ -390,20 +388,8 @@ inline BDSAcceleratorComponent::BDSAcceleratorComponent (
   itsMaterial(aMaterial),itsVisAttributes(aVisAtt),itsTunnelMaterial(aTunnelMaterial),
   itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset), itsTunnelRadius(tunnelRadius), itsTunnelOffsetX(tunnelOffsetX),itsTunnelCavityMaterial(aTunnelCavityMaterial), itsPrecisionRegion(aPrecisionRegion)
 {
-  itsSensitiveVolume=NULL;
-  itsInnerBeampipeUserLimits =new G4UserLimits();
-  itsPhi = 0;
-  itsTheta = 0;
-  itsPsi = 0;
-  itsTilt = 0;
-  itsOuterR=0;
-  itsMagScaleFactor = 1;
-  if (itsTunnelRadius<=BDSGlobalConstants::Instance()->GetLengthSafety()){
-    itsTunnelRadius=BDSGlobalConstants::Instance()->GetTunnelRadius();
-  }
-  CalculateLengths();
+  ConstructorInit();
 }
-
 
 inline BDSAcceleratorComponent::BDSAcceleratorComponent (
 			G4String& aName,G4double aLength, 
@@ -419,26 +405,75 @@ inline BDSAcceleratorComponent::BDSAcceleratorComponent (
   itsTunnelMaterial(aTunnelMaterial),
   itsXOffset(XOffset),itsYOffset(YOffset), itsZOffset(ZOffset), itsTunnelRadius(tunnelRadius), itsTunnelOffsetX(tunnelOffsetX), itsTunnelCavityMaterial(aTunnelCavityMaterial), itsPrecisionRegion(aPrecisionRegion)
 {
-  itsSensitiveVolume=NULL;
-  itsInnerBeampipeUserLimits =new G4UserLimits();
-  itsPhi = 0;
-  itsTheta = 0;
-  itsPsi = 0;
-  itsTilt = 0;
-  itsMagScaleFactor = 1;
-  itsBlmLocationR=0;
-
   if (itsBlmLocZ.size() != itsBlmLocTheta.size()){
     G4cerr << "BDSAcceleratorComponent: error, lists blmLocZ and blmLocTheta are of unequal size" << G4endl;
     G4cerr << "blmLocZ.size() = " << blmLocZ.size() << G4endl;
     G4cerr << "blmLocTheta.size() = " << blmLocTheta.size() << G4endl;
     exit(1);
   }
+  ConstructorInit();
+}
+
+inline void BDSAcceleratorComponent::ConstructorInit(){
+  itsInnerBeampipeUserLimits =new G4UserLimits();
+  itsPhi = 0;
+  itsTheta = 0;
+  itsPsi = 0;
+  itsTilt = 0;
+  itsOuterR=0;
+  itsMagScaleFactor = 1;
+  itsBlmLocationR=0;
   if (itsTunnelRadius<=BDSGlobalConstants::Instance()->GetLengthSafety()){
     itsTunnelRadius=BDSGlobalConstants::Instance()->GetTunnelRadius();
   }
-  itsOuterR=0;
   CalculateLengths();
+  itsOuterLogicalVolume=NULL;
+  itsMarkerLogicalVolume=NULL;
+  itsTunnelLogicalVolume=NULL;
+  itsTunnelFloorLogicalVolume=NULL;
+  itsRotation=NULL;
+  itsOuterStepper=NULL;
+  itsOuterUserLimits=NULL;
+  itsMarkerUserLimits=NULL;
+  itsInnerBeampipeUserLimits=NULL;
+  itsInnerMostLogicalVolume=NULL;
+  itsMarkerSolidVolume=NULL;
+  itsTunnelSolid=NULL;
+  itsSoilSolid=NULL;
+  itsInnerTunnelSolid=NULL;
+  itsTunnelCavity=NULL;
+  itsLargerTunnelCavity=NULL;
+  itsTunnelFloor=NULL;
+  itsLargerInnerTunnelSolid=NULL;
+  itsTunnelMinusCavity=NULL;
+  itsTunnelSizedBlock=NULL;
+  itsBLMLogicalVolume=NULL;
+  itsBlmCaseLogicalVolume=NULL;
+  itsSoilTunnelLogicalVolume=NULL;
+  itsTunnelCavityLogicalVolume=NULL;
+  itsTunnelMinusCavityLogicalVolume=NULL;
+  itsTunnelPhysiInner=NULL;
+  itsTunnelPhysiComp=NULL;
+  itsTunnelFloorPhysiComp=NULL;
+  itsTunnelPhysiCompSoil=NULL;
+  itsTunnelUserLimits=NULL;
+  itsSoilTunnelUserLimits=NULL;
+  itsInnerTunnelUserLimits=NULL;
+
+  nullRotationMatrix=NULL;
+  tunnelRot=NULL;
+  gateRot=NULL;
+  gateMaterial=NULL;
+  VisAtt=NULL;
+  VisAtt1=NULL;
+  VisAtt2=NULL;
+  VisAtt3=NULL;
+  VisAtt4=NULL;
+  VisAtt5=NULL;
+  itsBLMSolid=NULL;
+  itsBlmOuterSolid=NULL;
+  itsBDSEnergyCounter=NULL;
+  itsSensitiveVolume=NULL;  
 }
 
 inline G4double BDSAcceleratorComponent::GetLength ()

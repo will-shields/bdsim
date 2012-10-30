@@ -33,7 +33,8 @@ mySectorBend::mySectorBend(G4String aName,G4double aLength,
 			   G4double bField, G4double angle, G4double outR,
 			   G4double tilt,  G4double bGrad, 
 			   G4String aMaterial):
-  BDSMultipole(aName,aLength,bpRad,FeRad,SetVisAttributes(),"",aMaterial,0,0,angle)
+  BDSMultipole(aName,aLength,bpRad,FeRad,SetVisAttributes(),"",aMaterial,0,0,angle),
+  itsStepper(NULL),itsMagField(NULL),itsEqRhs(NULL)
 {
 
   if (outR==0) 
@@ -386,9 +387,6 @@ void mySectorBend::BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum)
 mySectorBend::~mySectorBend()
 {
   delete itsVisAttributes;
-  delete itsMarkerLogicalVolume;
-  delete itsOuterLogicalVolume;
-  delete itsPhysiComp;
   delete itsMagField;
   delete itsEqRhs;
   delete itsStepper;

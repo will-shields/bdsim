@@ -37,7 +37,8 @@ extern BDSMaterials* theMaterials;
 BDSPCLDrift::BDSPCLDrift (G4String aName, G4double aLength, 
 			  std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double aperX, G4double aperYUp, G4double aperYDown, G4double aperDy, G4String tunnelMaterial, G4double aper, G4double tunnelRadius, G4double tunnelOffsetX, G4String aMaterial):
   BDSMultipole(aName, aLength, aper, aper, SetVisAttributes(),  blmLocZ, blmLocTheta, tunnelMaterial, aMaterial, aper, aper, 0, tunnelRadius, tunnelOffsetX),
-  itsYAperUp(aperYUp), itsYAperDown(aperYDown), itsDyAper(aperDy)
+  itsYAperUp(aperYUp), itsYAperDown(aperYDown), itsDyAper(aperDy),
+  itsStepper(NULL),itsMagField(NULL),itsEqRhs(NULL)
 {
   itsType="pcldrift";
   itsXAper=aperX;
@@ -238,19 +239,16 @@ void BDSPCLDrift::BuildBLMs(){
 
 BDSPCLDrift::~BDSPCLDrift()
 {
-  if(itsVisAttributes) delete itsVisAttributes;
-  if(itsMarkerLogicalVolume) delete itsMarkerLogicalVolume;
-  if(itsOuterLogicalVolume) delete itsOuterLogicalVolume;
-  if(itsPhysiComp) delete itsPhysiComp;
-  delete outer_solid;
-  delete inner_solid;
-  delete itsOuterBeamPipeLogicalVolume;
-  delete itsInnerBeamPipeLogicalVolume;
-  delete itsPhysiOuter;
-  delete itsPhysiInner;
+  delete itsVisAttributes;
+//   delete outer_solid;
+//   delete inner_solid;
+//   delete itsOuterBeamPipeLogicalVolume;
+//   delete itsInnerBeamPipeLogicalVolume;
+//   delete itsPhysiOuter;
+//   delete itsPhysiInner;
   delete itsBeampipeVisAtt;
   delete itsInnerBeampipeVisAtt;
-  //if(itsField) delete itsField;
-  //if(itsEqRhs) delete itsEqRhs;
-  //if(itsStepper) delete itsStepper;
+  delete itsMagField;
+  delete itsEqRhs;
+  delete itsStepper;
 }

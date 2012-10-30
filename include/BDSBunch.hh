@@ -128,6 +128,7 @@ private:
   // input filename
   G4String inputfile;
   G4int nlinesIgnore;
+  void skip(G4int nvalues);
   std::ifstream InputBunchFile;
   template <typename Type> G4bool ReadValue(Type &value);
   void OpenBunchFile();
@@ -139,8 +140,6 @@ private:
   
   // event number for phase for ellipse for SR rescaling
   G4int partId;
-
-  G4int ignoreLines; // number of lines to ignore from opt
 };
 
 #endif

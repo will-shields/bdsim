@@ -40,7 +40,6 @@ private:
   void LWCalorimeterLogicalVolume();
 
   // field related objects:
-  G4UserLimits* itsUserLimits;
   G4VisAttributes* itsVisAttributes;
 };
 

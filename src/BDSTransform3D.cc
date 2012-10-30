@@ -71,8 +71,6 @@ G4VisAttributes* BDSTransform3D::SetVisAttributes()
 
 BDSTransform3D::~BDSTransform3D()
 {
-  if(itsVisAttributes) delete itsVisAttributes;
-  if(itsMarkerLogicalVolume) delete itsMarkerLogicalVolume;
-  if(itsOuterLogicalVolume) delete itsOuterLogicalVolume;
-  if(itsPhysiComp) delete itsPhysiComp;
+  delete itsVisAttributes;
+  //  delete itsPhysiComp;
 }

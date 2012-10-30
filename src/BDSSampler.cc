@@ -114,8 +114,6 @@ G4VisAttributes* BDSSampler::SetVisAttributes()
 
 BDSSampler::~BDSSampler()
 {
-  if(itsVisAttributes) delete itsVisAttributes;
-  if(itsUserLimits) delete itsUserLimits;
+  delete itsVisAttributes;
   --nSamplers;
-  delete itsMarkerLogicalVolume;
 }

@@ -54,7 +54,6 @@ BDSGeometrySQL::BDSGeometrySQL(G4String DBfile, G4double markerlength)
 
 BDSGeometrySQL::~BDSGeometrySQL(){
   delete rotateComponent;
-  delete itsUserLimits;
 }
 
 void BDSGeometrySQL::Construct(G4LogicalVolume *marker)

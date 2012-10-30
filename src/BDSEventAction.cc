@@ -104,8 +104,8 @@ LWCalorimeterCollID(-1),drawFlag("all")
 
 BDSEventAction::~BDSEventAction()
 {
-  delete Traj;
-  delete trajEndPoint;
+//   delete Traj;
+//   delete trajEndPoint;
 }
 
 //======================================================

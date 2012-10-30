@@ -116,7 +116,6 @@ G4VisAttributes* BDSDump::SetVisAttributes()
 
 BDSDump::~BDSDump()
 {
-  if(itsVisAttributes) delete itsVisAttributes;
-  if(itsUserLimits) delete itsUserLimits;
+  delete itsVisAttributes;
   nDumps--;
 }

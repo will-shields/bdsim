@@ -694,9 +694,7 @@ void BDSElement::AlignComponent(G4ThreeVector& TargetPos,
 
 BDSElement::~BDSElement()
 {
-
   delete itsVisAttributes;
-  delete itsMarkerLogicalVolume;
   delete fChordFinder;
   delete itsFStepper;
   delete itsFEquation;

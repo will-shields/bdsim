@@ -26,7 +26,8 @@ BDSKicker::BDSKicker(G4String aName, G4double aLength,
 		     G4double tilt, G4double bGrad, 
 		     G4String aTunnelMaterial, G4String aMaterial):
   BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), aTunnelMaterial, aMaterial,
-	       0, 0, angle)
+	       0, 0, angle),
+  itsStepper(NULL),itsMagField(NULL),itsEqRhs(NULL)
 {
   SetOuterRadius(outR);
   itsTilt=tilt;
@@ -142,11 +143,7 @@ void BDSKicker::BuildBPFieldAndStepper()
 
 BDSKicker::~BDSKicker()
 {
-  
   delete itsVisAttributes;
-  delete itsMarkerLogicalVolume;
-  delete itsOuterLogicalVolume;
-  delete itsPhysiComp;
   delete itsMagField;
   delete itsEqRhs;
   delete itsStepper;

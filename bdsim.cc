@@ -31,6 +31,7 @@
 
 #include <cstdlib>      // standard headers 
 #include <cstdio>
+#include <ctime>
 #include <unistd.h>
 #include <getopt.h>
 
@@ -70,7 +71,7 @@
 static void usage()
 {
   G4cout<<"bdsim : version 0.5-dev build _UNKNOWN_BUILD_DATE_"<<G4endl;
-  G4cout<<"        (C) 2001-2008 Royal Holloway University London"<<G4endl;
+  G4cout<<"        (C) 2001-2012 Royal Holloway University London"<<G4endl;
   G4cout<<"        http://www.pp.rhul.ac.uk/twiki/bin/view/JAI/simulation"<<G4endl;
   G4cout<<G4endl;
 
@@ -371,7 +372,7 @@ int main(int argc,char** argv) {
 
   // get the seed from options if positive, else
   // user time as a seed
-#include <time.h>
+
   if(BDSGlobalConstants::Instance()->GetRandomSeed()>=0)
     seed = BDSGlobalConstants::Instance()->GetRandomSeed();
   else
@@ -686,10 +687,11 @@ int main(int argc,char** argv) {
   delete BDSGlobalConstants::Instance();
   
 #ifdef DEBUG 
-  //G4cout<<"BDSRunManager deleting..."<<G4endl;
+  G4cout<<"BDSRunManager deleting..."<<G4endl;
 #endif
-  //  delete runManager;
+  delete runManager;
+ 
+  G4cout << "End of Run, Thank you for using BDSIM!" << G4endl;
 
-   
   return 0;
 }

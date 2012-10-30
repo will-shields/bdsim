@@ -37,7 +37,6 @@ protected:
 private:
   void LaserWireLogicalVolume();
   G4VisAttributes* SetVisAttributes();
-  G4UserLimits* itsUserLimits;
   G4VisAttributes* itsVisAttributes;
 
   BDSLaserCompton* itsLaserCompton;

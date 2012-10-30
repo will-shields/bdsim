@@ -13,7 +13,7 @@ Last modified 15.11.2005 by Ilya Agapov
 #include "G4VUserDetectorConstruction.hh"
 #include "globals.hh"
 
-#include"BDSMaterials.hh"
+#include "BDSMaterials.hh"
 
 #include "parser/gmad.h"
 
@@ -37,7 +37,6 @@ class G4VPhysicalVolume;
 class G4Material;
 class G4UniformMagField;
 class BDSCalorimeterSD;
-//class BDSMagField;
 class G4UserLimits;
 class G4VSensitiveDetector;
 

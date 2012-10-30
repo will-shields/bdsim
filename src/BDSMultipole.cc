@@ -74,7 +74,15 @@ BDSMultipole::BDSMultipole( G4String aName,
 			 angle),
   itsInnerIronRadius(aInnerIronRadius)
 {  
-CalculateLengths();
+  CalculateLengths();
+  itsPhysiComp=NULL; 
+  itsPhysiInner=NULL;
+  itsBPFieldMgr=NULL;
+  itsBeampipeLogicalVolume=NULL;
+  itsChordFinder=NULL;
+  itsBeampipeUserLimits=NULL;
+  itsOuterFieldMgr=NULL;
+  itsOuterMagField=NULL;
 }
 
 BDSMultipole::BDSMultipole( G4String aName, 
@@ -114,6 +122,14 @@ BDSMultipole::BDSMultipole( G4String aName,
   CalculateLengths();
   BDSAcceleratorComponent::itsPhiAngleIn=phiAngleIn;
   BDSAcceleratorComponent::itsPhiAngleOut=phiAngleOut;
+  itsPhysiComp=NULL; 
+  itsPhysiInner=NULL;
+  itsBPFieldMgr=NULL;
+  itsBeampipeLogicalVolume=NULL;
+  itsChordFinder=NULL;
+  itsBeampipeUserLimits=NULL;
+  itsOuterFieldMgr=NULL;
+  itsOuterMagField=NULL;
 }
 
 BDSMultipole::BDSMultipole( G4String aName, 
@@ -145,7 +161,7 @@ BDSMultipole::BDSMultipole( G4String aName,
 			 tunnelOffsetX),
   itsInnerIronRadius(aInnerIronRadius)
 {
-CalculateLengths();
+  CalculateLengths();
 }
 
 void BDSMultipole::BuildBLMs(){
@@ -741,15 +757,17 @@ void BDSMultipole::BuildOuterFieldManager(G4int nPoles, G4double poleField,
 
 BDSMultipole::~BDSMultipole()
 {
-  if(itsPhysiComp) delete itsPhysiComp;
-  if(itsPhysiInner) delete itsPhysiInner;
-  if(itsBPFieldMgr) delete itsBPFieldMgr;
-  if(itsBeampipeLogicalVolume) delete itsBeampipeLogicalVolume;
-  if(itsChordFinder) delete itsChordFinder;
-  if(itsOuterChordFinder) delete itsOuterChordFinder;
-  if(itsOuterUserLimits) delete itsOuterUserLimits;
-  if(itsBeampipeUserLimits) delete itsBeampipeUserLimits;
-  if(itsOuterFieldMgr) delete itsOuterFieldMgr;
-  if(itsOuterMagField) delete itsOuterMagField;
-  if(itsSegRot)delete itsSegRot;
+//   //  delete itsPhysiComp; 
+//   //  delete itsPhysiInner;
+  delete itsBPFieldMgr;
+//   delete itsBeampipeLogicalVolume;
+  delete itsChordFinder;
+//   delete itsOuterFieldMgr;
+//   delete itsOuterMagField;
+#ifndef NOUSERLIMITS
+  delete itsOuterUserLimits;
+  delete itsMarkerUserLimits;
+  delete itsBeampipeUserLimits;
+  delete itsInnerBeampipeUserLimits;
+#endif
 }
