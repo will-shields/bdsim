@@ -3,11 +3,12 @@ cmake_minimum_required(VERSION 2.6.4)
 project(BDSIM) 
 
 # project version
-set( PROJECT_MAJOR_VERSION 0 )
-set( PROJECT_MINOR_VERSION 6 )
-set( PROJECT_PATCH_LEVEL 0 )
+set( BDSIM_MAJOR_VERSION 0 )
+set( BDSIM_MINOR_VERSION 6 )
+set( BDSIM_PATCH_LEVEL 0 )
+set( BDSIM_VERSION ${BDSIM_MAJOR_VERSION}.${BDSIM_MINOR_VERSION}.${BDSIM_PATCH_LEVEL})
 
-message(STATUS "Configuring BDSIM ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_LEVEL}")
+message(STATUS "Configuring BDSIM ${BDSIM_VERSION}")
 
 # add source dir as a place for CMake modules (e.g. FindGSL.cmake)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
@@ -134,21 +135,34 @@ set(G4MINORVERSION 4)
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/parser/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+# set visualisation flags (to be fixed to automagic)
+option(VIS_RAYTRACERX "RayTracer visualisation" OFF)
+option(VIS_OPENGLQT "OpenGLQT visualisation" OFF)
+
+set(VIS_FLAGS -DG4VIS_USE)
+if(VIS_RAYTRACERX)
+   set(VIS_FLAGS "-DG4VIS_USE_RAYTRACERX ${VIS_FLAGS}")
+endif()
+if(VIS_OPENGLQT)
+   set(VIS_FLAGS "-DG4VIS_USE_OPENGLQT ${VIS_FLAGS}")
+endif()
+
 # set compiler flags
 set(WFLAGS "-Wall -Wno-write-strings")
 set(CMAKE_FLAGS "${CMAKE_FLAGS} ${CLHEP_DEFINITIONS}  ${WFLAGS}")
-set(BDSIM_FLAGS "${CMAKE_FLAGS} -DG4VIS_USE -DCLHEP_VERSION=${CLHEP_VERSION} -DG4VERSION=${G4VERSION} -DG4MINORVERSION=${G4MINORVERSION} ${BDSIM_FLAGS}")
-
-#option DG4VIS_USE
+set(BDSIM_FLAGS "${CMAKE_FLAGS} ${VIS_FLAGS} -DCLHEP_VERSION=${CLHEP_VERSION} -DG4VERSION=${G4VERSION} -DG4MINORVERSION=${G4MINORVERSION} ${BDSIM_FLAGS}")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${BDSIM_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${BDSIM_FLAGS}")
+
+# This module sets up installation:
+include(bdsim_install)
 
 add_subdirectory( parser )
 
 add_executable(bdsimexec bdsim.cc)
 
-set_target_properties(bdsimexec PROPERTIES OUTPUT_NAME bdsim)
+set_target_properties(bdsimexec PROPERTIES OUTPUT_NAME "bdsim" VERSION ${BDSIM_VERSION})
 target_link_libraries(bdsimexec bdsim gmad)
 target_link_libraries(bdsim ${CLHEP_LIBRARIES})
 target_link_libraries(bdsim ${Geant4_LIBRARIES})
@@ -164,9 +178,17 @@ endif()
 if(USE_LCDD)
     target_link_libraries(bdsim ${XML_LIBRARIES})
 endif()
-    
+
 get_target_property(binaryname bdsimexec OUTPUT_NAME)
 set(binary ${CMAKE_CURRENT_BINARY_DIR}/./${binaryname})
+
+# Install the targets:
+set(executables bdsimexec)
+set(libraries bdsim)
+set_target_properties(${executables} ${libraries} PROPERTIES VERSION ${BDSIM_VERSION})
+bdsim_install_targets(${executables} ${libraries})
+file(GLOB headers include/*.hh parser/*.h)
+bdsim_install_headers(${headers})
 
 # Testing:
 enable_testing()
