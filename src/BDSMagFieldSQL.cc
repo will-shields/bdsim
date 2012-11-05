@@ -224,9 +224,9 @@ void BDSMagFieldSQL::Prepare(G4VPhysicalVolume *referenceVolume)
       G4cout << "Loading SQL Field Map file: " << FieldFile << G4endl;
     
     if(FieldFile.contains("inverse")) itsMarkerLength*=-1;
-    double temp_z;
-    double temp_Bz;
-    double temp_solB;
+    double temp_z=0.0;
+    double temp_Bz=0.0;
+    double temp_solB=0.0;
     while(!ifs.eof()){
       if(FieldFile.contains("SiD"))
 	ifs >> temp_z >> temp_Bz >> temp_solB;

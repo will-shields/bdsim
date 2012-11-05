@@ -293,7 +293,6 @@ protected:
   G4RotationMatrix* itsRotation;
   G4ThreeVector itsPosition;
   //  BDSBeamPipe* itsBeamPipe;
-  G4Mag_EqRhs* itsOuterEqRhs;
   G4MagIntegratorStepper*  itsOuterStepper;
   G4UserLimits* itsOuterUserLimits;
   G4UserLimits* itsMarkerUserLimits;

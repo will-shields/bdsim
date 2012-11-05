@@ -1,8 +1,8 @@
-#include <string>
+#include <cstdlib>
 #include <iostream>
 #include "getEnv.h"
 
-const char* getEnv(const char* env)
+std::string getEnv(const char* env)
 {
   const char* tmp = std::getenv(env);
   if(tmp==NULL){
@@ -11,6 +11,6 @@ const char* getEnv(const char* env)
   } else {
     std::string stmp = (std::string)tmp+ "/";
     std::cout << "getEnv - environment variable \"" << stmp << "\" is set" << std::endl;
-    return stmp.c_str();
+    return stmp;
   }
 }

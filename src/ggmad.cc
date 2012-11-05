@@ -35,7 +35,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
   G4String token1;
 
   G4double x0=0, y0=0, z0=0, x=0, y=0, z=0; // box parameters
-  G4double rmin, rmax,rmin2, rmax2, phi0, dphi; // cylindrical parameters
+  G4double rmin=0, rmax=0, rmin2=0, rmax2=0, phi0=0, dphi=0; // cylindrical parameters
   G4double x1=0, x2=0, y1=0, y2=0;
   G4double phi=0, theta=0, psi=0; // Euler angles - for rotation of components
   G4String material;

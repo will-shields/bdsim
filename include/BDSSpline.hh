@@ -28,13 +28,12 @@ public:
 
   void initialise(vDbl* xIn,G4int xscalIn, 
 		  vDbl* yIn,G4int yscalIn);
-  G4double integrate(G4double xIn);
-
-  vTab tab;
-  G4int n,xscal,yscal;
+  G4double integrate(G4double xIn)const;
 
 private:
+  vTab tab;
   vDbl u;
+  G4int n,xscal,yscal;
 };
 
 #endif

@@ -44,15 +44,15 @@ class BDSDetectorMessenger: public G4UImessenger
   private:
     BDSDetectorConstruction* BDSDetector;
     
-    G4UIdirectory*             BDSdetDir;
+  //    G4UIdirectory*             BDSdetDir;
   //    G4UIcmdWithAString*        AbsMaterCmd;
   //    G4UIcmdWithAString*        GapMaterCmd;
   //    G4UIcmdWithADoubleAndUnit* AbsThickCmd;
   //    G4UIcmdWithADoubleAndUnit* GapThickCmd;
   //    G4UIcmdWithADoubleAndUnit* SizeYZCmd;
   //    G4UIcmdWithAnInteger*      NbLayersCmd;    
-      G4UIcmdWithADoubleAndUnit* MagFieldCmd;
-    G4UIcmdWithoutParameter*   UpdateCmd;
+  //    G4UIcmdWithADoubleAndUnit* MagFieldCmd;
+  //    G4UIcmdWithoutParameter*   UpdateCmd;
 };
 
 #endif

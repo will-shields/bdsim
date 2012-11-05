@@ -27,7 +27,7 @@
 
 //using namespace std;
 
-std::string sBDSIMHOME = std::string(getEnv("BDSIMHOME"));
+std::string sBDSIMHOME = getEnv("BDSIMHOME");
 
 //double pow(double x, double y) {return exp( y * log(x));}
 
