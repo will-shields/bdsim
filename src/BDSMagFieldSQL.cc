@@ -78,7 +78,7 @@ void BDSMagFieldSQL::GetFieldValue( const G4double Point[4],
   //  G4TouchableHistory* aTouchable = itsIRNavigator->CreateTouchableHistory();
   G4TouchableHistoryHandle aTouchable = itsIRNavigator->CreateTouchableHistoryHandle();
   const G4AffineTransform GlobalToMarker=aTouchable->GetHistory()->GetTransform(1);
-  const G4AffineTransform MarkerToGlobal=GlobalToMarker.Inverse();
+  //  const G4AffineTransform MarkerToGlobal=GlobalToMarker.Inverse();
   RLocalR=GlobalToMarker.TransformPoint(GlobalR);
   
   if( fabs(RLocalR.z()) > fabs(itsMarkerLength/2) ){

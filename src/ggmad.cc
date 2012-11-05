@@ -67,7 +67,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 	if(getWord() == "{")
 	  {
 	    
-	    while(token = getWord())
+	    while((token = getWord()))
 	      {
 		if (token == "}") break;
 		
@@ -128,7 +128,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 	if(getWord() == "{")
 	  {
 	    
-	    while(token = getWord())
+	    while((token = getWord()))
 	      {
 		if (token == "}") break;
 		
@@ -196,7 +196,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 	if(getWord() == "{")
 	  {
 	    
-	    while(token = getWord())
+	    while((token = getWord()))
 	      {
 		if (token == "}") break;
 		
@@ -269,7 +269,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 	if(getWord() == "{")
 	  {
 	    
-	    while(token = getWord())
+	    while((token = getWord()))
 	      {
 		if (token == "}") break;
 		
