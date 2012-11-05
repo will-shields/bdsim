@@ -19,3 +19,4 @@ SET_SOURCE_FILES_PROPERTIES( parser.tab.c lex.yy.c PROPERTIES LANGUAGE CXX )
 # when we have old makefiles and cmake next to each other.
 # Reason is old makefiles creates parser.cc/lex.yy.cc in source folder..
 add_library(gmad gmad.cc ${BISON_PARSER_OUTPUTS} ${FLEX_SCANNER_OUTPUTS})
+bdsim_install_targets(gmad)

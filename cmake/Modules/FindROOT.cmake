@@ -58,15 +58,10 @@ else()
      endforeach()
   endif()
   unset(ROOT_LIBRARY_temp)
-  #message(STATUS "ROOT_LIBRARY_NAMES: ${ROOT_LIBRARY_NAMES}")
-  message(STATUS "ROOT_LIBRARIES_GLOB: ${ROOT_LIBRARIES_GLOB}")
-
-
-  #if(APPLE)
-  #  file(GLOB ROOT_LIBRARIES_GLOB ${ROOT_LIBRARY_DIR}/lib*.dylib)
-  #else()
-  #  file(GLOB ROOT_LIBRARIES_GLOB ${ROOT_LIBRARY_DIR}/lib*.so)
-  #endif()
+  if($ENV{VERBOSE})
+    message(STATUS "ROOT_LIBRARY_NAMES: ${ROOT_LIBRARY_NAMES}")
+    message(STATUS "ROOT_LIBRARIES_GLOB: ${ROOT_LIBRARIES_GLOB}")
+  endif()
 
   # Make variables changeble to the advanced user
   mark_as_advanced(ROOT_CONFIG_EXECUTABLE)
