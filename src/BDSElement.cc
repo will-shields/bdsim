@@ -329,6 +329,8 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
       // build the magnetic field manager and transportation
       BuildMagField(true);
     }
+    delete ggmad;
+    ggmad = 0;
   }
   else if(gFormat=="lcdd") {
 #ifdef USE_LCDD
@@ -369,7 +371,8 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
     vector<G4LogicalVolume*> SensComps = LCDD->SensitiveComponents;
     for(G4int id=0; id<(G4int)SensComps.size(); id++)
       SetMultipleSensitiveVolumes(SensComps[id]);
-
+    //    delete LCDD;
+    //    LCDD = 0;
 #else
     G4cout << "LCDD support not selected during BDSIM configuration" << G4endl;
     G4Exception("Please re-compile BDSIM with USE_LCDD flag in Makefile", "-1", FatalException, "");
@@ -424,11 +427,15 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
 	    BuildMagField(true);
 	  }
       }
+    // delete Mokka;
+    // Mokka = 0;
   }
   else if(gFormat=="gdml") {
 #ifdef USE_GDML
     GDML = new BDSGeometryGDML(gFile);
     GDML->Construct(itsMarkerLogicalVolume);
+    delete GDML;
+    GDML = 0;
 #else
     G4cout << "GDML support not selected during BDSIM configuration" << G4endl;
     G4Exception("Please re-compile BDSIM with USE_GDML flag in Makefile", "-1", FatalException, "");

@@ -30,6 +30,9 @@ BDSGeometryGDML::BDSGeometryGDML(G4String GDMLfile){
   itsGDMLfile = GDMLfile;
 }
 
+BDSGeometryGDML::~BDSGeometryGDML(){
+}
+
 void BDSGeometryGDML::Construct(G4LogicalVolume *marker){
   itsMarkerVol = marker;
   G4GDMLParser *parser = new G4GDMLParser();
@@ -45,11 +48,11 @@ void BDSGeometryGDML::Construct(G4LogicalVolume *marker){
   VisAtt2->SetVisibility(false);
   VisAtt2->SetForceSolid(true);
 
-    for (int i=0; i<topvol->GetNoDaughters(); i++){
+  for (int i=0; i<topvol->GetNoDaughters(); i++){
     topvol->GetDaughter(i)->GetLogicalVolume()->SetVisAttributes(VisAtt);
-   }
+  }
 
-    topvol->SetVisAttributes(VisAtt2);
+  topvol->SetVisAttributes(VisAtt2);
   
   new G4PVPlacement(NULL,
                     G4ThreeVector(0.,0.,0.),
@@ -58,6 +61,5 @@ void BDSGeometryGDML::Construct(G4LogicalVolume *marker){
                     itsMarkerVol,
                     false,
                     0, BDSGlobalConstants::Instance()->GetCheckOverlaps());
-
-  }
+}
 #endif
