@@ -12,13 +12,31 @@ G4double GetNearestValue(vector<struct XYFieldRecord> fieldValues, G4double x, G
 			 G4double &bx,G4double &by, G4double &bz);
 
 BDSXYMagField::BDSXYMagField(G4String fname) :
-  nX(0), nY(0), itsFileName(fname)
+  Bx(NULL), By(NULL), Bz(NULL), nX(0), nY(0), itsFileName(fname)
 {
 }
 
 BDSXYMagField::~BDSXYMagField()
 {
-  // release the b-map memory 
+  // release the b-map memory
+  if (Bx) {
+    for(int i=0;i<nX;i++) {
+      delete[] Bx[i];
+    }
+    delete[] Bx;
+  }
+  if (By) {
+    for(int i=0;i<nX;i++) {
+      delete[] By[i];
+    }
+    delete[] By;
+  }
+  if (Bz) {
+    for(int i=0;i<nX;i++) {
+      delete[] Bz[i];
+    }
+    delete[] Bz;
+  }
 }
 
 G4bool  BDSXYMagField::DoesFieldChangeEnergy() const

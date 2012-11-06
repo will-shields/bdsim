@@ -30,7 +30,8 @@ G4double aWavelength, G4ThreeVector aDirection):
   BDSAcceleratorComponent(
     aName,
     aLength,0,0,0,
-    SetVisAttributes())
+    SetVisAttributes()),
+  itsVisAttributes(NULL),itsLaserCompton(NULL)
 {
   LaserWireLogicalVolume();
   BDSGlobalConstants::Instance()->

@@ -39,7 +39,7 @@ private:
   G4VisAttributes* SetVisAttributes();
   G4VisAttributes* itsVisAttributes;
 
-  BDSLaserCompton* itsLaserCompton;
+  BDSLaserCompton* itsLaserCompton; // not used atm, JS
   G4ThreeVector itsLaserDirection;
   G4double itsLaserWavelength;
 };

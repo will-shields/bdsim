@@ -43,7 +43,8 @@ extern G4RotationMatrix* RotY90;
 extern BDSOutput* bdsOutput;
 //extern BDSGlobalConstants* BDSGlobalConstants::Instance();
 
-BDSGeometryLCDD::BDSGeometryLCDD(G4String LCDDfile)
+BDSGeometryLCDD::BDSGeometryLCDD(G4String LCDDfile):
+  itsMarkerVol(NULL),itsMagField(NULL),itsUniformMagField(NULL)
 {
 #ifndef NOUSERLIMITS
   itsUserLimits = new G4UserLimits();

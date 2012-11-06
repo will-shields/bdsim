@@ -13,7 +13,7 @@
 
 #if G4VERSION_NUMBER > 899
 BDSLaserCompton::BDSLaserCompton(const G4String& processName)
-  :  G4VDiscreteProcess(processName),isInitialised(false)
+  :  G4VDiscreteProcess(processName)//,isInitialised(false)
 #else
 BDSLaserCompton::BDSLaserCompton(const G4String& processName)
   :  G4VeEnergyLoss(processName)

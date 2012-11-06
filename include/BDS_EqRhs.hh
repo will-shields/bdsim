@@ -30,8 +30,8 @@ public: // with description
 protected:
   BDSSbendMagField* itsField;
 
-private:
-  G4double LocalRadius;
+// private:
+//   G4double LocalRadius;
 };
 
 inline G4double BDS_EqRhs::GetLocalRadius()

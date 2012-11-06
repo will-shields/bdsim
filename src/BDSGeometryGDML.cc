@@ -26,7 +26,7 @@ extern G4RotationMatrix* RotY90;
 extern BDSOutput* bdsOutput;
 //extern BDSGlobalConstants* BDSGlobalConstants::Instance();
 
-BDSGeometryGDML::BDSGeometryGDML(G4String GDMLfile){
+BDSGeometryGDML::BDSGeometryGDML(G4String GDMLfile):itsMarkerVol(NULL){
   itsGDMLfile = GDMLfile;
 }
 

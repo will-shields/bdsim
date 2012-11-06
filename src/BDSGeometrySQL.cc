@@ -38,7 +38,8 @@ extern G4RotationMatrix* RotY90;
 extern BDSOutput* bdsOutput;
 //extern BDSGlobalConstants* BDSGlobalConstants::Instance();
 
-BDSGeometrySQL::BDSGeometrySQL(G4String DBfile, G4double markerlength)
+BDSGeometrySQL::BDSGeometrySQL(G4String DBfile, G4double markerlength):
+  rotateComponent(NULL),itsMarkerVol(NULL),itsMagField(NULL),SensDet(NULL)
 {
   itsMarkerLength = markerlength;
   G4cout << "BDSGeometrySQL constructor: loading SQL file " << DBfile << G4endl;
