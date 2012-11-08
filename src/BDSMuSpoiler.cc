@@ -36,11 +36,18 @@ BDSMuSpoiler::BDSMuSpoiler (G4String& aName,G4double aLength,G4double bpRad,
   BDSAcceleratorComponent(aName,
 			 aLength,bpRad,bpRad,bpRad,
                           SetVisAttributes(), blmLocZ, blmLocTheta, aTunnelMaterial),
+  itsPhysiComp(NULL),itsPhysiCompSoil(NULL),itsPhysiComp2(NULL),itsPhysiInnerBP(NULL),
+  itsPhysiBP(NULL),itsSolidLogVol(NULL),itsInnerLogVol(NULL),itsBeampipeLogicalVolume(NULL),
+  itsInnerBPLogicalVolume(NULL),itsBPTube(NULL),itsInnerBPTube(NULL),itsSoilTube(NULL),
+  itsTunnelTube(NULL),itsInnerTunnelTube(NULL),itsInnerTunnelLogicalVolume(NULL),
+  itsSoilTunnelLogicalVolume(NULL),itsTunnelUserLimits(NULL),itsSoilTunnelUserLimits(NULL),
+  itsInnerTunnelUserLimits(NULL),itsVisAttributes(NULL),itsBPVisAttributes(NULL),
+  itsEqRhs(NULL),itsEnergyCounterSD(NULL),
   itsBeampipeRadius(bpRad),
   itsInnerRadius(rInner),
   itsOuterRadius(rOuter),
-  itsBField(aBField)
-
+  itsBField(aBField),
+  itsMagField(NULL),itsFieldMgr(NULL)
 {
   G4double minInnRad =  itsBeampipeRadius + BDSGlobalConstants::Instance()->GetBeampipeThickness() + BDSGlobalConstants::Instance()->GetLengthSafety()/2.0;
   if( itsInnerRadius < minInnRad ){

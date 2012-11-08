@@ -38,6 +38,10 @@ BDSPCLDrift::BDSPCLDrift (G4String aName, G4double aLength,
 			  std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double aperX, G4double aperYUp, G4double aperYDown, G4double aperDy, G4String tunnelMaterial, G4double aper, G4double tunnelRadius, G4double tunnelOffsetX, G4String aMaterial):
   BDSMultipole(aName, aLength, aper, aper, SetVisAttributes(),  blmLocZ, blmLocTheta, tunnelMaterial, aMaterial, aper, aper, 0, tunnelRadius, tunnelOffsetX),
   itsYAperUp(aperYUp), itsYAperDown(aperYDown), itsDyAper(aperDy),
+  outer_solid(NULL),inner_solid(NULL),itsOuterBeamPipeLogicalVolume(NULL),
+  itsInnerBeamPipeLogicalVolume(NULL),itsPhysiInner(NULL),itsPhysiOuter(NULL),
+  itsBeampipeVisAtt(NULL),itsInnerBeampipeVisAtt(NULL),itsBeampipeUserLimits(NULL),
+  itsInnerBeampipeUserLimits(NULL),
   itsStepper(NULL),itsMagField(NULL),itsEqRhs(NULL)
 {
   itsType="pcldrift";

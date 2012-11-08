@@ -38,7 +38,10 @@ BDSRBend::BDSRBend(G4String aName, G4double aLength,
                    G4String aTunnelMaterial, G4String aMaterial):
   BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), blmLocZ, blmLocTheta, aTunnelMaterial, aMaterial,
 	       0, 0, angle),
-  itsStepper(NULL),itsMagField(NULL),itsEqRhs(NULL)
+  markerSolidVolume(NULL),rbendRectangleSolidVolume(NULL),rbendRectangleLogicalVolume(NULL),
+  middleBeampipeLogicalVolume(NULL),middleInnerBPLogicalVolume(NULL),endsBeampipeLogicalVolume(NULL),
+  endsInnerBPLogicalVolume(NULL),endsBeampipeUserLimits(NULL),endsInnerBeampipeUserLimits(NULL),
+  innerBeampipeVisAtt(NULL),beampipeVisAtt(NULL),itsStepper(NULL),itsMagField(NULL),itsEqRhs(NULL)
 {
   SetOuterRadius(outR);
   itsTilt=tilt;

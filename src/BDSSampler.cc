@@ -45,7 +45,8 @@ BDSSampler::BDSSampler (G4String aName,G4double aLength):
   BDSAcceleratorComponent(
 			 aName,
 			 aLength,0,0,0,
-			 SetVisAttributes())
+			 SetVisAttributes()),
+  itsVisAttributes(NULL)
 {
   nThisSampler= nSamplers + 1;
   SetName("Sampler_"+BDSGlobalConstants::Instance()->StringFromInt(nThisSampler)+"_"+itsName);
