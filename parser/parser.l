@@ -113,7 +113,6 @@ include   BEGIN(incl);  //reserved commands
 beam { return BEAM; }
 option { return OPTION; }
 print { return PRINT; }
-echo { return ECHO; }
 "return" { return STOP; }
 stop {return STOP;}
 use { return USE; }
