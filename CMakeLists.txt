@@ -43,7 +43,6 @@ if (USE_AFS AND NOT CLHEP_LIBRARY_DIR)
 endif()
 set(CLHEP_VERSION 9)
 find_package(CLHEP REQUIRED)
-add_definitions("-DCLHEP_VERSION=${CLHEP_VERSION}")
 include_directories(${CLHEP_INCLUDE_DIR})
 
 # ROOT
@@ -126,8 +125,6 @@ set(Geant4_USE_FILE UseGeant4.cmake)
 include(${Geant4_USE_FILE})
 include_directories(${Geant4_INCLUDE_DIR})
 
-GEANT4_COLLATE_APPLICATION_SOURCES(bdsim_sources)
-add_library(bdsim ${bdsim_sources})
 # For now hardcoded, to be fixed!!
 set(G4VERSION 9)
 set(G4MINORVERSION 4)
@@ -154,6 +151,19 @@ set(BDSIM_FLAGS "${CMAKE_FLAGS} ${VIS_FLAGS} -DCLHEP_VERSION=${CLHEP_VERSION} -D
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${BDSIM_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${BDSIM_FLAGS}")
+
+# source files
+GEANT4_COLLATE_APPLICATION_SOURCES(bdsim_sources)
+if(NOT USE_LCDD)
+       list(REMOVE_ITEM bdsim_sources ${CMAKE_CURRENT_SOURCE_DIR}/src/BDSGeometryLCDD.cc)
+endif()
+if(NOT USE_GDML)
+       list(REMOVE_ITEM bdsim_sources ${CMAKE_CURRENT_SOURCE_DIR}/src/BDSGeometryGDML.cc)
+endif()			
+if($ENV{VERBOSE})
+	message(STATUS "bdsim sources ${bdsim_sources}")
+endif()
+add_library(bdsim ${bdsim_sources})
 
 # This module sets up installation:
 include(bdsim_install)
