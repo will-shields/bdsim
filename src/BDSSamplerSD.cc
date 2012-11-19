@@ -47,7 +47,7 @@ BDSSamplerSD::BDSSamplerSD(G4String name, G4String type)
 {
   itsCollectionName="Sampler_"+type;
   collectionName.insert(itsCollectionName);  
-  maxNStepsInSampler=1e4;
+  //  maxNStepsInSampler=1e4;
 }
 
 BDSSamplerSD::~BDSSamplerSD()
@@ -218,7 +218,7 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
 #ifdef DEBUG
       G4cout << "BDSSamplerSD> entries in hits collection after inserting hit: " << SamplerCollection->entries() << G4endl;
 #endif
-      nStepsInSampler=0;
+      //      nStepsInSampler=0;
       return true;
     }
   }

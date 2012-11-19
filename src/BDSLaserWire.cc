@@ -31,7 +31,8 @@ G4double aWavelength, G4ThreeVector aDirection):
     aName,
     aLength,0,0,0,
     SetVisAttributes()),
-  itsVisAttributes(NULL),itsLaserCompton(NULL)
+  itsVisAttributes(NULL),itsLaserCompton(NULL),
+  itsLaserDirection(aDirection),itsLaserWavelength(aWavelength)
 {
   LaserWireLogicalVolume();
   BDSGlobalConstants::Instance()->

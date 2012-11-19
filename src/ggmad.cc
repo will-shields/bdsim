@@ -39,8 +39,8 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
   G4double x1=0, x2=0, y1=0, y2=0;
   G4double phi=0, theta=0, psi=0; // Euler angles - for rotation of components
   G4String material;
-  G4double FieldX, FieldY, FieldZ;
-  FieldX = FieldY = FieldZ = 0.0;
+  // G4double FieldX, FieldY, FieldZ;
+  // FieldX = FieldY = FieldZ = 0.0;
 
   G4Material *theMaterial = theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial());
 

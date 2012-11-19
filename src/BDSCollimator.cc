@@ -36,10 +36,10 @@ BDSCollimator::BDSCollimator (G4String aName,G4double aLength,G4double bpRad,
 			  aLength,bpRad,xAper,yAper,
 			  SetVisAttributes(), blmLocZ, blmLocTheta, aTunnelMaterial),
   itsPhysiComp(NULL), itsPhysiComp2(NULL), itsSolidLogVol(NULL), itsTempSolidLogVol(NULL),
-  itsInnerLogVol(NULL), itsOuterSolid(NULL), itsSolid(NULL), itsSoilTube(NULL), itsTunnelTube(NULL), 
-  itsInnerTunnelTube(NULL), itsInnerTunnelLogicalVolume(NULL), itsSoilTunnelLogicalVolume(NULL),
-  itsTunnelUserLimits(NULL), itsSoilTunnelUserLimits(NULL), itsInnerTunnelUserLimits(NULL),
-  itsUserLimits(NULL), itsVisAttributes(NULL), itsEqRhs(NULL),
+  itsInnerLogVol(NULL), itsInnerSolid(NULL), itsOuterSolid(NULL), itsSolid(NULL), itsSoilTube(NULL),
+  itsTunnelTube(NULL),  itsInnerTunnelTube(NULL), itsInnerTunnelLogicalVolume(NULL),
+  itsSoilTunnelLogicalVolume(NULL), itsTunnelUserLimits(NULL), itsSoilTunnelUserLimits(NULL),
+  itsInnerTunnelUserLimits(NULL), itsUserLimits(NULL), itsVisAttributes(NULL), itsEqRhs(NULL),
   itsCollimatorMaterial(CollimatorMaterial), itsOuterR(outR)
 {
   if(type==_RCOL) itsType="rcol";
@@ -75,7 +75,7 @@ BDSCollimator::BDSCollimator (G4String aName,G4double aLength,G4double bpRad,
       G4VisAttributes* VisAtt1 =
 	new G4VisAttributes(G4Colour(0., 0., 0.));
       VisAtt1->SetForceSolid(true);
-      itsInnerLogVol->SetVisAttributes(VisAtt1);
+      if (itsInnerLogVol) itsInnerLogVol->SetVisAttributes(VisAtt1);
       
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;

@@ -12,7 +12,7 @@ G4double GetNearestValue(vector<struct XYFieldRecord> fieldValues, G4double x, G
 			 G4double &bx,G4double &by, G4double &bz);
 
 BDSXYMagField::BDSXYMagField(G4String fname) :
-  Bx(NULL), By(NULL), Bz(NULL), nX(0), nY(0), itsFileName(fname)
+  Bx(NULL), By(NULL), Bz(NULL), xHalf(0.0), yHalf(0.0), nX(0), nY(0), itsFileName(fname)
 {
 }
 
@@ -109,8 +109,8 @@ void BDSXYMagField::Prepare(G4VPhysicalVolume *referenceVolume)
 
   //determine mesh step - minimum distance between measurement points
   
-  double hx=xmax, hxold=xmax, hxmax=0;
-  double hy=ymax, hyold=ymax, hymax=0;
+  double hx=xmax, hxold=xmax; //, hxmax=0;
+  double hy=ymax, hyold=ymax; //, hymax=0;
 
   xHalf = xmax / 2;
   yHalf = ymax / 2;
@@ -132,7 +132,7 @@ void BDSXYMagField::Prepare(G4VPhysicalVolume *referenceVolume)
 	}
     }
   
-  hxmax = hx; hymax = hy;
+  //  hxmax = hx; hymax = hy;
 
   G4cout<<"h ="<<hx<<":"<<hy<<":"<<G4endl;
   G4cout<<"xmax ="<<xmax<<":"<<ymax<<":"<<G4endl;

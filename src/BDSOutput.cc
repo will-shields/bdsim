@@ -272,7 +272,7 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
 G4int BDSOutput::WriteTrajectory(std::vector<G4VTrajectory*> TrajVec){
   //  G4cout<<"a trajectory stored..."<<G4endl;
   
-  G4int tID;
+  //  G4int tID;
   G4TrajectoryPoint* TrajPoint;
   G4ThreeVector TrajPos;
   
@@ -295,7 +295,7 @@ G4int BDSOutput::WriteTrajectory(std::vector<G4VTrajectory*> TrajVec){
 	{
 	  G4Trajectory* Traj=(G4Trajectory*)(*iT);
 	  
-	  tID=Traj->GetTrackID();	      
+	  //	  tID=Traj->GetTrackID();	      
 	  part = Traj->GetPDGEncoding();
 	  
 	  for(G4int j=0; j<Traj->GetPointEntries(); j++)
@@ -325,7 +325,7 @@ G4int BDSOutput::WriteTrajectory(TrajectoryVector* TrajVec)
 {
 //  G4cout<<"a trajectory stored..."<<G4endl;
   
-  G4int tID;
+//  G4int tID;
   G4TrajectoryPoint* TrajPoint;
   G4ThreeVector TrajPos;
 
@@ -348,7 +348,7 @@ G4int BDSOutput::WriteTrajectory(TrajectoryVector* TrajVec)
 	{
 	  G4Trajectory* Traj=(G4Trajectory*)(*iT);
 	  
-	  tID=Traj->GetTrackID();	      
+	  //	  tID=Traj->GetTrackID();	      
 	  part = Traj->GetPDGEncoding();
 	  
 	  for(G4int j=0; j<Traj->GetPointEntries(); j++)
