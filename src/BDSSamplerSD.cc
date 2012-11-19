@@ -42,7 +42,8 @@ extern G4double
 
 
 BDSSamplerSD::BDSSamplerSD(G4String name, G4String type)
-  :G4VSensitiveDetector(name),StoreHit(true),itsType(type)
+  :G4VSensitiveDetector(name),SamplerCollection(NULL),StepperNavigator(NULL),
+   StoreHit(true),itsType(type)
 {
   itsCollectionName="Sampler_"+type;
   collectionName.insert(itsCollectionName);  

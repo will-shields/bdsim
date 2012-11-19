@@ -44,7 +44,8 @@ BDSDump::BDSDump (G4String aName,G4double aLength, G4String aTunnelMaterial):
   BDSAcceleratorComponent(
 			 aName,
 			 aLength,0,0,0,
-			 SetVisAttributes(), aTunnelMaterial)
+			 SetVisAttributes(), aTunnelMaterial),
+  itsVisAttributes(NULL)
 {
   SetName("Dump_"+BDSGlobalConstants::Instance()->StringFromInt(nDumps)+"_"+itsName);
   DumpLogicalVolume();

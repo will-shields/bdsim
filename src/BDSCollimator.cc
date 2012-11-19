@@ -35,6 +35,11 @@ BDSCollimator::BDSCollimator (G4String aName,G4double aLength,G4double bpRad,
   BDSAcceleratorComponent(aName,
 			  aLength,bpRad,xAper,yAper,
 			  SetVisAttributes(), blmLocZ, blmLocTheta, aTunnelMaterial),
+  itsPhysiComp(NULL), itsPhysiComp2(NULL), itsSolidLogVol(NULL), itsTempSolidLogVol(NULL),
+  itsInnerLogVol(NULL), itsOuterSolid(NULL), itsSolid(NULL), itsSoilTube(NULL), itsTunnelTube(NULL), 
+  itsInnerTunnelTube(NULL), itsInnerTunnelLogicalVolume(NULL), itsSoilTunnelLogicalVolume(NULL),
+  itsTunnelUserLimits(NULL), itsSoilTunnelUserLimits(NULL), itsInnerTunnelUserLimits(NULL),
+  itsUserLimits(NULL), itsVisAttributes(NULL), itsEqRhs(NULL),
   itsCollimatorMaterial(CollimatorMaterial), itsOuterR(outR)
 {
   if(type==_RCOL) itsType="rcol";
@@ -44,34 +49,34 @@ BDSCollimator::BDSCollimator (G4String aName,G4double aLength,G4double bpRad,
 
   if ( (*LogVolCount)[itsName]==0)
     {
-  G4double xLength, yLength;
-  xLength = yLength = std::max(itsOuterR,BDSGlobalConstants::Instance()->GetComponentBoxSize()/2);
-
-  xLength = std::max(xLength, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness() + 4*BDSGlobalConstants::Instance()->GetLengthSafety() );   
-  yLength = std::max(yLength, this->GetTunnelRadius()+2*std::abs(BDSGlobalConstants::Instance()->GetTunnelOffsetY()) + BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness()+4*BDSGlobalConstants::Instance()->GetLengthSafety() );
-
-  itsMarkerLogicalVolume=new G4LogicalVolume
-    (new G4Box( itsName+"_marker_log",
-                xLength,
-		yLength,
-		(itsLength+BDSGlobalConstants::Instance()->GetLengthSafety())/2), //z half length 
-     theMaterials->GetMaterial("vacuum"),
-     itsName+"_log");
-
+      G4double xLength, yLength;
+      xLength = yLength = std::max(itsOuterR,BDSGlobalConstants::Instance()->GetComponentBoxSize()/2);
+      
+      xLength = std::max(xLength, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness() + 4*BDSGlobalConstants::Instance()->GetLengthSafety() );   
+      yLength = std::max(yLength, this->GetTunnelRadius()+2*std::abs(BDSGlobalConstants::Instance()->GetTunnelOffsetY()) + BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness()+4*BDSGlobalConstants::Instance()->GetLengthSafety() );
+      
+      itsMarkerLogicalVolume=new G4LogicalVolume
+	(new G4Box( itsName+"_marker_log",
+		    xLength,
+		    yLength,
+		    (itsLength+BDSGlobalConstants::Instance()->GetLengthSafety())/2), //z half length 
+	 theMaterials->GetMaterial("vacuum"),
+	 itsName+"_log");
+      
       if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
-        BuildTunnel();
+	BuildTunnel();
       }
       BuildInnerCollimator();
       BuildBLMs();
-
+      
       itsSolidLogVol->SetVisAttributes(SetVisAttributes());
-
+      
       // visual attributes
       G4VisAttributes* VisAtt1 =
-        new G4VisAttributes(G4Colour(0., 0., 0.));
+	new G4VisAttributes(G4Colour(0., 0., 0.));
       VisAtt1->SetForceSolid(true);
       itsInnerLogVol->SetVisAttributes(VisAtt1);
-
+      
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
     }

@@ -67,7 +67,8 @@ BDSElement::BDSElement(G4String aName, G4String geometry, G4String bmap,
 			  aName,
 			  aLength,bpRad,0,0,
 			  SetVisAttributes(), aTunnelMaterial, "", 0., 0., 0., 0., aTunnelRadius*m, aTunnelOffsetX*m, aTunnelCavityMaterial, aPrecisionRegion),
-  itsField(NULL), itsMagField(NULL)
+  fChordFinder(NULL), itsFStepper(NULL), itsFEquation(NULL), itsEqRhs(NULL), 
+  itsField(NULL), itsMagField(NULL), itsUniformMagField(NULL)
 {
   itsFieldVolName="";
   itsFieldIsUniform=false;
@@ -78,7 +79,7 @@ BDSElement::BDSElement(G4String aName, G4String geometry, G4String bmap,
   CalculateLengths();
 
   // WARNING: ALign in and out will only apply to the first instance of the
-  //          element. Subsequent copies will have no alignement set.
+  //          element. Subsequent copies will have no alignment set.
   align_in_volume = NULL;
   align_out_volume = NULL;
 

@@ -15,7 +15,6 @@
 class BDSEnergyCounterHit :public G4VHit
 {
   public:
-  BDSEnergyCounterHit();
   BDSEnergyCounterHit(G4int nCopy, G4double Energy=0, G4double x=0, G4double y=0, G4double z=0, G4String name="", G4int partID=0, G4double weight=1, G4bool precisionRegion=false);
 
   ~BDSEnergyCounterHit();
@@ -52,11 +51,10 @@ private:
   G4double itsY;
   G4double itsZ;
   G4double itsWeight;
-  //   G4String itsName
   G4int itsCopyNumber;
   G4int itsPartID;
   G4String itsName;
-  G4bool itsPrecisionRegion; //Wether or not the hit is in the precision region
+  G4bool itsPrecisionRegion; //Whether or not the hit is in the precision region
 };
 
 inline G4double BDSEnergyCounterHit::GetEnergy()

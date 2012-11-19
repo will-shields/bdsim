@@ -26,7 +26,8 @@ BDSGlobalConstants* BDSGlobalConstants::Instance(){
   return _instance;
 }
 
-BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
+BDSGlobalConstants::BDSGlobalConstants(struct Options& opt):
+  log(NULL), itsBeamParticleDefinition(NULL)
 {
   //environment variables
   itsBDSIMHOME=(G4String)getEnv("BDSIMHOME");

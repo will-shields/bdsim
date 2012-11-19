@@ -153,7 +153,11 @@ bool debug = false;
 
 
 
-BDSDetectorConstruction::BDSDetectorConstruction()
+BDSDetectorConstruction::BDSDetectorConstruction():
+  itsGeometrySampler(NULL),precisionRegion(NULL),gasRegion(NULL),
+  solidWorld(NULL),logicWorld(NULL),physiWorld(NULL),
+  magField(NULL),BDSUserLimits(NULL),BDSSensitiveDetector(NULL),
+  itsIStore(NULL)
 {  // create commands for interactive definition of the beamline  
   G4double pi_ov_2 = asin(1.);
 

@@ -85,10 +85,10 @@ extern G4int nptwiss;
 
 BDSSteppingAction::BDSSteppingAction()
 { 
-  //  itsZposTolerance=1.e-11*m;
-  itsZposTolerance=1.e-4*m;
-  itsPosKick=1.e-11*m;
-  itsNmax=10000;
+  //  //  itsZposTolerance=1.e-11*m;
+  //  itsZposTolerance=1.e-4*m;
+  //  itsPosKick=1.e-11*m;
+  //  itsNmax=10000;
   postponedEnergy=0;
   SetTrackLength(0);
   SetTrackLengthInWorldRegion(0);

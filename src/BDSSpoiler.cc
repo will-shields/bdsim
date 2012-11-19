@@ -36,6 +36,8 @@ BDSSpoiler::BDSSpoiler (G4String& aName,G4double aLength,G4double bpRad,
   BDSAcceleratorComponent(aName,
 			 aLength,bpRad,xAper,yAper,
 			 SetVisAttributes()),
+  itsPhysiComp(NULL), itsPhysiComp2(NULL), itsSolidLogVol(NULL), 
+  itsInnerLogVol(NULL), itsVisAttributes(NULL), itsEqRhs(NULL), 
   itsSpoilerMaterial(SpoilerMaterial)
 {
   

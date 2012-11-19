@@ -50,7 +50,7 @@
 #include "G4DynamicParticle.hh"
 
 
-BDSConvParticleChange::BDSConvParticleChange():G4VParticleChange()
+BDSConvParticleChange::BDSConvParticleChange():G4VParticleChange(),theCurrentTrack(NULL)
 {
   // gab set flag so that secondaries can have different weights from
   // their parents
@@ -82,6 +82,8 @@ BDSConvParticleChange::BDSConvParticleChange(const BDSConvParticleChange &right)
    theChargeChange = right.theChargeChange;
    theWeightChange = right.theWeightChange;
    theProperTimeChange = right.theProperTimeChange;
+   theCurrentTrack = right.theCurrentTrack;
+   theMuonWeight = right.theMuonWeight;
 }
 
 // assignemnt operator

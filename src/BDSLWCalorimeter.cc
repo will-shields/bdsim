@@ -41,7 +41,9 @@ BDSLWCalorimeter::BDSLWCalorimeter (G4String& aName,G4double aLength,
   BDSAcceleratorComponent(
 			 aName,
 			 aLength,aBpRad,0,0,
-			 SetVisAttributes(),aTunnelMaterial)
+			 SetVisAttributes(),aTunnelMaterial),
+  itsBPFieldMgr(NULL),
+  itsVisAttributes(NULL)
 {
   LWCalorimeterLogicalVolume();
   BuildCal(aLength);

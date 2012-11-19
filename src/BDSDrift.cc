@@ -31,7 +31,7 @@ extern BDSMaterials* theMaterials;
 BDSDrift::BDSDrift (G4String aName, G4double aLength, 
                     std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double aperX, G4double aperY, G4String tunnelMaterial, G4bool aperset, G4double aper, G4double tunnelOffsetX, G4double phiAngleIn, G4double phiAngleOut):
   BDSMultipole(aName, aLength, aper, aper, SetVisAttributes(),  blmLocZ, blmLocTheta, tunnelMaterial, "", aperX, aperY, 0, 0, tunnelOffsetX, phiAngleIn, phiAngleOut),
-  itsStepper(NULL),itsMagField(NULL),itsEqRhs(NULL)
+  itsStartOuterR(0.0),itsEndOuterR(0.0),itsStepper(NULL),itsMagField(NULL),itsEqRhs(NULL)
 {
   if(!aperset){
     itsStartOuterR=aperX + BDSGlobalConstants::Instance()->GetBeampipeThickness();
@@ -107,7 +107,7 @@ void BDSDrift::BuildBpFieldAndStepper(){
 
 void BDSDrift::BuildBLMs(){
   itsBlmLocationR = std::max(itsStartOuterR, itsEndOuterR) - itsBpRadius;
-  BDSAcceleratorComponent::BuildBLMs();
+  BDSAcceleratorComponent::BuildBLMs(); // resets itsBlmLocationR! -- JS
 }
 
 BDSDrift::~BDSDrift()

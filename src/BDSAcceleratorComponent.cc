@@ -516,7 +516,7 @@ void BDSAcceleratorComponent::BuildBLMs()
    itsBlmLocationR = itsBlmLocationR + BDSGlobalConstants::Instance()->GetBlmRad() + BDSGlobalConstants::Instance()->GetLengthSafety() +itsBpRadius + blmCaseThickness;
    
 #ifdef DEBUG
-   G4cout << "BDSAccleratorComponent::BuildBLMs() itsBlmLocationRadius = " << itsBlmLocationR/mm << " mm" << G4endl;
+   G4cout << "BDSAcceleratorComponent::BuildBLMs() itsBlmLocationRadius = " << itsBlmLocationR/mm << " mm" << G4endl;
 #endif
    
    G4double localLength;

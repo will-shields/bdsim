@@ -61,7 +61,7 @@ private:
   
   G4double itsVolLength;
   
-  G4double *yt, *dydx, *dydxt, *dydxm, *dydxr, *yTemp, *yIn;
+  G4double *yt, *dydxt, *dydxm, *yTemp, *yIn;
 
 };
 

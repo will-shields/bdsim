@@ -7,7 +7,7 @@
 #include "globals.hh"
 #include "BDSSpline.hh"
 //---------------
-BDSSpline::BDSSpline(G4int nIn):n(nIn)
+BDSSpline::BDSSpline(G4int nIn):n(nIn),xscal(0),yscal(0)
 {
   G4int i;
   u=vDbl(n);

@@ -30,7 +30,8 @@ extern G4bool verbose;
 
 
 BDSEnergyCounterSD::BDSEnergyCounterSD(G4String name)
-:G4VSensitiveDetector(name)
+  :G4VSensitiveDetector(name),BDSEnergyCounterCollection(NULL),
+   enrg(0.0),xpos(0.0),ypos(0.0),zpos(0.0)
 {
   itsName = name;
   collectionName.insert("EC_"+name);
@@ -39,7 +40,9 @@ BDSEnergyCounterSD::BDSEnergyCounterSD(G4String name)
 }
 
 BDSEnergyCounterSD::~BDSEnergyCounterSD()
-{delete [] HitID;}
+{
+  delete [] HitID;
+}
 
 void BDSEnergyCounterSD::Initialize(G4HCofThisEvent*)
 {

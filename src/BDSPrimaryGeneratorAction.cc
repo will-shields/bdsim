@@ -43,7 +43,7 @@ G4double
 
 BDSPrimaryGeneratorAction::BDSPrimaryGeneratorAction(
 					      BDSDetectorConstruction* BDSDC)
-:BDSDetector(BDSDC)
+  :BDSDetector(BDSDC), itsBDSSynchrotronRadiation(NULL)
 {
  
   particleGun  = new G4ParticleGun(1); // 1-particle gun
@@ -92,6 +92,7 @@ BDSPrimaryGeneratorAction::BDSPrimaryGeneratorAction(
 BDSPrimaryGeneratorAction::~BDSPrimaryGeneratorAction()
 {
   delete particleGun;
+  delete itsBDSSynchrotronRadiation;
 }
 
 //===================================================

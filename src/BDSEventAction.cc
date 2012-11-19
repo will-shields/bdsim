@@ -86,9 +86,10 @@ extern G4int nptwiss;
 
 //======================================================
 
-BDSEventAction::BDSEventAction()
-:SamplerCollID_plane(-1),SamplerCollID_cylin(-1),
-LWCalorimeterCollID(-1),drawFlag("all")
+BDSEventAction::BDSEventAction():
+  SamplerCollID_plane(-1),SamplerCollID_cylin(-1),
+  LWCalorimeterCollID(-1),drawFlag("all"),
+  Traj(NULL),trajEndPoint(NULL)
 { 
   if(isBatch) printModulo=10;
   else printModulo=1;

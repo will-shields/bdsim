@@ -18,7 +18,7 @@
 class BDSSamplerHit :public G4VHit
 {
 public:
-  BDSSamplerHit();
+  //BDSSamplerHit();
   BDSSamplerHit(G4String aName,
 		G4double init_mom,
 		G4double init_x, G4double init_xPrime, 

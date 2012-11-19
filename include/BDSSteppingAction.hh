@@ -42,13 +42,13 @@ public:
   G4double  GetTrackLength();
 
 private:
-  G4double itsTrackWeight;
-  G4double itsInverseTrackWeight;
+  //  G4double itsTrackWeight;
+  //  G4double itsInverseTrackWeight;
 
-  G4int itsLastTrackID,itsNtry,itsNmax;
-  G4double itsLastZpos;
-  G4double itsZposTolerance;
-  G4double itsPosKick;
+  //  G4int itsLastTrackID,itsNtry,itsNmax;
+  //  G4double itsLastZpos;
+  //  G4double itsZposTolerance;
+  //  G4double itsPosKick;
   G4double postponedEnergy;
 
   G4double trackLengthInWorldRegion;

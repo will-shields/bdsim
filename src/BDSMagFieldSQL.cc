@@ -47,9 +47,9 @@ BDSMagFieldSQL::BDSMagFieldSQL(const G4String& aFieldFile,
 			       std::map<G4String, G4double> aSextVolBgrad,
 			       std::map<G4String, G4double> aOctVolBgrad,
 			       std::map<G4String, G4ThreeVector> aUniformFieldVolField, G4bool aHasNPoleFields, G4bool aHasUniformField)
-  :itsHasNPoleFields(aHasNPoleFields),itsHasUniformField(aHasUniformField),ifs(aFieldFile.c_str()),
+  :itsHasNPoleFields(aHasNPoleFields),itsHasUniformField(aHasUniformField),itsHasFieldMap(false),ifs(aFieldFile.c_str()),
    itsMarkerLength(aMarkerLength), FieldFile(aFieldFile), itsUniformFieldVolField(aUniformFieldVolField),
-   itsQuadVolBgrad(aQuadVolBgrad), itsSextVolBgrad(aSextVolBgrad), itsOctVolBgrad(aOctVolBgrad)
+   itsQuadVolBgrad(aQuadVolBgrad), itsSextVolBgrad(aSextVolBgrad), itsOctVolBgrad(aOctVolBgrad), itsdz(0.0)
 {
   //Define alternate navigator (see geant4 application developers manual section 4.1.8.2)
   itsIRNavigator=new G4Navigator();

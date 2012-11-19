@@ -33,6 +33,7 @@ public:
 private:
   vTab tab;
   vDbl u;
+  /// nr of points, x/y scale linear (0) or logarithmic (1)
   G4int n,xscal,yscal;
 };
 

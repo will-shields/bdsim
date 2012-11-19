@@ -34,32 +34,39 @@ BDSEnergyCounterHit::  BDSEnergyCounterHit(G4int nCopy, G4double Energy, G4doubl
   */
 }
 
-
-BDSEnergyCounterHit::BDSEnergyCounterHit()
-{;}
-
-
 BDSEnergyCounterHit::~BDSEnergyCounterHit()
 {;}
 
 BDSEnergyCounterHit::BDSEnergyCounterHit(const BDSEnergyCounterHit &right):G4VHit()
 {
   itsEnergy = right.itsEnergy;
-  itsCopyNumber = right.itsCopyNumber;
-  itsName = right.itsName;
+  itsEnergyWeightedX = right.itsEnergyWeightedX;
+  itsEnergyWeightedY = right.itsEnergyWeightedY;
+  itsEnergyWeightedZ = right.itsEnergyWeightedZ;
   itsX = right.itsX;
   itsY = right.itsY;
   itsZ = right.itsZ;
+  itsWeight = right.itsWeight;
+  itsCopyNumber = right.itsCopyNumber;
+  itsPartID = right.itsPartID;
+  itsName = right.itsName;
+  itsPrecisionRegion = right.itsPrecisionRegion;
 }
 
 const BDSEnergyCounterHit& BDSEnergyCounterHit::operator=(const BDSEnergyCounterHit &right)
 {
   itsEnergy = right.itsEnergy;
-  itsCopyNumber = right.itsCopyNumber;
-  itsName = right.itsName;
+  itsEnergyWeightedX = right.itsEnergyWeightedX;
+  itsEnergyWeightedY = right.itsEnergyWeightedY;
+  itsEnergyWeightedZ = right.itsEnergyWeightedZ;
   itsX = right.itsX;
   itsY = right.itsY;
   itsZ = right.itsZ;
+  itsWeight = right.itsWeight;
+  itsCopyNumber = right.itsCopyNumber;
+  itsPartID = right.itsPartID;
+  itsName = right.itsName;
+  itsPrecisionRegion = right.itsPrecisionRegion;
   return *this;
 }
 
