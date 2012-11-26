@@ -145,7 +145,7 @@ struct Options {
   double tunnelOffsetX;
   double tunnelOffsetY;
   double samplerDiameter;
-   double tunnelThickness;
+  double tunnelThickness;
   double tunnelSoilThickness;
   double tunnelFloorOffset;
   

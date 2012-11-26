@@ -119,7 +119,7 @@ void print(struct Parameters params)
 {
   printf("printing parameters:\n");
   std::list<double>::iterator it;
-  for(it = params.knl.begin();it!=params.knl.end();it++)
+  for(it = params.knl.begin();it!=params.knl.end();++it)
     printf(" %f ", (*it));
   printf("\n");
 };

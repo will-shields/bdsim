@@ -11,9 +11,9 @@ Last modified 23.10.2007 by Steve Malton
 #include "G4ParticleDefinition.hh"
 #include <cstdlib>
 #include <assert.h>
-#include<string>
-#include<stack>
-#include<cmath>
+#include <string>
+#include <stack>
+#include <cmath>
 
 using namespace std;
 

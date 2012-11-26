@@ -151,9 +151,6 @@ void BDSAcceleratorComponent::BuildTunnel()
   G4Material *soilMaterial=theMaterials->GetMaterial(soilMaterialName);
 
 
-
-   
-
 #ifdef DEBUG
   G4cout << "Soil :"
          << " r= " << (itsTunnelRadius+BDSGlobalConstants::Instance()->GetTunnelThickness())/m + BDSGlobalConstants::Instance()->GetTunnelSoilThickness()/m<< " m"
@@ -558,8 +555,8 @@ void BDSAcceleratorComponent::BuildBLMs()
      
 #ifdef DEBUG
      if((*zit*1000) < 0){
-       G4cout << "itsLength is: " << itsLength << endl;
-       G4cout << "z position defined is: " << (*zit*1000) << endl;
+       G4cout << "itsLength is: " << itsLength << G4endl;
+       G4cout << "z position defined is: " << (*zit*1000) << G4endl;
      }
 #endif
      

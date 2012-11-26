@@ -58,8 +58,6 @@ public:
 
   void ConstructHadronic();
   
-  // method not finished? (and not used) 
-  // I comment it out for now -- J. Snuverink, 16/07/12 
   // void ConstructPhotolepton_Hadron();
 
   void ConstructHad();

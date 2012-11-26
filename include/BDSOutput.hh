@@ -71,7 +71,7 @@ public:
   std::vector <G4String> CSampName;
 private:
   G4int format;
-  ofstream of;
+  std::ofstream of;
   int outputFileNumber;
 
 //#ifdef USE_ROOT
