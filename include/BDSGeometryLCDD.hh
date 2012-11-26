@@ -51,8 +51,6 @@
 
 extern BDSMaterials* theMaterials;
 
-//using namespace std;
-
 class BDSClassicalRK4;
 
 struct POS_REF{

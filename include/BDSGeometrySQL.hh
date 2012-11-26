@@ -32,8 +32,6 @@
 #include <vector>
 #include "BDSMagFieldSQL.hh"
 
-//using namespace std;
-
 class BDSClassicalRK4;
 
 class BDSGeometrySQL

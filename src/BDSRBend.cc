@@ -58,7 +58,7 @@ BDSRBend::BDSRBend(G4String aName, G4double aLength,
 				 + fabs(cos(itsAngle/2))*outR*tan(itsAngle/2)/2)
 				);
   
-  std::cout << "BDSRBend>> rbend itsMagFieldLength = " << itsMagFieldLength << std::endl;   
+  G4cout << "BDSRBend>> rbend itsMagFieldLength = " << itsMagFieldLength << G4endl;
 
   if (!(*LogVolCount)[itsName])
     {

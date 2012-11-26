@@ -1652,12 +1652,12 @@ void BDSPhysicsList::AddParameterisation()
     new G4FastSimulationManagerProcess();
   G4cout << "FastSimulationManagerProcess" <<G4endl;
   theParticleIterator->reset();
-  //std::cout<<"---"<<std::endl;                                                                                                                                              
+  //G4cout<<"---"<<G4endl;                                                                                                                                              
   while( (*theParticleIterator)() ){
-    //std::cout<<"+++"<<std::endl;                                                                                                                                            
+    //G4cout<<"+++"<<G4endl;                                                                                                                                            
 
     G4ParticleDefinition* particle = theParticleIterator->value();
-    // std::cout<<"--- particle "<<particle->GetParticleName()<<std::endl;                                                                                                    
+    // G4cout<<"--- particle "<<particle->GetParticleName()<<G4endl;                                                                                                    
     G4ProcessManager* pmanager = particle->GetProcessManager();
     // The fast simulation process becomes a discrete process only since 9.0:                                                                                                 
     pmanager->AddDiscreteProcess(theFastSimulationManagerProcess);

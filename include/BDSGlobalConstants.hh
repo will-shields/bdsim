@@ -12,7 +12,7 @@ Last modified 30.10.2007 by Steve Malton
 #include <fstream>
 #include <string>
 #include <set>
-#include <list>
+//#include <list>
 #include <deque>
 
 #include "G4ParticleTable.hh"
@@ -26,12 +26,6 @@ Last modified 30.10.2007 by Steve Malton
 //#include "G4Track.hh"
 
 #include "parser/gmad.h"
-
-using std::istream;
-using std::ostream;
-using std::ifstream;
-using std::ofstream;
-using std::list;
 
 struct strCmp {
   G4bool operator()( const G4String s1, const G4String s2 ) {
@@ -83,8 +77,8 @@ public:
   G4double GetMaxTime();
   G4double GetDeltaOneStep();
 
-  void SetLogFile(ofstream & os);
-  void StripHeader(istream& is);
+  void SetLogFile(std::ofstream & os);
+  void StripHeader(std::istream& is);
 
   G4String StringFromInt(G4int anInt);
   G4String StringFromDigit(G4int anInt);
@@ -220,7 +214,7 @@ public:
 
   G4double GetLengthSafety();
 
-  ofstream GetEventOutput();
+  std::ofstream GetEventOutput();
 
   G4long GetRandomSeed();
   G4bool GetUseBatch();
@@ -264,7 +258,7 @@ public:
   void SetRefTransform(G4AffineTransform& aTransform);
 
   // SPM : temp filestream for placet to read and write
-  ofstream fileDump;
+  std::ofstream fileDump;
   // ifstream fileRead; replaced with FILE* fifo in code for consistency with Placet. SPM
 
   std::deque<tmpParticle> holdingQueue;
@@ -290,8 +284,8 @@ private:
   //PI
   G4double PI;
   // Data Members for Class Attributes
-  ifstream ifs;
-  ostream* log;
+  std::ifstream ifs;
+  std::ostream* log;
   // initial bunch parameters
   G4String itsParticleName;
   G4ParticleDefinition* itsBeamParticleDefinition;
@@ -452,7 +446,7 @@ inline G4double BDSGlobalConstants::GetDeltaOneStep()
   return itsDeltaOneStep;
 }
 
-inline void BDSGlobalConstants::SetLogFile(ofstream & os)
+inline void BDSGlobalConstants::SetLogFile(std::ofstream & os)
 {
   log=&os;
 }

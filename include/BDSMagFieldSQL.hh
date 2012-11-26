@@ -20,8 +20,6 @@
 #include <list>
 #include <map>
 
-//using namespace std;
-
 class BDSMagFieldSQL : public BDSMagField
 {
 public:  // with description

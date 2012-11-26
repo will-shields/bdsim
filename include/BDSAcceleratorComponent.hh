@@ -45,8 +45,6 @@
 
 #include <vector> 
 
-//using namespace std;
-
 class BDSAcceleratorComponent 
 {
 public:
