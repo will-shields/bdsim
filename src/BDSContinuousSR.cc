@@ -9,8 +9,7 @@ Last modified 15.11.2005 by Ilya Agapov
 //  Synchrotron radiation energy loss process
 //
 
-
-
+#include <list>
 
 #include "BDSGlobalConstants.hh" 
 #include "BDSContinuousSR.hh"
@@ -22,7 +21,7 @@ Last modified 15.11.2005 by Ilya Agapov
 
 extern G4int event_number;
 
-typedef list<BDSAcceleratorComponent*>  BDSBeamline;
+typedef std::list<BDSAcceleratorComponent*>  BDSBeamline;
 extern BDSBeamline theBeamline;
 
 

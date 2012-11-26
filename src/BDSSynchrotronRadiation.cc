@@ -29,7 +29,7 @@
 
 extern G4int event_number;
 
-typedef list<BDSAcceleratorComponent*>  BDSBeamline;
+typedef std::list<BDSAcceleratorComponent*>  BDSBeamline;
 extern BDSBeamline theBeamline;
 
 BDSSynchrotronRadiation::BDSSynchrotronRadiation(const G4String& processName)

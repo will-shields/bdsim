@@ -63,14 +63,12 @@
 #include "parser/gmad.h"  // GMAD parser
 
 
-
-
 //=======================================================
 
 // Print program usage
 static void usage()
 {
-  G4cout<<"bdsim : version 0.5-dev build _UNKNOWN_BUILD_DATE_"<<G4endl;
+  G4cout<<"bdsim : version 0.6.0"<<G4endl;
   G4cout<<"        (C) 2001-2012 Royal Holloway University London"<<G4endl;
   G4cout<<"        http://www.pp.rhul.ac.uk/twiki/bin/view/JAI/simulation"<<G4endl;
   G4cout<<G4endl;
@@ -82,7 +80,7 @@ static void usage()
 	<<"--outfile=<file>      : output file name. Will be appended with _N"<<G4endl
         <<"                        where N = 0, 1, 2, 3... etc."<<G4endl
 	<<"--vis_mac=<file>      : file with the visualization macro script, default vis.mac"<<G4endl
-	<<"--gflash=N            : wether or not to turn on gFlash fast shower parameterisation. Default 0."<<G4endl
+	<<"--gflash=N            : whether or not to turn on gFlash fast shower parameterisation. Default 0."<<G4endl
 	<<"--gflashemax=N            : maximum energy for gflash shower parameterisation in GeV. Default 10000."<<G4endl
 	<<"--gflashemin=N            : minimum energy for gflash shower parameterisation in GeV. Default 0.1."<<G4endl
 	<<"--help                : display this message"<<G4endl
@@ -95,8 +93,6 @@ static void usage()
 	<<"--outline_type=<fmt>  : type of outline format"<<G4endl
 	<<"                        where fmt = optics | survey"<<G4endl
 	<<"--materials           : list materials included in bdsim by default"<<G4endl;
-
-
 }
 
 
@@ -303,8 +299,8 @@ int main(int argc,char** argv) {
 	    return 1;
 	  }
 	break;
-      case -1:
-	break;
+      // case -1:
+      // 	break;
       default:
 	break;
       }
@@ -366,7 +362,7 @@ int main(int argc,char** argv) {
 #ifdef DEBUG
   G4cout << "Initialising random number generator." << G4endl;
 #endif  
-  HepRandom::setTheEngine(new RanecuEngine);
+  CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine);
 
   long seed;
 
@@ -379,13 +375,13 @@ int main(int argc,char** argv) {
     seed = time(NULL);
   
   // set the seed
-  HepRandom::setTheSeed(seed);
+  CLHEP::HepRandom::setTheSeed(seed);
 
 #ifdef DEBUG
   G4cout<<"Seed from BDSGlobalConstants="<<BDSGlobalConstants::Instance()->GetRandomSeed()<<G4endl;
 #endif
 
-  G4cout<<"Random number generator's seed="<<HepRandom::getTheSeed()<<G4endl;
+  G4cout<<"Random number generator's seed="<<CLHEP::HepRandom::getTheSeed()<<G4endl;
 
 
   //

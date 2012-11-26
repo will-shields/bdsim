@@ -24,7 +24,6 @@
 #include <vector>
 
 
-
 class BDSEventAction : public G4UserEventAction
 {
 public:
@@ -55,8 +54,8 @@ private:
   std::vector<G4VTrajectory*> interestingTrajectories;
   
 
-  list<BDSAcceleratorComponent*>::const_iterator iBeam;
-  list<BDSEnergyCounterSD*>::const_iterator iEC;
+  std::list<BDSAcceleratorComponent*>::const_iterator iBeam;
+  std::list<BDSEnergyCounterSD*>::const_iterator iEC;
 
   BDSAcceleratorComponent* LastComp;
   

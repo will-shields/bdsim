@@ -17,6 +17,10 @@
 //
 //
 
+#include <list>
+#include <sstream>
+#include <string>
+
 #include "BDSGlobalConstants.hh" 
 
 #include "BDSAcceleratorComponent.hh"
@@ -37,7 +41,6 @@
 #include "G4UnionSolid.hh"
 #include "G4AssemblyVolume.hh"
 #include "G4Transform3D.hh"
-#include <sstream>
 
 extern BDSMaterials* theMaterials;
 extern G4RotationMatrix* RotY90;
@@ -535,15 +538,15 @@ void BDSAcceleratorComponent::BuildBLMs()
    }
    
    G4int i = 0;
-   list<double>::iterator zit;
-   list<double>::iterator thetait;
+   std::list<double>::iterator zit;
+   std::list<double>::iterator thetait;
    for (zit=itsBlmLocZ.begin(), thetait=itsBlmLocTheta.begin(); zit!=itsBlmLocZ.end(); zit++, thetait++){
 #ifdef DEBUG
      G4cout << "Building BLM " << i << G4endl; 
 #endif
      G4double indexInt = (G4double)i;
-     string index;
-     stringstream out;
+     std::string index;
+     std::stringstream out;
      out << indexInt;
      index = out.str();
      

@@ -9,10 +9,11 @@
 #include "Randomize.hh"
 #include "globals.hh"
 #include <fstream>
+#include <list>
 
-#if CLHEP_VERSION > 8 
-using namespace CLHEP;
-#endif
+//#if CLHEP_VERSION > 8 
+//using namespace CLHEP;
+//#endif
 
 // CLHEP < 1.9
 //class RandGauss;
@@ -123,7 +124,7 @@ private:
   int distribType;
   G4double energySpread;
 
-  list<struct Doublet> fields;
+  std::list<struct Doublet> fields;
 
   // input filename
   G4String inputfile;
@@ -135,8 +136,8 @@ private:
   void CloseBunchFile();
 
  // Gaussian Random number generator:
-  RandGauss* GaussGen;
-  RandFlat* FlatGen;
+  CLHEP::RandGauss* GaussGen;
+  CLHEP::RandFlat* FlatGen;
   
   // event number for phase for ellipse for SR rescaling
   G4int partId;

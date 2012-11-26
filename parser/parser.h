@@ -18,14 +18,13 @@
 #include <cstring>
 #include <cmath>
 #include <list>
+#include <string>
 #include <vector>
 
 #include <iostream>
 
 #include "gmad.h"
 #include "getEnv.h"
-
-//using namespace std;
 
 std::string sBDSIMHOME = getEnv("BDSIMHOME");
 

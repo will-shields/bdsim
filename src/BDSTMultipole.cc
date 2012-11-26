@@ -42,7 +42,7 @@ extern BDSMaterials* theMaterials;
 BDSTMultipole::BDSTMultipole(G4String aName, G4double aLength, 
 			     G4double bpRad, G4double FeRad,
 			     G4double tilt, G4double outR,
-			     list<G4double> akn, list<G4double> aks, 
+			     std::list<G4double> akn, std::list<G4double> aks, 
                              std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
 			     G4String aTunnelMaterial, G4String aMaterial):
   BDSMultipole(aName,aLength, bpRad, FeRad,SetVisAttributes(),blmLocZ, blmLocTheta, aTunnelMaterial, aMaterial),
@@ -67,10 +67,10 @@ BDSTMultipole::BDSTMultipole(G4String aName, G4double aLength,
   //Check if any components are non-zero
   /*  
   G4bool fieldNonZero=false;
-  for(list<double>::iterator it = akn.begin(); it != akn.end() && fieldNonZero == false; it++){
+  for(std::list<double>::iterator it = akn.begin(); it != akn.end() && fieldNonZero == false; it++){
     if(*it != 0) fieldNonZero = true;
   }
-  for(list<double>::iterator it = aks.begin(); it != aks.end() && fieldNonZero == false; it++){
+  for(std::list<double>::iterator it = aks.begin(); it != aks.end() && fieldNonZero == false; it++){
     if(*it != 0) fieldNonZero = true;
   }
   */
@@ -93,7 +93,7 @@ BDSTMultipole::BDSTMultipole(G4String aName, G4double aLength,
 #ifdef DEBUG 
   int order = 0;
   G4cout<<"M: kn={ ";
-  list<double>::iterator kit;
+  std::list<double>::iterator kit;
   for(kit=kn.begin();kit!=kn.end();kit++)
     {
       G4cout<<(*kit)<<"m^-"<<++order<<" ";

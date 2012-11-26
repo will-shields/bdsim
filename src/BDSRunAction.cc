@@ -28,7 +28,7 @@
 #include <unistd.h> // for sleep, will not work on windows?
 #endif
 
-typedef list<BDSAcceleratorComponent*>  myBeamline;
+typedef std::list<BDSAcceleratorComponent*>  myBeamline;
 extern myBeamline theBeamline;
 extern G4int nptwiss;
 

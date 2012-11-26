@@ -34,7 +34,7 @@ protected:
 private:
   // Data Members for Class Attributes
 
-  ifstream ifs;
+  std::ifstream ifs;
   
   G4String CurrentTableName;
   G4String InsertTableName;

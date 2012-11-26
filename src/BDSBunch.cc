@@ -1,7 +1,7 @@
 #include "BDSGlobalConstants.hh"
 #include "BDSBunch.hh"
 #include <iostream>
-#include "globals.hh"
+#include "globals.hh" // from Geant4
 #include <cmath>
 
 using namespace std;

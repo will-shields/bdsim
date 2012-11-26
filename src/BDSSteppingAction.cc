@@ -62,7 +62,7 @@
 
 extern BDSMaterials* theMaterials;
 
-typedef list<BDSAcceleratorComponent*> BDSBeamline;
+typedef std::list<BDSAcceleratorComponent*> BDSBeamline;
 extern BDSBeamline theBeamline;
 
 extern G4double BDS_Threshold_Energy;
@@ -162,7 +162,7 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 	      SM->TransferStackedTracks(fPostpone, fUrgent);
 	      if(verbose) G4cout << "\nMean Energy: " << (postponedEnergy/nptwiss)/GeV << G4endl;
 
-	      list<BDSAcceleratorComponent*>::const_iterator iBeam;
+	      std::list<BDSAcceleratorComponent*>::const_iterator iBeam;
 	      G4String type="";	      
 	      for(iBeam=theBeamline.begin();iBeam!=theBeamline.end();iBeam++)
 		{ 

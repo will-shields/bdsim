@@ -15,9 +15,11 @@
 
 #include "BDSEventAction.hh"
 
-#include <ctime> 
-#include <vector>
 #include <algorithm>
+#include <ctime> 
+#include <list>
+#include <map>
+#include <vector>
 
 #include "G4Event.hh"
 #include "G4EventManager.hh"
@@ -55,7 +57,7 @@
 typedef std::map<G4String,int> LogVolCountMap;
 extern LogVolCountMap* LogVolCount;
 
-typedef list<BDSEnergyCounterSD*>  ECList;
+typedef std::list<BDSEnergyCounterSD*>  ECList;
 extern ECList* theECList;
 
 extern G4double BDSeBremFireDist;
