@@ -28,7 +28,7 @@ if (XercesC_LIBRARY_DIR)
         file(GLOB XercesC_LIBRARIES ${XercesC_LIBRARY_DIR}/libxerces-c*.so)
     endif()
 else()
-    FIND_LIBRARY(XercesC_LIBRARIES NAMES Xerces-C PATH_SUFFIXES xercesc XercesC)
+    FIND_LIBRARY(XercesC_LIBRARIES NAMES xerces-c PATH_SUFFIXES xercesc XercesC)
 endif()
 
 if($ENV{VERBOSE})
