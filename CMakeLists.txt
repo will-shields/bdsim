@@ -162,7 +162,7 @@ if(VIS_OPENGLQT)
 endif()
 
 # set compiler flags
-set(WFLAGS "-Wall -Wno-write-strings")
+set(WFLAGS "-Wall -Wextra -Wno-write-strings")
 set(CMAKE_FLAGS "${CMAKE_FLAGS} ${CLHEP_DEFINITIONS}  ${WFLAGS}")
 set(BDSIM_FLAGS "${CMAKE_FLAGS} ${VIS_FLAGS} -DCLHEP_VERSION=${CLHEP_VERSION} -DG4VERSION=${G4VERSION} -DG4MINORVERSION=${G4MINORVERSION} ${BDSIM_FLAGS}")
 

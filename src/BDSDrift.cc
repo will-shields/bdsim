@@ -47,10 +47,10 @@ BDSDrift::BDSDrift (G4String aName, G4double aLength,
       // build external volume
       // 
       BuildDefaultMarkerLogicalVolume();
-      G4VisAttributes* VisAtt1 = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
-      VisAtt1->SetVisibility(false);
-      VisAtt1->SetForceSolid(true);
-      itsMarkerLogicalVolume->SetVisAttributes(VisAtt1);
+      G4VisAttributes* VisAtt9 = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
+      VisAtt9->SetVisibility(false);
+      VisAtt9->SetForceSolid(true);
+      itsMarkerLogicalVolume->SetVisAttributes(VisAtt9);
 
       //
       // build beampipe (geometry + magnetic field)

@@ -531,14 +531,11 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
     {
       // temp numbers - to be replaced by parsed parameters
       
-      
       G4double sigx = sqrt(betaX*emitX);
       G4double sigxp= sqrt(emitX / betaX);
       
       G4double sigy = sqrt(betaY*emitY);
       G4double sigyp= sqrt(emitY / betaY);
-      
-      G4double pi = 2.*asin(1.);
       
       partId++;
       
@@ -851,7 +848,7 @@ case _RING:
       G4int type;
       G4int gen;
       G4int pos;
-      G4double weight;
+      G4double weight; // JS: weight overwrites output parameter!
       G4double part_mass;
       G4double px,py,pz;
       G4double sx;

@@ -86,47 +86,12 @@ void BDSAcceleratorComponent::AlignComponent(G4ThreeVector& TargetPos,
 
 BDSAcceleratorComponent::~BDSAcceleratorComponent ()
 {
-//   delete itsOuterLogicalVolume;
-//   // delete itsBeamPipe;
-//   delete itsBDSEnergyCounter;
-//   delete itsOuterUserLimits;
-//   //  delete itsMarkerLogicalVolume;
-//   delete itsInnerBeampipeUserLimits;
-//   //Solid shapes used in building tunnel
-//   delete itsTunnelSolid;
-//   delete itsSoilSolid;
-//   delete itsInnerTunnelSolid;
-//   delete itsTunnelCavity;
-//   delete itsLargerTunnelCavity;
-//   delete itsLargerInnerTunnelSolid; 
-//   delete itsTunnelMinusCavity;
-//   delete itsTunnelSizedBlock;
-//   delete itsMarkerSolidVolume;
-//   //Tunnel logical volumes
-//   delete itsSoilTunnelLogicalVolume;
-//   delete itsTunnelCavityLogicalVolume;
-//   delete itsTunnelMinusCavityLogicalVolume;
-//   //Tunnel physical volumes
-//   delete itsTunnelPhysiInner;
-//   delete itsTunnelPhysiComp;
-//   delete itsTunnelPhysiCompSoil;
-//   //Tunnel user limits
-//   delete itsTunnelUserLimits;
-//   delete itsSoilTunnelUserLimits;
-//   delete itsInnerTunnelUserLimits;
-
-//   delete nullRotationMatrix;
-//   delete tunnelRot;
-//   delete gateRot;
-//   delete gateMaterial;
   delete VisAtt;
   delete VisAtt1;
   delete VisAtt2;
   delete VisAtt3;
   delete VisAtt4;
   delete VisAtt5;
-//   delete itsBLMSolid;
-//   delete itsBlmOuterSolid;
 }
 
 void BDSAcceleratorComponent::BuildTunnel()
@@ -656,10 +621,10 @@ void BDSAcceleratorComponent::BuildGate()
 						   BDSGlobalConstants::Instance()->GetCheckOverlaps());
   SetMultiplePhysicalVolumes(itsGatePhysi);
   
-  G4VisAttributes* VisAtt = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0));
-  VisAtt->SetVisibility(true);
-  VisAtt->SetForceSolid(true);
-  itsGateLogicalVolume->SetVisAttributes(VisAtt);
-  }
+  G4VisAttributes* VisAtt9 = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0));
+  VisAtt9->SetVisibility(true);
+  VisAtt9->SetForceSolid(true);
+  itsGateLogicalVolume->SetVisAttributes(VisAtt9);
+}
 
 //  LocalWords:  itsTunnelUserLimits

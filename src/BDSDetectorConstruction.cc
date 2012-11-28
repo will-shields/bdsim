@@ -1034,7 +1034,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	//
         G4double aper = bpRad;
         if( (*it).aper > 1.e-10*m ) aper = (*it).aper * m;
-        G4double 
 	FeRad = aper;
 
 	if( (*it).outR < aper/m)
@@ -1511,7 +1510,6 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 	//
 	// B = B/Brho * Brho = ks * Brho
 	// brho is in Geant4 units, but ks is not -> multiply ks by m^-1
-	G4double bField;
         if((*it).B != 0){
           bField = (*it).B * tesla;
           (*it).ks  = (bField/brho) / m;
@@ -1643,7 +1641,7 @@ G4VPhysicalVolume* BDSDetectorConstruction::ConstructBDS(list<struct Element>& b
 #endif
         G4String name = (*it).name;
         G4double length = (*it).l*m;
-        G4double bField = (*it).B * tesla;
+        bField = (*it).B * tesla;
         G4double beamPipeRadius;
         //        if((*it).aperSet){
         beamPipeRadius = (*it).aper*m;
@@ -2383,18 +2381,17 @@ BDSDetectorConstruction::~BDSDetectorConstruction()
   //  importanceSampler.Configure();
 G4VIStore *BDSDetectorConstruction::CreateImportanceStore(){
 //Create a geometry sampler  
-  G4GeometrySampler* itsGeometrySampler = new G4GeometrySampler(GetWorldVolume(),"electron");
+  itsGeometrySampler = new G4GeometrySampler(GetWorldVolume(),"electron");
   itsGeometrySampler->SetParallel(false);
 
-
-   if (!fPhysicalVolumeVector.size())
+  if (!fPhysicalVolumeVector.size())
     {
       G4Exception("B01-DetectorConstruction: no physical volumes created yet!", "-1", FatalException, "");
     }
   
   // creating and filling the importance store
   
-  G4IStore *itsIStore = new G4IStore(*physiWorld);
+  itsIStore = new G4IStore(*physiWorld);
   
   G4double imp =1.0;
   G4int n=1;

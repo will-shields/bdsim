@@ -135,7 +135,7 @@ public:
   G4bool   GetBuildTunnelFloor(); 
   G4bool   GetShowTunnel(); 
   G4double GetTunnelRadius(); 
-  void SetTunnelRadius(G4double rad); 
+  void SetTunnelRadius(G4double radius); 
   G4double GetTunnelThickness(); 
   G4double GetTunnelSoilThickness(); 
   G4double GetTunnelFloorOffset(); 
@@ -577,8 +577,8 @@ inline G4bool BDSGlobalConstants::GetBuildTunnelFloor()
 inline G4double BDSGlobalConstants::GetTunnelRadius()
 {return itsTunnelRadius;}
 
-inline void BDSGlobalConstants::SetTunnelRadius(G4double rad)
-{itsTunnelRadius=rad;}
+inline void BDSGlobalConstants::SetTunnelRadius(G4double radius)
+{itsTunnelRadius=radius;}
 
 inline G4double BDSGlobalConstants::GetTunnelThickness()
 {return itsTunnelThickness;}

@@ -58,17 +58,17 @@ public:
   void UpdateGeometry();
 
   G4VIStore* CreateImportanceStore();
-  inline G4IStore* GetIStore(){
-    return itsIStore;
-  }
+  // inline G4IStore* GetIStore(){
+  //   return itsIStore;
+  // }
 
   inline G4VPhysicalVolume* GetWorldVolume(){
     return physiWorld;
   }
 
-  inline G4GeometrySampler* GetGeometrySampler(){
-    return itsGeometrySampler;
-  }
+  // inline G4GeometrySampler* GetGeometrySampler(){
+  //   return itsGeometrySampler;
+  // }
 
 public:
 

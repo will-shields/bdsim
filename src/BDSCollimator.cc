@@ -72,10 +72,10 @@ BDSCollimator::BDSCollimator (G4String aName,G4double aLength,G4double bpRad,
       itsSolidLogVol->SetVisAttributes(SetVisAttributes());
       
       // visual attributes
-      G4VisAttributes* VisAtt1 =
+      G4VisAttributes* VisAtt9 =
 	new G4VisAttributes(G4Colour(0., 0., 0.));
-      VisAtt1->SetForceSolid(true);
-      if (itsInnerLogVol) itsInnerLogVol->SetVisAttributes(VisAtt1);
+      VisAtt9->SetForceSolid(true);
+      if (itsInnerLogVol) itsInnerLogVol->SetVisAttributes(VisAtt9);
       
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
@@ -141,7 +141,7 @@ void BDSCollimator::BuildInnerCollimator()
 			    itsLength/2);
 
   G4ThreeVector nullThreeVector = G4ThreeVector(0,0,0);
-  G4RotationMatrix *nullRotationMatrix = new G4RotationMatrix();  
+  G4RotationMatrix *nullRotationMatrix0 = new G4RotationMatrix();  
 
   itsSolidLogVol=
     new G4LogicalVolume(itsOuterSolid,
@@ -158,7 +158,7 @@ void BDSCollimator::BuildInnerCollimator()
 #endif
   itsPhysiComp = 
     new G4PVPlacement(
-		      nullRotationMatrix,   // no rotation
+		      nullRotationMatrix0,   // no rotation
 		      nullThreeVector,        // its position
 		      itsSolidLogVol,    // its logical volume
 		      itsName+"_solid_phys",	     // its name
@@ -170,7 +170,7 @@ void BDSCollimator::BuildInnerCollimator()
     G4cout << "BDSCollimator: placing aperture" << G4endl;
     itsPhysiComp2 = 
       new G4PVPlacement(
-			nullRotationMatrix,  // no rotation
+			nullRotationMatrix0,  // no rotation
 			nullThreeVector,     // its position
 			itsInnerLogVol,      // its logical volume
 			itsName+"_inner_phys", // its name

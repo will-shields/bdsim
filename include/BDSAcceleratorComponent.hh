@@ -344,8 +344,6 @@ private:
 
   G4RotationMatrix* nullRotationMatrix;
   G4RotationMatrix* tunnelRot;
-  G4RotationMatrix* gateRot;
-  G4Material* gateMaterial;
   G4VisAttributes* VisAtt;
   G4VisAttributes* VisAtt1;
   G4VisAttributes* VisAtt2;
@@ -459,8 +457,6 @@ inline void BDSAcceleratorComponent::ConstructorInit(){
 
   nullRotationMatrix=NULL;
   tunnelRot=NULL;
-  gateRot=NULL;
-  gateMaterial=NULL;
   VisAtt=NULL;
   VisAtt1=NULL;
   VisAtt2=NULL;

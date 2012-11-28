@@ -204,8 +204,8 @@ public:
   inline G4double GetT() const
     {return itsT;}
 
-  inline void SetS(G4double s)
-    {itsS=s;}
+  inline void SetS(G4double ss)
+    {itsS=ss;}
   inline G4double GetS() const
     {return itsS;}
 
