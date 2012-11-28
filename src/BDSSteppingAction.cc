@@ -76,7 +76,6 @@ extern G4bool verbose;      // run options
 extern G4bool verboseStep;
 extern G4bool verboseEvent;
 extern G4int verboseEventNumber;
-extern G4bool isBatch;
 
 extern G4int nptwiss;
 

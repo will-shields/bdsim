@@ -95,19 +95,10 @@ static void usage()
 	<<"--materials           : list materials included in bdsim by default"<<G4endl;
 }
 
-
-//BDSGlobalConstants* BDSGlobals;  // global options instance
 BDSOutput* bdsOutput; // output interface
 BDSBunch theBunch;  // bunch information
-G4int outputFormat=_ASCII;
 G4String outputFilename="output";  //receives a .txt or .root in BDSOutput
-char *fifoName=NULL;  //receives a .txt or .root in BDSOutput
-G4String outlinefile="BDSOutline.dat";  
-G4String outlineType="";
-G4String inputFilename= "optics.gmad"; // input file with gmad lattice description
-G4String visMacroFile="vis.mac"; // visualization macro file
 
-G4bool outline = false;
 G4bool verbose = false;  // run options
 G4bool verboseStep = false;
 G4bool verboseEvent = false;
@@ -117,11 +108,6 @@ G4double gflashemax = 10000;
 G4double gflashemin = 0.1;
 G4bool isBatch = false;
 
-G4int verboseRunLevel = 0;
-G4int verboseEventLevel = 0;
-G4int verboseTrackingLevel = 0;
-G4int verboseSteppingLevel = 0;
-
 BDSSamplerSD* BDSSamplerSensDet;
 
 G4int nptwiss = 200; // number of particles for twiss parameters matching (by tracking) and reference bunch for wakefields
@@ -130,10 +116,22 @@ G4int nptwiss = 200; // number of particles for twiss parameters matching (by tr
 
 int main(int argc,char** argv) {
 
+  BDSOutputFormat outputFormat=_ASCII;
+  char *fifoName=NULL;  //receives a .txt or .root in BDSOutput
+  G4String outlinefile="BDSOutline.dat";  
+  G4String outlineType="";
+  G4String inputFilename= "optics.gmad"; // input file with gmad lattice description
+  G4String visMacroFile="vis.mac"; // visualization macro file
+  G4bool outline = false;
+
+  G4int verboseRunLevel = 0;
+  G4int verboseEventLevel = 0;
+  G4int verboseTrackingLevel = 0;
+  G4int verboseSteppingLevel = 0;
+
 #ifdef DEBUG
   G4cout << "DEBUG mode is on." << G4endl;
 #endif  
-
 
   //
   // Parse the command line options 
@@ -167,7 +165,7 @@ int main(int argc,char** argv) {
   int OptionIndex = 0;
   int c;
 //   int ThisOptionId;
-  
+ 
   for(;;)
     {
       
@@ -235,7 +233,17 @@ int main(int argc,char** argv) {
 	    if(optarg) {
 	      if(!strcmp(optarg,"ascii")) outputFormat=_ASCII;
 	      else if (!strcmp(optarg,"root")) outputFormat=_ROOT;
-	      else G4cerr<<"unknown output format "<<optarg<<G4endl;
+	      else {
+		G4cerr<<"unknown output format "<<optarg<<G4endl;
+		exit(1);
+	      }
+#ifndef USE_ROOT
+	      if (outputFormat == _ROOT) {
+		G4cerr << "ERROR outputFormat root, but BDSIM not configured with ROOT support!" << G4endl;
+		G4cerr << "Use ascii instead, or recompile with ROOT!" << G4endl;
+		exit(1);
+	      }
+#endif
 	    }
 	  }
 	if( !strcmp(LongOptions[OptionIndex].name , "outfile") )
@@ -347,12 +355,11 @@ int main(int argc,char** argv) {
   // set default output formats:
   //
 #ifdef DEBUG
-  G4cout << "Setting op output." << G4endl;
+  G4cout << "Setting up output." << G4endl;
 #endif  
   bdsOutput = new BDSOutput();
   bdsOutput->SetFormat(outputFormat);
   G4cout.precision(10);
-
 
   //
   // initialize random number generator

@@ -29,17 +29,19 @@
 #include "TH3F.h"
 #endif
 
-const G4int _ASCII = 0;
-const G4int _ROOT = 1;
-const G4int _ASCII_ROOT = 2;
+enum BDSOutputFormat {
+  _ASCII = 0,
+  _ROOT = 1
+  //, _ASCII_ROOT = 2
+};
 
 class BDSOutput {
 
 public: 
   BDSOutput(); // default constructor
-  BDSOutput(G4int format);
+  BDSOutput(BDSOutputFormat format);
 
-  void SetFormat(G4int format);
+  void SetFormat(BDSOutputFormat format);
   void Init(G4int FileNum);
   ~BDSOutput();
 

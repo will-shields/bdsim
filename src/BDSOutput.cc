@@ -10,9 +10,8 @@ BDSOutput::BDSOutput():outputFileNumber(1)
   format = _ASCII; // default - write an ascii file
 }
 
-BDSOutput::BDSOutput(int fmt):outputFileNumber(1)
+BDSOutput::BDSOutput(BDSOutputFormat fmt):format(fmt),outputFileNumber(1)
 {
-  format = fmt;
 }
 
 BDSOutput::~BDSOutput()
@@ -27,8 +26,7 @@ BDSOutput::~BDSOutput()
 #endif
 }
 
-
-void BDSOutput::SetFormat(G4int val)
+void BDSOutput::SetFormat(BDSOutputFormat val)
 {
   format = val;
   time_t tm = time(NULL);

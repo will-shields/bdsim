@@ -71,11 +71,8 @@ G4double htot;
 G4int event_number;
 G4bool FireLaserCompton;
 
-
 extern BDSOutput* bdsOutput;
-extern G4String outputFilename;
 extern G4bool isBatch;
-
 
 extern G4bool verbose;      // run options
 extern G4bool verboseStep;

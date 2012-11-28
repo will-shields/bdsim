@@ -16,7 +16,6 @@ extern G4bool verbose;      // run options
 extern G4bool verboseStep;
 extern G4bool verboseEvent;
 extern G4int verboseEventNumber;
-extern G4bool isBatch;
 
 BDSDriftStepper::BDSDriftStepper(G4Mag_EqRhs *EqRhs)
    : G4MagIntegratorStepper(EqRhs,6)  // integrate over 6 variables only !!
