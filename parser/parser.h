@@ -384,12 +384,12 @@ void set_vector(std::list<const char*>& dst, struct Array *src)
 #endif
 };
 
-void set_vector(std::list<string>& dst, struct Array *src)
+void set_vector(std::list<std::string>& dst, struct Array *src)
 {
   for(int i=0; i< src->size;i++){
-    dst.push_back((string)src->symbols[i]);
+    dst.push_back((std::string)src->symbols[i]);
 #ifdef DEBUG 
-    std::cout << (string)src->symbols[i] << " ";
+    std::cout << (std::string)src->symbols[i] << " ";
 #endif
   }
 #ifdef DEBUG 
@@ -1249,7 +1249,7 @@ void print(struct Options opt)
 void set_value(std::string name, double value )
 {
 #ifdef DEBUG
-  cout << "parser.h> Setting value " << name << ", " << value << endl; 
+  std::cout << "parser.h> Setting value " << name << ", " << value << std::endl; 
 #endif
   //
   // numeric options for the "beam" command
@@ -1417,7 +1417,7 @@ void set_value(std::string name, double value )
 
   // options for neutrons
   if(name=="refcopyno") { options.refcopyno = (int) value; return; }
-  cerr << "Error: parser.h> unkown option \"" << name << "\"" << endl; 
+  std::cerr << "Error: parser.h> unkown option \"" << name << "\"" << std::endl; 
   exit(1);
 }
 
@@ -1425,7 +1425,7 @@ void set_value(std::string name, double value )
 void set_value(std::string name, std::string value )
 {
 #ifdef DEBUG
-  cout << "parser.h> Setting value " << name << ", " << value << endl; 
+  std::cout << "parser.h> Setting value " << name << ", " << value << std::endl; 
 #endif
   // 
   // string options for the "beam" command
@@ -1452,7 +1452,7 @@ void set_value(std::string name, std::string value )
   // options for external code interfaces
   if(name == "fifo") { options.fifo = value; return; }
   if(name == "refvolume") { options.refvolume = value; return; }
-  cerr << "Error: parser.h> unkown option \"" << name << "\"" << endl; 
+  std::cerr << "Error: parser.h> unkown option \"" << name << "\"" << std::endl; 
   exit(1);
 }
 
@@ -1503,7 +1503,7 @@ double property_lookup(char *element_name, char *property_name)
    if(!strcmp(property_name,"T")) return (*it).temper;
    if(!strcmp(property_name,"P")) return (*it).pressure;
 
-   cerr << "parser.h> Error: unkown property \"" << property_name << "\". Returning 0." <<endl; 
+   std::cerr << "parser.h> Error: unkown property \"" << property_name << "\". Returning 0." << std::endl; 
    exit(1);
    //what about property_lookup for attributes of type string, like material?
 }
