@@ -260,10 +260,9 @@ G4cout<<"BDSEventAction : processing cylinder hits collection"<<G4endl;
   // if 0 events per ntuples - set max allowed events per ntuples  
 
   int evntsPerNtuple = BDSGlobalConstants::Instance()->GetNumberOfEventsPerNtuple();
-
   if(evntsPerNtuple>0)
-    if ((event_number+1)% evntsPerNtuple == 0 && 
-		event_number+1 != BDSGlobalConstants::Instance()->GetNumberToGenerate())
+    if ((event_number+1)% evntsPerNtuple == 0 || 
+	(event_number+1) == BDSGlobalConstants::Instance()->GetNumberToGenerate())
       {
 #ifdef DEBUG 
         G4cout<<"writing to file "<<G4endl;
@@ -271,7 +270,11 @@ G4cout<<"BDSEventAction : processing cylinder hits collection"<<G4endl;
 	// notify the output about the event end
 	// this can be used for splitting output files etc.
         //	bdsOutput->Commit(itsOutputFileNumber++);
-	bdsOutput->Commit();
+	if((event_number+1) == BDSGlobalConstants::Instance()->GetNumberToGenerate()) {
+	  bdsOutput->Write(); // write last file
+	} else {
+	  bdsOutput->Commit(); // write and open new file
+	}
 #ifdef DEBUG
         G4cout<<"done"<<G4endl;
 #endif

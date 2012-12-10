@@ -20,8 +20,11 @@ BDSOutput::~BDSOutput()
     of.close();
 #ifdef USE_ROOT
   if(format==_ROOT){
-    theRootOutputFile->Close();
-    delete theRootOutputFile;
+    if (theRootOutputFile && theRootOutputFile->IsOpen()) {
+      // theRootOutputFile->Write();
+      theRootOutputFile->Close();
+      delete theRootOutputFile;
+    }
   }
 #endif
 }
@@ -424,8 +427,6 @@ void BDSOutput::WriteEnergyLoss(BDSEnergyCounterHitsCollection* hc)
 
 }
 
-
-
 // write some comments to the output file
 // only for ASCII output
 void BDSOutput::Echo(G4String str)
@@ -454,6 +455,7 @@ void BDSOutput::Write()
 	theRootOutputFile->Write();
 	theRootOutputFile->Close();
 	delete theRootOutputFile;
+	theRootOutputFile=0;
       }
   }
 #endif
