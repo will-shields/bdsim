@@ -137,7 +137,13 @@ if (USE_AFS)
       set(Geant4_LIBRARY_DIR /afs/cern.ch/sw/lcg/external/geant4/9.4.p01/x86_64-slc5-gcc43/lib)
    endif()
 endif()
+
 find_package(Geant4 REQUIRED)
+# check version, should be 9.4 or lower
+if(Geant4_VERSION AND ${Geant4_VERSION} VERSION_GREATER "9.4.9")
+   message(FATAL_ERROR "BDSIM Currently requires Geant4 version 9.4 or below")
+endif()
+
 set(Geant4_USE_FILE UseGeant4.cmake)
 include(${Geant4_USE_FILE})
 include_directories(${Geant4_INCLUDE_DIR})

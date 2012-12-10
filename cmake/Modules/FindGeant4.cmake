@@ -8,6 +8,7 @@
 #  Geant4_FOUND - system has Geant4
 #  Geant4_INCLUDE_DIR - the Geant4 include directory
 #  Geant4_LIBRARIES - The libraries needed to use Geant4
+#  Geant4_VERSION - The version of Geant4
 #
 
 message(STATUS "Looking for Geant4...")
@@ -85,9 +86,15 @@ if($ENV{VERBOSE})
 endif()
 
 if (Geant4_FOUND)
+  find_program(_G4_CONFIG geant4-config)
+  if(_G4_CONFIG)
+     execute_process(COMMAND ${_G4_CONFIG} --version
+        OUTPUT_VARIABLE Geant4_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+  endif()
+  unset(_G4_CONFIG CACHE)
   if (NOT Geant4_FIND_QUIETLY)
-    MESSAGE(STATUS "Looking for Geant4... - found ${Geant4_LIBRARY_DIR}")
-#    message(STATUS "Found ${Geant4_LIBRARY_DIR}")
+    MESSAGE(STATUS "Looking for Geant4... - found ${Geant4_VERSION}")
   endif (NOT Geant4_FIND_QUIETLY)
   SET(LD_LIBRARY_PATH ${LD_LIBRARY_PATH} ${Geant4_LIBRARY_DIR})
 else (Geant4_FOUND)
