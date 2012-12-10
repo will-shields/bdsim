@@ -231,8 +231,8 @@ int main(int argc,char** argv) {
 	if( !strcmp(LongOptions[OptionIndex].name , "output") )
 	  {
 	    if(optarg) {
-	      if(!strcmp(optarg,"ascii")) outputFormat=_ASCII;
-	      else if (!strcmp(optarg,"root")) outputFormat=_ROOT;
+	      if(!strcmp(optarg,"ascii") || !strcmp(optarg,"ASCII")) outputFormat=_ASCII;
+	      else if (!strcmp(optarg,"root") || !strcmp(optarg,"ROOT")) outputFormat=_ROOT;
 	      else {
 		G4cerr<<"unknown output format "<<optarg<<G4endl;
 		exit(1);
