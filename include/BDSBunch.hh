@@ -11,14 +11,9 @@
 #include <fstream>
 #include <list>
 
-//#if CLHEP_VERSION > 8 
-//using namespace CLHEP;
-//#endif
-
 // CLHEP < 1.9
 //class RandGauss;
 //class RandFlat;
-
 
 struct Doublet {
 

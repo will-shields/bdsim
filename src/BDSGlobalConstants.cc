@@ -31,7 +31,6 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt):
 {
   //environment variables
   itsBDSIMHOME=(G4String)getEnv("BDSIMHOME");
-  PI = 4.0 * atan(1.0);
   // defaults:
   if(opt.physicsList == "") 
     itsPhysListName = "standard";

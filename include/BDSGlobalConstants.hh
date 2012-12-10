@@ -60,10 +60,6 @@ public:
   static BDSGlobalConstants* Instance();
   ~BDSGlobalConstants();
   
-
- 
-  G4double GetPI();
-
   G4bool GetDoPlanckScattering();
 
   G4bool GetCheckOverlaps();
@@ -281,8 +277,6 @@ private:
   G4double itsElossHistoTransBinWidth;
   G4double itsDefaultRangeCut;
   G4double itsFFact;
-  //PI
-  G4double PI;
   // Data Members for Class Attributes
   std::ifstream ifs;
   std::ostream* log;
@@ -419,11 +413,6 @@ inline G4double BDSGlobalConstants::GetDefaultRangeCut(){
 
 inline G4double BDSGlobalConstants::GetFFact(){
   return itsFFact;
-}
-
-inline G4double BDSGlobalConstants::GetPI()
-{
-  return PI;
 }
 
 inline G4double BDSGlobalConstants::GetMinimumEpsilonStep()
