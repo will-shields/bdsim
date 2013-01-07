@@ -27,8 +27,20 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 endif()
 message(STATUS "Build Type   ${CMAKE_BUILD_TYPE}")
 
+# Check for Scientific Linux
+if(UNIX)
+    if("${CMAKE_SYSTEM}" MATCHES "el5")
+        set(RHL5 TRUE)
+    elseif("${CMAKE_SYSTEM}" MATCHES "el6")
+        set(RHL6 TRUE)
+    endif()
+    if(RHL5 OR RHL6)
+        set(RHL TRUE)
+    endif()
+endif()
+
 # We use afs version of Geant4/CLHEP if we are on afs by default:
-if(EXISTS "/afs/cern.ch" AND NOT APPLE)
+if(EXISTS "/afs/cern.ch" AND RHL5)
     option(USE_AFS "Use Geant4/CLHEP libraries from AFS" ON)
 else()
     option(USE_AFS "Use Geant4/CLHEP libraries from AFS" OFF)
