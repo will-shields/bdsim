@@ -4,25 +4,26 @@
    Copyright (c) 2004 by J.C.Carter.  ALL RIGHTS RESERVED. 
 */
 
-#include "BDSGlobalConstants.hh" 
 #include "BDSLWCalorimeter.hh"
-#include "G4Box.hh"
-#include "G4Tubs.hh"
-#include "G4VisAttributes.hh"
-#include "G4LogicalVolume.hh"
-#include "G4VPhysicalVolume.hh"
-#include "G4PVPlacement.hh"               
-#include "G4UserLimits.hh"
 
-#include "BDSAcceleratorComponent.hh"
-
-#include "BDSLWCalorimeterSD.hh"
-#include "G4SDManager.hh"
-
-
-//#include"MagFieldFunction.hh"
 #include <map>
 
+#include "BDSGlobalConstants.hh" 
+
+#include "BDSAcceleratorComponent.hh"
+#include "BDSLWCalorimeterSD.hh"
+#include "BDSMaterials.hh"
+
+#include "G4Box.hh"
+#include "G4FieldManager.hh"
+#include "G4LogicalVolume.hh"
+#include "G4Mag_UsualEqRhs.hh"
+#include "G4PVPlacement.hh"               
+#include "G4SDManager.hh"
+#include "G4Tubs.hh"
+#include "G4UserLimits.hh"
+#include "G4VisAttributes.hh"
+#include "G4VPhysicalVolume.hh"
 
 //============================================================
 
@@ -102,15 +103,14 @@ void BDSLWCalorimeter::BuildCal(G4double aLength)
   G4RotationMatrix* Rot=NULL;
   if(itsAngle!=0)Rot=RotY90;
  
-  G4VPhysicalVolume* PhysiLWCal;
-  PhysiLWCal = new G4PVPlacement(
-		      Rot,			     // rotation
+  itsPhysiLWCal = new G4PVPlacement(
+		      Rot,                   // rotation
 		      G4ThreeVector(BDSGlobalConstants::Instance()->GetLWCalOffset(),0.,0.),
-		      itsLWCalLogicalVolume,  // its logical volume
+		      itsLWCalLogicalVolume, // its logical volume
 		      itsName+"_cal",	     // its name
-		      itsMarkerLogicalVolume,     // its mother  volume
+		      itsMarkerLogicalVolume,// its mother  volume
 		      false,		     // no boolean operation
-		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		             // copy number
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps()); // copy number
   
   // Sensitive Detector:
   G4SDManager* SDMan = G4SDManager::GetSDMpointer();
@@ -120,6 +120,7 @@ void BDSLWCalorimeter::BuildCal(G4double aLength)
   
   itsLWCalLogicalVolume->SetSensitiveDetector(SensDet);
 }
+
 void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
 {
   // build beampipe
@@ -144,29 +145,27 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
 			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			itsName+"_bmp_Inner_log");
   
-  G4VPhysicalVolume* PhysiInner;
-  PhysiInner =  new G4PVPlacement(
-				  (G4RotationMatrix*)0,	 // rotation
-				  (G4ThreeVector)0,      // at (0,0,0)
-		      itsInnerBPLogicalVolume, // its logical volume
-		      itsName+"_InnerBmp",     // its name
+  itsPhysiInner = new G4PVPlacement(
+		      (G4RotationMatrix*)0,     // rotation
+		      (G4ThreeVector)0,         // at (0,0,0)
+		      itsInnerBPLogicalVolume,  // its logical volume
+		      itsName+"_InnerBmp",      // its name
 		      itsBeampipeLogicalVolume, // its mother  volume
-		      false,		       // no boolean operation
-				  0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		       // copy number
+		      false,                    // no boolean operation
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps()); // copy number
   
   
    G4RotationMatrix* Rot=NULL;
    if(itsAngle!=0)Rot=RotY90;
   
-   G4VPhysicalVolume* PhysiComp;
-   PhysiComp = new G4PVPlacement(
-		       Rot,			     // rotation
-		       (G4ThreeVector)0,	                     // at (0,0,0)
+   itsPhysiComp = new G4PVPlacement(
+		       Rot,                       // rotation
+		       (G4ThreeVector)0,          // at (0,0,0)
 		       itsBeampipeLogicalVolume,  // its logical volume
-		       itsName+"_bmp",	     // its name
-		       itsMarkerLogicalVolume,     // its mother  volume
-		       false,		     // no boolean operation
-		       0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		             // copy number
+		       itsName+"_bmp",            // its name
+		       itsMarkerLogicalVolume,    // its mother  volume
+		       false,	                  // no boolean operation
+		       0, BDSGlobalConstants::Instance()->GetCheckOverlaps()); // copy number
 #ifndef NOUSERLIMITS
    itsBeampipeUserLimits =
      new G4UserLimits("beampipe cuts",DBL_MAX,DBL_MAX,DBL_MAX,
@@ -195,7 +194,6 @@ void BDSLWCalorimeter::BuildBeampipe(G4double aLength)
    
    itsMarkerLogicalVolume->
      SetFieldManager(BDSGlobalConstants::Instance()->GetZeroFieldManager(),false);
-   
 }
 
 G4VisAttributes* BDSLWCalorimeter::SetVisAttributes()
@@ -207,7 +205,7 @@ G4VisAttributes* BDSLWCalorimeter::SetVisAttributes()
 BDSLWCalorimeter::~BDSLWCalorimeter()
 {
   delete itsVisAttributes;
-  delete itsBPTube;
-  delete itsLWCal;
-  delete itsBeampipeLogicalVolume;
+  //  delete itsBPTube;
+  //  delete itsLWCal;
+  //  delete itsBeampipeLogicalVolume;
 }
