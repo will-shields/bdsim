@@ -15,8 +15,6 @@ Last modified 23.10.2007 by Steve Malton
 #include <stack>
 #include <cmath>
 
-using namespace std;
-
 BDSGlobalConstants* BDSGlobalConstants::_instance = 0;
 
 BDSGlobalConstants* BDSGlobalConstants::Instance(){
@@ -76,20 +74,20 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt):
   //Fraction of events with leading particle biasing.
   itsBeampipeRadius = opt.beampipeRadius * m;
   if(itsBeampipeRadius == 0){
-    cerr << "BDSGlobalConstants> Error: option \"beampipeRadius\" must be greater than 0" <<  endl;
+    G4cerr << "BDSGlobalConstants> Error: option \"beampipeRadius\" must be greater than 0" <<  G4endl;
     exit(1);
   }
   itsBeampipeThickness = opt.beampipeThickness * m;
   itsComponentBoxSize = opt.componentBoxSize *m;
   if (itsComponentBoxSize < (itsBeampipeThickness + itsBeampipeRadius)){
-    cerr << "BDSGlobalConstants> Error: option \"boxSize\" must be greater than the sum of \"beampipeRadius\" and \"beamPipeThickness\" " << endl;
+    G4cerr << "BDSGlobalConstants> Error: option \"boxSize\" must be greater than the sum of \"beampipeRadius\" and \"beamPipeThickness\" " << G4endl;
     exit(1);
   }
   itsBuildTunnel = opt.buildTunnel;
   itsBuildTunnelFloor = opt.buildTunnelFloor;  
   itsTunnelRadius = opt.tunnelRadius * m;
   if (itsTunnelRadius < itsComponentBoxSize/2){
-    cerr << "BDSGlobalConstants> Error: option \"tunnelRadius\" must be grater than \"boxSize\"/2 " << endl;
+    G4cerr << "BDSGlobalConstants> Error: option \"tunnelRadius\" must be grater than \"boxSize\"/2 " << G4endl;
     exit(1);
   }
   itsTunnelThickness = opt.tunnelThickness * m; //Tunnel geometry options read from file

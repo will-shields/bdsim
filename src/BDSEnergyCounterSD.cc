@@ -107,12 +107,12 @@ G4bool BDSEnergyCounterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
    if(verbose && BDSGlobalConstants::Instance()->GetStopTracks()) G4cout << "BDSEnergyCounterSD: Current Volume: " << 	aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() <<"\tEvent: " << event_number << "\tEnergy: " << enrg/GeV << "GeV\tPosition: " << zpos/m <<"m"<< G4endl;
 
    /*
-   cout << "E = " << enrg << endl;
-   cout << "x = " << xpos << endl;
-   cout << "y = " << ypos << endl;
-   cout << "z = " << zpos << endl;
-   cout << "vol1 = " << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() << endl;
-   cout << "vol2 = " << aStep->GetTrack()->GetVolume()->GetName() << endl;
+   G4cout << "E = " << enrg << G4endl;
+   G4cout << "x = " << xpos << G4endl;
+   G4cout << "y = " << ypos << G4endl;
+   G4cout << "z = " << zpos << G4endl;
+   G4cout << "vol1 = " << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() << G4endl;
+   G4cout << "vol2 = " << aStep->GetTrack()->GetVolume()->GetName() << G4endl;
    */
 
    G4double weight = aStep->GetTrack()->GetWeight();

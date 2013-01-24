@@ -17,7 +17,6 @@
 #include "G4Box.hh"
 #include "G4FieldManager.hh"
 #include "G4LogicalVolume.hh"
-#include "G4Mag_UsualEqRhs.hh"
 #include "G4PVPlacement.hh"               
 #include "G4SDManager.hh"
 #include "G4Tubs.hh"

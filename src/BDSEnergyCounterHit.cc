@@ -12,8 +12,6 @@
 #include "G4LogicalVolume.hh"
 #include <iostream>
 
-using namespace std;
-
 G4Allocator<BDSEnergyCounterHit> BDSEnergyCounterHitAllocator;
 
 BDSEnergyCounterHit::  BDSEnergyCounterHit(G4int nCopy, G4double Energy, G4double x, G4double y, G4double z, G4String name, G4int partID, G4double weight, G4bool precisionRegion):
@@ -26,11 +24,11 @@ BDSEnergyCounterHit::  BDSEnergyCounterHit(G4int nCopy, G4double Energy, G4doubl
   itsPrecisionRegion(precisionRegion)
 {
   /*
-  cout << "BDSEnergyCounterHit> E = " << itsEnergy << endl;
-  cout << "BDSEnergyCounterHit> x = " << itsX << endl;
-  cout << "BDSEnergyCounterHit> y = " << itsY << endl;
-  cout << "BDSEnergyCounterHit> z = " << itsZ << endl;
-  cout << "BDSEnergyCounterHit> vol = " << itsVolumeName << endl;
+  G4cout << "BDSEnergyCounterHit> E = " << itsEnergy << G4endl;
+  G4cout << "BDSEnergyCounterHit> x = " << itsX << G4endl;
+  G4cout << "BDSEnergyCounterHit> y = " << itsY << G4endl;
+  G4cout << "BDSEnergyCounterHit> z = " << itsZ << G4endl;
+  G4cout << "BDSEnergyCounterHit> vol = " << itsVolumeName << G4endl;
   */
 }
 
