@@ -101,7 +101,7 @@ include options.gmad;
 
   beam,  particle="e-",
        energy=ef * GeV,
-       nparticles=1e+10,
+       !nparticles=1e+10,
        distrType="guineapig_bunch",
        distrFile="halo.dat";
        !distrType="eshell",
