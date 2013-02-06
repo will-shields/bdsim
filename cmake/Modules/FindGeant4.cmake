@@ -16,7 +16,7 @@ message(STATUS "Looking for Geant4...")
 # include directory
 
 if (NOT Geant4_INCLUDE_DIR)
-  FIND_PATH(Geant4_INCLUDE_DIR NAMES Geant4 geant4)
+  FIND_PATH(Geant4_INCLUDE_DIR NAMES geant4)
 endif (NOT Geant4_INCLUDE_DIR)
 
 if (NOT Geant4_INCLUDE_DIR)
