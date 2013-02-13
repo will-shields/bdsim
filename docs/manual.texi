@@ -1,15 +1,15 @@
 \input texinfo @c -*-texinfo-*-
-@c %**staart of header0.4
+@c %**start of header0.4
 @setfilename bdsim.info
 @settitle BDSIM User's Manual v0.6-dev
-@set lastupdate May 4, 2011
+@set lastupdate Feb 13, 2013
 @set revision 0.6-dev
 @c %**end of header
 
 @setchapternewpage off
 
 @c @copying
-@c Copyright @copyright{} 2004-2007 Royal Holloway University London.
+@c Copyright @copyright{} 2004-2013 Royal Holloway University London.
 @c @end copying
 
 
@@ -72,10 +72,11 @@ components, a collection of physics processes for fast tracking, procedures of
 @chapter Obtaining, Installing and Running
 
 
-@code{BDSIM} can be downloaded from @uref{http://ilc.pp.rhul.ac.uk/bdsim.html}.
-This site also contains some information on planned releases and other issues.
-Alternatively, a development version is accessible under
-@uref{http://cvs.pp.rhul.ac.uk}. 
+@code{BDSIM} can be downloaded from @uref{http://www.pp.rhul.ac.uk/twiki/bin/view/JAI/BdSim}.
+This site also contains information on documentation, projects and installation.
+Alternatively, a development version is from the SVN repository, instructions are at
+@uref{http://www.pp.rhul.ac.uk/twiki/bin/view/JAI/BDsimInstall}.
+
 Download the tarball and extract the source code. Make sure Geant4 is installed
 and appropriate environment variables defined.
 Then go through the configuration procedure by running the @code{./configure}
@@ -118,14 +119,14 @@ where the options are
 --outline=<file>     : print geometry/optics info to <file>
 --outline_type=<fmt> : type of outline format
                        where fmt = optics | survey
- --materials         : list materials included in bdsim by default
+ --materials         : list materials included in BDSIM by default
 @end example
 
 
 
 
-To run bdsim one first has to define the beamline geometry in a file which is
-then passed to bdsim via the @code{--file} command line option, for example
+To run BDSIM one first has to define the beamline geometry in a file which is
+then passed to BDSIM via the @code{--file} command line option, for example
 
 @example
 bdsim --file=line.gmad --output=root --batch
@@ -354,7 +355,7 @@ for example
 
 
 All elements except @code{marker}, @code{element}, @code{ecol}, and @code{rcol}
-are by default modeled with an inner cylindrical beampipe and an outer 
+are modeled by default with an inner cylindrical beampipe and an outer 
 cylindrical volume. (FOR MAD COMPATIBILITY @code{sbend} SHOULD BE A TORUS).
 The beampipe outer radius and thickness are defined by the 
 global @code{beampipeRadius} and @code{beampipeThickness}
@@ -603,7 +604,7 @@ Attributes:
 @item @code{l} - length [m] (default 0)
 @item @code{k3} - normal octupole coefficient
 k3 = @math{1/(B \rho)} @math{d^3 B_y / dx^3} [m@math{^{-4}}]
-Positive @code{k3} means horisontal focusing of positively charged particles. (default 0)
+Positive @code{k3} means horizontal focusing of positively charged particles. (default 0)
 @item @code{ks3} - skew octupole coefficient
 ks3 = @math{1/(B \rho)} @math{d^3 B_y / dx^3} [m@math{^{-4}}]
 where (x,y) is now a coordinate system rotated by 30 degrees around s with respect to the normal one.(default 0). 
@@ -676,7 +677,7 @@ Attributes:
 
 @itemize @bullet 
 @item @code{l} - length [m] (default 0)
-@item @code{xsize} - horisontal aperture [m] (default set to @code{boxSize})
+@item @code{xsize} - horizontal aperture [m] (default set to @code{boxSize})
 @item @code{ysize} - vertical aperture [m] (default set to @code{boxSize})
 @item @code{outR} - external extent [m] in x and y of the collimator (default set to @code{boxSize})
 @item @code{material} - collimator material (default set to ``Graphite'')
@@ -701,7 +702,7 @@ Attributes:
 
 @itemize @bullet 
 @item @code{l} - length [m] (default 0)
-@item @code{xsize} - horisontal aperture [m] (default set to @code{boxSize})
+@item @code{xsize} - horizontal aperture [m] (default set to @code{boxSize})
 @item @code{ysize} - vertical aperture [m] (default set to @code{boxSize})
 @item @code{outR} - limits external extent [m] in x and y of the collimator (default set to @code{boxSize})
 @item @code{material} - collimator material (default set to ``Graphite'')
@@ -1258,11 +1259,11 @@ The following options influence the generation:
 
 
 The following options influence the output
-@multitable @columnfractions .3 .7
-@item @code{elossHistoBinWidth }    @tab bin width in metres for the energy loss histogram
-@item @code{sensitiveBeamlineComponents } @tab if set, energy losses in beamline components are recorded in the energy loss histogram. Set by default
-@item @code{sensitiveBeamPipe } @tab if set, energy losses in the beam pipe are recorded in the energy loss histogram. Set by default
-@item @code{sensitiveBLMs } @tab if set, energy losses in the beam loss monitors are recorded in the energy loss histogram. Set by default
+@multitable @columnfractions .4 .6
+@item @code{elossHistoBinWidth}    @tab bin width in metres for the energy loss histogram
+@item @code{sensitiveBeamlineComponents} @tab if set, energy losses in beamline components are recorded in the energy loss histogram. Set by default
+@item @code{sensitiveBeamPipe} @tab if set, energy losses in the beam pipe are recorded in the energy loss histogram. Set by default
+@item @code{sensitiveBLMs} @tab if set, energy losses in the beam loss monitors are recorded in the energy loss histogram. Set by default
 @item @code{storeTrajectory} @tab if set, the trajectories are stored in the root file
 @item @code{storeMuonTrajectories} @tab if set, the muon trajectories are stored in the root file
 @item @code{storeNeutronTrajectories} @tab if set, the neutron trajectories are stored in the root file
@@ -1406,7 +1407,7 @@ be used:
 @code{csample, range=<element>, r=r0, l=l0;}
 
 Samplers output the following parameters at the specified location:
-@multitable @columnfractions 0.1 0.4 0.1 0.4
+@multitable @columnfractions 0.1 0.35 0.15 0.4
 @item E  @tab Energy[GeV] @tab E0 @tab Energy at last scatter[Gev]
 @item X  @tab Global X position @tab s @tab path length
 @item Y  @tab Global Y position @tab t @tab time of flight
@@ -1548,7 +1549,7 @@ magnets is provided. More detailed description of the physics is given below.
 @section physicsList option
 
 Depending on for what sort of problem @code{BDSIM} is used, different sorts of physics processes should be turned on. 
-This processes are groupes into so called ``physics lists''. The physics list is specified by the @code{physicsList} 
+This processes are grouped into so called ``physics lists''. The physics list is specified by the @code{physicsList} 
 option in the input file, e.g.
 
 @example
