@@ -38,7 +38,10 @@ public:
   // construct particular physics list processes
 
   void ConstructEM();
-  void ConstructEM_db();
+  void ConstructEMSingleScatter();
+  void ConstructEMMisc();
+  void ConstructMultipleScattering();
+  void ConstructCoulombScattering();
 
   void ConstructEM_LPB(); //added by M.D. Salt, R.B. Appleby, 15/10/09
 
