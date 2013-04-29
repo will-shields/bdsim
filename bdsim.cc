@@ -69,8 +69,8 @@
 static void usage()
 {
   G4cout<<"bdsim : version 0.6.0"<<G4endl;
-  G4cout<<"        (C) 2001-2012 Royal Holloway University London"<<G4endl;
-  G4cout<<"        http://www.pp.rhul.ac.uk/twiki/bin/view/JAI/simulation"<<G4endl;
+  G4cout<<"        (C) 2001-2013 Royal Holloway University London"<<G4endl;
+  G4cout<<"        http://www.ph.rhul.ac.uk/twiki/bin/view/PP/JAI/BdSim"<<G4endl;
   G4cout<<G4endl;
 
   G4cout<<"Usage: bdsim [options]"<<G4endl;

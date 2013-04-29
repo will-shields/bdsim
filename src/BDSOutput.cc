@@ -147,9 +147,9 @@ void BDSOutput::Init(G4int FileNum)
     {
       //G4cout<<"BDSOutput::storing trajectories set"<<G4endl;
       TTree* TrajTree = new TTree("Trajectories", "Trajectories");
-      TrajTree->Branch("x",&x,"x/F");
-      TrajTree->Branch("y",&y,"y/F");
-      TrajTree->Branch("z",&z,"z/F");
+      TrajTree->Branch("x",&x,"x (mum)/F");
+      TrajTree->Branch("y",&y,"y (mum)/F");
+      TrajTree->Branch("z",&z,"z (m)/F");
       TrajTree->Branch("part",&part,"part/I");
     }
 

@@ -137,7 +137,7 @@ G4bool BDSSamplerSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
       G4String pName=theTrack->GetDefinition()->GetParticleName();
       
 #ifdef DEBUG
-      G4cout << "BDSSamplerSD> Paricle name: " << pName << G4endl;  
+      G4cout << "BDSSamplerSD> Particle name: " << pName << G4endl;  
       G4cout << "BDSSamplerSD> PDG encoding: " << PDGtype << G4endl;  
       G4cout << "BDSSamplerSD> TrackID: " << TrackID << G4endl;  
 #endif

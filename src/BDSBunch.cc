@@ -1214,7 +1214,8 @@ template <typename Type> G4bool  BDSBunch::ReadValue(Type &value){
 void BDSBunch::OpenBunchFile(){
   InputBunchFile.open(inputfile);
   if(!InputBunchFile.good()){ 
-    G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; exit(1); 
+    G4cerr<<"Cannot open bunch file "<<inputfile<<G4endl; 
+    exit(1); 
   } 
 }
 

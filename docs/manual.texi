@@ -2,20 +2,20 @@
 @c %**start of header0.4
 @setfilename bdsim.info
 @settitle BDSIM User's Manual v0.6-dev
-@set lastupdate Feb 13, 2013
+@set lastupdate @today{}
 @set revision 0.6-dev
 @c %**end of header
 
 @setchapternewpage off
 
 @c @copying
-@c Copyright @copyright{} 2004-2013 Royal Holloway University London.
+@c Copyright @copyright{} 2004-2013 Royal Holloway, University of London.
 @c @end copying
 
 
 @titlepage
 @title BDSIM User's Manual v0.6-dev
-@author L. C. Deacon, I. Agapov, S. Malton
+@author L. C. Deacon, I. Agapov, S. Malton, J.Snuverink
 @author revision @value{revision}, last updated @value{lastupdate}
 @end titlepage
 @setcontentsaftertitlepage
@@ -25,10 +25,10 @@
 
 
 @node Top, Intro, (dir), (dir)
-@top BDSIM v0.5 User's Manual
+@top BDSIM v0.6 User's Manual
 
 
-This file is updated automatically from @file{manual.texi} last updated on
+This file is updated automatically from @file{manual.texi}, last updated on
 @value{lastupdate}.
 
 
@@ -56,12 +56,12 @@ This file is updated automatically from @file{manual.texi} last updated on
 @node Intro, Installation, Top, Top
 @chapter About BDSIM
 
-BDSIM is a Geant4 (@ref{1}) extension toolkit for simulation of particle
+BDSIM is a Geant4 (@cite{1}) extension toolkit for simulation of particle
 transport in accelerator beamlines.
 It provides a collection of classes representing typical accelerator
 components, a collection of physics processes for fast tracking, procedures of
 ``on the fly'' geometry construction and interfacing to ROOT analysis 
-(@ref{2}). 
+(@cite{2}).
  
 
 @c cccccccccccccccccccccccccccccccccccccccccc
@@ -72,10 +72,11 @@ components, a collection of physics processes for fast tracking, procedures of
 @chapter Obtaining, Installing and Running
 
 
-@code{BDSIM} can be downloaded from @uref{http://www.pp.rhul.ac.uk/twiki/bin/view/JAI/BdSim}.
+@code{BDSIM} can be downloaded from @*
+@uref{https://twiki.ph.rhul.ac.uk/twiki/bin/view/PP/JAI/BdSim}.
 This site also contains information on documentation, projects and installation.
 Alternatively, a development version is from the SVN repository, instructions are at
-@uref{http://www.pp.rhul.ac.uk/twiki/bin/view/JAI/BDsimInstall}.
+@uref{https://twiki.ph.rhul.ac.uk/twiki/bin/view/PP/JAI/BDsimInstall}.
 
 Download the tarball and extract the source code. Make sure Geant4 is installed
 and appropriate environment variables defined.
@@ -151,7 +152,7 @@ The next section describes how to do it in more detail.
 
 The beamline, beam properties and physics processes are specified in the input
 file written in the GMAD language which is a variation of MAD-X language
-(@ref{3}) extended to handle sophisticated geometry and parameters relevant
+(@cite{3}) extended to handle sophisticated geometry and parameters relevant
 to radiation transport.
 GMAD is described in this section.
 Examples of input files can be found in the @code{BDSIM} distribution in the
@@ -385,7 +386,7 @@ qq:q,k1=0.2;
 @node coordinate-system
 @subsection Coordinate system
 
-The usual accelerator coordinate system is assumed (see @ref{3}).
+The usual accelerator coordinate system is assumed (see @cite{3}).
 
 @node units
 @subsection Units
@@ -1328,7 +1329,7 @@ has been chosen:
 @item @code{sigmaT} - RMS of time distribution in [s]
 @end itemize
 
-@item @code{distrType}=''gausstwiss'': a gaussian bunch defined by twiss parameters @ref{4}, emittance, energy and time:
+@item @code{distrType}=''gausstwiss'': a gaussian bunch defined by twiss parameters @cite{4}, emittance, energy and time:
 @itemize @bullet
 @item @code{betx} - @math{\beta_x} in [m]
 @item @code{bety} - @math{\beta_y} in [m]
@@ -1527,7 +1528,7 @@ To display help menu
 
 @code{/help};
 
-For more details see @ref{1}.
+For more details see @cite{1}.
 
 @c float Figure, fig1
 @c caption{ An screenshot with an example BDSIM visualization }
@@ -1561,7 +1562,7 @@ option, physicsList="em_standard";
 
 
 
-Several predefined physics lists are available. Some physics lists allow biasing and re-weighting for some processes e.g. muon production. To set the amount of biasing see @ref{option}. Further details of the QGSP, FTFP and BERT hadronic physics lists can be found in @ref{5}. 
+Several predefined physics lists are available. Some physics lists allow biasing and re-weighting for some processes e.g. muon production. To set the amount of biasing see @ref{option}. Further details of the QGSP, FTFP and BERT hadronic physics lists can be found in @cite{5}. 
 
 @multitable @columnfractions .3 .7
 @item @code{standard}          @tab transportation of primary particles only
@@ -1593,8 +1594,7 @@ to the boundary of the ``logical volume'' it is currently in (which could be, e.
 boundary between two adjacent elements) or by the mean free path of the activated processes. Then the particle is pushed
 to the new position and secondaries are generated if necessary. Each volume has an associated transportation algorithm.
 For an on-energy particle travelling close to the optical axis of a quadrupole, dipole or a drift, standard matrix transportation 
-algorithms are used @ref{4}. For multipoles of higher orders and for off-axis/energy particles Runge-Kutta methods are used.
-
+algorithms are used @cite{4}. For multipoles of higher orders and for off-axis/energy particles Runge-Kutta methods are used.
 
 
 @section Tracking accuracy
@@ -1858,9 +1858,6 @@ will incorrectly record hits at @code{mark1[1]} in the sampler attached to
 @code{mark1[2]}. To avoid this, samplers should be attached to uniquely named 
 elements.
 
-There is a known issue with ROOT output using ROOT versions higher than 5.10. 
-To use ROOT output, BDSIM should be compiled with ROOT version 5.10 or lower.
-
 There is a known issue with the @var{z} parameter output to samplers. As 
 particle data is output at the z location of the sampler, when the global 
 position is transformed from global to relative coordinates @var{z} is 
@@ -1871,7 +1868,7 @@ the bunch, please use the parameter @var{s} instead.
 @c cccccccccccccccccccccccccccccccccccccccccc
 
 @node References, , Known Issues, Top
-@chapter References
+@unnumbered References
 
 @itemize @w{}
 
@@ -1881,11 +1878,11 @@ Geant4 User's Guide, @uref{http://geant4.cern.ch/support/userdocuments.shtml}
 
 @anchor{2}
 @item [2] 
-Root User's Guide, @uref{http://root.cern.ch/root/doc/RootDoc.html}
+Root User's Guide, @uref{http://root.cern.ch/drupal/content/users-guide}
 
 @anchor{3}
 @item [3]
-MAD-X User's Guide, @uref{http://mad.home.cern.ch/mad/uguide.html}
+MAD-X User's Guide, @* @uref{http://madx.web.cern.ch/madx/madX/doc/usrguide/uguide.html}
 
 @anchor{4}
 @item [4]
