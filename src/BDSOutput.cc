@@ -8,10 +8,22 @@ extern G4String outputFilename;
 BDSOutput::BDSOutput():outputFileNumber(1)
 {
   format = _ASCII; // default - write an ascii file
+#ifdef USE_ROOT
+  theRootOutputFile = NULL;
+  EnergyLossHisto = NULL;
+  PrecisionRegionEnergyLossTree = NULL;
+  EnergyLossTree = NULL;
+#endif
 }
 
 BDSOutput::BDSOutput(BDSOutputFormat fmt):format(fmt),outputFileNumber(1)
 {
+#ifdef USE_ROOT
+  theRootOutputFile = NULL;
+  EnergyLossHisto = NULL;
+  PrecisionRegionEnergyLossTree = NULL;
+  EnergyLossTree = NULL;
+#endif
 }
 
 BDSOutput::~BDSOutput()
@@ -162,7 +174,7 @@ void BDSOutput::Init(G4int FileNum)
   wmax=std::max(wmax,bs);
 
   EnergyLossHisto = new TH1F("ElossHisto", "Energy Loss",nBins,0.,zMax/m);
-  EnergyLossTree=new TTree("ElossTree", "Energy Loss");
+  EnergyLossTree= new TTree("ElossTree", "Energy Loss");
   EnergyLossTree->Branch("z",&z_el,"z (m)/F");
   EnergyLossTree->Branch("E",&E_el,"E (GeV)/F");
 

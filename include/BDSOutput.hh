@@ -58,10 +58,10 @@ public:
 
 #ifdef USE_ROOT
   TFile* theRootOutputFile;
-  TTree *theLWCalorimeterTree;
+  //  TTree *theLWCalorimeterTree;
 
   TH1F *EnergyLossHisto;
-  TH3F *EnergyLossHisto3d;
+  //  TH3F *EnergyLossHisto3d;
   TTree *PrecisionRegionEnergyLossTree;
   TTree *EnergyLossTree;
 #endif
