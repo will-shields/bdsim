@@ -21,7 +21,7 @@ G4bool   BDSField::DoesFieldChangeEnergy() const
 
 
 
-void BDSField::GetFieldValue(const G4double Point[4],G4double *Bfield ) const
+void BDSField::GetFieldValue(const G4double[4],G4double *Bfield ) const
 {
   // default 0
 
@@ -35,7 +35,7 @@ void BDSField::GetFieldValue(const G4double Point[4],G4double *Bfield ) const
 
 }
 
-void BDSField::Prepare(G4VPhysicalVolume *referenceVolume)
+void BDSField::Prepare(G4VPhysicalVolume*)
 {
   // default - do nothing
 }

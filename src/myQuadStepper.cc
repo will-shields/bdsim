@@ -22,7 +22,7 @@ myQuadStepper::myQuadStepper(G4Mag_EqRhs *EqRhs)
 
 
 void myQuadStepper::AdvanceHelix( const G4double  yIn[],
-				  G4ThreeVector Bfld,
+				  G4ThreeVector,
 				  G4double  h,
 				  G4double  yOut[])
 {
@@ -66,7 +66,7 @@ void myQuadStepper::AdvanceHelix( const G4double  yIn[],
    
   G4double R;
   
-   if(BDSGlobals->GetSynchRescale())
+   if(BDSGlobalConstants::Instance()->GetSynchRescale())
     {
       G4double B[3];
       fPtrMagEqOfMot->GetFieldValue(yIn, B);
@@ -128,7 +128,7 @@ void myQuadStepper::AdvanceHelix( const G4double  yIn[],
   G4double x1,x1p,y1,y1p,z1p;
   //G4double z1;
   
-  G4double NomEnergy = BDSGlobals->GetBeamTotalEnergy();
+  G4double NomEnergy = BDSGlobalConstants::Instance()->GetBeamTotalEnergy();
   G4double NomR = -(NomEnergy/GeV)/(0.299792458 * itsBField/tesla) * m;
 
   G4double NominalPath = sqrt(NomR*NomR - LocalR.z()*LocalR.z()) - fabs(NomR)*cos(itsAngle/2);
@@ -243,7 +243,7 @@ void myQuadStepper::AdvanceHelix( const G4double  yIn[],
 
 
 void myQuadStepper::Stepper( const G4double yInput[],
-			     const G4double dydx[],
+			     const G4double[],
 			     const G4double hstep,
 			     G4double yOut[],
 			     G4double yErr[]      )
@@ -252,7 +252,7 @@ void myQuadStepper::Stepper( const G4double yInput[],
 
   for(G4int i=0;i<nvar;i++) yErr[i]=0;
 
-  AdvanceHelix(yInput,0,hstep,yOut);
+  AdvanceHelix(yInput,(G4ThreeVector)0,hstep,yOut);
 
   return ;
 }

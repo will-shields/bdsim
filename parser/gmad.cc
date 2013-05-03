@@ -1,4 +1,4 @@
-/*
+ /*
  * GMAD interface
  *
  */
@@ -7,6 +7,8 @@
 #include "sym_table.h"
 
 #include <cmath>
+#include <string>
+#include <cstring>
 
 using namespace std;
 
@@ -38,10 +40,11 @@ void init()
   add_func("tan",tan);
   add_func("asin",asin); 
   add_func("acos",acos);
+  add_func("atan",atan);
   add_func("abs",fabs);
  
 
-  add_var("pi",3.14159265358979,_RESERVED);
+  add_var("pi",4.0*atan(1),_RESERVED);
 
   add_var("TeV",1e+3,_RESERVED);
   add_var("GeV",1.0 ,_RESERVED);
@@ -57,6 +60,7 @@ void init()
   add_var("cm" ,1e-2,_RESERVED);
   add_var("mm" ,1e-3,_RESERVED);
   add_var("um",1e-6,_RESERVED);
+  add_var("mum",1e-6,_RESERVED);
   add_var("nm" ,1e-9,_RESERVED);
 
   add_var("s"  ,1.0  ,_RESERVED);
@@ -74,10 +78,56 @@ void init()
 
   // Default Values for Options (the rest are set to 0)
 
+  options.vacuumPressure = 1e-12;
+  options.planckScatterFe = 1.0;
+  options.doPlanckScattering=0;
+  options.checkOverlaps=0;
   options.synchPhotonMultiplicity = 1;
   options.synchMeanFreeFactor = 1;
+  options.gammaToMuFe = 1;
+  options.annihiToMuFe = 1;
+  options.eeToHadronsFe = 1;
+  options.useEMLPB = 0;
+  options.useHadLPB = 0;
+  options.LPBFraction = 0;
+  options.includeIronMagFields = 0;
+  options.buildTunnel = 0;
+  options.buildTunnelFloor = 0;
+  options.showTunnel = 0;
+  options.tunnelOffsetX = 0;
+  options.tunnelOffsetY = 0;
+  options.tunnelSoilThickness = 0;
+  options.tunnelThickness = 0;
+  options.geometryBias = false;
+  options.ffact = 1.0;
+  options.elossHistoBinWidth = 1.0;
+  options.elossHistoTransBinWidth = 0.1;
+  options.defaultRangeCut = 7e-4;
+  options.prodCutPositrons=7e-4,
+    options.prodCutElectrons=7e-4,
+    options.prodCutPhotons=7e-4,
+    options.prodCutPositronsP=7e-4,
+    options.prodCutElectronsP=7e-4,
+    options.prodCutPhotonsP=7e-4,
 
-  
+  //Beam loss monitors geometry
+  options.blmRad = 0.05;
+  options.blmLength = 0.18;
+  options.sensitiveBeamlineComponents = 1;
+  options.sensitiveBeamPipe = 1;
+  options.sensitiveBLMs = 1;
+  options.turnOnCerenkov = 1;
+  options.decayOn = 1;
+  //  options.synchRadOn = 0;
+  //tracking options
+  options.chordStepMinimum = 0.000001;
+    options.deltaIntersection = 0.00001;
+    options.deltaChord = 0.00001;
+    options.deltaOneStep = 0.00001;
+    options.minimumEpsilonStep=0;
+    options.maximumEpsilonStep=1e-7;
+    options.lengthSafety = 0.000000001;
+
 }
 
 int gmad_parser(FILE *f)
@@ -103,6 +153,9 @@ int gmad_parser(FILE *f)
 
 int gmad_parser(string name)
 {
+#ifdef DEBUG
+  cout << "gmad_parser> opening file" << endl;
+#endif
   FILE *f = fopen(name.c_str(),"r");
 
   if(f==NULL) return -1;
@@ -110,18 +163,37 @@ int gmad_parser(string name)
   init();
   
   yyin=f; 
-  yyfilename = new char[32];
-  strncpy(yyfilename,name.c_str(),32);
+  yyfilename = new char[MAXFILENAMELENGTH];
+  strncpy(yyfilename,name.c_str(),MAXFILENAMELENGTH);
+
+#ifdef DEBUG
+  cout << "gmad_parser>beginning to parse file" << endl;
+#endif
+
 
   while(!feof(yyin))
     {
       yyparse();
     }
 
+#ifdef DEBUG
+  cout << "gmad_parser>finished to parsing file" << endl;
+#endif
+
+
   // clear temporary stuff
+
+#ifdef DEBUG
+  cout << "gmad_parser>clearing temporary lists" << endl;
+#endif
 
   element_list.clear();
   tmp_list.clear();
+
+#ifdef DEBUG
+  cout << "gmad_parser> finished" << endl;
+#endif
+
   return 0;
 };
 

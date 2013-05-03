@@ -20,7 +20,7 @@
 class BDSLWCalorimeter :public BDSAcceleratorComponent
 {
 public:
-  BDSLWCalorimeter(G4String& aName,G4double aLength, G4double aBpRad);
+  BDSLWCalorimeter(G4String& aName,G4double aLength, G4double aBpRad, G4String aTunnelMaterial="");
   ~BDSLWCalorimeter();
   void BuildBeampipe(G4double aLength);
   void BuildCal(G4double aLength);

@@ -20,7 +20,7 @@ BDSDecStepper::BDSDecStepper(G4Mag_EqRhs *EqRhs)
 
 
 void BDSDecStepper::AdvanceHelix( const G4double  yIn[],
-                                   G4ThreeVector Bfld,
+                                   G4ThreeVector,
 				   G4double  h,
 				   G4double  yDec[])
 {
@@ -82,19 +82,13 @@ void BDSDecStepper::AdvanceHelix( const G4double  yIn[],
       G4double Bx=4.0*x0*y0*(x02My02);
       G4double By=pow(x0,4)-6.0*x0*x0*y0*y0+pow(y0,4);
 
-      //      G4double y3fac=pow(y0,3)-3*y0*x0*x0;
-      //     G4double x3fac=pow(x0,3)-3*x0*y0*y0;
-      
       // local r'' (for curvature)
       G4ThreeVector LocalRpp;
       // extra minus signs because x,y_machine = - x_,-y_geant_world
       LocalRpp.setX(zp*By);
       LocalRpp.setY(-zp*Bx);
       LocalRpp.setZ( xp*By - yp*Bx);
-      //LocalRpp.setX(-zp*x3fac);
-      //LocalRpp.setY(-zp*y3fac);
-      //LocalRpp.setZ( xp*x3fac + yp*y3fac);
-
+      
       LocalRpp*=kappa/24; // 24 is actually a 4! factor.;
 
       // determine effective curvature
@@ -145,7 +139,7 @@ void BDSDecStepper::AdvanceHelix( const G4double  yIn[],
 }
 
 void BDSDecStepper::Stepper( const G4double yInput[],
-			    const G4double dydx[],
+			    const G4double[],
 			    const G4double hstep,
 			    G4double yOut[],
 			    G4double yErr[]      )
@@ -154,7 +148,7 @@ void BDSDecStepper::Stepper( const G4double yInput[],
   
   G4int i;
   for(i=0;i<nvar;i++) yErr[i]=0;
-  AdvanceHelix(yInput,0,hstep,yOut);
+  AdvanceHelix(yInput,(G4ThreeVector)0,hstep,yOut);
   return ;
 }
 

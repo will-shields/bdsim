@@ -15,6 +15,7 @@
 #include "G4EventManager.hh"
 #include "globals.hh"
 #include  <vector>
+#include "BDSWorld.hh"
 
 class BDSRunManager:public G4RunManager
 {
@@ -25,7 +26,8 @@ class BDSRunManager:public G4RunManager
     // its derived class.
 
   private:
-    static BDSRunManager* fRunManager;
+  static BDSRunManager* fRunManager;
+  int GetNumberOfMesh();
 
   public: // with description
     BDSRunManager();
@@ -38,6 +40,9 @@ class BDSRunManager:public G4RunManager
 //SPM
   virtual void DoEventLoop(G4int n_event,const char* macroFile,G4int n_select);
   virtual void BeamOn(G4int n_event,const char* macroFile=0,G4int n_select=-1);
+  inline void RunInit(){
+    RunInitialization();
+  }
 };
 #endif
 

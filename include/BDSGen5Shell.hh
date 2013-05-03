@@ -5,7 +5,7 @@
 */
 #ifndef BDSGen5Shell_h
 #define BDSGen5Shell_h 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "globals.hh"
 #include "Randomize.hh"
 #include <vector>

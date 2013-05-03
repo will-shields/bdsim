@@ -17,6 +17,7 @@
 #include "G4LogicalVolume.hh"
 #include "G4Cons.hh"
 #include "G4Tubs.hh"
+#include "G4EllipticalTube.hh"
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 #include "BDSMySQLTable.hh"
@@ -27,6 +28,7 @@
 #include "G4FieldManager.hh"
 #include "BDSSamplerSD.hh"
 #include <fstream>
+#include <vector>
 #include <vector>
 #include "BDSMagFieldSQL.hh"
 
@@ -43,22 +45,35 @@ public:
   void Construct(G4LogicalVolume *marker);
 
   // For List of uniform fields for volumes
-  std::vector<G4ThreeVector> UniformField;
-  std::vector<G4String> Fieldvol; 
+  std::list<G4ThreeVector> UniformField;
+  std::list<G4String> Fieldvol; 
 
   // For List of Quad/Sext/Oct Fields
-  std::vector<G4double> QuadBgrad;
-  std::vector<G4String> Quadvol; 
-  std::vector<G4double> SextBgrad;
-  std::vector<G4String> Sextvol;
-  std::vector<G4double> OctBgrad;
-  std::vector<G4String> Octvol;
+  std::list<G4double> QuadBgrad;
+  std::list<G4String> Quadvol; 
+  std::list<G4double> SextBgrad;
+  std::list<G4String> Sextvol;
+  std::list<G4double> OctBgrad;
+  std::list<G4String> Octvol;
+
+  std::map<G4String, G4ThreeVector> UniformFieldVolField;
+  std::map<G4String, G4double> QuadVolBgrad;
+  std::map<G4String, G4double> SextVolBgrad;
+  std::map<G4String, G4double> OctVolBgrad;
+
   G4VPhysicalVolume* align_in_volume;
   G4VPhysicalVolume* align_out_volume;
   std::vector<G4LogicalVolume*> SensitiveComponents;
+  std::vector<G4LogicalVolume*> itsGFlashComponents;
+  std::vector<G4VPhysicalVolume*> itsMultiplePhysicalVolumes;
 
   std::vector<G4LogicalVolume*> VOL_LIST;
   G4bool HasFields;
+  G4int nPoleField;
+  G4bool HasUniformField;
+
+  std::vector<G4VPhysicalVolume*> GetMultiplePhysicalVolumes();
+  std::vector<G4LogicalVolume*> GetGFlashComponents();
 
 private:
 
@@ -71,9 +86,12 @@ private:
   void BuildTorus(BDSMySQLTable* aSQLTable);
   void BuildSampler(BDSMySQLTable* aSQLTable);
   void BuildTube(BDSMySQLTable* aSQLTable);
+  void BuildEllipticalTube(BDSMySQLTable* aSQLTable);
+  void BuildPCLTube(BDSMySQLTable* aSQLTable);
   G4RotationMatrix* RotateComponent(G4double psi,
 				    G4double phi,
 				    G4double theta);
+  G4RotationMatrix* rotateComponent;
   void PlaceComponents(BDSMySQLTable* aSQLTable, std::vector<G4LogicalVolume*> VOL_LIST);
 
   G4double itsMarkerLength;
@@ -82,8 +100,20 @@ private:
   std::vector<BDSMySQLTable*> itsSQLTable;
   BDSMagFieldSQL* itsMagField;
   BDSSamplerSD* SensDet;
+  G4UserLimits* itsUserLimits;
+
+void  SetMultiplePhysicalVolumes(G4VPhysicalVolume* aPhysVol);
 
 protected:
 };
+
+inline void BDSGeometrySQL::SetMultiplePhysicalVolumes(G4VPhysicalVolume* aPhysVol)
+{ itsMultiplePhysicalVolumes.push_back(aPhysVol);}
+
+inline  std::vector<G4VPhysicalVolume*> BDSGeometrySQL::GetMultiplePhysicalVolumes()
+{return itsMultiplePhysicalVolumes;}
+
+inline  std::vector<G4LogicalVolume*> BDSGeometrySQL::GetGFlashComponents()
+{return itsGFlashComponents;}
 
 #endif

@@ -10,15 +10,29 @@
 #include "G4Colour.hh"
 #include "G4VisAttributes.hh"
 #include "G4LogicalVolume.hh"
+#include <iostream>
+
+using namespace std;
 
 G4Allocator<BDSEnergyCounterHit> BDSEnergyCounterHitAllocator;
 
-BDSEnergyCounterHit::BDSEnergyCounterHit(G4int nCopy, G4double anEnergy, 
-    G4double EnWeightZ, G4int partID, G4int parentID):
-    itsEnergy(anEnergy),itsCopyNumber(nCopy),
-    itsPartID(partID),itsParentID(parentID),
-    itsEnergyWeightedPosition(EnWeightZ)
-{;}
+BDSEnergyCounterHit::  BDSEnergyCounterHit(G4int nCopy, G4double Energy, G4double x, G4double y, G4double z, G4String name, G4int partID, G4double weight, G4bool precisionRegion):
+  itsEnergy(Energy*weight), itsEnergyWeightedX(x*Energy*weight), itsEnergyWeightedY(y*Energy*weight), itsEnergyWeightedZ(z*Energy*weight),
+  itsX(x), itsY(y), itsZ(z),
+  itsWeight(weight),
+  itsCopyNumber(nCopy),
+  itsPartID(partID),
+  itsName(name),
+  itsPrecisionRegion(precisionRegion)
+{
+  /*
+  cout << "BDSEnergyCounterHit> E = " << itsEnergy << endl;
+  cout << "BDSEnergyCounterHit> x = " << itsX << endl;
+  cout << "BDSEnergyCounterHit> y = " << itsY << endl;
+  cout << "BDSEnergyCounterHit> z = " << itsZ << endl;
+  cout << "BDSEnergyCounterHit> vol = " << itsVolumeName << endl;
+  */
+}
 
 
 BDSEnergyCounterHit::BDSEnergyCounterHit()
@@ -28,20 +42,24 @@ BDSEnergyCounterHit::BDSEnergyCounterHit()
 BDSEnergyCounterHit::~BDSEnergyCounterHit()
 {;}
 
-BDSEnergyCounterHit::BDSEnergyCounterHit(const BDSEnergyCounterHit &right)
+BDSEnergyCounterHit::BDSEnergyCounterHit(const BDSEnergyCounterHit &right):G4VHit()
 {
   itsEnergy = right.itsEnergy;
   itsCopyNumber = right.itsCopyNumber;
-  itsPartID = right.itsPartID;
-  itsParentID = right.itsParentID;
+  itsName = right.itsName;
+  itsX = right.itsX;
+  itsY = right.itsY;
+  itsZ = right.itsZ;
 }
 
 const BDSEnergyCounterHit& BDSEnergyCounterHit::operator=(const BDSEnergyCounterHit &right)
 {
   itsEnergy = right.itsEnergy;
   itsCopyNumber = right.itsCopyNumber;
-  itsPartID= right.itsPartID;
-  itsParentID = right.itsParentID;
+  itsName = right.itsName;
+  itsX = right.itsX;
+  itsY = right.itsY;
+  itsZ = right.itsZ;
   return *this;
 }
 

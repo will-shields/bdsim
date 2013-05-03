@@ -3,7 +3,7 @@
    Last modified 24.7.2002
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSSpoiler.hh"
 #include "G4VisAttributes.hh"
 #include "G4LogicalVolume.hh"
@@ -44,10 +44,10 @@ BDSSpoiler::BDSSpoiler (G4String& aName,G4double aLength,G4double bpRad,
       itsMarkerLogicalVolume=
 	new G4LogicalVolume(
 			    new G4Box(itsName,
-				      BDSGlobals->GetComponentBoxSize()/2,
-				      BDSGlobals->GetComponentBoxSize()/2,
+				      BDSGlobalConstants::Instance()->GetComponentBoxSize()/2,
+				      BDSGlobalConstants::Instance()->GetComponentBoxSize()/2,
 				      itsLength/2),
-			    theMaterials->GetMaterial("Vacuum"),
+			    theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			    itsName);
       BuildInnerSpoiler();
 
@@ -73,8 +73,8 @@ void BDSSpoiler::BuildInnerSpoiler()
 {
   itsSolidLogVol=
     new G4LogicalVolume(new G4Box(itsName+"_solid",
-				  BDSGlobals->GetComponentBoxSize()/2,
-				  BDSGlobals->GetComponentBoxSize()/2,
+				  BDSGlobalConstants::Instance()->GetComponentBoxSize()/2,
+				  BDSGlobalConstants::Instance()->GetComponentBoxSize()/2,
 				  itsLength/2),
 			itsSpoilerMaterial,
 			itsName+"_solid");
@@ -84,34 +84,37 @@ void BDSSpoiler::BuildInnerSpoiler()
 				  itsXAper,
 				  itsYAper,
 				  itsLength/2),
-			theMaterials->GetMaterial("Vacuum"),
+			theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			itsName+"_inner");
   
   itsPhysiComp2 = 
     new G4PVPlacement(
-		      0,		   // no rotation
-		      0,                   // its position
+		      (G4RotationMatrix*)0,		   // no rotation
+		      (G4ThreeVector)0,                   // its position
 		      itsInnerLogVol,      // its logical volume
 		      itsName+"_combined", // its name
 		      itsSolidLogVol,      // its mother  volume
 		      false,		   // no boolean operation
-		      0);		   // copy number 
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps());  // copy number 
 
-  SetSensitiveVolume(itsSolidLogVol);
+  if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
+    SetSensitiveVolume(itsSolidLogVol);
+  }
 
+#ifndef NOUSERLIMITS
   itsSolidLogVol->
     SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
-				       BDSGlobals-> GetThresholdCutCharged()));
-  
+				   BDSGlobalConstants::Instance()-> GetThresholdCutCharged()));
+#endif
   itsPhysiComp = 
     new G4PVPlacement(
-		      0,		     // no rotation
-		      0,                     // its position
+		      (G4RotationMatrix*)0,		     // no rotation
+		      (G4ThreeVector)0,                     // its position
 		      itsSolidLogVol,    // its logical volume
 		      itsName+"_solid",	     // its name
 		      itsMarkerLogicalVolume, // its mother  volume
 		      false,		     // no boolean operation
-		      0);		     // copy number  
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		     // copy number  
 }
 
 

@@ -6,7 +6,7 @@ Last modified 30.09.2005
 #ifndef __BDSPopUp__
 #define __BDSPopUp__
 
-#ifndef ROOT_TCanvas.h
+#ifndef ROOT_TCanvas
 #include "TCanvas.h"
 #endif
  

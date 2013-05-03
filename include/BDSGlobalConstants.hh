@@ -9,17 +9,15 @@ Last modified 30.10.2007 by Steve Malton
 #ifndef BDSGlobalConstants_h
 #define BDSGlobalConstants_h 
 
-#include "G4Timer.hh" // This must be the first in the include list
-
 #include <fstream>
 #include <string>
-#include <set>
 #include <list>
+#include <set>
 #include <deque>
 
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
-
+#include "G4UniformMagField.hh"
 #include "G4ThreeVector.hh"
 #include "globals.hh"
 #include "G4FieldManager.hh"
@@ -49,6 +47,7 @@ struct tmpParticle {
   G4double xp;
   G4double yp;
   G4double zp;
+  G4double weight;
   G4int trackID;
   G4int parentID;
 };
@@ -64,16 +63,24 @@ class BDSGlobalConstants
 {
 public:
  
-  BDSGlobalConstants(struct Options&);
-
+  static BDSGlobalConstants* Instance();
   ~BDSGlobalConstants();
   
+
+ 
+  G4double GetPI();
+
+  G4bool GetDoPlanckScattering();
+
+  G4bool GetCheckOverlaps();
 
   G4bool DoTwiss();
   void SetDoTwiss(G4bool val); 
 
+
   G4double GetMinimumEpsilonStep();
   G4double GetMaximumEpsilonStep();
+  G4double GetMaxTime();
   G4double GetDeltaOneStep();
 
   void SetLogFile(ofstream & os);
@@ -85,6 +92,18 @@ public:
   G4ParticleDefinition* GetParticleDefinition();
   void SetParticleDefinition(G4ParticleDefinition* aBeamParticleDefinition);
 
+  G4String GetParticleName();
+  void SetParticleName(G4String aParticleName);
+
+  G4double GetLPBFraction();
+  void SetLPBFraction(G4double val);
+
+  G4double GetElossHistoBinWidth();
+  G4double GetElossHistoTransBinWidth(); //The transverse (x,y) bin width
+  G4double GetDefaultRangeCut();
+
+  G4double GetFFact();
+
   G4double GetBeamKineticEnergy();
   void SetBeamKineticEnergy(G4double val);
 
@@ -94,42 +113,57 @@ public:
   G4double GetBeamMomentum();
   void SetBeamMomentum(G4double val);
   
-  G4double GetBackgroundScaleFactor();
+  G4double GetVacuumPressure();
+  G4double GetPlanckScatterFe();
 
-  G4String GetOutputNtupleFileName();
+  G4double GetGammaToMuFe();
+  G4double GetAnnihiToMuFe();
+  G4double GetEeToHadronsFe();
+
+  G4bool GetSampleDistRandomly();
+  G4bool GetGeometryBias();
+  G4bool GetUseEMLPB();
+  G4bool GetUseHadLPB();
+
+//Booleans determining which types of components are sensitive
+  G4bool GetSensitiveComponents();
+  G4bool GetSensitiveBeamPipe();
+  G4bool GetSensitiveBLMs();
  
-  //  void SetWorldSizeZ(G4double WorldSizeZ);
-  //G4double GetWorldSizeZ();
-
   void SetTotalS(G4double TotalS);
   G4double GetTotalS();  
-
- //  void SetVerticalComponentOffset(G4double VerticalComponentOffset);
-//   void SetHorizontalComponentOffset(G4double HorizontalComponentOffset);
-//   void AddVerticalComponentOffset(G4double VerticalComponentOffset);
-//   void AddHorizontalComponentOffset(G4double HorizontalComponentOffset);
-//   G4double GetVerticalComponentOffset(); 
-//   G4double GetHorizontalComponentOffset(); 
 
   G4double GetComponentBoxSize();
   G4double GetMagnetPoleSize();
   G4double GetMagnetPoleRadius();
 
+  G4bool   GetBuildTunnel(); 
+  G4bool   GetBuildTunnelFloor(); 
+  G4bool   GetShowTunnel(); 
   G4double GetTunnelRadius(); 
-  //G4double GetHorizontalBeamlineOffset(); 
-  //G4double GetVerticalBeamlineOffset(); 
+  void SetTunnelRadius(G4double rad); 
+  G4double GetTunnelThickness(); 
+  G4double GetTunnelSoilThickness(); 
+  G4double GetTunnelFloorOffset(); 
+  G4double GetTunnelOffsetX(); 
+  G4double GetTunnelOffsetY(); 
+
+  //Beam loss monitors
+  G4double GetBlmRad();
+  G4double GetBlmLength();
 
   G4double GetBeampipeRadius(); 
   G4double GetBeampipeThickness(); 
 
+  G4double GetSamplerDiameter();
+  G4double GetSamplerLength();
+
   G4double GetDeltaIntersection();
   G4double GetDeltaChord();
-
   G4double GetChordStepMinimum();
 
   G4double GetThresholdCutCharged();
   G4double GetThresholdCutPhotons();
-  G4double GetTrackWeightFactor();
 
   G4double GetProdCutPhotons();
   G4double GetProdCutPhotonsP();
@@ -138,15 +172,16 @@ public:
   G4double GetProdCutPositrons();
   G4double GetProdCutPositronsP();
 
+  //Environment variables
+  G4String GetBDSIMHOME();
 
   // physical processes etc.
 
   G4String GetPhysListName();
   void SetPhysListName(G4String val);
 
-  G4bool GetUseLowEMPhysics();
-
   G4bool GetSynchRadOn();
+  G4bool GetDecayOn();
   G4bool GetSynchRescale();
   void SetSynchRescale(G4bool srRescale);
   G4bool GetSynchTrackPhotons();
@@ -155,9 +190,6 @@ public:
   G4double GetSynchLowGamE();
   G4int GetSynchPhotonMultiplicity();
   G4int GetSynchMeanFreeFactor();
-
-  G4bool GetPlanckOn();
-  G4bool GetBDSeBremOn();
 
   G4double GetLaserwireWavelength();
   G4ThreeVector GetLaserwireDir();
@@ -172,47 +204,22 @@ public:
   G4bool GetLaserwireTrackPhotons();
   G4bool GetLaserwireTrackElectrons();
 
-  // G4bool GetReadBunchFile();
-  // G4bool GetWriteBunchFile();
-  //G4bool GetExtractBunchFile();
-
-  G4bool GetTurnOnInteractions();
-  G4bool GetUseTimer();
-  G4bool GetUseEMHadronic();
-  G4bool GetUseMuonPairProduction();
+  G4bool GetTurnOnCerenkov();
 
   G4bool GetStoreMuonTrajectories();
+  G4double GetTrajCutGTZ();
+  G4double GetTrajCutLTR();
+
   G4bool GetStoreNeutronTrajectories();
   G4bool GetStoreTrajectory();
-  G4bool GetUseMuonShowers();
 
   G4bool GetIncludeIronMagFields();
-
 
   G4bool GetStopTracks();
   void SetStopTracks(G4bool);
   G4bool stopTracks; // kill tracks after interactions
 
-  // gab Dec04
-  G4double GetMuonLowestGeneratedEnergy();
-  void SetMuonEnergyCutScaleFactor(G4double aScaleFactor);
-  G4double GetMuonEnergyCutScaleFactor();
-
-  G4bool GetUseHaloRadius();
-  G4double GetHaloInnerRadius();
-  G4double GetHaloOuterRadius();
-
-  G4double GetInnerHaloX();
-  G4double GetOuterHaloX();
-  G4double GetInnerHaloY();
-  G4double GetOuterHaloY();
-
   G4double GetLengthSafety();
-  G4double GetEnergyOffset();
-  G4double GetMuonProductionScaleFactor();
-  G4double GetHadronInelasticScaleFactor();
-
-  G4Timer* GetTimer();
 
   ofstream GetEventOutput();
 
@@ -225,24 +232,12 @@ public:
   G4int GetEventNumberOffset();
 
   // Internally transmitted variables:
-  void SetGlobalBeamlineRotationY(G4double aYRotation);
-  G4double GetGlobalBeamlineRotationY();
 
   G4FieldManager* GetZeroFieldManager();
-
-  G4bool GetUseBeamGasPlug();
-  G4double GetBeamGasPlugZ();
 
   G4bool GetUseSynchPrimaryGen();
   G4double GetSynchPrimaryAngle();
   G4double GetSynchPrimaryLength();
-
-  G4bool GetUseLastMaterialPoint();
-
-  G4double GetWedgeDisplacement();
-  void SetWedgeDisplacement(G4double WedgeDisplacemnt);
-  G4bool GetPreviousWasWedge();
-  void SetPreviousWasWedge(G4bool PreviousWasWedge);
 
   // AI : for placet synchronization
   void setWaitingForDump(G4bool flag);
@@ -273,181 +268,171 @@ public:
   ofstream fileDump;
   // ifstream fileRead; replaced with FILE* fifo in code for consistency with Placet. SPM
 
-  G4String tmpParticleName; // particle name as given in options
-                            // since the particle definition is looked up in 
-                            // PhysicsList we need to store the name first
-
   std::deque<tmpParticle> holdingQueue;
   std::deque<tmpParticle> outputQueue;
-  std::deque<G4double> referenceQueue;
+  std::deque<tmpParticle> transformedQueue;
+  std::deque<G4double*> referenceQueue;
   G4bool isReference;
 
 protected:
+
+  BDSGlobalConstants(struct Options&);
+
+
 private:
+  static BDSGlobalConstants* _instance;
+
+  G4UniformMagField* zeroMagField;
+
+  G4double itsElossHistoBinWidth;
+  G4double itsElossHistoTransBinWidth;
+  G4double itsDefaultRangeCut;
+  G4double itsFFact;
+  //PI
+  G4double PI;
   // Data Members for Class Attributes
   ifstream ifs;
   ostream* log;
-
   // initial bunch parameters
-
+  G4String itsParticleName;
   G4ParticleDefinition* itsBeamParticleDefinition;
-
   G4double itsBeamTotalEnergy;
-
-  G4double itsNumberOfParticles;
-
   G4double itsBeamMomentum, itsBeamKineticEnergy;
-
-  G4double itsBackgroundScaleFactor;
-
+  G4double itsLPBFraction;
+  G4double itsVacuumPressure;
+  G4double itsPlanckScatterFe;
+  G4double itsGammaToMuFe;
+  G4double itsAnnihiToMuFe;
+  G4double itsEeToHadronsFe;
+  G4bool itsSampleDistRandomly;
+  G4bool itsGeometryBias;
+  G4bool itsUseEMLPB;
+  G4bool itsUseHadLPB;
   G4double itsMinimumEpsilonStep;
   G4double itsMaximumEpsilonStep;
+  G4double itsMaxTime;
   G4double itsDeltaOneStep;
-
   G4double itsComponentBoxSize;
   G4double itsMagnetPoleSize;
   G4double itsMagnetPoleRadius;
-
+  G4bool   itsBuildTunnel;
+  G4bool   itsBuildTunnelFloor;
   G4double itsTunnelRadius;
-  //G4double itsHorizontalBeamlineOffset;
-  //G4double itsVerticalBeamlineOffset;
- 
-  //G4double itsVerticalComponentOffset;
-  //G4double itsHorizontalComponentOffset;
-
+  G4double itsTunnelThickness;
+  G4double itsTunnelSoilThickness;
+  G4double itsTunnelFloorOffset;
+  G4double itsTunnelOffsetX;
+  G4double itsTunnelOffsetY;
+  G4bool itsShowTunnel;
+  //Booleans determining which types of components are sensitive
+  G4bool itsSensitiveComponents;
+  G4bool itsSensitiveBeamPipe;
+  G4bool itsSensitiveBLMs;
+  //Beam loss monitor geometry
+  G4double itsBlmRad;
+  G4double itsBlmLength;
   G4double itsBeampipeRadius; 
   G4double itsBeampipeThickness; 
-  //G4double itsWorldSizeZ; 
   G4double itsTotalS;
-
+  G4double itsSamplerDiameter;
+  G4double itsSamplerLength;
   G4double itsDeltaIntersection;
   G4double itsDeltaChord;
- 
   G4double itsChordStepMinimum;
-
   G4double itsThresholdCutCharged;
   G4double itsThresholdCutPhotons;
-
   G4double itsProdCutPhotons;
   G4double itsProdCutPhotonsP;
   G4double itsProdCutElectrons;
   G4double itsProdCutElectronsP;
   G4double itsProdCutPositrons;
   G4double itsProdCutPositronsP;
-
+  G4String itsBDSIMHOME;
   G4String itsPhysListName;
-
-  G4bool itsUseLowEMPhysics;
-
   G4bool itsSynchRadOn;
+  G4bool itsDecayOn;
   G4bool itsSynchRescale;
   G4bool itsSynchTrackPhotons;
   G4double itsSynchLowX;
   G4double itsSynchLowGamE;
   G4int itsSynchMeanFreeFactor;
   G4int itsSynchPhotonMultiplicity;
-
-  G4bool itsPlanckOn;
-  G4bool itsBDSeBremOn;
-
   // test map container for laserwire parameters - Steve
   std::map<const G4String, G4double, strCmp> lwWavelength;
   std::map<const G4String, G4ThreeVector, strCmp> lwDirection;
-
   G4double itsLaserwireWavelength;
   G4ThreeVector itsLaserwireDir;
-
   G4bool itsLaserwireTrackPhotons;
   G4bool itsLaserwireTrackElectrons;
-  G4bool itsTurnOnInteractions;
-
+  G4bool itsTurnOnCerenkov;
   G4bool doTwiss;
-
-  //  G4bool itsReadBunchFile;
-  // G4bool itsWriteBunchFile;
-  // G4bool itsExtractBunchFile;
-  G4bool itsUseTimer;
-  G4bool itsUseEMHadronic;
-  G4bool itsUseMuonPairProduction;
+  G4bool itsDoPlanckScattering;
+  G4bool itsCheckOverlaps;
   G4bool itsStoreMuonTrajectories;
-  G4bool itsUseMuonShowers;
-  G4double itsMuonLowestGeneratedEnergy;
-  G4double itsMuonEnergyCutScaleFactor;
-
+  G4double itsTrajCutGTZ;
+  G4double itsTrajCutLTR;
   G4bool itsStoreTrajectory;
   G4bool itsStoreNeutronTrajectories;
   G4bool itsIncludeIronMagFields;
-
   G4double itsLengthSafety;
-  G4double itsTrackWeightFactor;
-  G4double itsMuonProductionScaleFactor;
-  G4double itsHadronInelasticScaleFactor;
-
-  G4Timer* itsTimer;
-
-  G4double itsEnergyOffset;
-
-  G4bool itsUseHaloRadius;
-  G4double itsHaloInnerRadius;
-  G4double itsHaloOuterRadius;
-
-  G4double itsInnerHaloX;
-  G4double itsOuterHaloX;
-  G4double itsInnerHaloY;
-  G4double itsOuterHaloY;
-
   G4bool itsUseBatch;
   G4long itsRandomSeed;
   G4int itsNumberToGenerate;
-
-  G4String itsOutputNtupleFileName;
   G4int itsNumberOfEventsPerNtuple;
   G4int itsEventNumberOffset;
-
-  // Internally used variables:
-  G4double GlobalBeamlineRotationY;
-
   G4FieldManager* itsZeroFieldManager;
 
 public:
   G4double GetLWCalWidth();
   G4double GetLWCalOffset();
-  //G4String GetLWCalMaterial();
-
   G4String GetPipeMaterialName();
-  G4String GetVacMaterialName();
+  G4String GetVacuumMaterial();
+  G4String GetSoilMaterialName();
+  G4String GetTunnelMaterialName();
+  G4String GetTunnelCavityMaterialName();
 
 private:
   G4double itsLWCalWidth;
   G4double itsLWCalOffset;
-  //G4String itsLWCalMaterial;
   G4String itsPipeMaterial; //beampipe material
   G4String itsVacMaterial;  //vacuum inside beampipe
-
-  G4bool itsUseBeamGasPlug;
-  G4double itsBeamGasPlugZ;
-
+  G4String itsTunnelMaterialName;  //tunnel material
+  G4String itsTunnelCavityMaterialName;  //tunnel cavity material
+  G4String itsSoilMaterialName;  //material around tunnel
   G4bool itsSynchPrimaryGen;
   G4double itsSynchPrimaryAngle;
   G4double itsSynchPrimaryLength;
-
-  G4bool itsUseLastMaterialPoint;
-
-  G4double itsWedgeDisplacement;
-  G4bool itsPreviousWasWedge;
-
   G4bool isWaitingForDump;
   G4bool isDumping;
   G4bool isReading;
   G4bool isReadFromStack;
-
   G4String itsFifo; // fifo for BDSIM-placet
   G4AffineTransform itsDumpTransform; //transform of frame from start to current dump element
-
   G4String itsRefVolume;
   G4int itsRefCopyNo;
   G4AffineTransform itsRefTransform;
 };
+
+inline G4double BDSGlobalConstants::GetElossHistoBinWidth(){
+  return itsElossHistoBinWidth;
+}
+
+inline G4double BDSGlobalConstants::GetElossHistoTransBinWidth(){
+  return itsElossHistoTransBinWidth;
+}
+
+inline G4double BDSGlobalConstants::GetDefaultRangeCut(){
+  return itsDefaultRangeCut;
+}
+
+inline G4double BDSGlobalConstants::GetFFact(){
+  return itsFFact;
+}
+
+inline G4double BDSGlobalConstants::GetPI()
+{
+  return PI;
+}
 
 inline G4double BDSGlobalConstants::GetMinimumEpsilonStep()
 {
@@ -457,6 +442,11 @@ inline G4double BDSGlobalConstants::GetMinimumEpsilonStep()
 inline G4double BDSGlobalConstants::GetMaximumEpsilonStep()
 {
   return itsMaximumEpsilonStep;
+}
+
+inline G4double BDSGlobalConstants::GetMaxTime()
+{
+  return itsMaxTime;
 }
 
 inline G4double BDSGlobalConstants::GetDeltaOneStep()
@@ -478,6 +468,24 @@ inline G4double BDSGlobalConstants::GetBeamKineticEnergy()
 inline void BDSGlobalConstants::SetBeamKineticEnergy(G4double val)
 {
   itsBeamKineticEnergy = val;
+}
+
+inline G4double BDSGlobalConstants::GetLPBFraction()
+{
+  return itsLPBFraction;
+}
+
+inline void BDSGlobalConstants::SetLPBFraction(G4double val)
+{
+  if(val>1.0){
+    itsLPBFraction = 1.0;
+  }
+  else if(val<0.0){
+    itsLPBFraction = 0.0;
+  }
+  else {
+    itsLPBFraction = val;
+  }
 }
 
 inline G4double BDSGlobalConstants::GetBeamTotalEnergy()
@@ -507,9 +515,19 @@ inline G4ParticleDefinition* BDSGlobalConstants::GetParticleDefinition()
   return itsBeamParticleDefinition;
 }
 
+inline G4String BDSGlobalConstants::GetParticleName()
+{
+  return itsParticleName;
+}
+
 inline void BDSGlobalConstants::SetParticleDefinition(G4ParticleDefinition* aBeamParticleDefinition)
 {
   itsBeamParticleDefinition = aBeamParticleDefinition;
+}
+
+inline void BDSGlobalConstants::SetParticleName(G4String aParticleName)
+{
+  itsParticleName = aParticleName;
 }
 
 //inline G4double BDSGlobalConstants::GetSigmaT()
@@ -517,8 +535,37 @@ inline void BDSGlobalConstants::SetParticleDefinition(G4ParticleDefinition* aBea
 //  return itsSigmaT;
 //}
 
-inline G4double BDSGlobalConstants::GetBackgroundScaleFactor()
-{return itsBackgroundScaleFactor;}
+inline G4double BDSGlobalConstants::GetVacuumPressure()
+{return itsVacuumPressure;}
+
+inline G4double BDSGlobalConstants::GetPlanckScatterFe()
+{return itsPlanckScatterFe;}
+
+inline G4double BDSGlobalConstants::GetGammaToMuFe()
+{return itsGammaToMuFe;}
+
+inline G4double BDSGlobalConstants::GetAnnihiToMuFe()
+{return itsAnnihiToMuFe;}
+
+inline G4double BDSGlobalConstants::GetEeToHadronsFe()
+{return itsEeToHadronsFe;}
+
+inline G4bool BDSGlobalConstants::GetSampleDistRandomly(){
+  return itsSampleDistRandomly;}
+
+inline G4bool BDSGlobalConstants::GetUseEMLPB(){
+  return itsUseEMLPB;}
+
+inline G4bool BDSGlobalConstants::GetUseHadLPB(){
+  return itsUseHadLPB;}
+
+//Booleans determining which types of components are sensitive
+inline  G4bool BDSGlobalConstants::GetSensitiveComponents()
+{return itsSensitiveComponents;}
+inline  G4bool BDSGlobalConstants::GetSensitiveBeamPipe()
+{return itsSensitiveBeamPipe;}
+inline  G4bool BDSGlobalConstants::GetSensitiveBLMs()
+{return itsSensitiveBLMs;}
 
 inline G4double BDSGlobalConstants::GetComponentBoxSize()
 {return itsComponentBoxSize;}
@@ -529,8 +576,47 @@ inline G4double BDSGlobalConstants::GetMagnetPoleSize()
 inline G4double BDSGlobalConstants::GetMagnetPoleRadius()
 {return itsMagnetPoleRadius;}
 
+inline G4bool BDSGlobalConstants::GetBuildTunnel()
+{return itsBuildTunnel;}
+
+inline G4bool BDSGlobalConstants::GetBuildTunnelFloor()
+{return itsBuildTunnelFloor;}
+
 inline G4double BDSGlobalConstants::GetTunnelRadius()
 {return itsTunnelRadius;}
+
+inline void BDSGlobalConstants::SetTunnelRadius(G4double rad)
+{itsTunnelRadius=rad;}
+
+inline G4double BDSGlobalConstants::GetTunnelThickness()
+{return itsTunnelThickness;}
+
+inline G4double BDSGlobalConstants::GetTunnelSoilThickness()
+{return itsTunnelSoilThickness;}
+
+inline G4double BDSGlobalConstants::GetTunnelFloorOffset()
+{return itsTunnelFloorOffset;}
+
+inline G4double BDSGlobalConstants::GetTunnelOffsetX()
+{return itsTunnelOffsetX;}
+
+inline G4double BDSGlobalConstants::GetTunnelOffsetY()
+{return itsTunnelOffsetY;}
+
+inline G4bool BDSGlobalConstants::GetShowTunnel()
+{return itsShowTunnel;}
+
+inline G4bool BDSGlobalConstants::GetGeometryBias()
+{return itsGeometryBias;}
+
+//Beam loss monitors
+
+inline G4double BDSGlobalConstants::GetBlmRad()
+{return itsBlmRad;}
+
+inline G4double BDSGlobalConstants::GetBlmLength()
+{return itsBlmLength;}
+
 
 // inline  G4double BDSGlobalConstants::GetHorizontalBeamlineOffset()
 // {return itsHorizontalBeamlineOffset;}
@@ -544,6 +630,12 @@ inline G4double BDSGlobalConstants::GetBeampipeRadius()
 
 inline G4double BDSGlobalConstants::GetBeampipeThickness() 
 {return itsBeampipeThickness;}
+
+inline G4double BDSGlobalConstants::GetSamplerDiameter() 
+{return itsSamplerDiameter;}
+
+inline G4double BDSGlobalConstants::GetSamplerLength() 
+{return itsSamplerLength;}
 
 inline G4double BDSGlobalConstants::GetDeltaChord() 
 {return itsDeltaChord;}
@@ -598,6 +690,10 @@ inline void BDSGlobalConstants::SetTotalS(G4double TotalS)
 // inline G4double BDSGlobalConstants::GetHorizontalComponentOffset()
 // {return itsHorizontalComponentOffset;}
 
+inline G4String BDSGlobalConstants::GetBDSIMHOME()
+{
+  return itsBDSIMHOME;
+}
 
 inline G4String BDSGlobalConstants::GetPhysListName()
 {
@@ -609,11 +705,11 @@ inline void BDSGlobalConstants::SetPhysListName(G4String val)
   itsPhysListName = val;
 }
 
-inline G4bool BDSGlobalConstants::GetUseLowEMPhysics()
-{return itsUseLowEMPhysics;}
-
 inline G4bool BDSGlobalConstants::GetSynchRadOn()
 {return itsSynchRadOn;}
+
+inline G4bool BDSGlobalConstants::GetDecayOn()
+{return itsDecayOn;}
 
 inline G4bool BDSGlobalConstants::GetSynchRescale()
 {return itsSynchRescale;}
@@ -639,12 +735,6 @@ inline G4int BDSGlobalConstants::GetSynchPhotonMultiplicity()
 inline G4int BDSGlobalConstants::GetSynchMeanFreeFactor()
 {return itsSynchMeanFreeFactor ;}
 
-inline G4bool BDSGlobalConstants::GetPlanckOn()
-{return itsPlanckOn;}
-
-inline G4bool BDSGlobalConstants::GetBDSeBremOn()
-{return itsBDSeBremOn;}
-
 inline G4double BDSGlobalConstants::GetLaserwireWavelength()
 {return itsLaserwireWavelength ;}
 
@@ -669,23 +759,18 @@ inline G4bool BDSGlobalConstants::GetLaserwireTrackElectrons()
 inline G4double BDSGlobalConstants::GetLengthSafety()
 {return itsLengthSafety;}
 
-inline G4bool BDSGlobalConstants::GetTurnOnInteractions()
-{return itsTurnOnInteractions;}
-
-inline G4bool BDSGlobalConstants::GetUseTimer()
-{return itsUseTimer;}
-
-inline G4bool BDSGlobalConstants::GetUseEMHadronic()
-{return itsUseEMHadronic;}
+inline G4bool BDSGlobalConstants::GetTurnOnCerenkov()
+{return itsTurnOnCerenkov;}
 
 inline G4bool BDSGlobalConstants::GetIncludeIronMagFields()
 {return itsIncludeIronMagFields;}
 
-inline G4bool BDSGlobalConstants::GetUseMuonPairProduction()
-{return itsUseMuonPairProduction;}
 
 inline G4bool BDSGlobalConstants::GetStoreMuonTrajectories()
 {return itsStoreMuonTrajectories;}
+
+inline G4double BDSGlobalConstants::GetTrajCutGTZ(){ return itsTrajCutGTZ; }
+inline G4double BDSGlobalConstants::GetTrajCutLTR(){ return itsTrajCutLTR; }
 
 inline G4bool BDSGlobalConstants::GetStoreNeutronTrajectories()
 {return itsStoreNeutronTrajectories;}
@@ -699,50 +784,6 @@ inline G4bool BDSGlobalConstants::GetStopTracks()
 inline void BDSGlobalConstants::SetStopTracks(G4bool val)
 { stopTracks = val; }
 
-inline G4bool BDSGlobalConstants::GetUseMuonShowers()
-{return itsUseMuonShowers;}
-
-inline G4double BDSGlobalConstants::GetMuonLowestGeneratedEnergy()
-{return itsMuonLowestGeneratedEnergy;}
-
-inline G4double BDSGlobalConstants::GetMuonEnergyCutScaleFactor()
-{return itsMuonEnergyCutScaleFactor;}
-
-inline void BDSGlobalConstants::SetMuonEnergyCutScaleFactor(G4double aScaleFactor)
-{itsMuonEnergyCutScaleFactor=aScaleFactor;}
-
-inline G4Timer* BDSGlobalConstants::GetTimer()
-{return itsTimer;}
-
-inline G4double BDSGlobalConstants::GetEnergyOffset()
-{return itsEnergyOffset;}
-
-inline  G4double BDSGlobalConstants::GetTrackWeightFactor()
-{return itsTrackWeightFactor;}
-
-inline  G4double BDSGlobalConstants::GetMuonProductionScaleFactor()
-{return itsMuonProductionScaleFactor;}
-
-inline  G4double BDSGlobalConstants::GetHadronInelasticScaleFactor()
-{return itsHadronInelasticScaleFactor;}
-
-inline  G4bool BDSGlobalConstants::GetUseHaloRadius()
-{return itsUseHaloRadius;}
-inline  G4double BDSGlobalConstants::GetHaloInnerRadius()
-{return itsHaloInnerRadius;}
-inline  G4double BDSGlobalConstants::GetHaloOuterRadius()
-{return itsHaloOuterRadius;}
-
-
-inline G4double BDSGlobalConstants::GetInnerHaloX()
-{return itsInnerHaloX;}
-inline G4double BDSGlobalConstants::GetOuterHaloX()
-{return itsOuterHaloX;}
-inline G4double BDSGlobalConstants::GetInnerHaloY()
-{return itsInnerHaloY;}
-inline G4double BDSGlobalConstants::GetOuterHaloY()
-{return itsOuterHaloY;}
-
 inline G4long BDSGlobalConstants::GetRandomSeed()
 {return itsRandomSeed;}
 inline  G4bool BDSGlobalConstants::GetUseBatch()
@@ -750,20 +791,11 @@ inline  G4bool BDSGlobalConstants::GetUseBatch()
 inline G4int BDSGlobalConstants::GetNumberToGenerate()
 {return itsNumberToGenerate;}
 
-inline G4String BDSGlobalConstants::GetOutputNtupleFileName()
-{return itsOutputNtupleFileName;}
 inline G4int BDSGlobalConstants::GetNumberOfEventsPerNtuple()
 {return itsNumberOfEventsPerNtuple;}
 
 inline G4int BDSGlobalConstants::GetEventNumberOffset()
 {return itsEventNumberOffset;}
-
-// Internally transmitted variables
-  // Internally transmitted variables:
-inline void BDSGlobalConstants::SetGlobalBeamlineRotationY(G4double aYRotation)
-{GlobalBeamlineRotationY=aYRotation;}
-inline G4double BDSGlobalConstants::GetGlobalBeamlineRotationY()
-{return GlobalBeamlineRotationY;}
 
 inline G4FieldManager* BDSGlobalConstants::GetZeroFieldManager()
 {return itsZeroFieldManager;}
@@ -781,13 +813,17 @@ inline  G4double BDSGlobalConstants::GetLWCalOffset()
 inline G4String BDSGlobalConstants::GetPipeMaterialName()
 {return itsPipeMaterial;}
 
-inline G4String BDSGlobalConstants::GetVacMaterialName()
+inline G4String BDSGlobalConstants::GetVacuumMaterial()
 {return itsVacMaterial;}
 
-inline G4bool BDSGlobalConstants::GetUseBeamGasPlug()
-{return itsUseBeamGasPlug;}
-inline G4double BDSGlobalConstants::GetBeamGasPlugZ()
-{return itsBeamGasPlugZ;}
+inline G4String BDSGlobalConstants::GetSoilMaterialName()
+{return itsSoilMaterialName;}
+
+inline G4String BDSGlobalConstants::GetTunnelMaterialName()
+{return itsTunnelMaterialName;}
+
+inline G4String BDSGlobalConstants::GetTunnelCavityMaterialName()
+{return itsTunnelCavityMaterialName;}
 
 inline G4bool BDSGlobalConstants::GetUseSynchPrimaryGen()
 {return itsSynchPrimaryGen;}
@@ -796,23 +832,17 @@ inline G4double BDSGlobalConstants::GetSynchPrimaryAngle()
 inline G4double BDSGlobalConstants::GetSynchPrimaryLength()
 {return itsSynchPrimaryLength;}
 
-inline G4bool BDSGlobalConstants::GetUseLastMaterialPoint()
-{return itsUseLastMaterialPoint;}
-
-inline G4double BDSGlobalConstants::GetWedgeDisplacement()
-{return itsWedgeDisplacement;}
-inline void BDSGlobalConstants::SetWedgeDisplacement(G4double WedgeDisplacement)
-{itsWedgeDisplacement=WedgeDisplacement;}
-inline G4bool BDSGlobalConstants::GetPreviousWasWedge()
-{return itsPreviousWasWedge;}
-inline void BDSGlobalConstants::SetPreviousWasWedge(G4bool PreviousWasWedge)
-{itsPreviousWasWedge=PreviousWasWedge;}
-
 inline G4bool BDSGlobalConstants::DoTwiss() 
 {return doTwiss;}
 
 inline void BDSGlobalConstants::SetDoTwiss(G4bool val) 
 {doTwiss = val;}
+
+inline G4bool BDSGlobalConstants::GetDoPlanckScattering() 
+{return itsDoPlanckScattering;}
+
+inline G4bool BDSGlobalConstants::GetCheckOverlaps() 
+{return itsCheckOverlaps;}
 
 //for map of laserwire wavelengths
 inline G4double BDSGlobalConstants::GetLaserwireWavelength(G4String aName)
@@ -854,6 +884,5 @@ inline const G4AffineTransform* BDSGlobalConstants::GetRefTransform() { return &
 inline void BDSGlobalConstants::SetRefTransform(G4AffineTransform& aTransform)
 {itsRefTransform=aTransform;}
 
-extern BDSGlobalConstants* BDSGlobals;
 #endif
 

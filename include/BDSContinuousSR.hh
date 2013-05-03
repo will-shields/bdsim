@@ -31,7 +31,6 @@
 #include "G4Navigator.hh"
 #include "G4AffineTransform.hh"
 
-extern BDSMaterials* theMaterials;
 extern G4double BDSLocalRadiusOfCurvature;
  
 class BDSContinuousSR : public G4VDiscreteProcess 
@@ -77,7 +76,7 @@ BDSContinuousSR::IsApplicable(const G4ParticleDefinition& particle)
 
 inline G4double 
 BDSContinuousSR::GetMeanFreePath(const G4Track& track,
-					G4double PreviousStepSize,
+					G4double,
 					G4ForceCondition* ForceCondition)
 {  
   *ForceCondition = NotForced ;
@@ -91,11 +90,11 @@ BDSContinuousSR::GetMeanFreePath(const G4Track& track,
   G4FieldManager* TheFieldManager=
     track.GetVolume()->GetLogicalVolume()->GetFieldManager();
 
-  if(track.GetTotalEnergy()<BDSGlobals->GetThresholdCutCharged())
+  if(track.GetTotalEnergy()<BDSGlobalConstants::Instance()->GetThresholdCutCharged())
     return DBL_MAX;
   /*
   G4double SynchOnZPos = (7.184+4.0) * m;
-  if(track.GetPosition().z() + BDSGlobals->GetWorldSizeZ() < SynchOnZPos)
+  if(track.GetPosition().z() + BDSGlobalConstants::Instance()->GetWorldSizeZ() < SynchOnZPos)
     return DBL_MAX;
   */
   if(TheFieldManager)
@@ -116,7 +115,7 @@ BDSContinuousSR::GetMeanFreePath(const G4Track& track,
 
       
  
-      if(track.GetMaterial()==theMaterials->GetMaterial("Vacuum")&&Blocal !=0 )
+      if(track.GetMaterial()==BDSMaterials::Instance()->GetMaterial("Vacuum")&&Blocal !=0 )
 	{
 	  G4ThreeVector InitMag=track.GetMomentum();
 

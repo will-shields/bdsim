@@ -17,21 +17,32 @@
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 #include "G4PVPlacement.hh"               
-
+#include "BDSDriftStepper.hh"
+#include "BDSMagField.hh"
 #include "BDSMultipole.hh"
+#include "G4ExactHelixStepper.hh"
+#include "G4CashKarpRKF45.hh"
 
 class BDSDrift :public BDSMultipole
 {
 public:
   BDSDrift(G4String aName, G4double aLength,
-	   G4double bpRad);
+           std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, 
+	   G4double startAper, G4double endAper=BDSGlobalConstants::Instance()->GetBeampipeRadius(), G4String aTunnelMaterial="", G4bool aperset=false, G4double aper=0, G4double tunnelOffsetX=BDSGlobalConstants::Instance()->GetTunnelOffsetX(), G4double phiAngleIn=0, G4double phiAngleOut=0);
   ~BDSDrift();
 
 protected:
 
 private:
+  void BuildBLMs();
   G4VisAttributes* SetVisAttributes();
-
+  void BuildBpFieldAndStepper();
+  G4double itsStartOuterR;
+  G4double itsEndOuterR;
+  //field related objects
+  BDSDriftStepper* itsStepper;
+  BDSMagField* itsMagField;
+  G4Mag_UsualEqRhs* itsEqRhs;
 };
 
 #endif

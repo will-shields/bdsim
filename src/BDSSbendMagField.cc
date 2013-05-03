@@ -10,8 +10,6 @@
 #include "geomdefs.hh"
 #include "BDSSbendMagField.hh"
 
-const int DEBUG = 0;
-
 BDSSbendMagField::BDSSbendMagField(const G4ThreeVector& aField,
 			       const G4double length,
 			       const G4double angle) 
@@ -22,18 +20,23 @@ BDSSbendMagField::BDSSbendMagField(const G4ThreeVector& aField,
       //    itsLocalRadius=length/angle;
       itsLocalRadius=-length/angle;// minus sign for correct machine convention
       // check for synchrotron radiation factors
+#ifdef DEBUG
       G4double B_inferred= 
-	(BDSGlobals->GetBeamMomentum()/GeV)/
-	(0.299792458 * (GeV/tesla/m)*itsLocalRadius/m);
-
-      if(DEBUG) G4cout<<"B_inferred="<<B_inferred/tesla<<
+        (BDSGlobalConstants::Instance()->GetBeamMomentum()/GeV)/
+        (0.299792458 * (GeV/tesla/m)*itsLocalRadius/m);
+      G4cout<<"B_inferred="<<B_inferred/tesla<<
 	" aField="<<aField/tesla<<G4endl;
-    }
-  else
-    G4Exception("BDSSbendMagField: zero angle not allowed");
+#endif
+    } else {
+#ifdef DEBUG
+    G4double B_inferred=0;
+    G4cout<<"B_inferred="<<B_inferred/tesla<<
+      " aField="<<aField/tesla<<G4endl;
+#endif
+  }
 }
-
 
 BDSSbendMagField::~BDSSbendMagField()
 {}
 
+#undef DEBUG

@@ -39,6 +39,7 @@ private:
   G4ParticleGun*              particleGun;	  //pointer a to G4 service class
   BDSDetectorConstruction*    BDSDetector;  //pointer to the geometry
   
+  G4double weight;
  
   // beam data:
   G4double beta_x,sig_z,KineticEnergy,

@@ -15,7 +15,7 @@
 //
 
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSSolenoid.hh"
 #include "G4Mag_UsualEqRhs.hh"
@@ -33,8 +33,6 @@
 #include "G4TransportationManager.hh"
 #include <map>
 
-const int DEBUG = 0;
-
 //============================================================
 
 typedef std::map<G4String,int> LogVolCountMap;
@@ -49,15 +47,14 @@ extern BDSMaterials* theMaterials;
 BDSSolenoid::BDSSolenoid(G4String aName, G4double aLength, 
 			 G4double bpRad, G4double FeRad,
 			 G4double bField, G4double outR,
-			 G4String aMaterial, G4String spec):
-  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), aMaterial),
+                         std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+			 G4String aTunnelMaterial, G4String aMaterial):
+  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), blmLocZ, blmLocTheta, aTunnelMaterial, aMaterial),
   itsBField(bField)
 {
   SetOuterRadius(outR);
   itsType="solenoid";
  
-  if(DEBUG) G4cout<<"BDSSOLENOID : SPEC : "<<spec<<G4endl;
-
   if (!(*LogVolCount)[itsName])
     {
       //
@@ -70,22 +67,28 @@ BDSSolenoid::BDSSolenoid(G4String aName, G4double aLength,
       //
       BuildBPFieldAndStepper();
       BuildBPFieldMgr(itsStepper,itsMagField);
-      BuildBeampipe(itsLength);
+      BuildBeampipe();
 
       //
       // build magnet (geometry + magnetic field)
       //
       BuildDefaultOuterLogicalVolume(itsLength);
-      if(BDSGlobals->GetIncludeIronMagFields())
+      if(BDSGlobalConstants::Instance()->GetIncludeIronMagFields())
 	{
 	  G4cerr<<"IncludeIronMagFields option not implemented for solenoid class"<<G4endl;
 	}
 
+      BuildBLMs();
+
       //
       // define sensitive volumes for hit generation
       //
-      SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
-      SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
+        SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+      }
+      if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
+        SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      }
 
       //
       // set visualization attributes
@@ -103,12 +106,12 @@ BDSSolenoid::BDSSolenoid(G4String aName, G4double aLength,
   else
     {
       (*LogVolCount)[itsName]++;
-      if(BDSGlobals->GetSynchRadOn()&& BDSGlobals->GetSynchRescale())
+      if(BDSGlobalConstants::Instance()->GetSynchRadOn()&& BDSGlobalConstants::Instance()->GetSynchRescale())
 	{
 	  // with synchrotron radiation, the rescaled magnetic field
 	  // means elements with the same name must have different
 	  //logical volumes, becuase they have different fields
-	  itsName+=BDSGlobals->StringFromInt((*LogVolCount)[itsName]);
+	  itsName+=BDSGlobalConstants::Instance()->StringFromInt((*LogVolCount)[itsName]);
 
 	  //
 	  // build external volume
@@ -120,13 +123,13 @@ BDSSolenoid::BDSSolenoid(G4String aName, G4double aLength,
 	  //
 	  BuildBPFieldAndStepper();
 	  BuildBPFieldMgr(itsStepper,itsMagField);
-	  BuildBeampipe(itsLength);
+	  BuildBeampipe();
 
 	  //
 	  // build magnet (geometry + magnetic field)
 	  //
 	  BuildDefaultOuterLogicalVolume(itsLength);
-	  if(BDSGlobals->GetIncludeIronMagFields())
+	  if(BDSGlobalConstants::Instance()->GetIncludeIronMagFields())
 	    {
 	      G4cerr<<"IncludeIronMagFields option not implemented for solenoid class"<<G4endl;
 	    }
@@ -135,8 +138,13 @@ BDSSolenoid::BDSSolenoid(G4String aName, G4double aLength,
 	  //
 	  // define sensitive volumes for hit generation
 	  //
-	  SetSensitiveVolume(itsBeampipeLogicalVolume);// for synchrotron
-	  //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire      
+          if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
+            SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+          }
+          if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
+            SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+          }
+          
 	  
 	  //
 	  // set visualization attributes
@@ -168,7 +176,9 @@ void BDSSolenoid::SynchRescale(G4double factor)
   itsStepper->SetBField(factor*itsBField);
   itsMagField->SetFieldValue(G4ThreeVector(0.0,0.0,factor*itsBField));
 #endif
-  if(DEBUG) G4cout << "Solenoid " << itsName << " has been scaled" << G4endl;
+#ifdef DEBUG 
+  G4cout << "Solenoid " << itsName << " has been scaled" << G4endl;
+#endif
 }
 
 G4VisAttributes* BDSSolenoid::SetVisAttributes()

@@ -10,7 +10,7 @@ histoPOWER(char *gmadFile, char *rootFile)
 //	histo->GetXaxis()->SetLimits(BDSPad::xmin_axis,BDSPad::xmax_axis);
 	axis->SetRange(BDSPad::xmin_axis,BDSPad::xmax_axis);
 	//axis->SetRange(axis->FindBin(BDSPad::xmin_axis),axis->FindBin(BDSPad::xmax_axis));
-	histo->Scale(18.1e6/2.95e+08);
+	histo->Scale(1);
 	histo->Draw();
 	b->SetHisto(histo); 
 	b->cd();

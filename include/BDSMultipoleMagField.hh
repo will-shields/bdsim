@@ -1,8 +1,9 @@
-/** BDSIM, v0.1   
+/* BDSIM
 
-Last modified 17.04.2006 by Ilya Agapov
+19 May 2008 by Marchiori G.
+17 Apr 2006 by Ilya Agapov
 
-**/
+*/
 
 //==============================================================
 
@@ -27,8 +28,8 @@ public:  // with description
 
 public:
   
-  list<G4double> bnl;
-  list<G4double> bsl;
+  list<G4double> bn; // field normal coefficients = kn * Brho
+  list<G4double> bs; // field skew coefficients = ks * Brho
 
 };
 

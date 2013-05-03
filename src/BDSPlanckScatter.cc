@@ -5,13 +5,13 @@
 */
 //      ------------ BDSPlanckScatter physics process --------
 //                     by Grahame Blair, 18 October 2001
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSPlanckScatter.hh"
 #include "G4ios.hh"
 #include "G4UnitsTable.hh"
 
-#if G4VERSION > 8
+#if G4VERSION_NUMBER > 899
 BDSPlanckScatter::BDSPlanckScatter():G4VEnergyLossProcess("PlanckScatt")
 #else
 BDSPlanckScatter::BDSPlanckScatter():G4VeEnergyLoss("PlanckScatt")
@@ -21,7 +21,7 @@ BDSPlanckScatter::BDSPlanckScatter():G4VeEnergyLoss("PlanckScatt")
   // TODO: change to appropriate definition!!!
   itsTemperature = 300 * kelvin;
 
-  if(itsTemperature<=0.){G4Exception("BDSPlanckScatter: Invalid Temperature");}
+  if(itsTemperature<=0.){G4Exception("BDSPlanckScatter: Invalid Temperature", "-1", FatalException, "");}
   itsPlanckEngine=new BDSPlanckEngine(itsTemperature);
   itsComptonEngine=new BDSComptonEngine();
 
@@ -30,7 +30,7 @@ BDSPlanckScatter::BDSPlanckScatter():G4VeEnergyLoss("PlanckScatt")
   
   G4double AvPhotonEnergy=2.7*k_Boltzmann*itsTemperature;
   
-  G4double w= BDSGlobals->GetBeamTotalEnergy()*AvPhotonEnergy/
+  G4double w= BDSGlobalConstants::Instance()->GetBeamTotalEnergy()*AvPhotonEnergy/
     pow( electron_mass_c2,2);
   
   G4double sigma=sigma_T*3/4*(
@@ -42,7 +42,7 @@ BDSPlanckScatter::BDSPlanckScatter():G4VeEnergyLoss("PlanckScatt")
   itsPlanckMeanFreePath=1/(photon_density*sigma);
   
   // include scaling so that statistics are more reasonable:
-  itsPlanckMeanFreePath /= BDSGlobals->GetBackgroundScaleFactor(); 
+  itsPlanckMeanFreePath /= BDSGlobalConstants::Instance()->GetPlanckScatterFe(); 
 } 
 
 
@@ -85,7 +85,7 @@ G4VParticleChange* BDSPlanckScatter::PostStepDoIt(const G4Track& trackData,
   
   G4LorentzVector ScatEl=itsComptonEngine->GetScatteredElectron();
   
-#if G4VERSION > 6
+#if G4VERSION_NUMBER > 699
   if (NewKinEnergy > 0.)
     {
       aParticleChange.ProposeMomentumDirection(ScatEl.vect().unit());
@@ -122,8 +122,8 @@ G4VParticleChange* BDSPlanckScatter::PostStepDoIt(const G4Track& trackData,
   return G4VContinuousDiscreteProcess::PostStepDoIt(trackData,stepData);
 }
 
-#if G4VERSION > 8
-void BDSPlanckScatter::InitialiseEnergyLossProcess(const G4ParticleDefinition* p, const G4ParticleDefinition*)
+#if G4VERSION_NUMBER > 899
+void BDSPlanckScatter::InitialiseEnergyLossProcess(const G4ParticleDefinition*, const G4ParticleDefinition*)
 {
 }
 

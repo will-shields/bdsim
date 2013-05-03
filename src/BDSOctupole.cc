@@ -7,7 +7,7 @@
    Changed StringFromInt to be the BDSGlobal version
 */
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSOctupole.hh"
 #include "G4Box.hh"
@@ -20,8 +20,6 @@
 
 #include <map>
 
-const int DEBUG = 0;
-
 //============================================================
 
 typedef std::map<G4String,int> LogVolCountMap;
@@ -30,14 +28,15 @@ extern LogVolCountMap* LogVolCount;
 typedef std::map<G4String,G4LogicalVolume*> LogVolMap;
 extern LogVolMap* LogVol;
 
-extern BDSMaterials* theMaterials;
 //============================================================
 
 BDSOctupole::BDSOctupole(G4String aName, G4double aLength, 
 			 G4double bpRad, G4double FeRad,
 			 G4double BTrpPrime, G4double tilt, 
-			 G4double outR, G4String aMaterial):
-  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), aMaterial),
+			 G4double outR, 
+                         std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+                         G4String aTunnelMaterial, G4String aMaterial):
+  BDSMultipole(aName, aLength, bpRad, FeRad, SetVisAttributes(), blmLocZ, blmLocTheta, aTunnelMaterial, aMaterial),
   itsBTrpPrime(BTrpPrime)
 {
   SetOuterRadius(outR);
@@ -52,33 +51,40 @@ BDSOctupole::BDSOctupole(G4String aName, G4double aLength,
       BuildDefaultMarkerLogicalVolume();
 
       //
+      //build tunnel
+      //
+      if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
+        BuildTunnel();
+      }
+
+      //
       // build beampipe (geometry + magnetic field)
       //
       BuildBPFieldAndStepper();
       BuildBPFieldMgr(itsStepper,itsMagField);
-      BuildBeampipe(itsLength);
+      BuildBeampipe();
 
       //
       // build magnet (geometry + magnetic field)
       //
       BuildDefaultOuterLogicalVolume(itsLength);
-      if(BDSGlobals->GetIncludeIronMagFields())
+      if(BDSGlobalConstants::Instance()->GetIncludeIronMagFields())
 	{
 	  G4double polePos[4];
 	  G4double Bfield[3];
 
 	  //coordinate in GetFieldValue
-	  polePos[0]=-BDSGlobals->GetMagnetPoleRadius()*sin(pi/8);
-	  polePos[1]=BDSGlobals->GetMagnetPoleRadius()*cos(pi/8);
+	  polePos[0]=-BDSGlobalConstants::Instance()->GetMagnetPoleRadius()*sin(pi/8);
+	  polePos[1]=BDSGlobalConstants::Instance()->GetMagnetPoleRadius()*cos(pi/8);
 	  polePos[2]=0.;
 	  polePos[3]=-999.;//flag to use polePos rather than local track
 
 	  itsMagField->GetFieldValue(polePos,Bfield);
 	  G4double BFldIron=
 	    sqrt(Bfield[0]*Bfield[0]+Bfield[1]*Bfield[1])*
-	    BDSGlobals->GetMagnetPoleSize()/
-	    (BDSGlobals->GetComponentBoxSize()/2-
-	     BDSGlobals->GetMagnetPoleRadius());
+	    BDSGlobalConstants::Instance()->GetMagnetPoleSize()/
+	    (BDSGlobalConstants::Instance()->GetComponentBoxSize()/2-
+	     BDSGlobalConstants::Instance()->GetMagnetPoleRadius());
 
 	  // Magnetic flux from a pole is divided in two directions
 	  BFldIron/=2.;
@@ -86,11 +92,18 @@ BDSOctupole::BDSOctupole(G4String aName, G4double aLength,
 	  BuildOuterFieldManager(8, BFldIron,pi/8);
 	}
 
+      //Build the beam loss monitors
+      BuildBLMs();
+
       //
       // define sensitive volumes for hit generation
       //
-      SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
-      SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
+        SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+      }
+      if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
+        SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      }
 
       //
       // set visualization attributes
@@ -108,12 +121,12 @@ BDSOctupole::BDSOctupole(G4String aName, G4double aLength,
   else
     {
       (*LogVolCount)[itsName]++;
-      if(BDSGlobals->GetSynchRadOn()&& BDSGlobals->GetSynchRescale())
+      if(BDSGlobalConstants::Instance()->GetSynchRadOn()&& BDSGlobalConstants::Instance()->GetSynchRescale())
 	{
 	  // with synchrotron radiation, the rescaled magnetic field
 	  // means elements with the same name must have different
 	  //logical volumes, becuase they have different fields
-	  itsName+=BDSGlobals->StringFromInt((*LogVolCount)[itsName]);
+	  itsName+=BDSGlobalConstants::Instance()->StringFromInt((*LogVolCount)[itsName]);
 
 	  //
 	  // build external volume
@@ -125,29 +138,29 @@ BDSOctupole::BDSOctupole(G4String aName, G4double aLength,
 	  //
 	  BuildBPFieldAndStepper();
 	  BuildBPFieldMgr(itsStepper,itsMagField);
-	  BuildBeampipe(itsLength);
+	  BuildBeampipe();
 
 	  //
 	  // build magnet (geometry + magnetic field)
 	  //
 	  BuildDefaultOuterLogicalVolume(itsLength);
-	  if(BDSGlobals->GetIncludeIronMagFields())
+	  if(BDSGlobalConstants::Instance()->GetIncludeIronMagFields())
 	    {
 	      G4double polePos[4];
 	      G4double Bfield[3];
 	      
 	      //coordinate in GetFieldValue
-	      polePos[0]=-BDSGlobals->GetMagnetPoleRadius()*sin(pi/8);
-	      polePos[1]=BDSGlobals->GetMagnetPoleRadius()*cos(pi/8);
+	      polePos[0]=-BDSGlobalConstants::Instance()->GetMagnetPoleRadius()*sin(pi/8);
+	      polePos[1]=BDSGlobalConstants::Instance()->GetMagnetPoleRadius()*cos(pi/8);
 	      polePos[2]=0.;
 	      polePos[3]=-999.;//flag to use polePos rather than local track
 
 	      itsMagField->GetFieldValue(polePos,Bfield);
 	      G4double BFldIron=
 		sqrt(Bfield[0]*Bfield[0]+Bfield[1]*Bfield[1])*
-		BDSGlobals->GetMagnetPoleSize()/
-		(BDSGlobals->GetComponentBoxSize()/2-
-		 BDSGlobals->GetMagnetPoleRadius());
+		BDSGlobalConstants::Instance()->GetMagnetPoleSize()/
+		(BDSGlobalConstants::Instance()->GetComponentBoxSize()/2-
+		 BDSGlobalConstants::Instance()->GetMagnetPoleRadius());
 
 	      // Magnetic flux from a pole is divided in two directions
 	      BFldIron/=2.;
@@ -159,9 +172,12 @@ BDSOctupole::BDSOctupole(G4String aName, G4double aLength,
 	  //
 	  // define sensitive volumes for hit generation
 	  //
-	  SetSensitiveVolume(itsBeampipeLogicalVolume);// for synchrotron
-	  //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
-	  
+          if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
+            SetSensitiveVolume(itsBeampipeLogicalVolume);
+          }
+          if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
+            SetSensitiveVolume(itsOuterLogicalVolume);
+	  }
 	  //
 	  // set visualization attributes
 	  //
@@ -188,7 +204,9 @@ void BDSOctupole::SynchRescale(G4double factor)
 {
   itsStepper->SetBTrpPrime(factor*itsBTrpPrime);
   itsMagField->SetBTrpPrime(factor*itsBTrpPrime);
-  if(DEBUG) G4cout << "Oct " << itsName << " has been scaled" << G4endl;
+#ifdef DEBUG
+  G4cout << "Oct " << itsName << " has been scaled" << G4endl;
+#endif
 }
 
 G4VisAttributes* BDSOctupole::SetVisAttributes()

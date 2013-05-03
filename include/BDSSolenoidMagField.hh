@@ -12,8 +12,8 @@ public:  // with description
   virtual ~BDSSolenoidMagField();
   // Constructor and destructor. No actions.
 
-
-  virtual void  GetFieldValue( const G4double Point[4],
+  /// Get Field Value (independent of position, since solenoid field is uniform)
+  virtual void  GetFieldValue( const G4double* /*Point[4]*/,
 			       G4double *Bfield ) const;
   void SetBField(G4double aBField);
 private:

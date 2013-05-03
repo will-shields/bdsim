@@ -8,6 +8,7 @@
 
 #include "G4Types.hh"
 #include "G4MagneticField.hh"
+#include "G4Navigator.hh"
 
 class BDSQuadMagField : public G4MagneticField
 {
@@ -22,6 +23,7 @@ public:  // with description
 			       G4double *Bfield ) const;
   void SetBGrad(G4double aBGrad);
 private:
+  G4Navigator* QuadNavigator;
   G4double itsBGrad;
   G4bool hasBeenScaled;
 

@@ -7,12 +7,9 @@
    Added GABs SynchGen code
 */
 
-
-const int DEBUG = 0;
-
 //==================================================================
 //==================================================================
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSPrimaryGeneratorAction.hh"
 
 #include "BDSDetectorConstruction.hh"
@@ -35,14 +32,14 @@ const int DEBUG = 0;
 
 extern BDSBunch theBunch;
 
-
 //===================================================
 // Keep initial point in phase space for diagnostics
 G4double
   initial_x, initial_xp,
   initial_y, initial_yp,
   initial_z, initial_zp,
-  initial_E, initial_t;
+  initial_E, initial_t,
+  initial_weight;
 
 BDSPrimaryGeneratorAction::BDSPrimaryGeneratorAction(
 					      BDSDetectorConstruction* BDSDC)
@@ -54,32 +51,40 @@ BDSPrimaryGeneratorAction::BDSPrimaryGeneratorAction(
   // initialize with default values... 
   // they will be overridden in GeneratePrimaries function
 
-  // particleGun->SetParticleDefinition(BDSGlobals->
-  //                                    GetParticleDefinition());
+  //  particleGun->SetParticleDefinition(BDSGlobalConstants::Instance()->
+  //                                      GetParticleDefinition());
 
+#ifdef DEBUG
+  G4cout << "BDSPrimaryGeneratorAction.cc: Primary particle is " << BDSGlobalConstants::Instance()->GetParticleDefinition()->GetParticleName() << G4endl;
+  G4cout << "BDSPrimaryGeneratorAction.cc: Setting particle definition for gun..." << G4endl;
   particleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->
 				     FindParticle("e-"));
-
+  G4cout << "BDSPrimaryGeneratorAction.cc: Setting synch rad..." << G4endl;
+#endif
   
-  if(BDSGlobals->GetUseSynchPrimaryGen()) // synchrotron radiation generator
+  if(BDSGlobalConstants::Instance()->GetUseSynchPrimaryGen()) // synchrotron radiation generator
     {
       itsBDSSynchrotronRadiation=new BDSSynchrotronRadiation("tmpSynRad");
-      G4double R=BDSGlobals->GetSynchPrimaryLength()/
-	BDSGlobals->GetSynchPrimaryAngle();   
+      G4double R=BDSGlobalConstants::Instance()->GetSynchPrimaryLength()/
+	BDSGlobalConstants::Instance()->GetSynchPrimaryAngle();   
       itsSynchCritEng=3./2.*hbarc/pow(electron_mass_c2,3)*
-	pow(BDSGlobals->GetBeamKineticEnergy(),3)/R;
-      
+	pow(BDSGlobalConstants::Instance()->GetBeamKineticEnergy(),3)/R;
+#ifdef DEBUG
       G4cout<<" BDSPrimaryGeneratorAction:  Critical Energy="<<
 	itsSynchCritEng/keV<<" keV"<<G4endl;
-      
+#endif
       particleGun->SetParticleDefinition(G4ParticleTable::GetParticleTable()->
-		     FindParticle("gamma"));
+					 FindParticle("gamma"));
     }
-
+  
+#ifdef DEBUG
+  G4cout << "Setting momentum..." << G4endl;
+#endif
   particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
   particleGun->SetParticlePosition(G4ThreeVector(0.*cm,0.*cm,0.*cm));
-  particleGun->SetParticleEnergy(BDSGlobals->GetBeamKineticEnergy());
+  particleGun->SetParticleEnergy(BDSGlobalConstants::Instance()->GetBeamKineticEnergy());
   particleGun->SetParticleTime(0);
+  weight = 1;
 }
 
 //===================================================
@@ -97,35 +102,44 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   G4double x0, y0, z0, xp, yp, zp, t, E;
 
-  if(!BDSGlobals->getReadFromStack()){
-    theBunch.GetNextParticle(x0,y0,z0,xp,yp,zp,t,E); // get next starting point
+  particleGun->SetParticleDefinition(BDSGlobalConstants::Instance()->GetParticleDefinition());
+
+  if(!BDSGlobalConstants::Instance()->getReadFromStack()){
+    theBunch.GetNextParticle(x0,y0,z0,xp,yp,zp,t,E,weight); // get next starting point
   }
-  else if(BDSGlobals->holdingQueue.size()!=0){
-    tmpParticle holdingParticle = BDSGlobals->holdingQueue.front();
-    tmpParticle outputParticle  = BDSGlobals->outputQueue.front();
-    x0 = holdingParticle.x; //
-    y0 = holdingParticle.y; //
-    z0 = holdingParticle.z; //
+  else if(BDSGlobalConstants::Instance()->holdingQueue.size()!=0){
+    tmpParticle holdingParticle = BDSGlobalConstants::Instance()->holdingQueue.front();
+    tmpParticle outputParticle  = BDSGlobalConstants::Instance()->outputQueue.front();
+    x0 = outputParticle.x; //
+    y0 = outputParticle.y; //
+    z0 = outputParticle.z; //
     t = holdingParticle.t;  //
     xp = holdingParticle.xp;
     yp = holdingParticle.yp;
     zp = holdingParticle.zp;
     E = holdingParticle.E;
-    if(DEBUG) printf("Particles left %i: %f %f %f %f %f %f %f %f\n",
-	(int)BDSGlobals->holdingQueue.size(),x0,y0,z0,xp,yp,zp,t,E);
-  }
-  else if(!BDSGlobals->isReference) G4Exception("No new particles to fire...\n");
+    weight = holdingParticle.weight;
 
-  if(E<0){
-    particleGun->SetParticleDefinition(
+    //flag for secondaries from previous runs
+    //    if(outputParticle.parentID != 0)
+      //      anEvent->SetEventID(-(anEvent->GetEventID()));
+
+    if(E<0){
+      particleGun->SetParticleDefinition(
 		G4ParticleTable::GetParticleTable()->FindParticle(
-			BDSGlobals->GetParticleDefinition()->
+			BDSGlobalConstants::Instance()->GetParticleDefinition()->
 				GetAntiPDGEncoding()));
-    E*=-1;
+      E*=-1;
+    }
+
+#ifdef DEBUG 
+    printf("Particles left %i: %f %f %f %f %f %f %f %f\n",
+           (int)BDSGlobalConstants::Instance()->holdingQueue.size(),x0,y0,z0,xp,yp,zp,t,E);
+#endif
   }
-  else if(E==0) G4cout << "Particle energy is 0! This will not be tracked." << G4endl;
-  else
-    particleGun->SetParticleDefinition(BDSGlobals->GetParticleDefinition());
+  else if(!BDSGlobalConstants::Instance()->isReference) G4Exception("No new particles to fire...\n", "-1", FatalException, "");
+
+  if(E==0) G4cout << "Particle energy is 0! This will not be tracked." << G4endl;
 
   G4ThreeVector PartMomDir(0,0,1);
   G4ThreeVector PartPosition(0,0,0);
@@ -133,20 +147,20 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   G4ThreeVector LocalPos;
   G4ThreeVector LocalMomDir;
 
-  if(!BDSGlobals->isReference){
+  if(!BDSGlobalConstants::Instance()->isReference){
     PartMomDir=G4ThreeVector(xp,yp,zp);
     PartPosition=G4ThreeVector(x0,y0,z0);
 
-    if(BDSGlobals->GetRefVolume()!=""){
-      const G4AffineTransform* tf = BDSGlobals->GetRefTransform();
+    if(BDSGlobalConstants::Instance()->GetRefVolume()!=""){
+      const G4AffineTransform* tf = BDSGlobalConstants::Instance()->GetRefTransform();
       LocalPos = tf->TransformPoint(PartPosition);
       LocalMomDir = tf->TransformAxis(PartMomDir);
-      if(DEBUG) {
-	G4cout << PartPosition << G4endl;
-        G4cout << PartMomDir << G4endl;
-        G4cout << LocalPos << G4endl;
-        G4cout << LocalMomDir << G4endl;
-      }
+#ifdef DEBUG 
+      G4cout << PartPosition << G4endl;
+      G4cout << PartMomDir << G4endl;
+      G4cout << LocalPos << G4endl;
+      G4cout << LocalMomDir << G4endl;
+#endif
       PartPosition = LocalPos;
       PartMomDir = LocalMomDir;
     }
@@ -157,26 +171,34 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     particleGun->SetParticleTime(t);
   }
 
+
   particleGun->GeneratePrimaryVertex(anEvent);
 
-  if(BDSGlobals->holdingQueue.size()!=0){
+  //Set the weight
+#ifdef DEBUG
+  G4cout << "BDSPrimaryGeneratorAction: setting weight = " << weight << G4endl;
+#endif
+  anEvent->GetPrimaryVertex()->SetWeight(weight);
+  
+  if(BDSGlobalConstants::Instance()->holdingQueue.size()!=0){
 
 //    anEvent->    GetTrack()->SetTrackID(outputParticle.trackID);
 //    anEvent->    GetTrack()->SetParentID(outputParticle.parentID);
-    BDSGlobals->holdingQueue.pop_front();
-    BDSGlobals->outputQueue.pop_front();
+    
+    BDSGlobalConstants::Instance()->holdingQueue.pop_front();
+    BDSGlobalConstants::Instance()->outputQueue.pop_front();
   }
 
   G4double totalE = E+particleGun->GetParticleDefinition()->GetPDGMass();
-  if(DEBUG )
-    {
-      G4cout
-	<< "BDSPrimaryGeneratorAction: " << G4endl
-	<< "  position= " << particleGun->GetParticlePosition()/m<<" m"<<G4endl
-	<< "  kinetic energy= " << E/GeV << " GeV" << G4endl
-	<< "  total energy= " << totalE/GeV << " GeV" << G4endl
-	<< "  momentum direction= " << PartMomDir << G4endl;
-    }
+#ifdef DEBUG
+  G4cout
+    << "BDSPrimaryGeneratorAction: " << G4endl
+    << "  position= " << particleGun->GetParticlePosition()/m<<" m"<<G4endl
+    << "  kinetic energy= " << E/GeV << " GeV" << G4endl
+    << "  total energy= " << totalE/GeV << " GeV" << G4endl
+    << "  momentum direction= " << PartMomDir << G4endl
+    << "  weight= " << anEvent->GetPrimaryVertex()->GetWeight() << G4endl;
+#endif
 
   // save initial values outside scope for entry into the samplers:
   initial_x=x0;
@@ -188,6 +210,8 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   initial_zp=zp;
   // total energy is used elsewhere:
   initial_E=totalE;
+  // weight
+  initial_weight=weight;
 }
 
 

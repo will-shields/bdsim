@@ -2,12 +2,13 @@
    Author: Grahame I. Agapov, Royal Holloway, Univ. of London.
 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSCollimator.hh"
 #include "G4VisAttributes.hh"
 #include "G4LogicalVolume.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4PVPlacement.hh"               
+#include "G4SubtractionSolid.hh"
 #include "G4UserLimits.hh"
 #include "G4TransportationManager.hh"
 
@@ -17,39 +18,50 @@
 #include <map>
 
 //============================================================
-//typedef std::map<G4String,MagFieldFunction*> PhysFieldMap;
-//extern PhysFieldMap* MagFieldMap;
-
 typedef std::map<G4String,int> LogVolCountMap;
 extern LogVolCountMap* LogVolCount;
 
 typedef std::map<G4String,G4LogicalVolume*> LogVolMap;
 extern LogVolMap* LogVol;
-//extern G4double BDS_Threshold_Energy;
-extern BDSMaterials* theMaterials;
+
 //============================================================
 
 BDSCollimator::BDSCollimator (G4String aName,G4double aLength,G4double bpRad,
 			      G4double xAper,G4double yAper, G4int type,
-			      G4Material *CollimatorMaterial, G4double outR):
+			      G4Material *CollimatorMaterial, G4double outR, 
+                              std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+                              G4String aTunnelMaterial):
   BDSAcceleratorComponent(aName,
 			  aLength,bpRad,xAper,yAper,
-			  SetVisAttributes()),
+			  SetVisAttributes(), blmLocZ, blmLocTheta, aTunnelMaterial),
   itsCollimatorMaterial(CollimatorMaterial), itsOuterR(outR)
 {
   if(type==_RCOL) itsType="rcol";
   if(type==_ECOL) itsType="ecol";
+
+  if(itsOuterR==0) itsOuterR = BDSGlobalConstants::Instance()->GetComponentBoxSize()/2;
+
   if ( (*LogVolCount)[itsName]==0)
     {
-      itsMarkerLogicalVolume=
-	new G4LogicalVolume(
-			    new G4Box(itsName,
-				      BDSGlobals->GetComponentBoxSize()/2,
-				      BDSGlobals->GetComponentBoxSize()/2,
-				      itsLength/2),
-			    theMaterials->GetMaterial("Vacuum"),
-			    itsName);
+  G4double xLength, yLength;
+  xLength = yLength = std::max(itsOuterR,BDSGlobalConstants::Instance()->GetComponentBoxSize()/2);
+
+  xLength = std::max(xLength, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness() + 4*BDSGlobalConstants::Instance()->GetLengthSafety() );   
+  yLength = std::max(yLength, this->GetTunnelRadius()+2*std::abs(BDSGlobalConstants::Instance()->GetTunnelOffsetY()) + BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness()+4*BDSGlobalConstants::Instance()->GetLengthSafety() );
+
+  itsMarkerLogicalVolume=new G4LogicalVolume
+    (new G4Box( itsName+"_marker_log",
+                xLength,
+		yLength,
+		(itsLength+BDSGlobalConstants::Instance()->GetLengthSafety())/2), //z half length 
+     BDSMaterials::Instance()->GetMaterial("vacuum"),
+     itsName+"_log");
+
+      if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
+        BuildTunnel();
+      }
       BuildInnerCollimator();
+      BuildBLMs();
 
       itsSolidLogVol->SetVisAttributes(SetVisAttributes());
 
@@ -69,6 +81,10 @@ BDSCollimator::BDSCollimator (G4String aName,G4double aLength,G4double bpRad,
     }  
 }
 
+void BDSCollimator::BuildBLMs(){
+  itsBlmLocationR=itsOuterR*2;
+  BDSAcceleratorComponent::BuildBLMs();
+}
 
 G4VisAttributes* BDSCollimator::SetVisAttributes()
 {
@@ -77,73 +93,92 @@ G4VisAttributes* BDSCollimator::SetVisAttributes()
   return itsVisAttributes;
 }
 
-
 void BDSCollimator::BuildInnerCollimator()
 {
 
   // zero aperture --> no aperture
+  if(itsXAper <= 0) itsXAper = DBL_MIN;//BDSGlobalConstants::Instance()->GetComponentBoxSize()/2;
+  if(itsYAper <= 0) itsYAper = DBL_MIN;//BDSGlobalConstants::Instance()->GetComponentBoxSize()/2;
 
-  if(itsXAper <= 0) itsXAper = BDSGlobals->GetComponentBoxSize()/2;
-  if(itsYAper <= 0) itsYAper = BDSGlobals->GetComponentBoxSize()/2;
+  if( (itsXAper>0) && (itsYAper>0) ){
+    G4cout << "BDSCollimator: building aperture" << G4endl;
+    if(itsType == "rcol")
+      {
+	itsInnerSolid=new G4Box(itsName+"_inner",
+				itsXAper,
+				itsYAper,
+				itsLength/2);
+      }
+    
+    if(itsType == "ecol")
+      {
+	itsInnerSolid=new G4EllipticalTube(itsName+"_inner",
+					   itsXAper,
+					   itsYAper,
+					   itsLength/2);
+      }
+  
+    itsInnerLogVol=
+      new G4LogicalVolume(itsInnerSolid,
+			  BDSMaterials::Instance()->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
+			  itsName+"_inner_log");
 
-  if(itsOuterR==0) itsOuterR = BDSGlobals->GetComponentBoxSize()/2;
+#ifndef NOUSERLIMITS
+  itsInnerLogVol-> SetUserLimits(itsUserLimits);
+#endif
+
+  }
+  
+  itsOuterSolid = new G4Box(itsName+"_outer_solid",
+			    itsOuterR,
+			    itsOuterR,
+			    itsLength/2);
+
+  G4ThreeVector nullThreeVector = G4ThreeVector(0,0,0);
+  G4RotationMatrix *nullRotationMatrix = new G4RotationMatrix();  
 
   itsSolidLogVol=
-    new G4LogicalVolume(new G4Box(itsName+"_solid",
-				  itsOuterR,
-				  itsOuterR,				  
-				  itsLength/2),
-			//itsCollimatorMaterial,
-			itsCollimatorMaterial,
-			itsName+"_solid");
-
-  if(itsType == "rcol")
-    {
-      itsInnerLogVol=
-	new G4LogicalVolume(new G4Box(itsName+"_inner",
-				      itsXAper,
-				      itsYAper,
-				      itsLength/2),
-			    theMaterials->GetMaterial("Vacuum"),
-			    itsName+"_inner");
-    }
+    new G4LogicalVolume(itsOuterSolid,
+                        itsCollimatorMaterial,
+			itsName+"_solid_log");
   
-  if(itsType == "ecol")
-    {
-      itsInnerLogVol=
-	new G4LogicalVolume(new G4EllipticalTube(itsName+"_inner",
-				      itsXAper,
-				      itsYAper,
-				      itsLength/2),
-			    theMaterials->GetMaterial("Vacuum"),
-			    itsName+"_inner");
-    }
-  
-  itsPhysiComp2 = 
-    new G4PVPlacement(
-		      0,		   // no rotation
-		      0,                   // its position
-		      itsInnerLogVol,      // its logical volume
-		      itsName+"_combined", // its name
-		      itsSolidLogVol,      // its mother  volume
-		      false,		   // no boolean operation
-		      0);		   // copy number 
-
-  SetSensitiveVolume(itsSolidLogVol);
-
-  itsSolidLogVol->
-    SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX,
-				       BDSGlobals-> GetThresholdCutCharged()));
-  
+#ifndef NOUSERLIMITS
+  itsUserLimits = new G4UserLimits();
+  itsUserLimits->SetMaxAllowedStep(itsLength);
+  itsUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+  itsUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+  itsSolidLogVol-> SetUserLimits(itsUserLimits);
+  itsMarkerLogicalVolume->SetUserLimits(itsUserLimits);
+#endif
   itsPhysiComp = 
     new G4PVPlacement(
-		      0,		     // no rotation
-		      0,                     // its position
+		      nullRotationMatrix,   // no rotation
+		      nullThreeVector,        // its position
 		      itsSolidLogVol,    // its logical volume
-		      itsName+"_solid",	     // its name
+		      itsName+"_solid_phys",	     // its name
 		      itsMarkerLogicalVolume, // its mother  volume
 		      false,		     // no boolean operation
-		      0);		     // copy number  
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		     // copy number  
+
+  if( (itsXAper>0) && (itsYAper>0) ){
+    G4cout << "BDSCollimator: placing aperture" << G4endl;
+    itsPhysiComp2 = 
+      new G4PVPlacement(
+			nullRotationMatrix,  // no rotation
+			nullThreeVector,     // its position
+			itsInnerLogVol,      // its logical volume
+			itsName+"_inner_phys", // its name
+			itsSolidLogVol,      // its mother  volume
+			false,		   // no boolean operation
+			0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		   // copy number 
+    SetMultiplePhysicalVolumes(itsPhysiComp2);
+  } 
+  
+  if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
+    SetSensitiveVolume(itsSolidLogVol);
+  }
+  SetMultiplePhysicalVolumes(itsPhysiComp);
+  G4cout << "BDSCollimator: finished building geometry" << G4endl;
 }
 
 
@@ -151,6 +186,9 @@ BDSCollimator::~BDSCollimator()
 {
   if(itsVisAttributes) delete itsVisAttributes;
   if(itsUserLimits) delete itsUserLimits;
+  if(itsInnerTunnelUserLimits) delete itsInnerTunnelUserLimits;
+  if(itsTunnelUserLimits) delete itsTunnelUserLimits;
+  if(itsSoilTunnelUserLimits) delete itsSoilTunnelUserLimits;
 
   if(itsMarkerLogicalVolume)delete itsMarkerLogicalVolume;
   if(itsSolidLogVol)delete itsSolidLogVol;
@@ -158,4 +196,10 @@ BDSCollimator::~BDSCollimator()
 
   if(itsPhysiComp) delete itsPhysiComp;
   if(itsPhysiComp2) delete itsPhysiComp2;
+
+  if(itsSoilTube) delete itsSoilTube;
+  if(itsTunnelTube) delete itsTunnelTube;
+  if(itsInnerTunnelTube) delete itsInnerTunnelTube;
+  if(itsInnerTunnelLogicalVolume) delete itsInnerTunnelLogicalVolume;
+  if(itsSoilTunnelLogicalVolume) delete itsSoilTunnelLogicalVolume;
 }

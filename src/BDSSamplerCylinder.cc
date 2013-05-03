@@ -3,7 +3,7 @@
    Last modified 5.3.2005
    Copyright (c) 2005 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSSamplerCylinder.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
@@ -27,8 +27,13 @@ extern LogVolMap* LogVol;
 
 
 
-extern BDSMaterials* theMaterials;
 //============================================================
+
+int BDSSamplerCylinder::nSamplers = 0;
+
+int BDSSamplerCylinder::GetNSamplers() { return nSamplers; }
+
+void BDSSamplerCylinder::AddExternalSampler() { nSamplers++; }
 
 BDSSamplerCylinder::
 BDSSamplerCylinder (G4String aName,G4double aLength,G4double aRadius):
@@ -38,7 +43,11 @@ BDSSamplerCylinder (G4String aName,G4double aLength,G4double aRadius):
 			 SetVisAttributes()),
   itsRadius(aRadius)
 {
+  nThisSampler = nSamplers + 1;
+  SetName("CSampler_"+BDSGlobalConstants::Instance()->StringFromInt(nThisSampler)+"_"+itsName);
+  SetType("csampler");
   SamplerCylinderLogicalVolume();
+  nSamplers++;
   //G4int nSamplers=(*LogVolCount)[itsName];
   //BDSRoot->SetSampCylinderNumber(nSamplers);
 }
@@ -48,8 +57,6 @@ void BDSSamplerCylinder::SamplerCylinderLogicalVolume()
 {
   if(!(*LogVolCount)[itsName])
     {
-      G4double SampTransSize;
-      SampTransSize=2.*BDSGlobals->GetTunnelRadius();
 
       itsMarkerLogicalVolume=
 	new G4LogicalVolume(new G4Tubs(itsName+"_body",
@@ -57,16 +64,16 @@ void BDSSamplerCylinder::SamplerCylinderLogicalVolume()
 				       itsRadius,
 				       itsLength/2,
 				       0,twopi*radian),
-			    theMaterials->GetMaterial("Vacuum"),
+			    BDSMaterials::Instance()->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			    itsName);
       
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
-
+#ifndef NOUSERLIMITS
       itsOuterUserLimits =new G4UserLimits();
-      itsOuterUserLimits->SetMaxAllowedStep(itsLength);
+      itsOuterUserLimits->SetMaxAllowedStep(BDSGlobalConstants::Instance()->GetSamplerDiameter()/2.0);
       itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
-
+#endif
       // Sensitive Detector:
       G4SDManager* SDMan = G4SDManager::GetSDMpointer();
       BDSSamplerSD* SensDet=new BDSSamplerSD(itsName,"cylinder");
@@ -91,4 +98,5 @@ BDSSamplerCylinder::~BDSSamplerCylinder()
 {
   delete itsVisAttributes;
   delete itsUserLimits;
+  --nSamplers;
 }

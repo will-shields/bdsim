@@ -19,17 +19,15 @@
 //
 //====================================================
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSSteppingAction.hh"
-
+#include "BDSBeamline.hh"
 #include <iostream>
 #include "G4Track.hh"
 
 #include"G4TransportationManager.hh"
-#include"G4FieldManager.hh"
 
-#include"G4Navigator.hh"
 #include"G4StepPoint.hh"
 #include "G4RotationMatrix.hh"
 #include "G4AffineTransform.hh"
@@ -60,10 +58,9 @@
 #include "BDSOctStepper.hh"
 #include "myQuadStepper.hh"
 
-extern BDSMaterials* theMaterials;
+#include "G4Timer.hh"
 
-typedef list<BDSAcceleratorComponent*> BDSBeamline;
-extern BDSBeamline theBeamline;
+extern BDSMaterials* theMaterials;
 
 extern G4double BDS_Threshold_Energy;
 extern G4double BDSLocalRadiusOfCurvature;
@@ -90,6 +87,8 @@ BDSSteppingAction::BDSSteppingAction()
   itsPosKick=1.e-11*m;
   itsNmax=10000;
   postponedEnergy=0;
+  SetTrackLength(0);
+  SetTrackLengthInWorldRegion(0);
 }
 
 //====================================================
@@ -99,160 +98,62 @@ BDSSteppingAction::~BDSSteppingAction()
 
 
 //====================================================
+G4double BDSSteppingAction::GetTrackLengthInWorldRegion(){
+  return trackLengthInWorldRegion;
+}
+
+G4double BDSSteppingAction::GetTrackLength(){
+  return trackLength;
+}
+
+void BDSSteppingAction::SetTrackLengthInWorldRegion(G4double dvalue){
+  trackLengthInWorldRegion = dvalue;
+}
+
+void BDSSteppingAction::SetTrackLength(G4double dvalue){
+  trackLength = dvalue;
+}
+
+//====================================================
 
 extern G4double htot;
 
 void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 { 
-  // G4cout<<"user stepping action called"<<G4endl;
-
-  G4Track* ThisTrack=ThisStep->GetTrack();
-  
-  //G4int TrackID=ThisTrack->GetTrackID();
-  
-  G4String pName=ThisTrack->GetDefinition()->GetParticleName();
-
-  if(ThisTrack->GetProperTime() > 1e-4*second)
-    {
-      G4cout << "WARNING: ProperTime > 1.e-4 second!" << G4endl;
-      G4cout<<" Killing the particle"<<G4endl;
-      ThisTrack->SetTrackStatus(fStopAndKill);
-    }
-  
-  // Check for a problem at the boundaries, where an infinite loop can
-  // apparently sometimes occur
-  
-
-  // leave Geant4 to take care of it 
-
- //  if(TrackID!=itsLastTrackID)
-//     {
-//       itsLastTrackID=TrackID;
-//       itsNtry=0;
-//     }
-//   else 
-//     { 
-//       if(fabs(ThisTrack->GetPosition().z()-itsLastZpos)<itsZposTolerance)
-// 	{
-// 	  itsNtry++;
-// 	  if(itsNtry>itsNmax)
-// 	    {
-// 	      G4cout<<" Killing the particle"<<G4endl;
-// 	      ThisTrack->SetTrackStatus(fStopAndKill);
-// 	      /* ThisTrack->
-// 		SetPosition(
-// 			    ThisTrack->GetPosition()+
-// 			    ThisTrack->GetMomentumDirection()*itsPosKick
-// 			    ); */
-// 	      //	      itsNtry=0;
-// 	    }
-// 	}
-//       else 	
-// 	itsNtry=0;
-//     }
-
-
-//  itsLastZpos=ThisTrack->GetPosition().z();
-  
 
   // check that there actually is a next volume as it may be the end of the optics line
-  if(BDSGlobals->DoTwiss() && ThisTrack->GetNextVolume()) 
-    {
-
-      G4cout <<" ***"<< ThisTrack->GetVolume()->GetName()<<G4endl;
+  if(BDSGlobalConstants::Instance()->DoTwiss()){
+    if(ThisStep->GetTrack()->GetNextVolume() && ThisStep->GetTrack()->GetParentID() <= 0) 
+      {
+	
+#ifdef DEBUG
+	G4cout <<" ***"<< ThisStep->GetTrack()->GetVolume()->GetName()<<G4endl;
+	G4cout <<" +++"<< ThisStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() << G4endl;      
+	G4cout <<" ---"<< ThisStep->GetPostStepPoint()->GetPhysicalVolume()->GetName() << G4endl;
+	G4cout << "StepLength = " << ThisStep->GetStepLength() << G4endl;
+	G4cout << "Track energy = " << ThisStep->GetTrack()->GetTotalEnergy() << G4endl;
+#endif
       
-      G4int curr_delim = ThisTrack->GetVolume()->GetName().find("_");
-      G4String curr_gmad_name = ThisTrack->GetVolume()->GetName().substr(0,curr_delim);
-      G4int delim = ThisTrack->GetNextVolume()->GetName().find("_");
-      G4String gmad_name = ThisTrack->GetNextVolume()->GetName().substr(0,delim);
+      G4int curr_delim = ThisStep->GetTrack()->GetVolume()->GetName().find("_");
+      G4String curr_gmad_name = ThisStep->GetTrack()->GetVolume()->GetName().substr(0,curr_delim);
+      G4int delim = ThisStep->GetTrack()->GetNextVolume()->GetName().find("_");
+      G4String gmad_name = ThisStep->GetTrack()->GetNextVolume()->GetName().substr(0,delim);
       if (curr_gmad_name != gmad_name && gmad_name!="World")
-      //      if(ThisTrack->GetVolume()->GetName().contains("samp"))
-	{ 
+        { 
+#ifdef DEBUG
 	  G4cout << curr_gmad_name << " " << gmad_name << G4endl;
-	  G4ThreeVector pos = ThisTrack->GetPosition();
-	  postponedEnergy+=ThisTrack->GetTotalEnergy();
-	  	  
+#endif
+	  G4ThreeVector pos = ThisStep->GetTrack()->GetPosition();
+	  postponedEnergy+=ThisStep->GetTrack()->GetTotalEnergy();
+	  
 	  G4StackManager* SM = G4EventManager::GetEventManager()->GetStackManager();
-
+#ifdef DEBUG 
+          G4cout << "Postponing track " << SM->GetNPostponedTrack() << G4endl;
+#endif
 	  if(SM->GetNPostponedTrack()!= nptwiss-1 ) { 
 	    // postpone track and save its coordinates for twiss fit
-	    ThisTrack->SetTrackStatus(fPostponeToNextEvent);
-
-// 	    G4ThreeVector pos=ThisTrack->GetPosition();
-// 	    G4ThreeVector momDir=ThisTrack->GetMomentumDirection();
-
-	    // Get Translation and Rotation of Sampler Volume w.r.t the World Volume
-	 //    G4AffineTransform tf(ThisTrack->GetTouchable()->GetHistory()->GetTopTransform().Inverse());
-// 	    const G4RotationMatrix Rot=tf.NetRotation();
-// 	    const G4ThreeVector Trans=-tf.NetTranslation();
-	    
-// 	    G4ThreeVector LocalPosition=pos+Trans; 
-// 	    G4ThreeVector LocalDirection=Rot*momDir; 
-
-
-	    //subtract the energy end position chnge due to SR when rescaling
-
-	    //G4cout<<"changing track coordinates according to sr"<<G4endl;
-
-
-	  //   // get the field for the local element (assuming 
-// 	    // it doesn't chnage much when the particle travles through it
-
-
-// 	    G4FieldManager* TheFieldManager= ThisTrack->GetVolume()->GetLogicalVolume()->GetFieldManager();
-
-// 	    G4double dE = 0*GeV;
-// 	    G4double dx = 0*mm;
-
-// 	    if(TheFieldManager)
-// 	      {
-// 		const G4Field* pField = TheFieldManager->GetDetectorField() ;
-// 		G4ThreeVector  globPosition = track.GetPosition() ;
-// 		G4double  globPosVec[3], FieldValueVec[3] ;
-// 		globPosVec[0] = globPosition.x() ;
-// 		globPosVec[1] = globPosition.y() ;
-// 		globPosVec[2] = globPosition.z() ;
-		
-// 		if(pField)
-// 		  pField->GetFieldValue( globPosVec, FieldValueVec ) ; 
-		
-// 		G4double Blocal=
-// 		  Blocal=sqrt(FieldValueVec[0]*FieldValueVec[0] + 
-// 			      FieldValueVec[1]*FieldValueVec[1] +
-// 			      FieldValueVec[2]*FieldValueVec[2] );
-
-// 		G4cout<<"Blocal = "<<Blocal/tesla<<" tesla"<<G4endl;
-
-// 		G4ThreeVector InitMag=track.GetMomentum();
-		
-// 		// transform to the local coordinate frame
-		
-// 		G4AffineTransform tf(track.GetTouchable()->GetHistory()->GetTopTransform().Inverse());
-// 		const G4RotationMatrix Rot=tf.NetRotation();
-// 		const G4ThreeVector Trans=-tf.NetTranslation();
-// 		InitMag=Rot*InitMag; 
-		
-// 		G4double Rlocal=(InitMag.z()/GeV)/(0.299792458 * Blocal/tesla) *m;
-
-// 		G4cout<<"Rlocal = "<<Rlocal/m<<" m"<<G4endl;
-
-// 		dE = - 
-
-// 	      };
-
-
-	  
-// 	    LocalPosition += G4ThreeVector(dx,0,0);
-// 	    pos = LocalPosition - Trans;
-
-// 	    ThisTrack->SetPosition(pos);
-// 	    ThisTrack->SetKineticEnergy( ThisTrack->GetKineticEnergy() + dE );
-
-	  //   G4cout<<"postponed track: "<<SM->GetNPostponedTrack()<<G4endl;
-// 	    G4cout<<"r: "<<LocalPosition<<G4endl;
-// 	    G4cout<<"rp: "<<LocalDirection<<G4endl;
-	    //x.push_back(
-	  }
+	    ThisStep->GetTrack()->SetTrackStatus(fPostponeToNextEvent);
+          }
 
 	  // all tracks arrived - do rescaling
 	  if(SM->GetNPostponedTrack()== nptwiss-1)
@@ -262,25 +163,24 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 
 	      list<BDSAcceleratorComponent*>::const_iterator iBeam;
 	      G4String type="";	      
-	      for(iBeam=theBeamline.begin();iBeam!=theBeamline.end();iBeam++)
+	      for(BDSBeamline::Instance()->first();!BDSBeamline::Instance()->isDone();BDSBeamline::Instance()->next())
 		{ 
-		  if( (*iBeam)->GetName() == gmad_name)
+		  if( BDSBeamline::Instance()->currentItem()->GetName() == gmad_name)
 		    {
-		      type = (*iBeam)->GetType();
-		      if(verbose) G4cout << "Next Element is: " << (*iBeam)->GetName() << G4endl;
+		      type = BDSBeamline::Instance()->currentItem()->GetType();
+		      if(verbose) G4cout << "Next Element is: " << BDSBeamline::Instance()->currentItem()->GetName() << G4endl;
 		      if(verbose) G4cout << "Element Type: " << type << G4endl;
-		      G4double old_P0 = BDSGlobals->GetBeamTotalEnergy();
+		      G4double old_P0 = BDSGlobalConstants::Instance()->GetBeamTotalEnergy();
 		      G4double old_brho = 
 			sqrt(pow(old_P0,2)- pow(electron_mass_c2,2))/(0.299792458 * (GeV/(tesla*m)));
 		      G4double new_P0 = postponedEnergy/nptwiss;
 		      G4double new_brho = 
 			sqrt(pow(new_P0,2)- pow(electron_mass_c2,2))/(0.299792458 * (GeV/(tesla*m)));
 		      
-		      if(BDSGlobals->GetSynchRescale()) 
+		      if(BDSGlobalConstants::Instance()->GetSynchRescale()) 
 			{
-			  (*iBeam)->SynchRescale(new_brho/old_brho);
-			  
-			  if(verbose) G4cout << "Rescaling by: " << new_brho/old_brho << G4endl;
+			  BDSBeamline::Instance()->currentItem()->SynchRescale(new_brho/old_brho);
+			  if(verbose) G4cout << "Rescaling " << BDSBeamline::Instance()->currentItem()->GetName() << "by: " << new_brho/old_brho << G4endl;
 			  G4cout << "*";
 			  G4cout.flush();
 			}
@@ -292,39 +192,36 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 	  return;
 	}
     }
-
+  }
   
   // ------------  output in case of verbose step ---------------------
 
 
-  if(verboseStep && (!BDSGlobals->GetSynchRescale()) )
+  if((verboseStep || verboseEventNumber == event_number) && (!BDSGlobalConstants::Instance()->GetSynchRescale()) )
     {
-
-	int ID=ThisTrack->GetTrackID();
-
+	int ID=ThisStep->GetTrack()->GetTrackID();
 
 	G4cout.precision(10);
-	G4cout<<"This volume="<< ThisTrack->GetVolume()->GetName()<<G4endl;
+	G4cout<<"This volume="<< ThisStep->GetTrack()->GetVolume()->GetName()<<G4endl;
 	
-	G4LogicalVolume* LogVol=ThisTrack->GetVolume()->GetLogicalVolume();
+	G4LogicalVolume* LogVol=ThisStep->GetTrack()->GetVolume()->GetLogicalVolume();
 	G4cout<<"This log volume="<<LogVol->GetName() <<G4endl;
 	
 	G4cout<<"ID="<<ID<<" part="<<
-	  ThisTrack->GetDefinition()->GetParticleName()<<
-	  "Energy="<<ThisTrack->GetTotalEnergy()/GeV<<
+	  ThisStep->GetTrack()->GetDefinition()->GetParticleName()<<
+	  "Energy="<<ThisStep->GetTrack()->GetTotalEnergy()/GeV<<
 	  " mom Px="
-	      <<ThisTrack->GetMomentum()[0]/GeV<<
-	  " Py="<<ThisTrack->GetMomentum()[1]/GeV<<
-	  " Pz="<<ThisTrack->GetMomentum()[2]/GeV<<" vol="<<
-	  ThisTrack->GetVolume()->GetName()<<G4endl;
+	      <<ThisStep->GetTrack()->GetMomentum()[0]/GeV<<
+	  " Py="<<ThisStep->GetTrack()->GetMomentum()[1]/GeV<<
+	  " Pz="<<ThisStep->GetTrack()->GetMomentum()[2]/GeV<<" vol="<<
+	  ThisStep->GetTrack()->GetVolume()->GetName()<<G4endl;
 	
-	G4cout<<" Global Position="<<ThisTrack->GetPosition()<<G4endl;
-	
-	
-	if(ThisTrack->GetMaterial()->GetName() !="LCVacuum")
-	  G4cout<<"material="<<ThisTrack->GetMaterial()->GetName()<<G4endl;
-	//	G4Exception(" wrong material");
-	
+	G4cout<<" Global Position="<<ThisStep->GetTrack()->GetPosition()<<G4endl;
+	G4AffineTransform tf(ThisStep->GetPreStepPoint()->GetTouchableHandle()->GetHistory()->GetTopTransform());
+	G4cout<<" Local Position="<< tf.TransformPoint(ThisStep->GetTrack()->GetPosition()) <<G4endl;
+
+	if(ThisStep->GetTrack()->GetMaterial()->GetName() !="LCVacuum")
+	  G4cout<<"material="<<ThisStep->GetTrack()->GetMaterial()->GetName()<<G4endl;
 
 	  G4VProcess* proc=(G4VProcess*)(ThisStep->GetPostStepPoint()->
 	    GetProcessDefinedStep() );
@@ -336,53 +233,46 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 	    GetProcessDefinedStep() );
 
        	  if(proc)G4cout<<" pre-step process="<<proc->GetProcessName()<<G4endl<<G4endl;
-
-	
-
-      }
-
-
-  // -------------  kill tracks according to cuts -------------------
-  
-
-  // this cuts apply to default region
-
-  //G4LogicalVolume* LogVol=ThisTrack->GetVolume()->GetLogicalVolume();
-  //G4Region* reg = LogVol->GetRegion();
-
-  //G4cout<<"I am in "<<reg->GetName()<<G4endl;
-
-  //if(reg->GetName() != "precision")
-    {
-      if(pName=="gamma")
-	{
-	  G4double photonCut = BDSGlobals->GetThresholdCutPhotons();
-	  
-	  if(ThisTrack->GetTotalEnergy()<photonCut)
-	    {
-	     
-	      ThisTrack->SetTrackStatus(fStopAndKill);
-	     
-	    }
-	}
-      
-      if(pName=="e-"||pName=="e+")
-	{
-	  if(ThisTrack->GetTotalEnergy()<BDSGlobals->GetThresholdCutCharged())
-	    {
-	
-	      ThisTrack->SetTrackStatus(fStopAndKill);
-	
-	    }
-	}
-      
     }
-  
-   
-        
-}
+
 
 //====================================================
+
+// -------------  kill tracks according to cuts -------------------
+
+G4String pName=ThisStep->GetTrack()->GetDefinition()->GetParticleName();
+ 
+#ifndef NOSTEPPERCUT
+
+// this cuts apply to default region
+ if(pName=="gamma"){
+   if(ThisStep->GetTrack()->GetKineticEnergy()<BDSGlobalConstants::Instance()->GetThresholdCutPhotons())
+     {
+       ThisStep->GetTrack()->SetTrackStatus(fStopAndKill);
+     }
+ } else if(pName=="e-"||pName=="e+"){
+   if(ThisStep->GetTrack()->GetKineticEnergy()<BDSGlobalConstants::Instance()->GetThresholdCutCharged())
+     {
+       ThisStep->GetTrack()->SetTrackStatus(fStopAndKill);
+     }
+ }
+#endif
+
+ //Kill all neutrinos
+ G4bool killNeutrinos = true;
+ if( killNeutrinos ){
+   if( pName=="nu_e" || pName=="nu_mu" || pName=="nu_tau" || pName=="anti_nu_e" || pName=="anti_nu_mu" || pName=="anti_nu_tau" ){
+     ThisStep->GetTrack()->SetTrackStatus(fStopAndKill);
+   }
+ }
+}
+
+
+
+
+
+//====================================================
+
 
 
 

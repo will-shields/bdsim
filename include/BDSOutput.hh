@@ -8,6 +8,7 @@
 #include "BDSSampler.hh"
 #include "BDSSamplerHit.hh"
 #include "BDSSamplerSD.hh"
+#include "BDSSamplerCylinder.hh"
 #include "BDSEnergyCounterHit.hh"
 
 #include "BDSLWCalorimeter.hh"
@@ -25,12 +26,12 @@
 #include "TNtuple.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TH3F.h"
 #endif
 
 const G4int _ASCII = 0;
 const G4int _ROOT = 1;
 const G4int _ASCII_ROOT = 2;
-
 
 class BDSOutput {
 
@@ -45,17 +46,12 @@ public:
   void WriteHits(BDSSamplerHitsCollection*);
   void WriteEnergyLoss(BDSEnergyCounterHitsCollection*);
   G4int WriteTrajectory(TrajectoryVector* TrajVec);
+  G4int WriteTrajectory(std::vector<G4VTrajectory*> TrajVec);
 
   void Echo(G4String str);
 
-  G4int GetOutputFileNumber();
-  void SetOutputFileNumber(G4int fileNum);
-  void IncrementOutputFileNumber();
-  
   G4int Commit(); //G4int FileNum);   // close the event
-  G4int Write();           // close the event
-
-
+  void Write();           // close the event
   // for root output
 
 #ifdef USE_ROOT
@@ -63,38 +59,34 @@ public:
   TTree *theLWCalorimeterTree;
 
   TH1F *EnergyLossHisto;
-  TNtuple *EnergyLossNtuple;
+  TH3F *EnergyLossHisto3d;
+  TTree *PrecisionRegionEnergyLossTree;
+  TTree *EnergyLossTree;
 #endif
 
   G4int nSamplers;
-  G4double zMax;
+  G4double zMax, transMax; //Maximum values of longitudinal and transverse global position
   //BDSSamplerSD* BDSSamplerSensDet;
   std::vector <G4String> SampName;
+  std::vector <G4String> CSampName;
 private:
-  G4int itsOutputFileNumber;
+  G4String _filename;
   G4int format;
   ofstream of;
   int outputFileNumber;
 
 //#ifdef USE_ROOT
   float x0,xp0,y0,yp0,z0,zp0,E0,t0;
-  float x,xp,y,yp,z,zp,E,t;
-  float X,Xp,Y,Yp,Z,Zp,s,weight;
+  float x,xp,y,yp,z,zp,E,Edep,t;
+  float X,Xp,Y,Yp,Z,Zp,s,weight,EWeightZ;
   int part,nev, pID, theID, track_id;
+  float z_el,E_el;
+  float x_el_p,y_el_p,z_el_p,E_el_p;
+  int part_el_p,pID_el_p, weight_el_p;
+  char volumeName_el_p[100];
 //#endif
 
 };
 
-inline void BDSOutput::SetOutputFileNumber(G4int fileNum){
-  itsOutputFileNumber=fileNum;
-}
-
-inline G4int BDSOutput::GetOutputFileNumber(){
-  return itsOutputFileNumber;
-}
-
-inline void BDSOutput::IncrementOutputFileNumber(){
-  itsOutputFileNumber++;
-}
 extern BDSOutput* bdsOutput;
 #endif

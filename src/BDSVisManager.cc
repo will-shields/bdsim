@@ -44,6 +44,11 @@
 #include "G4OpenGLStoredWin32.hh"
 #endif
 
+#ifdef G4VIS_USE_OPENGLQT
+#include "G4OpenGLImmediateQt.hh"
+#include "G4OpenGLStoredQt.hh"
+#endif
+
 #ifdef G4VIS_USE_OPENGLXM
 #include "G4OpenGLImmediateXm.hh"
 #include "G4OpenGLStoredXm.hh"
@@ -70,6 +75,11 @@
 #ifdef G4VIS_USE_RAYTRACER
 #include "G4RayTracer.hh"
 #endif
+
+#ifdef G4VIS_USE_RAYTRACERX
+#include "G4RayTracerX.hh"
+#endif
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
@@ -107,6 +117,11 @@ void BDSVisManager::RegisterGraphicsSystems () {
   RegisterGraphicsSystem (new G4OpenGLStoredWin32);
 #endif
 
+#ifdef G4VIS_USE_OPENGLQT
+  RegisterGraphicsSystem (new G4OpenGLImmediateQt);
+  RegisterGraphicsSystem (new G4OpenGLStoredQt);
+#endif
+
 #ifdef G4VIS_USE_OPENGLXM
   RegisterGraphicsSystem (new G4OpenGLImmediateXm);
   RegisterGraphicsSystem (new G4OpenGLStoredXm);
@@ -133,6 +148,11 @@ void BDSVisManager::RegisterGraphicsSystems () {
 #ifdef G4VIS_USE_RAYTRACER
   RegisterGraphicsSystem (new G4RayTracer);
 #endif
+
+#ifdef G4VIS_USE_RAYTRACERX
+  RegisterGraphicsSystem (new G4RayTracerX);
+#endif
+
 
 // Duplicate printout
 //  if (fVerbose > 0) {

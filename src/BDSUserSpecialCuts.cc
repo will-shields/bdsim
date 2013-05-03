@@ -20,12 +20,15 @@
 // 15-04-98 first implementation, mma                   
 // --------------------------------------------------------------
 
+#include "BDSGlobalConstants.hh"
 #include "BDSUserSpecialCuts.hh"
+
 
 #include "G4Step.hh"
 #include "G4UserLimits.hh"
 #include "G4VParticleChange.hh"
 #include "G4EnergyLossTables.hh"
+#include "G4Version.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -52,7 +55,7 @@ BDSUserSpecialCuts::BDSUserSpecialCuts(BDSUserSpecialCuts& right)
  
 G4double BDSUserSpecialCuts::PostStepGetPhysicalInteractionLength(
                              const G4Track& aTrack,
-			     G4double   previousStepSize,
+			     G4double,
 			     G4ForceCondition* condition
 			    )
 {
@@ -67,7 +70,7 @@ G4double BDSUserSpecialCuts::PostStepGetPhysicalInteractionLength(
        if (ProposedStep < 0.) return 0.;
        //max time limit
        G4double beta = (aTrack.GetDynamicParticle()->GetTotalMomentum())/(aTrack.GetTotalEnergy());
-       G4double dTime= (pUserLimits->GetUserMaxTime(aTrack) - aTrack.GetGlobalTime());
+       G4double dTime=(pUserLimits->GetUserMaxTime(aTrack) - aTrack.GetGlobalTime());
        G4double temp = beta*c_light*dTime;
        if (temp < 0.) return 0.;
        if (ProposedStep > temp) ProposedStep = temp;                  
@@ -109,7 +112,7 @@ G4VParticleChange* BDSUserSpecialCuts::PostStepDoIt(
 {
    aParticleChange.Initialize(aTrack);
 
-#if G4VERSION > 6
+#if G4VERSION_NUMBER > 699
    aParticleChange.ProposeEnergy(0.) ;
    aParticleChange.ProposeLocalEnergyDeposit (aTrack.GetKineticEnergy()) ;
 #else

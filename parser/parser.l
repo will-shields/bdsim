@@ -15,11 +15,18 @@
 %{
   
 #include <iostream>
+#include <string>
 #include <cstring>
 #include "parser.tab.h"
 #include "sym_table.h"
+#include "getEnv.h"
+
+#define MAXFILENAMELENGTH 200
+
   
 using namespace std;
+
+string sBDSHOME = (string)getEnv("BDSIMHOME");
  
 int match_var(char *name);
 struct symtab * symlook(char *s);
@@ -33,14 +40,12 @@ extern int yyerror(char *s);
 
 #define MAX_INCLUDE_DEPTH 10
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
-char include_filename_stack[MAX_INCLUDE_DEPTH][32];
+char include_filename_stack[MAX_INCLUDE_DEPTH][MAXFILENAMELENGTH];
 int include_linenum_stack[MAX_INCLUDE_DEPTH];
 int include_stack_ptr = 0;
 
 int line_num = 1;
 char* yyfilename;
-
-
 
 %}
 
@@ -50,7 +55,7 @@ char* yyfilename;
 
 [\t ]+     //ignore whitespaces
 
-(([0-9]+)|([0-9]*\.[0-9]*))(e[+|-]?[0-9]+)? { yylval.dval=atof(yytext); return NUMBER; }
+(([0-9]+)|([0-9]*\.[0-9]*))((e|E)[+|-]?[0-9]+)? { yylval.dval=atof(yytext); return NUMBER; }
 
 
 "<=" { return LE; }
@@ -62,6 +67,7 @@ char* yyfilename;
 
 marker { return MARKER; } // reserved elements
 drift { return DRIFT; }
+pcldrift { return PCLDRIFT; }
 rfcavity { return RF; }
 dipole { return DIPOLE; }
 sbend { return SBEND; } 
@@ -76,6 +82,7 @@ multipole { return MULTIPOLE; }
 solenoid { return SOLENOID; }
 rcol { return RCOL;}
 ecol { return ECOL; } 
+muspoiler { return MUSPOILER; } 
 element { return ELEMENT; }
 transform3d { return TRANSFORM3D ; }
 collimator { return COLLIMATOR; }
@@ -88,7 +95,7 @@ laser { return LASER; }
 
 line       { return LINE; } 
 
-apertr {return APERTURE; } // reserved keywords
+aperture {return APERTURE; } // reserved keywords
 filename { return FILENAME; }
 period { return PERIOD; }
 range { return RANGE; }
@@ -101,7 +108,7 @@ cut { return CUT; }
 "end" { return END; }
 
 
-include     BEGIN(incl);  //reserved commands
+include   BEGIN(incl);  //reserved commands
 
 beam { return BEAM; }
 option { return OPTION; }
@@ -141,7 +148,8 @@ dump  { return DUMP; }
 
 <incl>[ \t]*  // eat the whitespace
 <incl>[^ \t\n;]+ {
-  printf("reading file %s \n",yytext);
+string filename = sBDSHOME+(string)yytext;
+  printf("reading file %s \n",(char*)filename.c_str());//yytext
   if( include_stack_ptr >= MAX_INCLUDE_DEPTH )
     {
       fprintf(stderr , "Error : Include depth exceeds %d\n",MAX_INCLUDE_DEPTH);
@@ -149,23 +157,23 @@ dump  { return DUMP; }
     }
   else
     {
-      yyin = fopen(yytext, "r");
+      yyin = fopen((char*)filename.c_str(), "r"); //yytext
       if(yyin)
 	{
           //printf("saving to stack buffer n %d, file %s\n",include_stack_ptr,yyfilename );
           // save info to the stack and load new buffer
           include_linenum_stack[include_stack_ptr] = line_num;
           line_num = 1;
-          strncpy(include_filename_stack[include_stack_ptr], yyfilename, 32);
-          strncpy(yyfilename,yytext,32); 
+          strncpy(include_filename_stack[include_stack_ptr], yyfilename, MAXFILENAMELENGTH);
+          strncpy(yyfilename,(char*)filename.c_str(),MAXFILENAMELENGTH); //yytext
 	  include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
-          strncpy(include_filename_stack[include_stack_ptr], yyfilename, 32);
+          strncpy(include_filename_stack[include_stack_ptr], yyfilename, MAXFILENAMELENGTH);
 	  yy_switch_to_buffer(yy_create_buffer( yyin, YY_BUF_SIZE ) );
 	  //printf("done saving to stack\n");
     	}
       else
 	{
-	  fprintf(stderr, "Error : can't open %s\n", yytext);
+	  fprintf(stderr, "Error : can't open %s\n", (char*)filename.c_str()); //yytext
 	  exit(1);
 	}
     }
@@ -183,7 +191,7 @@ dump  { return DUMP; }
       //printf("switching to previous buffer with %s\n", include_filename_stack[include_stack_ptr]);
       yy_delete_buffer(YY_CURRENT_BUFFER);
       yy_switch_to_buffer(include_stack[include_stack_ptr]);
-      strncpy( yyfilename, include_filename_stack[include_stack_ptr], 32) ;
+      strncpy( yyfilename, include_filename_stack[include_stack_ptr], MAXFILENAMELENGTH) ;
       line_num = include_linenum_stack[include_stack_ptr];
       
     }
@@ -191,7 +199,6 @@ dump  { return DUMP; }
 
 [\n]  line_num++;
 %%
-
 
 struct symtab * symlook(char *s)
 {

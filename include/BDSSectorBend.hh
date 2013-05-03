@@ -1,10 +1,20 @@
-/* BDSIM code.    Version 1.0
-   Author: Grahame A. Blair, Royal Holloway, Univ. of London.
-   Last modified 18.10.2002
-   Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
-
-   IA: 12.10.05 , modified
-*/
+//  
+//   BDSIM, (C) 2001-2007
+//   
+//   version 0.4
+//  
+//
+//
+//   Rectangular bending magnet class
+//   - itsLength parameter internally stores the geometrical length 
+//   - itsAngle parameter internally stores the bending angle
+//   - to get the arc length use the GetArcLength() function
+//   - the volume is a trapezoid with pole faces perpendicular to the ideal
+//     orbit
+//     
+//   History
+//
+//
 
 #ifndef BDSSectorBend_h
 #define BDSSectorBend_h 
@@ -12,6 +22,7 @@
 #include "globals.hh"
 #include "BDSMaterials.hh"
 #include "G4LogicalVolume.hh"
+#include "BDSHelixStepper.hh"
 #include "myQuadStepper.hh"
 
 #include "G4FieldManager.hh"
@@ -27,42 +38,42 @@
 
 class BDSSectorBend :public BDSMultipole
 {
-  public:
-    BDSSectorBend(G4String aName, G4double aLength,
-		  G4double bpRad,G4double FeRad,
-		  G4double bField, G4double angle, G4double outR,
-		  G4double tilt = 0, G4double bGrad=0, G4String aMaterial = "",
-		  G4int nSegments=1);
-    ~BDSSectorBend();
-  void SynchRescale(G4double factor);
-  protected:
+public:
+  BDSSectorBend(G4String aName, G4double aLength,
+                G4double bpRad, G4double FeRad,
+                G4double bField, G4double angle, G4double outR,
+                std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+                G4double tilt = 0, G4double bGrad=0, 
+                G4String aTunnelMaterial="",
+                G4String aMaterial = "", G4double xAper=0, G4double yAper=0);
+  ~BDSSectorBend();
 
-  private:
+  void SynchRescale(G4double factor);
+
+  virtual G4double GetArcLength();
+
+protected:
+
+private:
   G4double itsBField;
   G4double itsBGrad;
 
-	void BuildDipoleOuterLogicalVolume(G4double alength); //deacon_20_10_06
-  //  void BuildOuterLogicalVolume();
   void BuildBPFieldAndStepper();
   void BuildSBMarkerLogicalVolume();
   void BuildSBBeampipe();
   void BuildSBOuterLogicalVolume(G4bool OuterMaterialIsVacuum=false);
 
-
   G4VisAttributes* SetVisAttributes();
-  G4Trd* markerSolidVolume;
-  
+
   // field related objects:
-  //BDSHelixStepper* itsStepper;
   myQuadStepper* itsStepper;
   BDSSbendMagField* itsMagField;
   G4Mag_EqRhs* itsEqRhs;
 
-
-	 G4LogicalVolume* itsDipoleLogicalVolumeTop;
-	 G4LogicalVolume* itsDipoleLogicalVolumeMiddle;
-	 G4LogicalVolume* itsDipoleLogicalVolumeBottom;
-
+  G4int itsNSegments;
+  G4double itsSegmentLength;
+  G4double itsSegmentAngle;
 };
+
 
 #endif

@@ -10,7 +10,7 @@
 //    beam dumper/reader for online exchange with external codes
 //
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSDump.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
@@ -35,25 +35,28 @@ typedef std::map<G4String,G4LogicalVolume*> LogVolMap;
 extern LogVolMap* LogVol;
 extern BDSOutput* bdsOutput;
 BDSDumpSD* BDSDumpSensDet;
-extern BDSMaterials* theMaterials;
+extern G4int nptwiss;
+
 //============================================================
 
-BDSDump::BDSDump (G4String aName,G4double aLength):
+BDSDump::BDSDump (G4String aName,G4double aLength, G4String aTunnelMaterial):
   BDSAcceleratorComponent(
 			 aName,
 			 aLength,0,0,0,
-			 SetVisAttributes())
+			 SetVisAttributes(), aTunnelMaterial)
 {
+  SetName("Dump_"+BDSGlobalConstants::Instance()->StringFromInt(nDumps)+"_"+itsName);
   DumpLogicalVolume();
-  nDumps++;
+  const int nParticles = nptwiss;
+  BDSGlobalConstants::Instance()->referenceQueue.push_back(new G4double[nParticles]);
+  ++nDumps;
   //G4int nDumps=(*LogVolCount)[itsName];
-
   //BDSRoot->SetDumpNumber(nDumps);
 
  
 }
 
-const int BDSDump::GetNumberOfDumps()
+int BDSDump::GetNumberOfDumps()
 {
   return nDumps;
 }
@@ -68,7 +71,7 @@ void BDSDump::DumpLogicalVolume()
     {
 
       G4double SampTransSize;
-      SampTransSize=2.*BDSGlobals->GetTunnelRadius();
+      SampTransSize=2.*BDSGlobalConstants::Instance()->GetTunnelRadius();
 
       itsMarkerLogicalVolume=
 	new G4LogicalVolume(
@@ -76,23 +79,24 @@ void BDSDump::DumpLogicalVolume()
 				      SampTransSize,
 				      SampTransSize,
 				      itsLength/2.0),
-			    theMaterials->GetMaterial("Vacuum"),
+			    BDSMaterials::Instance()->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
 			    itsName);
 
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
-
+#ifndef NOUSERLIMITS
       itsOuterUserLimits =new G4UserLimits();
       itsOuterUserLimits->SetMaxAllowedStep(itsLength);
+      itsOuterUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
       itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
-
+#endif
       // Sensitive Detector:
       if(true)
 	{
 	  G4SDManager* SDMan = G4SDManager::GetSDMpointer();
 	  BDSDumpSensDet=new BDSDumpSD(itsName,"plane");
 	  SDMan->AddNewDetector(BDSDumpSensDet);
-	  itsMarkerLogicalVolume->SetSensitiveDetector(BDSDumpSensDet);
+          itsMarkerLogicalVolume->SetSensitiveDetector(BDSDumpSensDet);
 	}
     }
   else

@@ -49,10 +49,11 @@ public:
   G4double GetNextXp();
   G4double GetNextYp();
   G4double GetNextT(); 
+
   // the same in a bulk
   void GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
 		       G4double& xp,G4double& yp,G4double& zp,
-		       G4double& t, G4double& E);
+		       G4double& t, G4double& E, G4double &weight);
   
 
   G4double GetEmitX();
@@ -126,7 +127,11 @@ private:
 
   // input filename
   G4String inputfile;
+  G4int nlinesIgnore;
   std::ifstream InputBunchFile;
+  template <typename Type> G4bool ReadValue(Type &value);
+  void OpenBunchFile();
+  void CloseBunchFile();
 
  // Gaussian Random number generator:
   RandGauss* GaussGen;

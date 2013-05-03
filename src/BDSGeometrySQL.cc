@@ -1,12 +1,15 @@
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSGeometrySQL.hh"
 #include "G4Box.hh"
 #include "G4Trap.hh"
 #include "G4Tubs.hh"
+#include "G4EllipticalTube.hh"
 #include "G4Cons.hh"
 #include "G4EllipticalCone.hh"
 #include "G4Torus.hh"
 #include "G4SubtractionSolid.hh"
+#include "G4IntersectionSolid.hh"
+#include "G4UnionSolid.hh"
 #include "G4Polycone.hh"
 #include "G4VisAttributes.hh"
 #include "G4LogicalVolume.hh"
@@ -19,6 +22,7 @@
 #include "BDSSamplerSD.hh"
 #include "BDSSampler.hh"
 #include "BDSOutput.hh"
+#include "BDSPCLTube.hh"
 #include <vector>
 #include <map>
 #include <cstdlib>
@@ -29,23 +33,28 @@ using namespace std;
 
 extern BDSSamplerSD* BDSSamplerSensDet;
 
-extern BDSMaterials* theMaterials;
 extern G4RotationMatrix* RotY90;
 extern BDSOutput* bdsOutput;
-extern BDSGlobalConstants* BDSGlobals;
+//extern BDSGlobalConstants* BDSGlobalConstants::Instance();
 
 BDSGeometrySQL::BDSGeometrySQL(G4String DBfile, G4double markerlength)
 {
   itsMarkerLength = markerlength;
+  G4cout << "BDSGeometrySQL constructor: loading SQL file " << DBfile << G4endl;
   ifs.open(DBfile.c_str());
-  if(!ifs) G4Exception("Unable to load SQL database file: " + DBfile);
+  G4String exceptionString = "Unable to load SQL database file: " + DBfile;
+  if(!ifs) G4Exception(exceptionString.c_str(), "-1", FatalException, "");
   align_in_volume = NULL;  //default alignment (does nothing)
   align_out_volume = NULL;  //default alignment (does nothing)
   HasFields = false;
+  nPoleField = 0;
+  HasUniformField = false;
 }
 
-BDSGeometrySQL::~BDSGeometrySQL()
-{;}
+BDSGeometrySQL::~BDSGeometrySQL(){
+  delete rotateComponent;
+  delete itsUserLimits;
+}
 
 void BDSGeometrySQL::Construct(G4LogicalVolume *marker)
 {
@@ -65,8 +74,13 @@ void BDSGeometrySQL::Construct(G4LogicalVolume *marker)
 
 void BDSGeometrySQL::BuildSQLObjects(G4String file)
 {
+  G4cout << "BDSGeometrySQL::BuildSQLObjects Loading file " << file << G4endl;
 
-  BDSMySQLWrapper sql(file);
+  G4String fullpath = BDSGlobalConstants::Instance()->GetBDSIMHOME();
+  fullpath += file; 
+  G4cout << "BDSGeometrySQL::BuildSQLObjects Full path is " << fullpath << G4endl;
+
+  BDSMySQLWrapper sql(fullpath);
   itsSQLTable=sql.ConstructTable();
 
   for (G4int i=0; i<(G4int)itsSQLTable.size(); i++)
@@ -84,6 +98,8 @@ void BDSGeometrySQL::BuildSQLObjects(G4String file)
       else if(ObjectType.compareTo("TORUS",cmpmode)==0) BuildTorus(itsSQLTable[i]);
       else if(ObjectType.compareTo("SAMPLER",cmpmode)==0) BuildSampler(itsSQLTable[i]);
       else if(ObjectType.compareTo("TUBE",cmpmode)==0) BuildTube(itsSQLTable[i]);
+      else if(ObjectType.compareTo("ELLIPTICALTUBE",cmpmode)==0) BuildEllipticalTube(itsSQLTable[i]);
+      else if(ObjectType.compareTo("PCLTUBE",cmpmode)==0) BuildPCLTube(itsSQLTable[i]);
     }
 
 }
@@ -145,7 +161,7 @@ void BDSGeometrySQL::BuildCone(BDSMySQLTable* aSQLTable)
       if(aSQLTable->GetVariable("NAME")!=NULL)
 	Name = aSQLTable->GetVariable("NAME")->GetStrValue(k);
 
-      if(Name=="") Name = TableName+BDSGlobals->StringFromInt(k);
+      if(Name=="") Name = TableName+BDSGlobalConstants::Instance()->StringFromInt(k);
 
       // make sure that each name is unique!
       Name = itsMarkerVol->GetName()+"_"+Name;
@@ -161,12 +177,17 @@ void BDSGeometrySQL::BuildCone(BDSMySQLTable* aSQLTable)
 
       G4LogicalVolume* aConeVol = 
 	new G4LogicalVolume(aCone,
-			    theMaterials->GetMaterial(Material),
+			    BDSMaterials::Instance()->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* ConeUserLimits = new G4UserLimits();
-      ConeUserLimits->SetMaxAllowedStep(length);
+      ConeUserLimits->SetMaxAllowedStep(length*5);
+      ConeUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+      if(BDSGlobalConstants::Instance()->GetThresholdCutCharged()>0){
+	ConeUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+      }
       aConeVol->SetUserLimits(ConeUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -209,7 +230,7 @@ void BDSGeometrySQL::BuildEllipticalCone(BDSMySQLTable* aSQLTable)
       lengthZ = 10.*mm;
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobalConstants::Instance()->GetVacuumMaterial();
 
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
@@ -232,7 +253,7 @@ void BDSGeometrySQL::BuildEllipticalCone(BDSMySQLTable* aSQLTable)
       if(aSQLTable->GetVariable("NAME")!=NULL)
 	Name = aSQLTable->GetVariable("NAME")->GetStrValue(k);
 
-      if(Name=="") Name = TableName+BDSGlobals->StringFromInt(k);
+      if(Name=="") Name = TableName+BDSGlobalConstants::Instance()->StringFromInt(k);
 
       // make sure that each name is unique!
       Name = itsMarkerVol->GetName()+"_"+Name;
@@ -245,12 +266,17 @@ void BDSGeometrySQL::BuildEllipticalCone(BDSMySQLTable* aSQLTable)
 
       G4LogicalVolume* aEllipticalConeVol = 
 	new G4LogicalVolume(aEllipticalCone,
-			    theMaterials->GetMaterial(Material),
+			    BDSMaterials::Instance()->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* EllipticalConeUserLimits = new G4UserLimits();
-      EllipticalConeUserLimits->SetMaxAllowedStep(lengthZ);
+      EllipticalConeUserLimits->SetMaxAllowedStep(lengthZ*5);
+      EllipticalConeUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+      if(BDSGlobalConstants::Instance()->GetThresholdCutCharged()>0){
+	EllipticalConeUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+      }
       aEllipticalConeVol->SetUserLimits(EllipticalConeUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -297,7 +323,7 @@ void BDSGeometrySQL::BuildPolyCone(BDSMySQLTable* aSQLTable)
       numZplanes = 0;
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobalConstants::Instance()->GetVacuumMaterial();
 
       if(aSQLTable->GetVariable("NZPLANES")!=NULL)
 	numZplanes = aSQLTable->GetVariable("NZPLANES")->GetIntValue(k);
@@ -307,9 +333,9 @@ void BDSGeometrySQL::BuildPolyCone(BDSMySQLTable* aSQLTable)
       
       for(G4int planenum=0; planenum<numZplanes; planenum++)
 	{
-	  G4String rInner_ID = "RINNER" + BDSGlobals->StringFromInt(planenum+1);
-	  G4String rOuter_ID = "ROUTER" + BDSGlobals->StringFromInt(planenum+1);
-	  G4String zPos_ID = "PLANEPOS" + BDSGlobals->StringFromInt(planenum+1);
+	  G4String rInner_ID = "RINNER" + BDSGlobalConstants::Instance()->StringFromInt(planenum+1);
+	  G4String rOuter_ID = "ROUTER" + BDSGlobalConstants::Instance()->StringFromInt(planenum+1);
+	  G4String zPos_ID = "PLANEPOS" + BDSGlobalConstants::Instance()->StringFromInt(planenum+1);
 
 	  if(aSQLTable->GetVariable(rInner_ID)!=NULL)
 	    rInner[planenum] = aSQLTable->GetVariable(rInner_ID)->GetDblValue(k);
@@ -337,7 +363,7 @@ void BDSGeometrySQL::BuildPolyCone(BDSMySQLTable* aSQLTable)
       if(aSQLTable->GetVariable("NAME")!=NULL)
 	Name = aSQLTable->GetVariable("NAME")->GetStrValue(k);
 
-      if(Name=="") Name = TableName+BDSGlobals->StringFromInt(k);
+      if(Name=="") Name = TableName+BDSGlobalConstants::Instance()->StringFromInt(k);
 
       // make sure that each name is unique!
       Name = itsMarkerVol->GetName()+"_"+Name;
@@ -352,12 +378,17 @@ void BDSGeometrySQL::BuildPolyCone(BDSMySQLTable* aSQLTable)
 
       G4LogicalVolume* aPolyConeVol = 
 	new G4LogicalVolume(aPolyCone,
-			    theMaterials->GetMaterial(Material),
+			    BDSMaterials::Instance()->GetMaterial(Material),
 			    Name+"_LogVol");
-      
-      G4UserLimits* ConeUserLimits = new G4UserLimits();
-      ConeUserLimits->SetMaxAllowedStep(fabs(zPos[0]-zPos[numZplanes-1]));
-      aPolyConeVol->SetUserLimits(ConeUserLimits);
+#ifndef NOUSERLIMITS
+      G4UserLimits* PolyConeUserLimits = new G4UserLimits();
+      PolyConeUserLimits->SetMaxAllowedStep(fabs(zPos[0]-zPos[numZplanes-1])/2);
+      PolyConeUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+      if(BDSGlobalConstants::Instance()->GetThresholdCutCharged()>0){
+	PolyConeUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+      }
+      aPolyConeVol->SetUserLimits(PolyConeUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -388,7 +419,7 @@ void BDSGeometrySQL::BuildPolyCone(BDSMySQLTable* aSQLTable)
 void BDSGeometrySQL::BuildBox(BDSMySQLTable* aSQLTable)
 {
   G4int NVariables = aSQLTable->GetVariable("LENGTHX")->GetNVariables();
-
+  
   G4double lengthX;
   G4double lengthY;
   G4double lengthZ;
@@ -406,7 +437,7 @@ void BDSGeometrySQL::BuildBox(BDSMySQLTable* aSQLTable)
       lengthX = lengthY = lengthZ = 10.*mm;
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobalConstants::Instance()->GetVacuumMaterial();
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
       if(aSQLTable->GetVariable("BLUE")!=NULL)
@@ -426,7 +457,7 @@ void BDSGeometrySQL::BuildBox(BDSMySQLTable* aSQLTable)
       if(aSQLTable->GetVariable("NAME")!=NULL)
 	Name = aSQLTable->GetVariable("NAME")->GetStrValue(k);
 
-      if(Name=="") Name = TableName+BDSGlobals->StringFromInt(k);
+      if(Name=="") Name = TableName+BDSGlobalConstants::Instance()->StringFromInt(k);
 
       // make sure that each name is unique!
       Name = itsMarkerVol->GetName()+"_"+Name;
@@ -438,12 +469,17 @@ void BDSGeometrySQL::BuildBox(BDSMySQLTable* aSQLTable)
       
       G4LogicalVolume* aBoxVol = 
 	new G4LogicalVolume(aBox,
-			    theMaterials->GetMaterial(Material),
+			    BDSMaterials::Instance()->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* BoxUserLimits = new G4UserLimits();
-      BoxUserLimits->SetMaxAllowedStep(lengthZ);
+      BoxUserLimits->SetMaxAllowedStep(lengthZ*5);
+      BoxUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+      if(BDSGlobalConstants::Instance()->GetThresholdCutCharged()>0){
+	BoxUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+      }
       aBoxVol->SetUserLimits(BoxUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -486,7 +522,7 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
     {
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobalConstants::Instance()->GetVacuumMaterial();
       if(aSQLTable->GetVariable("TRAPTHETA")!=NULL)
 	trapTheta = aSQLTable->GetVariable("TRAPTHETA")->GetDblValue(k);
       if(aSQLTable->GetVariable("RED")!=NULL)
@@ -512,7 +548,7 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
       if(aSQLTable->GetVariable("NAME")!=NULL)
 	Name = aSQLTable->GetVariable("NAME")->GetStrValue(k);
 
-      if(Name=="") Name = TableName+BDSGlobals->StringFromInt(k);
+      if(Name=="") Name = TableName+BDSGlobalConstants::Instance()->StringFromInt(k);
 
       // make sure that each name is unique!
       Name = itsMarkerVol->GetName()+"_"+Name;
@@ -532,12 +568,17 @@ void BDSGeometrySQL::BuildTrap(BDSMySQLTable* aSQLTable)
       
       G4LogicalVolume* aTrapVol = 
 	new G4LogicalVolume(aTrap,
-			    theMaterials->GetMaterial(Material),
+			    BDSMaterials::Instance()->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* TrapUserLimits = new G4UserLimits();
-      TrapUserLimits->SetMaxAllowedStep(lengthZ);
+      TrapUserLimits->SetMaxAllowedStep(lengthZ*5);
+      TrapUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+      if(BDSGlobalConstants::Instance()->GetThresholdCutCharged()>0){
+	TrapUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+      }
       aTrapVol->SetUserLimits(TrapUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -584,7 +625,7 @@ void BDSGeometrySQL::BuildTorus(BDSMySQLTable* aSQLTable)
       dphi=2*pi*radian;
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobalConstants::Instance()->GetVacuumMaterial();
 
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
@@ -609,7 +650,7 @@ void BDSGeometrySQL::BuildTorus(BDSMySQLTable* aSQLTable)
       if(aSQLTable->GetVariable("NAME")!=NULL)
 	Name = aSQLTable->GetVariable("NAME")->GetStrValue(k);
 
-      if(Name=="") Name = TableName+BDSGlobals->StringFromInt(k);
+      if(Name=="") Name = TableName+BDSGlobalConstants::Instance()->StringFromInt(k);
 
       // make sure that each name is unique!
       Name = itsMarkerVol->GetName()+"_"+Name;
@@ -624,12 +665,17 @@ void BDSGeometrySQL::BuildTorus(BDSMySQLTable* aSQLTable)
 
       G4LogicalVolume* aTorusVol = 
 	new G4LogicalVolume(aTorus,
-			    theMaterials->GetMaterial(Material),
+			    BDSMaterials::Instance()->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* TorusUserLimits = new G4UserLimits();
-      TorusUserLimits->SetMaxAllowedStep(rInner);
+      TorusUserLimits->SetMaxAllowedStep(rOuter*5);
+      TorusUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+      if(BDSGlobalConstants::Instance()->GetThresholdCutCharged()>0){
+	TorusUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+      }
       aTorusVol->SetUserLimits(TorusUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -673,7 +719,7 @@ void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
       rInnerStart = rInnerEnd = 0.0;
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobalConstants::Instance()->GetVacuumMaterial();
 
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
@@ -701,7 +747,7 @@ void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
 	  aSQLTable->GetVariable("NAME")->SetStrValue(k,Name+"_SQL");
 	  Name = aSQLTable->GetVariable("NAME")->GetStrValue(k);
 	}
-      if(Name=="_SQL") Name = TableName+BDSGlobals->StringFromInt(k)+"_SQL";
+      if(Name=="_SQL") Name = TableName+BDSGlobalConstants::Instance()->StringFromInt(k)+"_SQL";
 
       // make sure that each name is unique!
       Name = itsMarkerVol->GetName()+"_"+Name;
@@ -717,12 +763,17 @@ void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
 
       G4LogicalVolume* aSamplerVol = 
 	new G4LogicalVolume(aSampler,
-			    theMaterials->GetMaterial(Material),
+			    BDSMaterials::Instance()->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* SamplerUserLimits = new G4UserLimits();
-      SamplerUserLimits->SetMaxAllowedStep(length);
+      SamplerUserLimits->SetMaxAllowedStep(length*5);
+      SamplerUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+      if(BDSGlobalConstants::Instance()->GetThresholdCutCharged()>0){
+	SamplerUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+      }
       aSamplerVol->SetUserLimits(SamplerUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -737,14 +788,14 @@ void BDSGeometrySQL::BuildSampler(BDSMySQLTable* aSQLTable)
       aSamplerVol->SetVisAttributes(VisAtt);
 
       G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-      if(BDSSampler::GetNSamplers==0){
+      if(BDSSampler::GetNSamplers()==0){
 	BDSSamplerSensDet = new BDSSamplerSD(Name, "plane");
 	SDMan->AddNewDetector(BDSSamplerSensDet);
       }
       aSamplerVol->SetSensitiveDetector(BDSSamplerSensDet);
 //SPM bdsOutput->nSamplers++;
       BDSSampler::AddExternalSampler();
-      bdsOutput->SampName.push_back(BDSGlobals->StringFromInt(
+      bdsOutput->SampName.push_back(BDSGlobalConstants::Instance()->StringFromInt(
 					BDSSampler::GetNSamplers())+"_"+Name+"_1");
 
       VOL_LIST.push_back(aSamplerVol);
@@ -779,7 +830,7 @@ void BDSGeometrySQL::BuildTube(BDSMySQLTable* aSQLTable)
       dphi=2*pi*radian;
       VisRed = VisGreen = VisBlue = 0.;
       VisType = "S";
-      Material = "VACUUM";
+      Material = BDSGlobalConstants::Instance()->GetVacuumMaterial();
 
       if(aSQLTable->GetVariable("RED")!=NULL)
 	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
@@ -804,7 +855,7 @@ void BDSGeometrySQL::BuildTube(BDSMySQLTable* aSQLTable)
       if(aSQLTable->GetVariable("NAME")!=NULL)
 	Name = aSQLTable->GetVariable("NAME")->GetStrValue(k);
 
-      if(Name=="") Name = TableName+BDSGlobals->StringFromInt(k);
+      if(Name=="") Name = TableName+BDSGlobalConstants::Instance()->StringFromInt(k);
 
       // make sure that each name is unique!
       Name = itsMarkerVol->GetName()+"_"+Name;
@@ -819,12 +870,17 @@ void BDSGeometrySQL::BuildTube(BDSMySQLTable* aSQLTable)
 
       G4LogicalVolume* aTubsVol = 
 	new G4LogicalVolume(aTubs,
-			    theMaterials->GetMaterial(Material),
+			    BDSMaterials::Instance()->GetMaterial(Material),
 			    Name+"_LogVol");
-      
+#ifndef NOUSERLIMITS
       G4UserLimits* TubsUserLimits = new G4UserLimits();
-      TubsUserLimits->SetMaxAllowedStep(length);
+      TubsUserLimits->SetMaxAllowedStep(length*5);
+      TubsUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+      if(BDSGlobalConstants::Instance()->GetThresholdCutCharged()>0){
+	TubsUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+      }
       aTubsVol->SetUserLimits(TubsUserLimits);
+#endif
       G4VisAttributes* VisAtt = 
 	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
       switch (VisType(0))
@@ -845,9 +901,210 @@ void BDSGeometrySQL::BuildTube(BDSMySQLTable* aSQLTable)
   PlaceComponents(aSQLTable, VOL_LIST);
 }
 
+void BDSGeometrySQL::BuildEllipticalTube(BDSMySQLTable* aSQLTable)
+{
+  G4int NVariables = aSQLTable->GetVariable("LENGTHX")->GetNVariables();
+
+  G4double lengthX;
+  G4double lengthY;
+  G4double lengthZ;
+  G4double VisRed; 
+  G4double VisGreen;
+  G4double VisBlue;
+  G4String VisType;
+  G4String Material;
+  G4String TableName = aSQLTable->GetName();
+  G4String Name;
+
+  for(G4int k=0; k<NVariables; k++)
+    {
+      //Defaults 
+      lengthX = 100.*mm;
+      lengthY = 50.*mm;
+      lengthZ = 200.*mm;
+      VisRed = VisGreen = VisBlue = 0.;
+      VisType = "S";
+      Material = BDSGlobalConstants::Instance()->GetVacuumMaterial();
+
+      if(aSQLTable->GetVariable("RED")!=NULL)
+	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
+      if(aSQLTable->GetVariable("BLUE")!=NULL)
+	VisBlue = aSQLTable->GetVariable("BLUE")->GetDblValue(k);
+      if(aSQLTable->GetVariable("GREEN")!=NULL)
+	VisGreen = aSQLTable->GetVariable("GREEN")->GetDblValue(k);
+      if(aSQLTable->GetVariable("VISATT")!=NULL)
+	VisType = aSQLTable->GetVariable("VISATT")->GetStrValue(k);
+      if(aSQLTable->GetVariable("LENGTHX")!=NULL)
+	lengthX = aSQLTable->GetVariable("LENGTHX")->GetDblValue(k);
+      if(aSQLTable->GetVariable("LENGTHY")!=NULL)
+	lengthY = aSQLTable->GetVariable("LENGTHY")->GetDblValue(k);
+      if(aSQLTable->GetVariable("LENGTHZ")!=NULL)
+	lengthZ = aSQLTable->GetVariable("LENGTHZ")->GetDblValue(k);
+      if(aSQLTable->GetVariable("MATERIAL")!=NULL)
+	Material = aSQLTable->GetVariable("MATERIAL")->GetStrValue(k);
+      if(aSQLTable->GetVariable("NAME")!=NULL)
+	Name = aSQLTable->GetVariable("NAME")->GetStrValue(k);
+
+      if(Name=="") Name = TableName+BDSGlobalConstants::Instance()->StringFromInt(k);
+
+      // make sure that each name is unique!
+      Name = itsMarkerVol->GetName()+"_"+Name;
+
+      G4EllipticalTube* aEllipticalTube = new G4EllipticalTube(Name+"_EllipticalTube",
+							       lengthX/2,
+							       lengthY/2,
+							       lengthZ/2
+							       );
+
+
+      G4LogicalVolume* aEllipticalTubeVol = 
+	new G4LogicalVolume(aEllipticalTube,
+			    BDSMaterials::Instance()->GetMaterial(Material),
+			    Name+"_LogVol");
+#ifndef NOUSERLIMITS
+      G4UserLimits* EllipticalTubeUserLimits = new G4UserLimits();
+      G4double maxLength = lengthX;
+      if (lengthY>lengthX&&lengthY>lengthZ){
+	maxLength = lengthY;
+      }
+      else if(lengthZ>lengthY&&lengthZ>lengthX){
+	maxLength = lengthZ;
+      }
+      EllipticalTubeUserLimits->SetMaxAllowedStep(maxLength*5);
+      EllipticalTubeUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+      if(BDSGlobalConstants::Instance()->GetThresholdCutCharged()>0){
+	EllipticalTubeUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+      }
+      aEllipticalTubeVol->SetUserLimits(EllipticalTubeUserLimits);
+#endif
+      G4VisAttributes* VisAtt = 
+	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
+      switch (VisType(0))
+	{
+	case 'W': VisAtt->SetForceWireframe(true); break;
+	case 'I': VisAtt->SetVisibility(false); break;
+	case 'S': VisAtt->SetForceSolid(true); break;
+	case 'w': VisAtt->SetForceWireframe(true); break;
+	case 'i': VisAtt->SetVisibility(false); break;
+	case 's': VisAtt->SetForceSolid(true); break;
+	}
+      aEllipticalTubeVol->SetVisAttributes(VisAtt);
+
+      VOL_LIST.push_back(aEllipticalTubeVol);
+
+    }
+  PlaceComponents(aSQLTable, VOL_LIST);
+}
+
+
+void BDSGeometrySQL::BuildPCLTube(BDSMySQLTable* aSQLTable)
+{
+  G4int NVariables = aSQLTable->GetVariable("LENGTH")->GetNVariables();
+
+  G4double aperX;
+  G4double aperYUp;
+  G4double aperYDown;
+  G4double aperDy; 
+  G4double thickness;
+  G4double length;
+  G4double VisRed;
+  G4double VisGreen;
+  G4double VisBlue;
+  G4String VisType;
+  G4String Material;
+  G4String TableName = aSQLTable->GetName();
+  G4String Name;
+
+  for(G4int k=0; k<NVariables; k++)
+    {
+
+      //Defaults 
+      aperX = 100.*mm;
+      aperYUp = 50.*mm;
+      aperYDown = 200.*mm;
+      length = 200.0*mm;
+      VisRed = VisGreen = VisBlue = 0.;
+      VisType = "S";
+      Material = BDSGlobalConstants::Instance()->GetVacuumMaterial();
+
+      if(aSQLTable->GetVariable("RED")!=NULL)
+	VisRed = aSQLTable->GetVariable("RED")->GetDblValue(k);
+      if(aSQLTable->GetVariable("BLUE")!=NULL)
+	VisBlue = aSQLTable->GetVariable("BLUE")->GetDblValue(k);
+      if(aSQLTable->GetVariable("GREEN")!=NULL)
+	VisGreen = aSQLTable->GetVariable("GREEN")->GetDblValue(k);
+      if(aSQLTable->GetVariable("VISATT")!=NULL)
+	VisType = aSQLTable->GetVariable("VISATT")->GetStrValue(k);
+      if(aSQLTable->GetVariable("APERX")!=NULL)
+	aperX = aSQLTable->GetVariable("APERX")->GetDblValue(k);
+      if(aSQLTable->GetVariable("APERYUP")!=NULL)
+	aperYUp = aSQLTable->GetVariable("APERYUP")->GetDblValue(k);
+      if(aSQLTable->GetVariable("APERYDOWN")!=NULL)
+	aperYDown = aSQLTable->GetVariable("APERYDOWN")->GetDblValue(k);
+      if(aSQLTable->GetVariable("APERDY")!=NULL)
+	aperDy = aSQLTable->GetVariable("APERDY")->GetDblValue(k);
+      if(aSQLTable->GetVariable("THICKNESS")!=NULL)
+	thickness = aSQLTable->GetVariable("THICKNESS")->GetDblValue(k);
+      if(aSQLTable->GetVariable("LENGTH")!=NULL)
+	length = aSQLTable->GetVariable("LENGTH")->GetDblValue(k);
+      if(aSQLTable->GetVariable("MATERIAL")!=NULL)
+	Material = aSQLTable->GetVariable("MATERIAL")->GetStrValue(k);
+      if(aSQLTable->GetVariable("NAME")!=NULL)
+	Name = aSQLTable->GetVariable("NAME")->GetStrValue(k);
+
+      if(Name=="") Name = TableName+BDSGlobalConstants::Instance()->StringFromInt(k);
+      
+      // make sure that each name is unique!
+      Name = itsMarkerVol->GetName()+"_"+Name;
+
+      BDSPCLTube* aPCLTubeBuilder = new BDSPCLTube(aperX, aperYUp, aperYDown, aperDy, thickness, length, Name+"_PCLTube");
+      G4VSolid* aPCLTube = aPCLTubeBuilder->GetSolid();
+
+
+      G4LogicalVolume* aPCLTubeVol = 
+	new G4LogicalVolume(aPCLTube,
+			    BDSMaterials::Instance()->GetMaterial(Material),
+			    Name+"_LogVol");
+#ifndef NOUSERLIMITS
+      G4UserLimits* PCLTubeUserLimits = new G4UserLimits();
+      G4double totalYLength = aperDy+aperYUp+aperYDown+thickness;
+      G4double totalXLength = aperX+thickness;
+      G4double maxLength = length;
+      if (totalYLength>length&&totalYLength>totalXLength){
+	maxLength = totalYLength;
+      }
+      else if(totalXLength>totalYLength&&totalXLength>length){
+	maxLength = totalXLength;
+      }
+      PCLTubeUserLimits->SetMaxAllowedStep(maxLength*5);
+      PCLTubeUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+      if(BDSGlobalConstants::Instance()->GetThresholdCutCharged()>0){
+	PCLTubeUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+      }
+      aPCLTubeVol->SetUserLimits(PCLTubeUserLimits);
+#endif
+      G4VisAttributes* VisAtt = 
+	new G4VisAttributes(G4Colour(VisRed, VisGreen, VisBlue));
+      switch (VisType(0))
+	{
+	case 'W': VisAtt->SetForceWireframe(true); break;
+	case 'I': VisAtt->SetVisibility(false); break;
+	case 'S': VisAtt->SetForceSolid(true); break;
+	case 'w': VisAtt->SetForceWireframe(true); break;
+	case 'i': VisAtt->SetVisibility(false); break;
+	case 's': VisAtt->SetForceSolid(true); break;
+	}
+      aPCLTubeVol->SetVisAttributes(VisAtt);
+
+      VOL_LIST.push_back(aPCLTubeVol);
+
+    }
+  PlaceComponents(aSQLTable, VOL_LIST);
+}
+
 G4RotationMatrix* BDSGeometrySQL::RotateComponent(G4double psi,G4double phi,G4double theta)
 {
-  G4RotationMatrix *rotateComponent = new G4RotationMatrix;
+  rotateComponent = new G4RotationMatrix;
   if(psi==0 && phi==0 && theta==0) return rotateComponent;
 
   G4RotationMatrix LocalRotation;
@@ -887,6 +1144,7 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
   G4double K1,K2,K3,K4;
   G4String PARENTNAME;
   G4String InheritStyle;
+  G4String Parameterisation;
   G4String Name;
   G4String MagType;
   G4String TableName = aSQLTable->GetName();
@@ -904,6 +1162,7 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
       K1 = K2 = K3 = K4 = 0.;
       PARENTNAME = "";
       InheritStyle = "";
+      Parameterisation = "";
       align_in=0;
       align_out=0;
       SetSensitive=0;
@@ -947,10 +1206,12 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
 	SetSensitive = aSQLTable->GetVariable("SETSENSITIVE")->GetIntValue(k);
       if(aSQLTable->GetVariable("INHERITSTYLE")!=NULL)
 	InheritStyle = aSQLTable->GetVariable("INHERITSTYLE")->GetStrValue(k);
+      if(aSQLTable->GetVariable("PARAMETERISATION")!=NULL)
+	Parameterisation = aSQLTable->GetVariable("PARAMETERISATION")->GetStrValue(k);
       if(aSQLTable->GetVariable("NAME")!=NULL)
 	Name = aSQLTable->GetVariable("NAME")->GetStrValue(k);
-      if(Name=="_SQL") Name = TableName+BDSGlobals->StringFromInt(k) + "_SQL";
-      if(Name=="") Name = TableName+BDSGlobals->StringFromInt(k);
+      if(Name=="_SQL") Name = TableName+BDSGlobalConstants::Instance()->StringFromInt(k) + "_SQL";
+      if(Name=="") Name = TableName+BDSGlobalConstants::Instance()->StringFromInt(k);
 
       // make sure that each name is unique!
       Name = itsMarkerVol->GetName()+"_"+Name;
@@ -989,35 +1250,58 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
 
       G4ThreeVector PlacementPoint(PosX,PosY,PosZ);
 
-      if(InheritStyle.compareTo("SUBTRACT",cmpmode)==0)
-	{
+      if(InheritStyle.compareTo("",cmpmode)){ //True if InheritStyle is set
+	if(InheritStyle.compareTo("SUBTRACT",cmpmode)==0)
+	  {
+	    G4VSolid* original = VOL_LIST[PARENTID]->GetSolid();
+	    G4VSolid* sub = VOL_LIST[ID]->GetSolid();
+	    VOL_LIST[PARENTID]->SetSolid(new G4SubtractionSolid(VOL_LIST[PARENTID]->GetName(),
+								original,
+								sub,
+								RotateComponent(RotPsi,RotPhi,RotTheta),
+								PlacementPoint));
+	    
+	  }else if(InheritStyle.compareTo("INTERSECT",cmpmode)==0){
 	  G4VSolid* original = VOL_LIST[PARENTID]->GetSolid();
 	  G4VSolid* sub = VOL_LIST[ID]->GetSolid();
-	  VOL_LIST[PARENTID]->SetSolid(new G4SubtractionSolid(VOL_LIST[PARENTID]->GetName(),
-							 original,
-							 sub,
-							 RotateComponent(RotPsi,RotPhi,RotTheta),
-							 PlacementPoint));
-	  continue;
-	}
+	  VOL_LIST[PARENTID]->SetSolid(new G4IntersectionSolid(VOL_LIST[PARENTID]->GetName(),
+							       original,
+							       sub,
+							       RotateComponent(RotPsi,RotPhi,RotTheta),
+							       PlacementPoint));
+	
+	} else if(InheritStyle.compareTo("UNION",cmpmode)==0)
+	  {
+	    G4VSolid* original = VOL_LIST[PARENTID]->GetSolid();
+	    G4VSolid* sub = VOL_LIST[ID]->GetSolid();
+	    VOL_LIST[PARENTID]->SetSolid(new G4UnionSolid(VOL_LIST[PARENTID]->GetName(),
+							  original,
+							  sub,
+							  RotateComponent(RotPsi,RotPhi,RotTheta),
+							  PlacementPoint));
+	  }
+      }
 
+      if(Parameterisation.compareTo("GFLASH",cmpmode)==0){       
+	itsGFlashComponents.push_back(VOL_LIST[ID]);
+      }
 
-      G4VPhysicalVolume* PhysiComp = 
-	new G4PVPlacement(RotateComponent(RotPsi,RotPhi,RotTheta),
-			  PlacementPoint,
-			  VOL_LIST[ID],
-			  Name,
-			  VOL_LIST[PARENTID],
-			  false,
-			  0);
-
+	G4VPhysicalVolume* PhysiComp = 
+	  new G4PVPlacement(RotateComponent(RotPsi,RotPhi,RotTheta),
+			    PlacementPoint,
+			    VOL_LIST[ID],
+			    Name,
+			    VOL_LIST[PARENTID],
+			    false,
+			    0, BDSGlobalConstants::Instance()->GetCheckOverlaps());
+	SetMultiplePhysicalVolumes(PhysiComp);
       if(align_in)
 	{
 	  // Make sure program stops and informs user if more than one alignment vol.
 	  if(align_in_volume!=NULL)
 	    {
 	      G4cerr<<"\nBDSGeometrySQL.cc:486: Trying to align in-beam to SQL volume to " << PhysiComp->GetName() << " but alignment already set to " << align_in_volume->GetName() << G4endl;
-	      G4Exception("Aborting Program");
+	      G4Exception("Aborting Program", "-1", FatalException, "");
 
 	    }
 
@@ -1031,7 +1315,7 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
 	  if(align_out_volume!=NULL)
 	    {
 	      G4cerr<<"\nBDSGeometrySQL.cc:486: Trying to align out-beam to SQL volume to " << PhysiComp->GetName() << " but alignment already set to " << align_out_volume->GetName() << G4endl;
-	      G4Exception("Aborting Program");
+	      G4Exception("Aborting Program", "-1", FatalException, "");
 
 	    }
 
@@ -1039,7 +1323,7 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
 	    align_out_volume=PhysiComp;
 	}
 
-//      G4double P0 = BDSGlobals->GetBeamTotalEnergy();
+//      G4double P0 = BDSGlobalConstants::Instance()->GetBeamTotalEnergy();
 //      G4double brho=
 //	sqrt(pow(P0,2)- pow(electron_mass_c2,2))/(0.299792458 * (GeV/(tesla*m)));
 
@@ -1047,9 +1331,9 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
       // formula: B(Tesla)*rho(m) = p(GeV)/(0.299792458 * |charge(e)|)
       //
       // charge (in |e| units)
-      G4double charge = BDSGlobals->GetParticleDefinition()->GetPDGCharge();  
+      G4double charge = BDSGlobalConstants::Instance()->GetParticleDefinition()->GetPDGCharge();  
       // momentum (in GeV/c)   
-      G4double momentum = BDSGlobals->GetBeamMomentum();
+      G4double momentum = BDSGlobalConstants::Instance()->GetBeamMomentum();
       // rigidity (in T*m)
       G4double brho = ( (momentum/GeV) / (0.299792458 * charge));
       // rigidity (in Geant4 units)
@@ -1058,29 +1342,38 @@ void BDSGeometrySQL::PlaceComponents(BDSMySQLTable* aSQLTable, vector<G4LogicalV
       if(MagType.compareTo("QUAD",cmpmode)==0)
 	{
 	  HasFields = true;
+	  nPoleField = 1;
 	  QuadBgrad.push_back(- brho * K1 / (m*m));
 	  Quadvol.push_back(PhysiComp->GetName());
+	  QuadVolBgrad[PhysiComp->GetName()]=(- brho * K1 / (m*m));
 	}
 
       if(MagType.compareTo("SEXT",cmpmode)==0)
 	{
 	  HasFields = true;
+	  nPoleField = 2;
 	  SextBgrad.push_back(- brho * K2 / (m*m*m));
 	  Sextvol.push_back(PhysiComp->GetName());
+	  SextVolBgrad[PhysiComp->GetName()]=(- brho * K2 / (m*m*m));
 	}
 
       if(MagType.compareTo("OCT",cmpmode)==0)
 	{
 	  HasFields = true;
+	  nPoleField = 3;
 	  OctBgrad.push_back(- brho * K3 / (m*m*m*m));
 	  Octvol.push_back(PhysiComp->GetName());
+	  OctVolBgrad[PhysiComp->GetName()]=(- brho * K3 / (m*m*m*m));
 	}
 
       if(FieldX || FieldY || FieldZ) //if any vols have non-zero field components
 	{
 	  HasFields = true;
+	  HasUniformField=true;
+	  G4cout << "BDSGeometrySQL> volume " << PhysiComp->GetName() << " has the following uniform field: " << FieldX << " " << FieldY << " " << FieldZ << " " << endl;
 	  UniformField.push_back(G4ThreeVector(FieldX*tesla,FieldY*tesla,FieldZ*tesla));
 	  Fieldvol.push_back(PhysiComp->GetName());
+	  UniformFieldVolField[PhysiComp->GetName()]=G4ThreeVector(FieldX*tesla,FieldY*tesla,FieldZ*tesla);
 	}
-  }
+    }
 }

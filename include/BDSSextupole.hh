@@ -18,6 +18,9 @@
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 #include "G4PVPlacement.hh"               
+#include "G4HelixMixedStepper.hh"
+#include "G4HelixImplicitEuler.hh"
+#include "G4CashKarpRKF45.hh"
 
 #include "BDSMultipole.hh"
 #include "BDSSextMagField.hh"
@@ -28,6 +31,8 @@ public:
   BDSSextupole(G4String aName, G4double aLength,
 	       G4double bpRad, G4double FeRad,
 	       G4double BDblPrime, G4double tilt, G4double outR, 
+               std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta,
+               G4String aTunnelMaterial = "",
 	       G4String aMaterial = "");
   ~BDSSextupole();
 

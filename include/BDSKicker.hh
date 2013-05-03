@@ -24,7 +24,8 @@ public:
 	    G4double bpRad, G4double FeRad,
 	    G4double bField, G4double angle, G4double outR,
 	    G4double tilt = 0, G4double bGrad=0, 
-	    G4String aMaterial = "", G4int nSegments=1);
+            G4String aTunnelMaterial = "",
+	    G4String aMaterial = "");
   ~BDSKicker();
   
 protected:

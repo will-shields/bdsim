@@ -9,7 +9,6 @@
   extern int line_num;
   extern char* yyfilename;
 
-  const int DEBUG = 0; // print debug info like parsing output etc.
   const int ECHO_GRAMMAR = 0; // print grammar rule expansion (for debugging)
   const int VERBOSE = 0; // print warnings and errors
   const int VERBOSE_EXPAND = 0; // print the process of line expansion 
@@ -44,8 +43,8 @@
 %token <dval> NUMBER
 %token <symp> VARIABLE VECVAR FUNC 
 %token <str> STR
-%token MARKER ELEMENT DRIFT RF DIPOLE RBEND SBEND QUADRUPOLE SEXTUPOLE OCTUPOLE MULTIPOLE 
-%token SOLENOID COLLIMATOR RCOL ECOL LINE SEQUENCE SPOILER ABSORBER LASER TRANSFORM3D
+%token MARKER ELEMENT DRIFT PCLDRIFT RF DIPOLE RBEND SBEND QUADRUPOLE SEXTUPOLE OCTUPOLE MULTIPOLE 
+%token SOLENOID COLLIMATOR RCOL ECOL LINE SEQUENCE SPOILER ABSORBER LASER TRANSFORM3D MUSPOILER
 %token VKICK HKICK KICK
 %token PERIOD APERTURE FILENAME GAS PIPE TUNNEL MATERIAL ATOM
 %token BEAM OPTION PRINT RANGE STOP USE VALUE ECHO PRINTF SAMPLE CSAMPLE BETA0 TWISS DUMP
@@ -59,6 +58,7 @@
 %type <array> vectnum vectstr;
 %type <str> use_parameters;
 %type <ival> extension;
+%type <ival> newinstance;
 %type <symp> sample_options
 %type <symp> csample_options
 %type <symp> gas_options
@@ -114,6 +114,15 @@ decl : VARIABLE ':' marker
 	   if(ECHO_GRAMMAR) printf("decl -> VARIABLE (%s) : drift\n",$1->name);
 	   // check parameters and write into element table
 	   write_table(params,$1->name,_DRIFT);
+	   params.flush();
+	 }
+       }
+     | VARIABLE ':' pcldrift
+       {
+	 if(execute) {
+	   if(ECHO_GRAMMAR) printf("decl -> VARIABLE (%s) : pcldrift\n",$1->name);
+	   // check parameters and write into element table
+	   write_table(params,$1->name,_PCLDRIFT);
 	   params.flush();
 	 }
        } 
@@ -233,6 +242,16 @@ decl : VARIABLE ':' marker
 	     params.flush();
 	   }
        }
+     | VARIABLE ':' muspoiler
+       {
+	 if(execute)
+	   {
+	     if(ECHO_GRAMMAR) printf("VARIABLE : muspoiler %s \n",$1->name);
+	     // check parameters and write into element table
+	     write_table(params,$1->name,_MUSPOILER);
+	     params.flush();
+	   }
+       }
      | VARIABLE ':' element
        {
 	 if(execute)
@@ -269,14 +288,21 @@ decl : VARIABLE ':' marker
 	   {
 	     // create entry in the main table and add pointer to the parsed sequence
 	     if(ECHO_GRAMMAR) printf("VARIABLE : LINE %s\n",$1->name);
+	     //  list<struct Element>* tmp_list = new list<struct Element>;
 	     write_table(params,$1->name,_LINE,new list<struct Element>(tmp_list));
-	     tmp_list.erase(tmp_list.begin(), tmp_list.end());
+	     // write_table(params,$1->name,_LINE,tmp_list);
+	      tmp_list.erase(tmp_list.begin(), tmp_list.end());
+	      tmp_list.~list<struct Element>();
 	   }
-       }
+       }     
      | VARIABLE ':' sequence
        {
 	 if(execute)
 	   {
+             // create entry in the main table and add pointer to the parsed sequence
+	     if(ECHO_GRAMMAR) printf("VARIABLE : SEQUENCE %s\n",$1->name);
+	     write_table(params,$1->name,_SEQUENCE,new list<struct Element>(tmp_list));
+	     tmp_list.erase(tmp_list.begin(), tmp_list.end());
 	   }
        }
      | VARIABLE ':' extension
@@ -287,6 +313,43 @@ decl : VARIABLE ':' marker
 	     if($3 != _NONE)
 	       {
 		 write_table(params,$1->name,$3);
+	       }
+	     params.flush();
+	   }
+       }
+     | VARIABLE ':' newinstance
+       {
+         if(execute)
+	   {
+	     if(ECHO_GRAMMAR) printf("decl -> VARIABLE : VARIABLE, %s  :  %s\n",$1->name, typestr($3));
+	     if($3 != _NONE)
+	       {
+		 write_table(params,$1->name,$3);
+	       }
+	     params.flush();
+	   }
+       }
+       | VARIABLE ',' parameters
+       {
+	 if(execute)
+	   {
+	     if(ECHO_GRAMMAR) printf("edit : VARIABLE parameters   -- %s \n",$1->name);
+	     list<struct Element>::iterator it = element_lookup($1->name);
+	     list<struct Element>::iterator iterNULL = element_list.end();
+	     if(it == iterNULL)
+	       {
+		 if(VERBOSE) printf("type %s has not been defined\n",$1->name);
+	       }
+	     else
+	       {
+		 // inherit properties from the base type
+		 inherit_properties(*it);
+	       }
+		
+	     if(ECHO_GRAMMAR) printf("decl -> VARIABLE : VARIABLE, %s  :  %s\n",$1->name, typestr((*it).type));
+	     if((*it).type != _NONE)
+	       {
+		 write_table(params,$1->name,(*it).type);
 	       }
 	     params.flush();
 	   }
@@ -314,6 +377,9 @@ decl : VARIABLE ':' marker
 marker : MARKER ;
 
 drift : DRIFT ',' parameters
+;
+
+pcldrift : PCLDRIFT ',' parameters
 ;
 
 rf : RF ',' parameters
@@ -347,6 +413,9 @@ solenoid : SOLENOID ',' parameters
 ;
 
 ecol : ECOL ',' parameters
+;
+
+muspoiler : MUSPOILER ',' parameters
 ;
 
 rcol : RCOL ',' parameters
@@ -390,12 +459,37 @@ extension : VARIABLE ',' parameters
 	    }
 ;
 
+newinstance : VARIABLE 
+            {
+	      if(execute)
+		{	 
+		  if(ECHO_GRAMMAR) printf("newinstance : VARIABLE -- %s \n",$1->name);
+		  list<struct Element>::iterator it = element_lookup($1->name);
+		  list<struct Element>::iterator iterNULL = element_list.end();
+		  if(it == iterNULL)
+		    {
+		      if(VERBOSE) printf("type %s has not been defined\n",$1->name);
+		      $$ = _NONE;
+		    }
+		  else
+		    {
+		      // inherit properties from the base type
+		      $$ = (*it).type;
+		      inherit_properties(*it);
+		    }
+		  
+		}
+	    }
+;
+
 parameters: 
           | VARIABLE '=' aexpr ',' parameters
             {
 	      if(execute)
 		{
-		  if(DEBUG) printf("parameters, VARIABLE(%s) = aexpr(%.10g)\n",$1->name,$3);
+#ifdef DEBUG 
+                  printf("parameters, VARIABLE(%s) = aexpr(%.10g)\n",$1->name,$3);
+#endif
 		  if(!strcmp($1->name,"l")) { params.l = $3; params.lset = 1;} // length
 		    else
 	          if(!strcmp($1->name,"B")) { params.B = $3; params.Bset = 1;} // dipole field
@@ -411,11 +505,35 @@ parameters:
 		  if(!strcmp($1->name,"k3")) { params.k3 = $3; params.k3set = 1;} // octupole coef.
 		    else 
 		  if(!strcmp($1->name,"angle")) { params.angle = $3; params.angleset = 1;} // dipole bending angle
+		  else
+		  if(!strcmp($1->name,"phiAngleIn")) { params.phiAngleIn = $3; params.phiAngleInset = 1;} // element incoming angle
+		  else
+		  if(!strcmp($1->name,"phiAngleOut")) { params.phiAngleOut = $3; params.phiAngleOutset = 1;} // element outgoing angle
+		  else
+		   if(!strcmp($1->name,"beampipeThickness") ||!strcmp($1->name,"beampipeThickness") ) 
+		      { params.beampipeThickness = $3; params.beampipeThicknessset = 1;}
 		    else
 		  if(!strcmp($1->name,"aper") ||!strcmp($1->name,"aperture") ) 
-			      { params.aper = $3; params.aperset = 1;}
+		      { params.aper = $3; params.aperset = 1;}
+		    else
+		  if(!strcmp($1->name,"aperX") ||!strcmp($1->name,"apertureX") ) 
+		      { params.aperX = $3; params.aperXset = 1;}
+		    else
+		  if(!strcmp($1->name,"aperY") ||!strcmp($1->name,"apertureY") ) 
+		      { params.aperY = $3; params.aperYset = 1;}
+		    else
+		  if(!strcmp($1->name,"aperYUp") ||!strcmp($1->name,"apertureYUp") ) 
+		      { params.aperYUp = $3; params.aperYUpset = 1;}
+		    else
+		  if(!strcmp($1->name,"aperYDown") ||!strcmp($1->name,"apertureYDown") ) 
+		      { params.aperYDown = $3; params.aperYDownset = 1;}
+		    else
+		  if(!strcmp($1->name,"aperDy") ||!strcmp($1->name,"apertureDy") ) 
+		    { params.aperDy = $3; params.aperDyset = 1;}
 		    else
 		  if(!strcmp($1->name,"outR") ) { params.outR = $3; params.outRset = 1;}
+		    else
+                  if(!strcmp($1->name,"inR") ) { params.inR = $3; params.inRset = 1;}
 		    else
 		  if(!strcmp($1->name,"xsize") ) { params.xsize = $3; params.xsizeset = 1;}
 		    else
@@ -437,11 +555,17 @@ parameters:
 		  if(!strcmp($1->name,"psi"))  {params.psi = $3; params.psiset = 1;} // 3rd  angle
 		  else
 		  if(!strcmp($1->name,"gradient"))  {params.gradient = $3; params.gradientset = 1;} // rf voltage
-		    else
+		  else
 		  if(!strcmp($1->name,"fint")) {;} // fringe field parameters
-		    else
+		  else
 		  if(!strcmp($1->name,"fintx")) {;}  //
-                    else
+		  else
+		  if(!strcmp($1->name,"tunnelRadius")) { params.tunnelRadius = $3; params.tunnelRadiusset = 1;} // tunnel radius
+		  else
+		  if(!strcmp($1->name,"tunnelOffsetX")) { params.tunnelOffsetX = $3; params.tunnelOffsetXset = 1;} // tunnel offset
+		  else
+		  if(!strcmp($1->name,"precisionRegion")) { params.precisionRegion = $3; params.precisionRegionset = 1;} // tunnel offset
+		    else
 		  if(!strcmp($1->name,"e1")) {;}  //
                     else
 		  if(!strcmp($1->name,"e2")) {;}  //
@@ -460,7 +584,13 @@ parameters:
 		    else
 		  if(!strcmp($1->name,"waveLength")) {params.waveLength = $3; params.waveLengthset = 1;}
 		    else
-		  if(VERBOSE) printf("Warning : unknown parameter %s\n",$1->name);
+		  if(!strcmp($1->name,"taperlength")) {params.taperlength = $3; params.taperlengthset = 1;}
+		    else
+		  if(!strcmp($1->name,"flatlength")) {params.flatlength = $3; params.flatlengthset = 1;}
+                    else
+		  if(!strcmp($1->name,"at")) {params.at = $3; params.atset = 1;}  //position of an element within a sequence
+		    else
+                  if(VERBOSE) printf("Warning : unknown parameter %s\n",$1->name);
 		  
 		}
 	    }
@@ -468,8 +598,10 @@ parameters:
              {
 	       if(execute) 
 		 {
-		   if(DEBUG) printf("params,VARIABLE (%s) = vecexpr (%d)\n",$1->name,$3->size);
-		   if(!strcmp($1->name,"knl")) 
+#ifdef DEBUG 
+                   printf("params,VARIABLE (%s) = vecexpr (%d)\n",$1->name,$3->size);
+#endif
+                   if(!strcmp($1->name,"knl")) 
 		     {
 		       params.knlset = 1;
 		       set_vector(params.knl,$3);
@@ -482,7 +614,20 @@ parameters:
 			 set_vector(params.ksl,$3);
 			 delete[] $3->data;
 		       }
-
+                     else
+		     if(!strcmp($1->name,"blmLocZ")) 
+		       {
+			 params.blmLocZset = 1;
+			 set_vector(params.blmLocZ,$3);
+			 delete[] $3->data;
+		       }
+		   else
+		     if(!strcmp($1->name,"blmLocTheta")) 
+		       {
+			 params.blmLocThetaset = 1;
+			 set_vector(params.blmLocTheta,$3);
+			 delete[] $3->data;
+		       }
                    else
                      if(!strcmp($1->name,"components"))
                        {
@@ -512,7 +657,9 @@ parameters:
              {
 	       if(execute) 
 		 {
-		   if(DEBUG) printf("VARIABLE (%s) = vecexpr\n",$1->name);
+#ifdef DEBUG 
+                   printf("VARIABLE (%s) = vecexpr\n",$1->name);
+#endif
 		   if(!strcmp($1->name,"knl")) 
 		     {
 		       params.knlset = 1;
@@ -526,7 +673,21 @@ parameters:
 			 set_vector(params.ksl,$3);
 			 delete[] $3->data;
 		       }
-                   else
+                     else
+		       if(!strcmp($1->name,"blmLocZ")) 
+			 {
+			   params.blmLocZset = 1;
+			   set_vector(params.blmLocZ,$3);
+			   delete[] $3->data;
+			 }
+		       else
+			 if(!strcmp($1->name,"blmLocTheta")) 
+			   {
+			     params.blmLocThetaset = 1;
+			     set_vector(params.blmLocTheta,$3);
+			     delete[] $3->data;
+			   }
+			 else
                      if(!strcmp($1->name,"components"))
                        {
                          params.componentsset = 1;
@@ -555,7 +716,9 @@ parameters:
             {
 	      if(execute)
 		{
-		  if(DEBUG) printf("VARIABLE (%s) = aexpr(%.10g)\n",$1->name,$3);
+#ifdef DEBUG 
+                  printf("VARIABLE (%s) = aexpr(%.10g)\n",$1->name,$3);
+#endif
 		  if(!strcmp($1->name,"l")) { params.l = $3; params.lset = 1;} // length
 		    else
 		  if(!strcmp($1->name,"B")) { params.B = $3; params.Bset = 1;} // dipole field 
@@ -570,11 +733,23 @@ parameters:
 		    else 
 		  if(!strcmp($1->name,"k3")) { params.k3 = $3; params.k3set = 1;} // octupole coef.
 		    else 
-		  if(!strcmp($1->name,"angle")) { params.angle = $3; params.angleset = 1;} // dipole bending angle
-		    else
+		      if(!strcmp($1->name,"angle")) { params.angle = $3; params.angleset = 1;} // dipole bending angle
+		      else
+			if(!strcmp($1->name,"phiAngleIn")) { params.phiAngleIn = $3; params.phiAngleInset = 1;} // element incoming angle
+			else
+		      if(!strcmp($1->name,"phiAngleOut")) { params.phiAngleOut = $3; params.phiAngleOutset = 1;} // element outgoing angle
+		      else
 		  if(!strcmp($1->name,"aper") ||!strcmp($1->name,"aperture") ) 
 			      { params.aper = $3; params.aperset = 1;}
-		    else
+		  if(!strcmp($1->name,"aperX") ||!strcmp($1->name,"apertureX") ) 
+			      { params.aperX = $3; params.aperXset = 1;}
+		  if(!strcmp($1->name,"aperY") ||!strcmp($1->name,"apertureY") ) 
+			      { params.aperY = $3; params.aperYset = 1;}
+		  else
+		 
+		  if(!strcmp($1->name,"beampipeThickness") ||!strcmp($1->name,"beampipeThickness") ) 
+			      { params.beampipeThickness = $3; params.beampipeThicknessset = 1;}
+		  else
 		  if(!strcmp($1->name,"outR") ) { params.outR = $3; params.outRset = 1;}
 		    else
 		  if(!strcmp($1->name,"xsize") ) { params.xsize = $3; params.xsizeset = 1;}
@@ -598,13 +773,19 @@ parameters:
 		  if(!strcmp($1->name,"gradient"))  {params.gradient = $3; params.gradientset = 1;} // rf voltage
 		    else
 		  if(!strcmp($1->name,"fint")) {;} // fringe field parameters
-		    else
+		  else
 		  if(!strcmp($1->name,"fintx")) {;}  //
-                    else
+		  else
+		  if(!strcmp($1->name,"tunnelRadius")) { params.tunnelRadius = $3; params.tunnelRadiusset = 1;} // tunnel radius
+		  else
+		  if(!strcmp($1->name,"tunnelOffsetX")) { params.tunnelOffsetX = $3; params.tunnelOffsetXset = 1;} // tunnel offset
+		    else
+		  if(!strcmp($1->name,"precisionRegion")) { params.precisionRegion = $3; params.precisionRegionset = 1;} // tunnel offset
+		    else
 		  if(!strcmp($1->name,"e1")) {;}  //
                     else
 		  if(!strcmp($1->name,"e2")) {;}  //
-                    else
+		    else
 		  if(!strcmp($1->name,"hgap")) {params.hgap = $3; params.hgapset=1;}  //
 		    else
 		  if(!strcmp($1->name,"A")) {params.A = $3; params.Aset = 1;}  // mass number
@@ -629,7 +810,9 @@ parameters:
              {
 	       if(execute) 
 		 {
-		   if(DEBUG) printf("params,VARIABLE (%s) = str (%s)\n",$1->name,$3);
+#ifdef DEBUG 
+                   printf("params,VARIABLE (%s) = str (%s)\n",$1->name,$3);
+#endif
 		   if(!strcmp($1->name,"geometry")) 
 		     {
 		       params.geomset = 1;
@@ -651,6 +834,18 @@ parameters:
 		       {
 			 params.materialset = 1;
 			 strcpy(params.material, $3);
+		       }
+		   else
+		   if(!strcmp($1->name,"tunnelMaterial")) 
+		       {
+			 params.tunnelmaterialset = 1;
+			 strcpy(params.tunnelMaterial, $3);
+		       }
+		   else 
+		   if(!strcmp($1->name,"tunnelCavityMaterial")) 
+		       {
+			 params.tunnelcavitymaterialset = 1;
+			 strcpy(params.tunnelCavityMaterial, $3);
 		       }
 		   else 
 		   if(!strcmp($1->name,"spec")) 
@@ -678,7 +873,9 @@ parameters:
              {
 	       if(execute) 
 		 {
-		   if(DEBUG) printf("VARIABLE (%s) = str\n",$1->name);
+#ifdef DEBUG 
+                   printf("VARIABLE (%s) = str\n",$1->name);
+#endif
 		   if(!strcmp($1->name,"geometry")) 
 		     {
 		       params.geomset = 1;
@@ -695,12 +892,25 @@ parameters:
 		       {
 			 //ignore the "type attribute for the moment"
 		       }
-		   else
-		     if(!strcmp($1->name,"material")) 
+                     else
+                       if(!strcmp($1->name,"material")) 
+                         {	 
+                           params.materialset = 1;
+                           strcpy(params.material, $3);
+                         }
+                       else
+                         if(!strcmp($1->name,"tunnelMaterial")) 
 		       {	 
-			 params.materialset = 1;
-			 strcpy(params.material, $3);
+			 params.tunnelmaterialset = 1;
+			 strcpy(params.tunnelMaterial, $3);
 		       }
+			 else
+                         if(!strcmp($1->name,"tunnelCavityMaterial")) 
+		       {	 
+			 params.tunnelcavitymaterialset = 1;
+			 strcpy(params.tunnelCavityMaterial, $3);
+		       }
+                     else
                    if(!strcmp($1->name,"spec")) 
 		       {
 			 params.specset = 1;
@@ -729,7 +939,14 @@ line : LINE '=' '(' element_seq ')'
 line : LINE '=' '-' '(' rev_element_seq ')'
 ;
 
-sequence : SEQUENCE;
+//sequence : SEQUENCE ',' params ',' '(' element_seq ')'
+//;
+
+//sequence : SEQUENCE ',' params ',' '-' '(' rev_element_seq ')'
+//;
+
+sequence : SEQUENCE '=' '(' seq_element_seq ')'
+;
 
 
 element_seq : 
@@ -737,7 +954,9 @@ element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched sequence element, %s\n",$1->name);
+#ifdef DEBUG 
+                    printf("matched sequence element, %s\n",$1->name);
+#endif
 		    // add to temporary element sequence
 		    {
 		      struct Element e;
@@ -752,7 +971,9 @@ element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched sequence element, %s * %d \n",$1->name,(int)$3);
+#ifdef DEBUG 
+                    printf("matched sequence element, %s * %d \n",$1->name,(int)$3);
+#endif
 		    // add to temporary element sequence
 		    {
 		      struct Element e;
@@ -768,8 +989,10 @@ element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched sequence element, %s * %d \n",$3->name,(int)$1);
-		    // add to temporary element sequence
+#ifdef DEBUG 
+                    printf("matched sequence element, %s * %d \n",$3->name,(int)$1);
+#endif
+                    // add to temporary element sequence
 		    {
 		      struct Element e;
 		      e.name = $3->name;
@@ -784,8 +1007,10 @@ element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched last sequence element, %s\n",$1->name);
-		    // add to temporary element sequence
+#ifdef DEBUG 
+                    printf("matched last sequence element, %s\n",$1->name);
+#endif
+                    // add to temporary element sequence
 		    {
 		      struct Element e;
 		      e.name = $1->name;
@@ -799,8 +1024,10 @@ element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched last sequence element, %s * %d\n",$1->name,(int)$3);
-		    // add to temporary element sequence
+#ifdef DEBUG 
+                    printf("matched last sequence element, %s * %d\n",$1->name,(int)$3);
+#endif
+                    // add to temporary element sequence
 		    {
 		      struct Element e;
 		      e.name = $1->name;
@@ -815,8 +1042,10 @@ element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched last sequence element, %s * %d\n",$3->name,(int)$1);
-		    // add to temporary element sequence
+#ifdef DEBUG 
+                    printf("matched last sequence element, %s * %d\n",$3->name,(int)$1);
+#endif
+                    // add to temporary element sequence
 		    {
 		      struct Element e;
 		      e.name = $3->name;
@@ -831,8 +1060,10 @@ element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched last sequence element, %s\n",$2->name);
-		    // add to temporary element sequence
+#ifdef DEBUG 
+                    printf("matched last sequence element, %s\n",$2->name);
+#endif
+                    // add to temporary element sequence
 		    {
 		      struct Element e;
 		      e.name = $2->name;
@@ -846,8 +1077,10 @@ element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched last sequence element, %s\n",$2->name);
-		    // add to temporary element sequence
+#ifdef DEBUG 
+                    printf("matched last sequence element, %s\n",$2->name);
+#endif
+                    // add to temporary element sequence
 		    {
 		      struct Element e;
 		      e.name = $2->name;
@@ -864,8 +1097,10 @@ rev_element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched sequence element, %s\n",$1->name);
-		    // add to temporary element sequence
+#ifdef DEBUG 
+                    printf("matched sequence element, %s\n",$1->name);
+#endif
+                    // add to temporary element sequence
 		    {
 		      struct Element e;
 		      e.name = $1->name;
@@ -879,8 +1114,10 @@ rev_element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched sequence element, %s * %d \n",$1->name,(int)$3);
-		    // add to temporary element sequence
+#ifdef DEBUG
+                    printf("matched sequence element, %s * %d \n",$1->name,(int)$3);
+#endif
+                    // add to temporary element sequence
 		    {
 		      struct Element e;
 		      e.name = $1->name;
@@ -895,7 +1132,9 @@ rev_element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched sequence element, %s * %d \n",$3->name,(int)$1);
+#ifdef DEBUG
+                    printf("matched sequence element, %s * %d \n",$3->name,(int)$1);
+#endif
 		    // add to temporary element sequence
 		    {
 		      struct Element e;
@@ -911,8 +1150,10 @@ rev_element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched last sequence element, %s\n",$1->name);
-		    // add to temporary element sequence
+#ifdef DEBUG
+                    printf("matched last sequence element, %s\n",$1->name);
+#endif
+                    // add to temporary element sequence
 		    {
 		      struct Element e;
 		      e.name = $1->name;
@@ -926,7 +1167,9 @@ rev_element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched last sequence element, %s * %d\n",$1->name,(int)$3);
+#ifdef DEBUG 
+                    printf("matched last sequence element, %s * %d\n",$1->name,(int)$3);
+#endif
 		    // add to temporary element sequence
 		    {
 		      struct Element e;
@@ -942,8 +1185,10 @@ rev_element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched last sequence element, %s * %d\n",$3->name,(int)$1);
-		    // add to temporary element sequence
+#ifdef DEBUG
+                    printf("matched last sequence element, %s * %d\n",$3->name,(int)$1);
+#endif
+                    // add to temporary element sequence
 		    {
 		      struct Element e;
 		      e.name = $3->name;
@@ -958,8 +1203,10 @@ rev_element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched last sequence element, %s\n",$2->name);
-		    // add to temporary element sequence
+#ifdef DEBUG
+                    printf("matched last sequence element, %s\n",$2->name);
+#endif
+                    // add to temporary element sequence
 		    {
 		      struct Element e;
 		      e.name = $2->name;
@@ -973,8 +1220,10 @@ rev_element_seq :
               {
 		if(execute)
 		  {
-		    if(DEBUG) printf("matched last sequence element, %s\n",$2->name);
-		    // add to temporary element sequence
+#ifdef DEBUG
+                    printf("matched last sequence element, %s\n",$2->name);
+#endif
+                    // add to temporary element sequence
 		    {
 		      struct Element e;
 		      e.name = $2->name;
@@ -986,6 +1235,114 @@ rev_element_seq :
 	      }
 ;
 
+seq_element_seq : 
+            | VARIABLE ',' seq_element_seq
+              {
+		if(execute)
+		  {
+#ifdef DEBUG
+                    printf("matched sequence element, %s\n",$1->name);
+#endif
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $1->name;
+		      e.type = _SEQUENCE;
+		      e.lst = NULL;
+		      tmp_list.push_front(e);
+		    }
+		  }
+	      }
+            | VARIABLE '*' NUMBER ',' seq_element_seq
+              {
+		if(execute)
+		  {
+#ifdef DEBUG 
+                    printf("matched sequence element, %s * %d \n",$1->name,(int)$3);
+#endif
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $1->name;
+		      e.type = _SEQUENCE;
+		      e.lst = NULL;
+		      for(int i=0;i<(int)$3;i++)
+			tmp_list.push_front(e);
+		    }
+		  }
+	      }
+            | NUMBER '*' VARIABLE ',' seq_element_seq
+              {
+		if(execute)
+		  {
+#ifdef DEBUG
+                    printf("matched sequence element, %s * %d \n",$3->name,(int)$1);
+#endif
+                    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $3->name;
+		      e.type = _SEQUENCE;
+		      e.lst = NULL;
+		      for(int i=0;i<(int)$1;i++)
+			tmp_list.push_front(e);
+		    }
+		  }
+	      }
+            | VARIABLE 
+              {
+		if(execute)
+		  {
+#ifdef DEBUG
+                    printf("matched last sequence element, %s\n",$1->name);
+#endif
+                    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $1->name;
+		      e.type = _SEQUENCE;
+		      e.lst = NULL;
+		      tmp_list.push_front(e);
+		    }
+		  }
+	      }
+           | VARIABLE '*' NUMBER 
+              {
+		if(execute)
+		  {
+#ifdef DEBUG
+                    printf("matched last sequence element, %s * %d\n",$1->name,(int)$3);
+#endif
+		    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $1->name;
+		      e.type = _SEQUENCE;
+		      e.lst = NULL;
+		      for(int i=0;i<(int)$3;i++)
+			tmp_list.push_front(e);
+		    }
+		  }
+	      }
+            | NUMBER '*' VARIABLE 
+              {
+		if(execute)
+		  {
+#ifdef DEBUG
+                    printf("matched last sequence element, %s * %d\n",$3->name,(int)$1);
+#endif
+                    // add to temporary element sequence
+		    {
+		      struct Element e;
+		      e.name = $3->name;
+		      e.type = _SEQUENCE;
+		      e.lst = NULL;
+		      for(int i=0;i<(int)$1;i++)
+			tmp_list.push_front(e);
+		    }
+		  }
+	      }
+;
 
 expr : aexpr 
        { // check type ??
@@ -1493,7 +1850,7 @@ command : STOP             { if(execute) quit(); }
             if(execute)                                       
               {                                               
                 if(ECHO_GRAMMAR) printf("command -> DUMP\n"); 
-                add_dump("dump",$3->name, element_count);     
+                add_dump($3->name,$3->name, element_count);     
                 element_count = 1;                            
                 params.flush();                               
               }                                               

@@ -7,21 +7,19 @@
 
 extern G4double BDSLocalRadiusOfCurvature;
 
-
 BDSRK4Stepper::BDSRK4Stepper(G4EquationOfMotion* EqRhs, G4int nvar) :
   G4MagIntegratorStepper(EqRhs,nvar)
 {
   itsEqRhs = EqRhs;
   
- //  unsigned int noVariables= std::max(numberOfVariables,8); // For Time .. 7+1
+  unsigned int noVariables= std::max(nvar,8); // For Time .. 7+1
+ 
+  dydxm = new G4double[noVariables];
+  dydxt = new G4double[noVariables]; 
+  yt    = new G4double[noVariables]; 
 
-  dydxr = new G4double[nvar];
-  dydxm = new G4double[nvar];
-  dydxt = new G4double[nvar]; 
-  yt    = new G4double[nvar]; 
-
-  yTemp = new G4double[nvar];
-  yIn = new G4double[nvar];
+  yTemp = new G4double[noVariables];
+  yIn = new G4double[noVariables];
 }
 
 ////////////////////////////////////////////////////////////////
@@ -30,7 +28,6 @@ BDSRK4Stepper::BDSRK4Stepper(G4EquationOfMotion* EqRhs, G4int nvar) :
 
 BDSRK4Stepper::~BDSRK4Stepper()
 {
-  delete[] dydxr;
   delete[] dydxm;
   delete[] dydxt;
   delete[] yt;
@@ -56,11 +53,16 @@ BDSRK4Stepper::AdvanceHelix( const G4double  yIn[],
 			     G4double  yOut[])
 {
 
-  //G4cout<<"stepping by "<<h<<G4endl;
-
+#ifdef DEBUG
+  G4cout<<"stepping by "<<h<<G4endl;
+#endif
 
   const G4int nvar = this->GetNumberOfVariables();   //  fNumberOfVariables(); 
-  //G4cout<<"nvar="<<nvar<<G4endl;
+
+#ifdef DEBUG
+  G4cout<<"nvar="<<nvar<<G4endl;
+#endif
+
   G4int i;
   G4double  hh = h*0.5 , h6 = h/6.0  ;
 
@@ -73,7 +75,7 @@ BDSRK4Stepper::AdvanceHelix( const G4double  yIn[],
   // Have to calculate total Energy assuming Mass = zero
   // because have no way to see particle type here (and hence no mass info)
   const G4double *pIn = yIn+3;
-  G4double itsEnergy = sqrt(pIn[0]*pIn[0]+pIn[1]*pIn[1]+pIn[2]*pIn[2]);
+  G4double itsMomentum = sqrt(pIn[0]*pIn[0]+pIn[1]*pIn[1]+pIn[2]*pIn[2]);
   
   G4double BField[6];
   G4double Pos[4];
@@ -83,9 +85,6 @@ BDSRK4Stepper::AdvanceHelix( const G4double  yIn[],
   Pos[3] = 0.;
   itsEqRhs->GetFieldObj()->GetFieldValue(Pos,BField);
 
-  //G4cout<<" BField = "<<BField[0]<<" "<<BField[1]<<" "<<BField[2]<<G4endl;
-  //G4cout<<" Pos = "<<Pos[0]<<" "<<Pos[1]<<" " <<Pos[2]<<G4endl;
-  
   G4ThreeVector BVec = G4ThreeVector(BField[0],
 				     BField[1],
 				     BField[2]);
@@ -95,51 +94,56 @@ BDSRK4Stepper::AdvanceHelix( const G4double  yIn[],
 
   G4double Bmag = (BVec.cross(pVec.unit())).mag();
   
-  
-  BDSLocalRadiusOfCurvature = (itsEnergy/GeV) / (0.299792458*Bmag/tesla)*m;
+  BDSLocalRadiusOfCurvature = (itsMomentum/GeV) / (0.299792458*Bmag/tesla)*m;
 
- //  G4cout<<"===>RK Step 1,  before, dydx : ";
-  
-//   for(i=0;i<nvar;i++) { 
-//     G4cout<<dydx[i]<<" ";
-//   }  
-//   G4cout<<G4endl;
-
-//   G4cout<<"yIn: ";
-  
-//    for(i=0;i<nvar;i++) { 
-//     G4cout<<yIn[i]<<" ";
-//   }  
-//    G4cout<<G4endl;
+#ifdef DEBUG 
+  G4cout<<" Pos = ("<<Pos[0]/mm<<" "<<Pos[1]/mm<<" " <<Pos[2]/mm<<") mm"<<G4endl;
+  G4cout<<" Mtm = ("<<pIn[0]/GeV<<" "<<pIn[1]/GeV<<" " <<pIn[2]/GeV<<") GeV"<<G4endl;
+  G4cout<<" BField = ("<<BField[0]/tesla<<" "<<BField[1]/tesla<<" "<<BField[2]/tesla<<") T"<<G4endl;
+  G4cout<<" Local curvature radius = "<<BDSLocalRadiusOfCurvature/m<<" m"<<G4endl;
+#endif
 
 
-  for(i=0;i<nvar;i++)  
-    dydxr[i] = dydx[i];
+  //
+  // Now do the stepping
+  //
+#ifdef DEBUG 
+  G4cout<<"===>RK Steps 1-2,  before, dydx : ";
+  for(i=0;i<nvar;i++) { 
+    G4cout<<dydx[i]<<" ";
+  }  
+  G4cout<<G4endl;
 
-  RightHandSide(yIn,dydxr) ;                   // make sure the dydx does not have 
-                                             //rubbish from previous step
+  G4cout<<"yIn: ";
+  for(i=0;i<nvar;i++) { 
+    G4cout<<yIn[i]<<" ";
+  }  
+  G4cout<<G4endl;
+#endif
 
   for(i=0;i<nvar;i++)
-  {
-    yt[i] = yIn[i] + hh*dydxr[i] ;             // 1st Step K1=h*dydx
+    {
+    yt[i] = yIn[i] + hh*dydx[i] ;             // 1st Step K1=h*dydx
   }
   RightHandSide(yt,dydxt) ;                   // 2nd Step K2=h*dydxt
 
-  // G4cout<<"after, dydx: ";
+#ifdef DEBUG 
+  G4cout<<"after, dydx: ";
+  for(i=0;i<nvar;i++) { 
+    G4cout<<dydxt[i]<<" ";
+  }  
+  G4cout<<G4endl;
+  
+  G4cout<<"after, yt: ";
+  for(i=0;i<nvar;i++) { 
+    G4cout<<yt[i]<<" ";
+  }  
+  G4cout<<G4endl;
+#endif
 
-//   for(i=0;i<nvar;i++) { 
-//     G4cout<<dydxt[i]<<" ";
-//   }  
-//   G4cout<<G4endl;
-
-//   G4cout<<"after, yt: ";
-
-//   for(i=0;i<nvar;i++) { 
-//     G4cout<<yt[i]<<" ";
-//   }  
-//   G4cout<<G4endl;
-
-
+#ifdef DEBUG 
+  G4cout<<"===>RK Steps 3-4"<<G4endl;
+#endif
 
   for(i=0;i<nvar;i++)
   { 
@@ -156,7 +160,7 @@ BDSRK4Stepper::AdvanceHelix( const G4double  yIn[],
  
   for(i=0;i<nvar;i++)    // Final RK4 output
   {
-    yOut[i] = yIn[i]+h6*(dydxr[i]+dydxt[i]+2.0*dydxm[i]); //+K1/6+K4/6+(K2+K3)/3
+    yOut[i] = yIn[i]+h6*(dydx[i]+dydxt[i]+2.0*dydxm[i]); //+K1/6+K4/6+(K2+K3)/3
   }
   // NormaliseTangentVector( yOut );
 
@@ -209,7 +213,7 @@ void BDSRK4Stepper::Stepper( const G4double yInput[],
   
 
   G4double h = hstep; 
-  if(h>itsVolLength) h = itsVolLength;
+  //if(h>itsVolLength) h = itsVolLength;
   // Do two half steps
   
   AdvanceHelix(yIn,   dydx,  h, yOut);

@@ -352,19 +352,19 @@ scmqf1 := (kqf1 / 0.096307727548);
  ecolgap2 := 130e-3;
  ecolgap3 := 140e-3;
 
- vcol  : rcol, l=0.3, xsize= 1.0, ysize= vcolgap,material="W" ;
- hcol  : rcol, l=0.3, xsize= hcolgap, ysize= 1.0, material="W";
+ vcol  : rcol, l=0.3, xsize= 1.0, ysize= vcolgap,material="Tungsten" ;
+ hcol  : rcol, l=0.3, xsize= hcolgap, ysize= 1.0, material="Tungsten";
 
  hcolm : element , l =0.3, geometry="mokka:sql/hcol.sql"; 
 
- vcol2 : rcol, l=0.3, xsize= 1.0, ysize= vcolgap2, material="W";
- hcol2 : rcol, l=0.3, xsize= hcolgap2, ysize= 1.0, material="W";
- hcol3 : rcol, l=0.3, xsize= hcolgap3, ysize= 1.0, material="W";
- ecola : ecol, l=0.3, xsize= ecolgapa, ysize= ecolgapa, material="W";
- ecol0 : ecol, l=0.3, xsize= ecolgap0, ysize= ecolgap0, material="W";
- ecol1 : ecol, l=0.3, xsize= ecolgap1, ysize= ecolgap1, material="W" ;
- ecol2 : ecol, l=0.3, xsize= ecolgap2, ysize= ecolgap2, material="W";
- ecol3 : ecol, l=0.3, xsize= ecolgap3, ysize= ecolgap3, material="W";
+ vcol2 : rcol, l=0.3, xsize= 1.0, ysize= vcolgap2, material="Tungsten";
+ hcol2 : rcol, l=0.3, xsize= hcolgap2, ysize= 1.0, material="Tungsten";
+ hcol3 : rcol, l=0.3, xsize= hcolgap3, ysize= 1.0, material="Tungsten";
+ ecola : ecol, l=0.3, xsize= ecolgapa, ysize= ecolgapa, material="Tungsten";
+ ecol0 : ecol, l=0.3, xsize= ecolgap0, ysize= ecolgap0, material="Tungsten";
+ ecol1 : ecol, l=0.3, xsize= ecolgap1, ysize= ecolgap1, material="Tungsten" ;
+ ecol2 : ecol, l=0.3, xsize= ecolgap2, ysize= ecolgap2, material="Tungsten";
+ ecol3 : ecol, l=0.3, xsize= ecolgap3, ysize= ecolgap3, material="Tungsten";
 
 ! other drifts;
 
@@ -393,7 +393,7 @@ scmqf1 := (kqf1 / 0.096307727548);
  mexwy   : marker;
 	
 
-dump: element,l=2*m, geometry="mokka:sql/dump.sql";
+dumpelement: element,l=2*m, geometry="mokka:sql/dump.sql";
 
 
 ! Transform at end of SF1. Values are mean of bunch distribution at that point.
@@ -609,7 +609,7 @@ swtodump:line=(  dy2chic,
                  mexwx,  mexwy,  mexdump );
 
 
-edumpl : line=(swtodump,dump);
+edumpl : line=(swtodump,dumpelement);
 
 tr4a : transform3d , z=-(ldtop+lpdump)*cos(swphi);
 tr4b : transform3d , phi=-swphi;
@@ -625,7 +625,7 @@ endl: marker;
 
 ! exline : line=(ipsf1, sf1sw, dtocol, swtodump,endl);
 ! exline : line=(ipsf1);
-! exline : line=(dump);
+! exline : line=(dumpelement);
 
 
 

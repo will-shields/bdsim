@@ -3,7 +3,7 @@
    Last modified 25.12.2003
    Copyright (c) 2003 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSSkewSextMagField.hh"
 

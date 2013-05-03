@@ -21,7 +21,6 @@ use,period=test;
 
 beam,  particle="e-",
        energy=10.0 * GeV,
-       nparticles=1e+3,
        distrType="gauss",
        sigmaX=0.01,
        sigmaY=0.01;

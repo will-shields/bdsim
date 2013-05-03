@@ -20,57 +20,69 @@
 #include "G4UImanager.hh"
 
 #include "BDSDump.hh"
+#include "BDSWorld.hh"
+
+#include "G4ScoringManager.hh"
+
+extern G4int nptwiss;
 
 BDSRunManager* BDSRunManager::fRunManager = 0;
 
 BDSRunManager* BDSRunManager::GetRunManager()
 { return fRunManager; }
 
-BDSRunManager::BDSRunManager(){ fRunManager = this;}
+BDSRunManager::BDSRunManager(){ 
+  fRunManager = this;
+}
 
-BDSRunManager::~BDSRunManager(){ G4cout << "BDSRunManager deleting..." << G4endl; }
+BDSRunManager::~BDSRunManager(){
+}
 
 void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
 {
   G4bool cond = ConfirmBeamOnCondition();
   G4StackManager* SM;
   SM = G4EventManager::GetEventManager()->GetStackManager();
+  SM->SetNumberOfAdditionalWaitingStacks(4);
   if(cond)
   {
     numberOfEventToBeProcessed = n_event;
+    ConstructScoringWorlds(); //This is in order to be able to use the scoring mesh (why is this in G4RunManager::BeamOn() ? This does not seem to be a logical place to put such a method...
+    //Debug - get number of mesh
+    cout << "BDSRunManager::BeamOn() - number of scoring meshes: " << this->GetNumberOfMesh() << endl;
     RunInitialization();
 
     if(BDSDump::GetNumberOfDumps()!=0){
-      // Run reference particle for dumps
-      BDSGlobals->isReference=true;
-      DoEventLoop(1,macroFile,0);
-      BDSGlobals->isReference=false;
+      // Run reference bunch for dumps
+      BDSGlobalConstants::Instance()->isReference=true;
+      DoEventLoop(nptwiss,macroFile,0);
+      BDSGlobalConstants::Instance()->isReference=false;
     }
 
     if(n_event>0) DoEventLoop(n_event,macroFile,n_select);
     RunTermination();
-    while(!BDSGlobals->holdingQueue.empty()){
-      BDSGlobals->setReadFromStack(true);
+    while(!BDSGlobalConstants::Instance()->holdingQueue.empty()){
+      BDSGlobalConstants::Instance()->setReadFromStack(true);
       SM->ClearPostponeStack();
 
       RunInitialization();
 //      DoEventLoop(n_event,macroFile,n_select);
-      DoEventLoop(BDSGlobals->holdingQueue.size(),macroFile,n_select);
+      DoEventLoop(BDSGlobalConstants::Instance()->holdingQueue.size(),macroFile,n_select);
       RunTermination();
 
-      BDSGlobals->setReadFromStack(false);
+      BDSGlobalConstants::Instance()->setReadFromStack(false);
     }
-    BDSGlobals->referenceQueue.clear();
+    BDSGlobalConstants::Instance()->referenceQueue.clear();
 
     while(BDSDump::nUsedDumps < BDSDump::GetNumberOfDumps())
     {
       int token;
-      FILE* fifo = fopen(BDSGlobals->GetFifo(),"w");
+      FILE* fifo = fopen(BDSGlobalConstants::Instance()->GetFifo(),"w");
       fprintf(fifo,"# nparticles = 0\n");
       printf("# nparticles read from fifo = 0\n");
       fclose(fifo);
 
-      fifo = fopen(BDSGlobals->GetFifo(),"r");
+      fifo = fopen(BDSGlobalConstants::Instance()->GetFifo(),"r");
       fscanf(fifo,"# nparticles = %i",&token);
       fclose(fifo);
 
@@ -111,8 +123,9 @@ void BDSRunManager::DoEventLoop(G4int n_event,const char* macroFile,G4int n_sele
     eventManager->ProcessOneEvent(currentEvent);
 
     AnalyzeEvent(currentEvent);
+    UpdateScoring(); //Update the scoring in the scoring meshes...
 
-    if(i_event<n_select) G4UImanager::GetUIpointer()->ApplyCommand(msg);
+    //    if(i_event<n_select) G4UImanager::GetUIpointer()->ApplyCommand(msg);
 
     // gab: the following commented out - this is the only
     // difference between this and the normal G4 class
@@ -137,4 +150,10 @@ void BDSRunManager::DoEventLoop(G4int n_event,const char* macroFile,G4int n_sele
   }
 }
 
+int BDSRunManager::GetNumberOfMesh(){
+  G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
+  if(!ScM) return 0;
+  G4int nPar = ScM->GetNumberOfMesh();
+  return nPar;
+}
 

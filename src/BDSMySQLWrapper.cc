@@ -8,7 +8,7 @@
    Last modified 12.10.2005
 */
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include <cstdlib>
 #include "BDSMaterials.hh"
@@ -20,8 +20,6 @@ using namespace std;
 #include"globals.hh"
 #include<string>
 #include<vector>
-
-extern BDSMaterials* theMaterials;
 
 void Log(const G4String& tag, int depth, ostream& os)
 {
@@ -89,8 +87,8 @@ BDSMySQLWrapper::BDSMySQLWrapper (const G4String& SQLFileName)
   : ifs(SQLFileName.c_str())
   
 {
-  if(ifs) G4cout<<"Loading SQL Filename="<<SQLFileName<<G4endl;
-  else G4cout<<"Unable to load SQL file: "<<SQLFileName<<G4endl;
+  if(ifs) G4cout<<"BDSMySQLWrapper contructor: Loading SQL Filename="<<SQLFileName<<G4endl;
+  else G4cout<<"BDSMySQLWrapper constructor: Unable to load SQL file: "<<SQLFileName<<G4endl;
 }
 
 vector<BDSMySQLTable*> BDSMySQLWrapper::ConstructTable ()
@@ -162,7 +160,6 @@ G4int BDSMySQLWrapper::ReadComponent()
 		  if(vartype.contains("DOUBLE")) vartype="DOUBLE";
 		  else if(vartype.contains("VARCHAR")) vartype="STRING";
 		  else if(vartype.contains("INTEGER")) vartype="INTEGER";
-		  
 		  table[tableN]->AddVariable(varname,vartype);
 		  ifs.getline(buffer,255); // dumping rest of line
 		}

@@ -11,12 +11,14 @@
 #include "BDSEnergyCounterHit.hh"
 #include "G4Navigator.hh"
 #include "G4TransportationManager.hh"
+#include "G4GFlashSpot.hh"
+#include "G4VGFlashSensitiveDetector.hh"
 
 class G4Step;
 class G4HCofThisEvent;
 class G4TouchableHistory;
 
-class BDSEnergyCounterSD : public G4VSensitiveDetector
+class BDSEnergyCounterSD : public G4VSensitiveDetector, public G4VGFlashSensitiveDetector
 {
 
 public:
@@ -25,6 +27,7 @@ public:
 
   void Initialize(G4HCofThisEvent*HCE);
   G4bool ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist);
+  G4bool ProcessHits(G4GFlashSpot*aSpot ,G4TouchableHistory* ROhist);
   void EndOfEvent(G4HCofThisEvent*HCE);
   void clear();
   void DrawAll();
@@ -32,10 +35,13 @@ public:
                
 
 private:
+  G4String itsName;
   BDSEnergyCounterHitsCollection *BDSEnergyCounterCollection;
   G4int* HitID;
-  G4int nMaxCopy;
-  
+  G4double enrg;
+  G4double xpos;
+  G4double ypos;
+  G4double zpos;
 };
 
 

@@ -9,14 +9,17 @@
 #ifndef _GMAD_H
 #define _GMAD_H
 
+#define MAXFILENAMELENGTH 200
+
 #define _RESERVED 1
 
 #include <iostream>
 #include <cstdio>
 #include <list>
 #include <string>
+#include <cstring>
 
-//using namespace std;
+using namespace std;
 
 // types of elements
 
@@ -24,6 +27,7 @@ enum {
   _NONE = -1,
   _MARKER = 1,
   _DRIFT = 2,
+  _PCLDRIFT = 63,
   _RF = 3,
   _SBEND = 4, 
   _QUAD  = 5,
@@ -36,12 +40,14 @@ enum {
   _REV_LINE= -11, //for line inversion in sublines
   _COLLIMATOR = 12,
   _ECOL = 13,
+  _MUSPOILER = 62,
   _RCOL = 14,
   _LASER=15,
   _MATERIAL=16,
   _RBEND=17,
   _ATOM = 18,
-
+  _SEQUENCE = 19,
+    
   _VKICK=31,
   _HKICK=32,
   
@@ -73,6 +79,7 @@ enum {
   _GUINEAPIG_SLAC = 6,
   _CAIN = 7,
   _ESHELL = 8,
+  _GAUSSIAN_TWISS = 9,
   _UDEF = 32
 };
 
@@ -87,10 +94,13 @@ struct Options {
   std::string distribType;
   std::string distribFile;
 
-  int numberOfParticles;
   int numberToGenerate;
   int nlinesIgnore; // ignore first lines in the input bunch file
 
+  double elossHistoBinWidth;
+  double elossHistoTransBinWidth;
+  double defaultRangeCut;
+  double ffact;
   double beamEnergy;
   double X0, Y0, Z0;
   double Xp0, Yp0, Zp0;
@@ -107,16 +117,15 @@ struct Options {
 
   // for the gaussian, elliptic shell, ring distributions
   double sigmaE;
-
+ 
   double betx, bety, alfx, alfy, emitx, emity; // initial twiss parameters
   int doTwiss;
-
-  // for element specification
-  double xsize, ysize;
-
+  int doPlanckScattering;
+  int checkOverlaps;
   int numberOfEventsPerNtuple;
   unsigned long int eventNumberOffset;
-  int backgroundScaleFactor;
+  double vacuumPressure;
+  double planckScatterFe;
 
   // default geometry parameters
   double componentBoxSize;
@@ -125,6 +134,41 @@ struct Options {
   double beampipeThickness;
   std::string pipeMaterial;
   std::string vacMaterial;
+  std::string tunnelMaterial;
+  std::string tunnelCavityMaterial;
+  std::string soilMaterial;
+
+  int includeIronMagFields;
+
+  // tunnel geometry parameters
+  int buildTunnel;
+  int buildTunnelFloor;
+  int showTunnel;
+  double tunnelOffsetX;
+  double tunnelOffsetY;
+  double samplerDiameter;
+   double tunnelThickness;
+  double tunnelSoilThickness;
+  double tunnelFloorOffset;
+  
+  //Geometry biasing
+  int geometryBias;
+
+  //BLM geometry
+  double blmRad;
+  double blmLength;
+
+  //Cross section biasing parameters
+  double gammaToMuFe;
+  double annihiToMuFe;
+  double eeToHadronsFe;
+ 
+  int useEMLPB;
+  int useHadLPB;
+
+  int sensitiveBeamlineComponents, sensitiveBeamPipe, sensitiveBLMs;
+
+  double LPBFraction;
 
   double thresholdCutCharged;
   double thresholdCutPhotons;
@@ -136,62 +180,60 @@ struct Options {
   double prodCutPositrons;
   double prodCutPositronsP;
 
-  double trackWeightFactor;
   double deltaChord;
   double chordStepMinimum;
   double deltaIntersection;
   double minimumEpsilonStep;
   double maximumEpsilonStep;
   double deltaOneStep;
-  bool turnOnInteractions;
-  int useLowEMPhysics;
+  int turnOnCerenkov;
   int synchRadOn;
+  int decayOn;
   int synchRescale;
   int synchTrackPhotons;
   double synchLowX;
   double synchLowGamE;
   int synchPhotonMultiplicity;
   int synchMeanFreeFactor;
-  int planckOn;
-  int eBremOn;
   double lengthSafety;
   long int randomSeed;
 
-  int verboseStep;
-  int verboseEventNumber;
-
   int useTimer;
-  int useEMHadronic;
-  int useMuonPairProduction;
-  double muonProductionScaleFactor;
-  double hadronInelasticScaleFactor;
   int storeMuonTrajectories;
+  double trajCutGTZ;
+  double trajCutLTR;
   int storeNeutronTrajectories;
   int storeTrajectory;
   int stopTracks;
-  int useMuonShowers;
-  double muonLowestGeneratedEnergy;
 
   std::string fifo; // fifo for BDSIM-placet
-
+  std::string refvolume; //initial starting volume
+  int refcopyno; //initial starting volume copy number
 };
 
 // type of beamline list entries
 
 struct Element {
   short type;
+  int precisionRegion;
   char * name;
 
-  
-  double l,ks,k0,k1,k2,k3,angle,aper,tilt,xsize,ysize,r,outR,hgap,B;
+  double inR; double bpRad; // inner radius and beam pipe radius of muon spoiler  
+  double l,ks,k0,k1,k2,k3,angle,beampipeThickness,aper,aperX, aperY, tilt,xsize,ysize,r,outR,hgap,B, phiAngleIn, phiAngleOut;
   double xdir, ydir, zdir, waveLength; // for laser wire and 3d transforms
-
+  double flatlength,taperlength; //for realistic collimators
   double gradient; // for rf cavities
-
+  double aperYUp, aperYDown, aperDy;  //pcldrift
   double phi, theta, psi; // for 3d transforms
+  double tunnelRadius;
+  double tunnelOffsetX;
 
   std::list<double> knl;
   std::list<double> ksl;
+
+  //List of beam loss monitor locations
+  std::list<double> blmLocZ;
+  std::list<double> blmLocTheta;
 
    // material properties
   double A; 
@@ -201,13 +243,15 @@ struct Element {
   double pressure;
   std::string state;
   std::string symbol;
-  std::list<char*> components;
+  std::list<const char*> components;
   std::list<double> componentsFractions;
   std::list<int> componentsWeights;
 
   std::string geometryFile;
   std::string bmapFile;
   std::string material;
+  std::string tunnelMaterial;
+  std::string tunnelCavityMaterial;
 
   std::string spec;  // arbitrary specification to pass to beamline builder
   
@@ -234,22 +278,51 @@ struct Parameters {
 
   std::list<double> knl;           // multipole expansion coefficients
   std::list<double> ksl;           // skew multipole expansion
-  
   int knlset; int kslset;
 
+  //List of beam loss monitor locations
+  std::list<double> blmLocZ;
+  std::list<double> blmLocTheta;
+  int blmLocZset; int blmLocThetaset;
+
+
+  //For MADX style sequences
+  double at; int atset;//"at" and "from" define position in beam line
+  char from[256]; int fromset;
+  char refer[64]; int referset;
+  double absp; int abspset;//pos. from beg. of line
   
   // placement, geometrical sizes etc.
 
   double r; int rset; //radius, i.e cylindrical sampler
   
   double angle; int angleset;   // bending angle
+  double phiAngleIn; int phiAngleInset;   // incoming bending angle for element
+  double phiAngleOut; int phiAngleOutset;   // outgoing bending angle for element
+  double beampipeThickness; int beampipeThicknessset;  
   double aper; int aperset;   // aperture (circular)
+  double aperX; int aperXset;   // aperture (elliptical)
+  double aperY; int aperYset;   
   double phi, theta, psi; // for 3d transforms
   int phiset, thetaset, psiset;
+  double tunnelRadius;
+  int tunnelRadiusset;
+  double tunnelOffsetX;
+  int tunnelOffsetXset;
 
+  //which precision physics region the element is in (0 = none)
+  int precisionRegion; int precisionRegionset;
+
+  double aperYUp; int aperYUpset;  
+  double aperYDown; int aperYDownset; 
+  double aperDy; int aperDyset;
+  
+  double flatlength; int flatlengthset;
+  double taperlength; int taperlengthset;
   double gradient; int gradientset;
 
   double outR; int outRset; // outer radius of magnets
+  double inR, bpRad; int inRset, bpRadset;// inner radius and beam pipe radius of muon spoiler
   double hgap, hgapset;
   double xsize, ysize; int xsizeset, ysizeset; // aperture (or laser spotsize for laser)
   double xdir, ydir, zdir, waveLength; int xdirset, ydirset, zdirset, waveLengthset;
@@ -258,12 +331,13 @@ struct Parameters {
 
   // twiss parameters
   
-
   // for external geometry and field definition files
-  char geometry[64]; int geomset;
-  char bmap[64]; int bmapset;
-  char emap[64];
-  char material[64]; int materialset;
+  char geometry[256]; int geomset;
+  char bmap[256]; int bmapset;
+  char emap[256];
+  char material[256]; int materialset;
+  char tunnelMaterial[256]; int tunnelmaterialset;
+  char tunnelCavityMaterial[256]; int tunnelcavitymaterialset;
 
 
   // string to pass a custom type specification
@@ -277,7 +351,7 @@ struct Parameters {
   double pressure; int pressureset;
   char state[64]; int stateset;
   char symbol[64]; int symbolset;
-  std::list<char*> components; int componentsset;
+  std::list<const char*> components; int componentsset;
   std::list<double> componentsFractions; int componentsFractionsset;
   std::list<int> componentsWeights; int componentsWeightsset;
 
@@ -300,8 +374,11 @@ struct Parameters {
     componentsFractions.erase(componentsFractions.begin(),componentsFractions.end());
     componentsWeights.erase(componentsWeights.begin(),componentsWeights.end());
 
-
+    flatlength = 0; flatlengthset = 0;
+    taperlength = 0; taperlengthset = 0;
     angle = 0; angleset = 0;
+    phiAngleIn = 0; phiAngleInset = 0;
+    phiAngleOut = 0; phiAngleOutset = 0;
     xsize = 0; xsizeset = 0;
     ysize = 0; ysizeset = 0;
     hgap = 0; hgapset = 0;    
@@ -314,9 +391,21 @@ struct Parameters {
     theta = 0; thetaset = 0;
     psi = 0; psiset = 0;
 
+    tunnelRadius = 0; tunnelRadiusset = 0;
+    tunnelOffsetX = 0; tunnelOffsetXset = 0;
+
+    precisionRegion = 0; precisionRegionset = 0;
+
+    beampipeThickness = 0;
     aper = 0; aperset = 0;
     outR = 0; outRset = 0;
     tilt = 0; tiltset = 0;
+
+    aperX = 0; aperXset = 0;
+    aperY = 0; aperYset = 0;
+    aperYUp = 0; aperYUp = 0;
+    aperYDown = 0; aperYDownset = 0;
+    aperDy=0; aperDyset = 0;
 
     B  = 0; Bset  = 0;
     k0 = 0; k0set = 0;
@@ -332,11 +421,21 @@ struct Parameters {
     knl.erase(knl.begin(),knl.end());
     ksl.erase(ksl.begin(),ksl.end());
 
+    //Beam loss monitor locations
+    blmLocZset = 0;  blmLocThetaset = 0;
+    blmLocZ.erase(blmLocZ.begin(), blmLocZ.end());
+    blmLocTheta.erase(blmLocTheta.begin(), blmLocTheta.end());
+
+    //precisionRegion
+    precisionRegion = 0; precisionRegionset=0;
+
     strcpy(geometry,"");  geomset = 0;
 
     strcpy(bmap,""); bmapset = 0;
 
     strcpy(material,""); materialset = 0;
+    strcpy(tunnelMaterial,""); tunnelmaterialset = 0;
+    strcpy(tunnelCavityMaterial,""); tunnelcavitymaterialset = 0;
     strcpy(spec,""); specset = 0;
   }
   

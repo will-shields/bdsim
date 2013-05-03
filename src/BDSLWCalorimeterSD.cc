@@ -3,7 +3,8 @@
    Last modified 26.7.2004
    Copyright (c) 2004 by J.C.Carter.  ALL RIGHTS RESERVED. 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSLWCalorimeterSD.hh"
 #include "BDSLWCalorimeterHit.hh"
@@ -24,9 +25,6 @@
 #include "G4RunManager.hh"
 #include <vector>
 
-//typedef std::vector<G4int> MuonTrackVector;
-//extern MuonTrackVector* theMuonTrackVector;
-
 extern G4double initial_x,initial_xp,initial_y,initial_yp,initial_z,initial_E;
 
 
@@ -39,14 +37,14 @@ BDSLWCalorimeterSD::BDSLWCalorimeterSD(G4String name)
 BDSLWCalorimeterSD::~BDSLWCalorimeterSD()
 {;}
 
-void BDSLWCalorimeterSD::Initialize(G4HCofThisEvent*HCE)
+void BDSLWCalorimeterSD::Initialize(G4HCofThisEvent*)
 {
   LWCalorimeterCollection = 
     new BDSLWCalorimeterHitsCollection(SensitiveDetectorName,collectionName[0]);
   itsTotalEnergy = 0.;
 }
 
-G4bool BDSLWCalorimeterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
+G4bool BDSLWCalorimeterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
 {
   
   // NOTE ON COPYNUMBER: It is not possible (?) to get the copy number of the
@@ -62,11 +60,12 @@ G4bool BDSLWCalorimeterSD::ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist)
   G4int motherCopyNo = aStep->GetPreStepPoint()->GetTouchableHandle()->GetVolume(1)->GetCopyNo();
   itsCopyNumber = motherCopyNo+1;
   AddEnergy(aStep->GetTotalEnergyDeposit());
-  /*
+  
+#ifdef DEBUG 
   G4cout << "Its Copy Number is: " << itsCopyNumber << G4endl; 
   G4cout << "The Volumer here is: " << aStep->GetTrack()->GetVolume()->GetName() << G4endl;
   G4cout<<"edep="<<aStep->GetTotalEnergyDeposit()/GeV<<"Total so far="<<itsTotalEnergy/GeV<< " for event: " << G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID() << G4endl;
-  */
+#endif
   return true;
   
 }

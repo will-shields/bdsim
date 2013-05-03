@@ -5,7 +5,7 @@
 #include "G4ElectroMagneticField.hh"
 #include "globals.hh"
 #include "G4RotationMatrix.hh"
-#include "BDSField.hh"
+#include "BDSMagField.hh"
 #include <vector>
 
 #ifndef BDSXYMagField_h
@@ -21,7 +21,7 @@ struct XYFieldRecord {
   G4double Bz;
 };
 
-class BDSXYMagField : public BDSField
+class BDSXYMagField : public BDSMagField
 {
 public:
 

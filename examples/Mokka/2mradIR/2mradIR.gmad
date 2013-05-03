@@ -28,11 +28,10 @@ IntRegion:line=(invir, ir);
 use,period=IntRegion;
 
 
-option, ngenerate=1, turnInteractions=0,
-useEMHadronic=0, randomSeed=-1;
+option, ngenerate=1;
+randomSeed=-1;
 
 beam,  particle="e-",
        energy=250 * GeV,
-       nparticles=1e+3,
        distrType="guineapig_slac",
        distrFile="../../ILC/2mrad/bunches/beam.dat";

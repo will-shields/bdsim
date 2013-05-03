@@ -4,9 +4,7 @@
    Copyright (c) 2004 by J.C.Carter.  ALL RIGHTS RESERVED. 
 */
 
-const int DEBUG = 0;
-
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSElement.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
@@ -18,14 +16,31 @@ const int DEBUG = 0;
 #include "G4PVPlacement.hh"
 #include "G4UserLimits.hh"
 #include "G4Mag_UsualEqRhs.hh"
-
+#include "BDSHelixStepper.hh"
+#include "BDSQuadStepper.hh"
+#include "BDSOctStepper.hh"
+#include "BDSSextStepper.hh"
+#include "G4HelixImplicitEuler.hh"
+#include "G4HelixExplicitEuler.hh"
+#include "G4HelixMixedStepper.hh"
+#include "G4HelixSimpleRunge.hh"
+#include "G4HelixHeum.hh"
+#include "G4SimpleRunge.hh"
+#include "G4ExactHelixStepper.hh"
 #include "BDSAcceleratorComponent.hh"
+#include "BDS3DMagField.hh"
+#include "BDSXYMagField2.hh"
+#include "G4CashKarpRKF45.hh"
 
 // geometry drivers
 #include "ggmad.hh"
 #include "BDSGeometrySQL.hh"
 
-#ifdef USE_XML
+#ifdef USE_LCDD
+#include "BDSGeometryLCDD.hh"
+#endif
+
+#ifdef USE_GDML
 #include "BDSGeometryGDML.hh"
 #endif
 
@@ -41,21 +56,25 @@ extern LogVolCountMap* LogVolCount;
 typedef std::map<G4String,G4LogicalVolume*> LogVolMap;
 extern LogVolMap* LogVol;
 
-extern BDSMaterials* theMaterials;
 extern G4RotationMatrix* RotY90;
 
 //============================================================
 
 BDSElement::BDSElement(G4String aName, G4String geometry, G4String bmap,
-		       G4double aLength, G4double bpRad, G4double outR):
+		       G4double aLength, G4double bpRad, G4double outR, G4String aTunnelMaterial, G4double aTunnelRadius, G4double aTunnelOffsetX, G4String aTunnelCavityMaterial, G4int aPrecisionRegion):
   BDSAcceleratorComponent(
 			  aName,
 			  aLength,bpRad,0,0,
-			  SetVisAttributes()),
-  itsField(NULL)
+			  SetVisAttributes(), aTunnelMaterial, "", 0., 0., 0., 0., aTunnelRadius*m, aTunnelOffsetX*m, aTunnelCavityMaterial, aPrecisionRegion),
+  itsField(NULL), itsMagField(NULL)
 {
+  itsFieldVolName="";
+  itsFieldIsUniform=false;
   itsOuterR = outR;
   SetType(_ELEMENT);
+
+  //Set marker volume lengths
+  CalculateLengths();
 
   // WARNING: ALign in and out will only apply to the first instance of the
   //          element. Subsequent copies will have no alignement set.
@@ -64,13 +83,16 @@ BDSElement::BDSElement(G4String aName, G4String geometry, G4String bmap,
 
   if(!(*LogVolCount)[itsName])
     {
-      if(DEBUG) G4cout<<"BDSElement : starting build logical volume "<<
-		  itsName<<G4endl;
-
+#ifdef DEBUG 
+      G4cout<<"BDSElement : starting build logical volume "<<
+        itsName<<G4endl;
+#endif
       BuildGeometry(); // build element box
       
-      if(DEBUG) G4cout<<"BDSElement : end build logical volume "<<
-		  itsName<<G4endl;
+#ifdef DEBUG 
+      G4cout<<"BDSElement : end build logical volume "<<
+        itsName<<G4endl;
+#endif
 
       PlaceComponents(geometry,bmap); // place components (from file) and build filed maps
     }
@@ -82,36 +104,143 @@ BDSElement::BDSElement(G4String aName, G4String geometry, G4String bmap,
     }
 }
 
+
+void BDSElement::BuildElementMarkerLogicalVolume(){
+  
+#ifdef DEBUG 
+  G4cout<<"BDSElement : creating logical volume"<<G4endl;
+#endif
+  G4double elementSizeX=itsOuterR+BDSGlobalConstants::Instance()->GetLengthSafety()/2, elementSizeY = itsOuterR+BDSGlobalConstants::Instance()->GetLengthSafety()/2;
+  
+  
+  elementSizeX = std::max(elementSizeX, this->GetTunnelRadius()+2*std::abs(this->GetTunnelOffsetX()) + BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness() + 4*BDSGlobalConstants::Instance()->GetLengthSafety() );   
+  elementSizeY = std::max(elementSizeY, this->GetTunnelRadius()+2*std::abs(BDSGlobalConstants::Instance()->GetTunnelOffsetY()) + BDSGlobalConstants::Instance()->GetTunnelThickness()+BDSGlobalConstants::Instance()->GetTunnelSoilThickness()+4*BDSGlobalConstants::Instance()->GetLengthSafety() );
+
+  G4double elementSize=std::max(elementSizeX, elementSizeY); 
+  
+
+  itsMarkerLogicalVolume = 
+    new G4LogicalVolume(new G4Box(itsName+"generic_element",
+                                  elementSize,
+                                  elementSize,   
+				  itsLength/2.0),
+			BDSMaterials::Instance()->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
+			itsName);
+
+  
+  //-------------------------------------------------------------------------------------------------------------
+
+
+#ifdef DEBUG 
+  G4cout<<"marker volume : x/y="<<elementSize/m<<
+    " m, l= "<<  (itsLength)/2/m <<" m"<<G4endl;
+#endif
+
+
+    //-----------------------------
+    /*
+      G4RotationMatrix* rotMatrix1 = new G4RotationMatrix();
+  rotMatrix1->rotateY(itsPhiAngleIn);
+  G4RotationMatrix* rotMatrix2 = new G4RotationMatrix();
+  rotMatrix1->rotateY(itsPhiAngleOut);
+  G4ThreeVector transVec1(0, 0, itsLength
+
+  itsMarkerLogicalVolume = new G4SubtactionSolid(itsName+"_generic_element",
+						 new G4SubtactionSolid(itsName+"_tempSolid1",
+								       new G4Box(itsName+"tempSolid1a",
+										 elementSize,
+										 elementSize,   
+										 itsLength/2),
+								       new G4Box(itsName+"tempSolid1b", 
+										 sin(itsPhiAngleIn)*elementSize*2, //Make sure it is wider than the solid being subtracted from
+										 elementSize,
+										 itsLength/2),
+								       rotMatrix1,
+								       transVec1),
+						 new  G4Box(itsName+"tempSolid2", 
+							    sin(itsPhiAngleOut)*elementSize*2, //Make sure it is wider than the solid being subtracted from
+							    elementSize,
+							    itsLength/2),
+						 rotMatrix2,
+						 transVec2);
+
+
+
+  G4LogicalVolume* tempBox1 = new G4LogicalVolume(new G4Box(itsName+"tempBox1", 
+							    sin(itsPhiAngleIn)*elementSize,
+							    elementSize,
+							    itsLength/2),
+						  BDSMaterials::Instance()->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
+						  itsName+"tempBox1Log"
+						  );
+  
+
+    */
+
+  /*
+  G4double xHalfLengthPlus, xHalfLengthMinus;
+  xHalfLengthMinus = (itsLength + (elementSize/2.0)*(tan(itsPhiAngleIn) -tan(itsPhiAngleOut)))/2.0;
+  xHalfLengthPlus = (itsLength +  (elementSize/2.0)*(tan(itsPhiAngleOut)-tan(itsPhiAngleIn )))/2.0;
+  
+  
+  if((xHalfLengthPlus<0) || (xHalfLengthMinus<0)){
+    G4cerr << "Bend radius in " << itsName << " too small for this tunnel/component geometry. Exiting." << G4endl;
+    exit(1);
+  }
+  
+  itsMarkerSolidVolume = new G4Trd(itsName+"_marker",
+				   xHalfLengthPlus,     // x hlf lgth at +z
+				   xHalfLengthMinus,    // x hlf lgth at -z
+				   elementSize/2,           // y hlf lgth at +z
+				   elementSize/2,           // y hlf lgth at -z
+				   fabs(cos(itsAngle/2))*elementSize/2);// z hlf lgth
+  
+  G4String LocalLogicalName=itsName;
+  
+  itsMarkerLogicalVolume=    
+    new G4LogicalVolume(itsMarkerSolidVolume,
+			BDSMaterials::Instance()->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial()),
+			LocalLogicalName+"_marker");
+  */
+  
+  itsMarkerUserLimits = new G4UserLimits(DBL_MAX,DBL_MAX,DBL_MAX, BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+  G4double  maxStepFactor=5;
+  itsMarkerUserLimits->SetMaxAllowedStep(itsLength*maxStepFactor);
+  itsMarkerLogicalVolume->SetUserLimits(itsMarkerUserLimits);
+  
+  
+  //
+  // zero field in the marker volume
+  //
+  itsMarkerLogicalVolume->
+    SetFieldManager(BDSGlobalConstants::Instance()->GetZeroFieldManager(),false);
+}
+
 void BDSElement::BuildGeometry()
 {
   // multiple element instances not implemented yet!!!
 
-  // Build the logical volume 
+  // Build the marker logical volume 
+  BuildElementMarkerLogicalVolume();
 
-  if(DEBUG) G4cout<<"BDSElement : creating logical volume"<<G4endl;
-  G4double elementSizeX=itsOuterR, elementSizeY = itsOuterR;
-  if(itsOuterR==0)
-    {
-      elementSizeX =BDSGlobals->GetTunnelRadius() / 2;
-      elementSizeY =BDSGlobals->GetTunnelRadius() / 2;
-    }
-      
-  itsMarkerLogicalVolume = 
-    new G4LogicalVolume(new G4Box(itsName+"generic_element",
-				  elementSizeX,
-				  elementSizeY,
-				  itsLength/2),
-			theMaterials->GetMaterial("Vacuum"),
-			itsName);
-  
+
   (*LogVolCount)[itsName] = 1;
   (*LogVol)[itsName] = itsMarkerLogicalVolume;
-  
+#ifndef NOUSERLIMITS
   itsOuterUserLimits = new G4UserLimits();
-  itsOuterUserLimits->SetMaxAllowedStep(itsLength);
+  G4double stepfactor=5;
+  itsOuterUserLimits->SetMaxAllowedStep(itsLength*stepfactor);
+  itsOuterUserLimits->SetUserMaxTime(BDSGlobalConstants::Instance()->GetMaxTime());
+  if(BDSGlobalConstants::Instance()->GetThresholdCutCharged()>0){
+    itsOuterUserLimits->SetUserMinEkine(BDSGlobalConstants::Instance()->GetThresholdCutCharged());
+  }
   itsMarkerLogicalVolume->SetUserLimits(itsOuterUserLimits);
- 
-  
+#endif
+
+  //Build the tunnel
+  if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
+    BuildTunnel();
+  }
 }
 
 // place components 
@@ -130,20 +259,27 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
     }
     else {
       gFormat = geometry.substr(0,pos);
-      gFile = geometry.substr(pos+1,geometry.length() - pos); 
+      gFile = BDSGlobalConstants::Instance()->GetBDSIMHOME();
+      G4String temp = geometry.substr(pos+1,geometry.length() - pos);     
+      G4cout << "BDSElement::PlaceComponents SQL file is " << temp << G4endl;
+      G4cout << "BDSElement::PlaceComponents Full path is " << gFile << G4endl;
+      gFile+=temp;
+      G4cout << "BDSElement::PlaceComponents Full path is " << gFile << G4endl;
     }
   }
 
   // get fieldmap format and file
+  bFormat="none";
   if(bmap != ""){
     G4int pos = bmap.find(":");
-    bFormat="none";
     if(pos<0) {
       G4cerr<<"WARNING: invalid B map reference format : "<<bmap<<endl; 
     }
     else {
       bFormat = bmap.substr(0,pos);
-      bFile = bmap.substr(pos+1,bmap.length() - pos); 
+      bFile = BDSGlobalConstants::Instance()->GetBDSIMHOME();
+      bFile += bmap.substr(pos+1,bmap.length() - pos); 
+      G4cout << "BDSElement::PlaceComponents bmap file is " << bFile << G4endl;
     }
   }
 
@@ -161,12 +297,15 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
   GGmadDriver *ggmad;
   BDSGeometrySQL *Mokka;
 
-#ifdef USE_XML
-  BDSGeometryGDML *LCDD;
+#ifdef USE_LCDD
+  BDSGeometryLCDD *LCDD;
+#endif
+#ifdef USE_GDML
+  BDSGeometryGDML *GDML;
 #endif
 
   if(gFormat=="gmad") {
-
+    
     ggmad = new GGmadDriver(gFile);
     ggmad->Construct(itsMarkerLogicalVolume);
 
@@ -179,57 +318,120 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
     SetMultipleSensitiveVolumes(itsMarkerLogicalVolume);
 
     // attach magnetic field if present
-
-    if(bFormat=="XY")
-      {
-	itsField = new BDSXYMagField(bFile);
-
-	// build the magnetic field manager and transportation
-	BuildMagField();
-      }
+    if(bFormat=="3D"){
+      G4cout << "BDSElement.cc> Making BDS3DMagField..." << G4endl;
+      itsMagField = new BDS3DMagField(bFile, 0);
+      BuildMagField(true);
+    }else if(bFormat=="XY"){
+      G4cout << "BDSElement.cc> Making BDSXYMagField2..." << G4endl;
+      itsMagField = new BDSXYMagField2(bFile);
+      // build the magnetic field manager and transportation
+      BuildMagField(true);
+    }
   }
   else if(gFormat=="lcdd") {
-#ifdef USE_XML
-    LCDD = new BDSGeometryGDML(gFile);
+#ifdef USE_LCDD
+    LCDD = new BDSGeometryLCDD(gFile);
+    //Make marker visible (temp debug)
+    G4VisAttributes* VisAttLCDD = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
+    VisAttLCDD->SetForceSolid(true);  
+    VisAttLCDD->SetVisibility(false);
+    itsMarkerLogicalVolume->SetVisAttributes(VisAttLCDD);
+
     LCDD->Construct(itsMarkerLogicalVolume);
+    SetMultipleSensitiveVolumes(itsMarkerLogicalVolume);
+    if(bFormat=="XY"){
+      itsMagField = new BDSXYMagField(bFile);
+      // build the magnetic field manager and transportation
+      BuildMagField(true);
+    } else if ( bFormat == "mokka" ){
+      G4ThreeVector uniField = G4ThreeVector(0,3.5*tesla,0);
+      std::vector<G4ThreeVector> uniFieldVect;
+      uniFieldVect.push_back(uniField);
+      std::vector<G4double> nulld;
+      std::vector<G4String> nulls;
+      //      itsMagField = new BDSMagFieldSQL(bFile,itsLength,nulls, nulld, nulls, nulld, nulls, nulld, LCDD->FieldVol, uniFieldVect);
+    } else if ( bFormat == "test" ){
+    }
+    else if ( bFormat == "none" ){
+      itsFieldIsUniform=LCDD->GetFieldIsUniform();
+      if(itsFieldIsUniform){
+	G4cout << "BDSElement> using LCDD format uniform field..." << G4endl;
+	itsUniformMagField=LCDD->GetUniformField();
+      }else{
+	itsMagField=LCDD->GetField();
+      }
+      itsFieldVolName=LCDD->GetFieldVolName();
+      BuildMagField(true);
+    }
+
+    vector<G4LogicalVolume*> SensComps = LCDD->SensitiveComponents;
+    for(G4int id=0; id<(G4int)SensComps.size(); id++)
+      SetMultipleSensitiveVolumes(SensComps[id]);
+
 #else
-    G4cout << "XML support not selected during BDSIM configuration" << G4endl;
-    G4Exception("Please re-compile BDSIM with USE_XML flag in Makefile");
+    G4cout << "LCDD support not selected during BDSIM configuration" << G4endl;
+    G4Exception("Please re-compile BDSIM with USE_LCDD flag in Makefile", "-1", FatalException, "");
 #endif
   }
   else if(gFormat=="mokka") {
-
+    G4cout << "BDSElement.cc: loading geometry sql file: BDSGeometrySQL(" << gFile << "," << itsLength << ")" << G4endl,
     Mokka = new BDSGeometrySQL(gFile,itsLength);
     Mokka->Construct(itsMarkerLogicalVolume);
+    for(unsigned int i=0; i<Mokka->GetMultiplePhysicalVolumes().size(); i++){
+      SetMultiplePhysicalVolumes(Mokka->GetMultiplePhysicalVolumes().at(i));
+    }
+
     vector<G4LogicalVolume*> SensComps = Mokka->SensitiveComponents;
     for(G4int id=0; id<(G4int)SensComps.size(); id++)
       SetMultipleSensitiveVolumes(SensComps[id]);
+
+    vector<G4LogicalVolume*> GFlashComps =Mokka->itsGFlashComponents;
+    for(G4int id=0; id<(G4int)GFlashComps.size(); id++)
+      SetGFlashVolumes(GFlashComps[id]);
+
     align_in_volume = Mokka->align_in_volume;
     align_out_volume = Mokka->align_out_volume;
     // attach magnetic field if present
 
-    if(bFormat=="mokka" || bFormat=="none")
+    if(bFormat=="3D"){
+      G4cout << "BDSElement.cc> Making BDS3DMagField..." << G4endl;
+      itsMagField = new BDS3DMagField(bFile, 0);
+      BuildMagField(true);
+    } else if(bFormat=="XY"){
+      G4cout << "BDSElement.cc> Making BDSXYMagField2..." << G4endl;
+      itsMagField = new BDSXYMagField2(bFile);
+      // build the magnetic field manager and transportation
+      BuildMagField(true);
+    } else if(bFormat=="mokka" || bFormat=="none")
       {
 	if(Mokka->HasFields || bFile!="")
 	  // Check for field file or volumes with fields
 	  // as there may be cases where there are no bFormats given
 	  // in gmad file but fields might be set to volumes in SQL files
 	  {
-	    itsField = new BDSMagFieldSQL(bFile,itsLength,
-					  Mokka->Quadvol, Mokka->QuadBgrad,
-					  Mokka->Sextvol, Mokka->SextBgrad,
-					  Mokka->Octvol, Mokka->OctBgrad,
-					  Mokka->Fieldvol,Mokka->UniformField);
+	    itsMagField = new BDSMagFieldSQL(bFile,itsLength,
+					     Mokka->QuadVolBgrad,
+					     Mokka->SextVolBgrad,
+					     Mokka->OctVolBgrad,
+					     Mokka->UniformFieldVolField,
+					     Mokka->nPoleField,
+					     Mokka->HasUniformField);
+	    
 	    
 	    // build the magnetic field manager and transportation
-	    BuildMagField(6,true);
+	    BuildMagField(true);
 	  }
       }
-  } 
+  }
   else if(gFormat=="gdml") {
-    
-    G4cout<<"GDML.... sorry, not implemented yet..."<<G4endl;
-
+#ifdef USE_GDML
+    GDML = new BDSGeometryGDML(gFile);
+    GDML->Construct(itsMarkerLogicalVolume);
+#else
+    G4cout << "GDML support not selected during BDSIM configuration" << G4endl;
+    G4Exception("Please re-compile BDSIM with USE_GDML flag in Makefile", "-1", FatalException, "");
+#endif
   }
   else {
     G4cerr<<"geometry format "<<gFormat<<" not supported"<<G4endl;
@@ -252,7 +454,7 @@ void BDSElement::PlaceComponents(G4String geometry, G4String bmap)
 // 	Point[1] = y;
 // 	Point[2] = z;
 // 	Point[3] = 0;
-// 	itsField->GetFieldValue(Point,BField);
+// 	itsMagField->GetFieldValue(Point,BField);
 // 	testf<<Point[0]<<" "<<Point[1]<<" "<<Point[2]<<" "<<
 // 	  BField[0]<<" "<<BField[1]<<" "<<BField[2]<<G4endl;
 //       }
@@ -272,52 +474,98 @@ G4VisAttributes* BDSElement::SetVisAttributes()
 }
 
 
-void BDSElement::BuildMagField(G4int nvar, G4bool forceToAllDaughters)
+void BDSElement::BuildMagField(G4bool forceToAllDaughters)
 {
-  //itsField = new BDSField();
-
-  // Create an equation of motion for this field
-  G4EqMagElectricField* fEquation = new G4EqMagElectricField(itsField);
-
-  G4MagIntegratorStepper* fStepper = new G4ClassicalRK4( fEquation, nvar );
-  //G4MagIntegratorStepper* fStepper = new BDSRK4Stepper( fEquation, nvar );
-
+#ifdef DEBUG
+  G4cout << "BDSElement.cc::BuildMagField Building magnetic field...." << G4endl;
+#endif
   // create a field manager
   G4FieldManager* fieldManager = new G4FieldManager();
-  fieldManager->SetDetectorField(itsField );
 
 
-  G4double fMinStep  = BDSGlobals->GetChordStepMinimum(); 
+  if(!itsFieldIsUniform){
+#ifdef DEBUG
+    G4cout << "BDSElement.cc> Building non-uniform magnetic field..." << endl;
+#endif
+    itsEqRhs = new G4Mag_UsualEqRhs(itsMagField);
+    if( (itsMagField->GetHasUniformField())&!(itsMagField->GetHasNPoleFields() || itsMagField->GetHasFieldMap())){
+      //    itsFStepper = new G4ExactHelixStepper(itsEqRhs); 
+      itsFStepper = new G4HelixMixedStepper(itsEqRhs,6); 
+    } else {
+      //        itsFStepper = new G4HelixMixedStepper(itsEqRhs,6); 
+      itsFStepper = new G4HelixImplicitEuler(itsEqRhs); 
+      //    itsFStepper = new G4HelixSimpleRunge(itsEqRhs);
+      //    itsFStepper = new G4HelixHeum(itsEqRhs);
+      //    itsFStepper = new G4ClassicalRK4(itsEqRhs);
+    }
+    //    //  itsFStepper = new G4HelixSimpleRunge(itsEqRhs); 
+    //  itsFStepper = new G4HelixExplicitEuler(itsEqRhs); 
+    fieldManager->SetDetectorField(itsMagField );
+  } else {
+#ifdef DEBUG
+    G4cout << "BDSElement.cc> Building uniform magnetic field..." << endl;
+#endif
+    itsEqRhs = new G4Mag_UsualEqRhs(itsUniformMagField);
+    //    itsFStepper = new G4HelixImplicitEuler(itsEqRhs); 
+    //  itsFStepper = new G4CashKarpRKF45(itsEqRhs); 
+    itsFStepper = new G4HelixMixedStepper(itsEqRhs, 6); 
+    fieldManager->SetDetectorField(itsUniformMagField );
+  }
+
+#ifdef DEBUG
+  G4cout << "BDSElement.cc> Setting stepping accuracy parameters..." << endl;
+#endif
   
-  G4MagInt_Driver* fIntgrDriver = new G4MagInt_Driver(fMinStep, 
-						      fStepper, 
-						      fStepper->GetNumberOfVariables() );
+  if(BDSGlobalConstants::Instance()->GetDeltaOneStep()>0){
+    fieldManager->SetDeltaOneStep(BDSGlobalConstants::Instance()->GetDeltaOneStep());
+  }
+  if(BDSGlobalConstants::Instance()->GetMaximumEpsilonStep()>0){
+    fieldManager->SetMaximumEpsilonStep(BDSGlobalConstants::Instance()->GetMaximumEpsilonStep());
+  }
+  if(BDSGlobalConstants::Instance()->GetMinimumEpsilonStep()>=0){
+    fieldManager->SetMinimumEpsilonStep(BDSGlobalConstants::Instance()->GetMinimumEpsilonStep());
+  }
+  if(BDSGlobalConstants::Instance()->GetDeltaIntersection()>0){
+    fieldManager->SetDeltaIntersection(BDSGlobalConstants::Instance()->GetDeltaIntersection());
+  }
+
+  G4MagInt_Driver* fIntgrDriver = new G4MagInt_Driver(BDSGlobalConstants::Instance()->GetChordStepMinimum(),
+						      itsFStepper, 
+						      itsFStepper->GetNumberOfVariables() );
+  fChordFinder = new G4ChordFinder(fIntgrDriver);
   
-  G4ChordFinder* fChordFinder = new G4ChordFinder(fIntgrDriver);
-
-  fChordFinder->SetDeltaChord(BDSGlobals->GetDeltaChord());
-
+  fChordFinder->SetDeltaChord(BDSGlobalConstants::Instance()->GetDeltaChord());
+  
   fieldManager->SetChordFinder( fChordFinder ); 
 
+  
+  //  if(itsFieldVolName != ""){
+  //    itsFieldVolName=itsFieldVolName+"_PhysiComp";
+  //    G4cout << "Printing daughters... itsFieldVolName=" << itsFieldVolName << G4endl;
+  //  for(int i=0;itsMarkerLogicalVolume->IsAncestor(itsMarkerLogicalVolume->GetDaughter(i)); i++){
+  //    G4cout << itsMarkerLogicalVolume->GetDaughter(i)->GetName() << endl;
+  //    if( itsMarkerLogicalVolume->GetDaughter(i)->GetName() == itsFieldVolName){
+  //      itsMarkerLogicalVolume->GetDaughter(i)->GetLogicalVolume()->SetFieldManager(fieldManager,forceToAllDaughters);
+  //      G4cout << "Field volume set..." << G4endl;
+  //      break;
+  //    }
+  //  }
+  //} else {
+  //  }
+  
+#ifdef DEBUG
+  G4cout << "BDSElement.cc> Setting the logical volume " << itsMarkerLogicalVolume->GetName() << " field manager... force to all daughters = " << forceToAllDaughters << endl;
+#endif
   itsMarkerLogicalVolume->SetFieldManager(fieldManager,forceToAllDaughters);
-  
-  G4UserLimits* fUserLimits =
-    new G4UserLimits("element cuts",DBL_MAX,DBL_MAX,DBL_MAX,
-  		     BDSGlobals->GetThresholdCutCharged());
-  
-  fUserLimits->SetMaxAllowedStep(1e-2 * m);
-  
-  itsMarkerLogicalVolume->SetUserLimits(fUserLimits);
-  
 }
 
 // creates a field mesh in the reference frame of a physical volume
 // from  b-field map value list 
 // has to be called after the component is placed in the geometry
-void BDSElement::PrepareField(G4VPhysicalVolume *referenceVolume)
+    void BDSElement::PrepareField(G4VPhysicalVolume *referenceVolume)
 {
-  if(!itsField) return;
-  itsField->Prepare(referenceVolume);
+  if(!itsMagField) return;
+  itsMagField->Prepare(referenceVolume);
 }
 
 // Rotates and positions the marker volume before it is placed in
@@ -340,8 +588,8 @@ void BDSElement::AlignComponent(G4ThreeVector& TargetPos,
 	{
 	  // advance co-ords in usual way if no alignment volumes found
 	  
-	  rtot = rlast + localZ*(itsLength/2 + BDSGlobals->GetLengthSafety()/2);
-	  rlast = rtot + localZ*(itsLength/2 + BDSGlobals->GetLengthSafety()/2);
+	  rtot = rlast + localZ*(itsLength/2);
+	  rlast = rtot + localZ*(itsLength/2);
 	  return;
 	}
       else 
@@ -373,7 +621,7 @@ void BDSElement::AlignComponent(G4ThreeVector& TargetPos,
 	  localZ.transform(Trot.inverse());
 
 	  //moving position in Z be at least itsLength/2 away
-	  rlast +=zHalfAngle*(itsLength/2 + diff.z() + BDSGlobals->GetLengthSafety()/2);
+	  rlast +=zHalfAngle*(itsLength/2 + diff.z());
 	  return;
 	}
     }
@@ -400,7 +648,7 @@ void BDSElement::AlignComponent(G4ThreeVector& TargetPos,
 	  G4ThreeVector zHalfAngle = G4ThreeVector(0.,0.,1.);
 	  zHalfAngle.transform(Trot.inverse());
 	  
-	  rlast = TargetPos + zHalfAngle*(itsLength/2 + BDSGlobals->GetLengthSafety()/2);
+	  rlast = TargetPos + zHalfAngle*(itsLength/2);
 	  localX.transform(Trot.inverse());
 	  localY.transform(Trot.inverse());
 	  localZ.transform(Trot.inverse());
@@ -436,7 +684,7 @@ void BDSElement::AlignComponent(G4ThreeVector& TargetPos,
 	  localZ.transform(Trot.inverse());
 
 	  //moving position in Z be at least itsLength/2 away
-	  rlast +=zHalfAngle*(itsLength/2 + diff.z() + BDSGlobals->GetLengthSafety()/2);
+	  rlast +=zHalfAngle*(itsLength/2 + diff.z());
 	  return;
 	}
     }
@@ -447,5 +695,8 @@ BDSElement::~BDSElement()
 {
 
   delete itsVisAttributes;
- 
+  delete itsMarkerLogicalVolume;
+  delete fChordFinder;
+  delete itsFStepper;
+  delete itsFEquation;
 }

@@ -31,7 +31,6 @@
 #include "G4Navigator.hh"
 #include "G4AffineTransform.hh"
 
-extern BDSMaterials* theMaterials;
 extern G4double BDSLocalRadiusOfCurvature;
  
 class BDSSynchrotronRadiation : public G4VDiscreteProcess 
@@ -78,7 +77,7 @@ BDSSynchrotronRadiation::IsApplicable(const G4ParticleDefinition& particle)
 
 inline G4double 
 BDSSynchrotronRadiation::GetMeanFreePath(const G4Track& track,
-					G4double PreviousStepSize,
+					G4double,
 					G4ForceCondition* ForceCondition)
 {  
   *ForceCondition = NotForced ;
@@ -89,11 +88,11 @@ BDSSynchrotronRadiation::GetMeanFreePath(const G4Track& track,
   G4FieldManager* TheFieldManager=
     track.GetVolume()->GetLogicalVolume()->GetFieldManager();
 
-  if(track.GetTotalEnergy()<BDSGlobals->GetThresholdCutCharged())
+  if(track.GetTotalEnergy()<BDSGlobalConstants::Instance()->GetThresholdCutCharged())
     return DBL_MAX;
   /*
   G4double SynchOnZPos = (7.184+4.0) * m;
-  if(track.GetPosition().z() + BDSGlobals->GetWorldSizeZ() < SynchOnZPos)
+  if(track.GetPosition().z() + BDSGlobalConstants::Instance()->GetWorldSizeZ() < SynchOnZPos)
     return DBL_MAX;
   */
   if(TheFieldManager)
@@ -114,7 +113,7 @@ BDSSynchrotronRadiation::GetMeanFreePath(const G4Track& track,
 
       
  
-      if(track.GetMaterial()==theMaterials->GetMaterial("Vacuum")&&Blocal !=0 )
+      if(track.GetMaterial()==BDSMaterials::Instance()->GetMaterial("Vacuum")&&Blocal !=0 )
 	{
 	  G4ThreeVector InitMag=track.GetMomentum();
 
@@ -131,16 +130,18 @@ BDSSynchrotronRadiation::GetMeanFreePath(const G4Track& track,
 	  MeanFreePath=
 	    fabs(Rlocal)/(track.GetTotalEnergy()*nExpConst);
 
-	  MeanFreePath /= BDSGlobals->GetSynchMeanFreeFactor();
+	  MeanFreePath /= BDSGlobalConstants::Instance()->GetSynchMeanFreeFactor();
 
-	  if(MeanFreePathCounter==BDSGlobals->GetSynchMeanFreeFactor())
+	  if(MeanFreePathCounter==BDSGlobalConstants::Instance()->GetSynchMeanFreeFactor())
 	    MeanFreePathCounter=0;
 
-	 //  G4cout<<"*****************SR*************************"<<G4endl;
-// 	  G4cout<<"Track momentum: "<<InitMag<<G4endl;;
-// 	  G4cout<<"Blocal="<<Blocal/tesla<<"  Rlocal="<<Rlocal/m<<G4endl;
-// 	  G4cout<<track.GetVolume()->GetName()<<" mfp="<<MeanFreePath/m<<G4endl;
-// 	  G4cout<<"********************************************"<<G4endl;
+#ifdef DEBUG
+          G4cout<<"*****************SR*************************"<<G4endl;
+          G4cout<<"Track momentum: "<<InitMag<<G4endl;;
+          G4cout<<"Blocal="<<Blocal/tesla<<"  Rlocal="<<Rlocal/m<<G4endl;
+          G4cout<<track.GetVolume()->GetName()<<" mfp="<<MeanFreePath/m<<G4endl;
+          G4cout<<"********************************************"<<G4endl;
+#endif
 
 	  return MeanFreePath;
 	}

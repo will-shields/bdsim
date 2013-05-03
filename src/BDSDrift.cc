@@ -3,7 +3,7 @@
    Last modified 24.7.2002
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSDrift.hh"
 #include "G4Box.hh"
@@ -13,10 +13,9 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4UserLimits.hh"
 #include "G4TransportationManager.hh"
+#include "G4CashKarpRKF45.hh"
 
 #include <map>
-
-const int DEBUG = 1;
 
 //============================================================
 
@@ -26,15 +25,18 @@ extern LogVolCountMap* LogVolCount;
 typedef std::map<G4String,G4LogicalVolume*> LogVolMap;
 extern LogVolMap* LogVol;
 
-extern BDSMaterials* theMaterials;
 //============================================================
 
-BDSDrift::BDSDrift (G4String aName, G4double aLength,
-		    G4double bpRad):
-  BDSMultipole(aName, aLength, bpRad, bpRad, SetVisAttributes())
+BDSDrift::BDSDrift (G4String aName, G4double aLength, 
+                    std::list<G4double> blmLocZ, std::list<G4double> blmLocTheta, G4double aperX, G4double aperY, G4String tunnelMaterial, G4bool aperset, G4double aper, G4double tunnelOffsetX, G4double phiAngleIn, G4double phiAngleOut):
+  BDSMultipole(aName, aLength, aper, aper, SetVisAttributes(),  blmLocZ, blmLocTheta, tunnelMaterial, "", aperX, aperY, 0, 0, tunnelOffsetX, phiAngleIn, phiAngleOut)
 {
-  G4double outerR=bpRad+1*mm;
-  SetOuterRadius(outerR);
+  if(!aperset){
+    itsStartOuterR=aperX + itsBeampipeThickness;
+    itsEndOuterR=aperY + itsBeampipeThickness;
+    SetStartOuterRadius(itsStartOuterR);
+    SetEndOuterRadius(itsEndOuterR);
+  }
   itsType="drift";
 
   if (!(*LogVolCount)[itsName])
@@ -43,26 +45,34 @@ BDSDrift::BDSDrift (G4String aName, G4double aLength,
       // build external volume
       // 
       BuildDefaultMarkerLogicalVolume();
+      G4VisAttributes* VisAtt1 = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
+      VisAtt1->SetVisibility(false);
+      VisAtt1->SetForceSolid(true);
+      itsMarkerLogicalVolume->SetVisAttributes(VisAtt1);
 
       //
       // build beampipe (geometry + magnetic field)
       //
-      itsBPFieldMgr=NULL;
-      G4String materialName = "";
-      if(this->itsName.contains("WINDOW")){
-	materialName = "Vacuum";
+      if(BDSGlobalConstants::Instance()->GetBuildTunnel()){
+        BuildTunnel();
       }
-      BuildBeampipe(itsLength,materialName);
 
-      // drift doesn't have an outer volume - but include it for laserwire
-      // BuildDefaultOuterLogicalVolume(itsLength,true);
-
+      BuildBpFieldAndStepper();
+      BuildBPFieldMgr(itsStepper, itsMagField);
+      if (aperset){
+	BuildBeampipe();
+      } else {
+	BuildBeampipe(aperX, aperY);
+      }
+      BuildBLMs();
+  
       //
       // define sensitive volumes for hit generation
       //
-      SetSensitiveVolume(itsBeampipeLogicalVolume);// for laserwire
-      //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
-
+      if(BDSGlobalConstants::Instance()->GetSensitiveBeamPipe()){
+        SetMultipleSensitiveVolumes(itsBeampipeLogicalVolume);
+      }
+      
       //
       // append marker logical volume to volume map
       //
@@ -72,7 +82,7 @@ BDSDrift::BDSDrift (G4String aName, G4double aLength,
   else
     {
       (*LogVolCount)[itsName]++;
-
+      
       //
       // use already defined marker volume
       //
@@ -80,10 +90,25 @@ BDSDrift::BDSDrift (G4String aName, G4double aLength,
     }
 }
 
+
+
+
 G4VisAttributes* BDSDrift::SetVisAttributes()
 {
   itsVisAttributes=new G4VisAttributes(G4Colour(0,1,0)); //useless
   return itsVisAttributes;
+}
+
+void BDSDrift::BuildBpFieldAndStepper(){
+    // set up the magnetic field and stepper
+  itsMagField=new BDSMagField(); //Zero magnetic field.
+  itsEqRhs=new G4Mag_UsualEqRhs(itsMagField);
+  itsStepper=new BDSDriftStepper(itsEqRhs);
+}
+
+void BDSDrift::BuildBLMs(){
+  itsBlmLocationR = std::max(itsStartOuterR, itsEndOuterR) - itsBpRadius;
+  BDSAcceleratorComponent::BuildBLMs();
 }
 
 BDSDrift::~BDSDrift()

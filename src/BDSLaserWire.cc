@@ -3,7 +3,7 @@
    Last modified 24.7.2002
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSLaserWire.hh"
 #include "G4Box.hh"
@@ -22,25 +22,19 @@ extern LogVolCountMap* LogVolCount;
 typedef std::map<G4String,G4LogicalVolume*> LogVolMap;
 extern LogVolMap* LogVol;
 
-extern BDSMaterials* theMaterials;
 //============================================================
 
 BDSLaserWire::BDSLaserWire (G4String aName,G4double aLength,
-G4double aWavelength, G4ThreeVector aDirection,
- G4ThreeVector aPosition, G4double xSigma, G4double ySigma):
+G4double aWavelength, G4ThreeVector aDirection):
   BDSAcceleratorComponent(
     aName,
     aLength,0,0,0,
     SetVisAttributes())
 {
   LaserWireLogicalVolume();
-  //  itsLaserCompton=new BDSLaserCompton(aWavelength, aDirection);
-
-  //  G4cout << "*****" << itsMarkerLogicalVolume->GetName() << "*****\n";
-
-  BDSGlobals->
+  BDSGlobalConstants::Instance()->
     SetLaserwireWavelength(itsMarkerLogicalVolume->GetName(),aWavelength);
-  BDSGlobals->
+  BDSGlobalConstants::Instance()->
     SetLaserwireDir(itsMarkerLogicalVolume->GetName(),aDirection);
 }
 
@@ -50,12 +44,12 @@ void BDSLaserWire::LaserWireLogicalVolume()
     {
       itsMarkerLogicalVolume=new G4LogicalVolume(
 						 new G4Box(itsName+"_solid",
-							   BDSGlobals->
+							   BDSGlobalConstants::Instance()->
 							   GetBeampipeRadius(),
-							   BDSGlobals->
+							   BDSGlobalConstants::Instance()->
 							   GetBeampipeRadius(),
 							   itsLength/2),
-						 theMaterials->GetMaterial("LaserVac"),
+						 BDSMaterials::Instance()->GetMaterial("LaserVac"),
 						 itsName);
       (*LogVolCount)[itsName]=1;
       (*LogVol)[itsName]=itsMarkerLogicalVolume;
@@ -65,17 +59,21 @@ void BDSLaserWire::LaserWireLogicalVolume()
       (*LogVolCount)[itsName]++;
       itsMarkerLogicalVolume=(*LogVol)[itsName];
     }
+  itsVisAttributes=this->SetVisAttributes();
+  itsMarkerLogicalVolume->SetVisAttributes(itsVisAttributes);
 }
 
 G4VisAttributes* BDSLaserWire::SetVisAttributes()
 {
-  itsVisAttributes=new G4VisAttributes(G4Colour(1.,0.,0.));
+  itsVisAttributes=new G4VisAttributes(G4Colour(0.,1.,0.));
+  itsVisAttributes->SetForceSolid(true);
+  itsVisAttributes->SetVisibility(true);
   return itsVisAttributes;
 }
 
 BDSLaserWire::~BDSLaserWire()
 {
   delete itsVisAttributes;
-  //  delete itsUserLimits;
-  //  delete itsLaserCompton;
+  delete itsUserLimits;
+  delete itsLaserCompton;
 }

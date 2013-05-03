@@ -3,235 +3,193 @@
 Last modified 23.10.2007 by Steve Malton
 
 **/
-
-const int DEBUG = 0;
-
 #include "BDSGlobalConstants.hh"
-
+#include "../parser/getEnv.h"
 #include "G4UniformMagField.hh"
-
+#include "G4ParticleTypes.hh"
+#include "G4ParticleTable.hh"
+#include "G4ParticleDefinition.hh"
 #include <cstdlib>
-
 #include <assert.h>
-
 #include<string>
 #include<stack>
+#include<cmath>
 
 using namespace std;
 
-G4double NumSpoilerRadLen=1.;
+BDSGlobalConstants* BDSGlobalConstants::_instance = 0;
+
+BDSGlobalConstants* BDSGlobalConstants::Instance(){
+  if(_instance==0) {
+    _instance = new BDSGlobalConstants(options);
+  }
+  return _instance;
+}
 
 BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
 {
-
+  //environment variables
+  itsBDSIMHOME=(G4String)getEnv("BDSIMHOME");
+  PI = 4.0 * atan(1.0);
   // defaults:
-  itsEnergyOffset=0.;
-  itsTrackWeightFactor=1.0;
-  
   if(opt.physicsList == "") 
     itsPhysListName = "standard";
   else
     itsPhysListName = opt.physicsList;
-
-  if(opt.pipeMaterial == "")
+  if(opt.pipeMaterial == "") 
     itsPipeMaterial = "StainlessSteel";
   else
     itsPipeMaterial = opt.pipeMaterial;
-
   if(opt.vacMaterial == "") 
     itsVacMaterial = "Vacuum";
   else
     itsVacMaterial = opt.vacMaterial;
-  
-  
-  tmpParticleName = G4String(opt.particleName);
-  
-  itsBeamTotalEnergy = opt.beamEnergy * GeV;
 
-  //not yet implemented!
-  if (opt.backgroundScaleFactor > 1e-9)
-    itsBackgroundScaleFactor = opt.backgroundScaleFactor;
+ if(opt.tunnelMaterial == "") 
+    itsTunnelMaterialName = "concrete";
   else
-    itsBackgroundScaleFactor = 1.0;
+    itsTunnelMaterialName = opt.tunnelMaterial;
+ if(opt.tunnelCavityMaterial == "") 
+    itsTunnelCavityMaterialName = "Air";
+  else
+    itsTunnelCavityMaterialName = opt.tunnelCavityMaterial;
+ if(opt.soilMaterial == "") 
+    itsSoilMaterialName = "soil";
+  else
+    itsSoilMaterialName = opt.soilMaterial;
 
-  itsComponentBoxSize = opt.componentBoxSize *m;
-  itsTunnelRadius = opt.tunnelRadius * m;
+ itsSampleDistRandomly = true;
+ itsGeometryBias = opt.geometryBias;
+
+ itsShowTunnel=opt.showTunnel;
+ itsSensitiveComponents=opt.sensitiveBeamlineComponents;
+ itsSensitiveBeamPipe=opt.sensitiveBeamPipe;
+ itsSensitiveBLMs=opt.sensitiveBLMs;
+ itsDefaultRangeCut=opt.defaultRangeCut;
+ itsElossHistoBinWidth=opt.elossHistoBinWidth; //Longitudinal and transverse energy loss histogram bin widths
+ itsElossHistoTransBinWidth=opt.elossHistoTransBinWidth;
+  itsFFact=opt.ffact;
+  itsParticleName=G4String(opt.particleName);
+  itsBeamTotalEnergy = opt.beamEnergy * GeV;
+  itsVacuumPressure = opt.vacuumPressure*bar;
+  itsPlanckScatterFe = opt.planckScatterFe;
+  //Fraction of events with leading particle biasing.
   itsBeampipeRadius = opt.beampipeRadius * m;
+  if(itsBeampipeRadius == 0){
+    cerr << "BDSGlobalConstants> Error: option \"beampipeRadius\" must be greater than 0" <<  endl;
+    exit(1);
+  }
   itsBeampipeThickness = opt.beampipeThickness * m;
-    
+  itsComponentBoxSize = opt.componentBoxSize *m;
+  if (itsComponentBoxSize < (itsBeampipeThickness + itsBeampipeRadius)){
+    cerr << "BDSGlobalConstants> Error: option \"boxSize\" must be greater than the sum of \"beampipeRadius\" and \"beamPipeThickness\" " << endl;
+    exit(1);
+  }
+  itsBuildTunnel = opt.buildTunnel;
+  itsBuildTunnelFloor = opt.buildTunnelFloor;  
+  itsTunnelRadius = opt.tunnelRadius * m;
+  if (itsTunnelRadius < itsComponentBoxSize/2){
+    cerr << "BDSGlobalConstants> Error: option \"tunnelRadius\" must be grater than \"boxSize\"/2 " << endl;
+    exit(1);
+  }
+  itsTunnelThickness = opt.tunnelThickness * m; //Tunnel geometry options read from file
+  itsTunnelSoilThickness = opt.tunnelSoilThickness * m;
+  itsTunnelFloorOffset = opt.tunnelFloorOffset * m;
+  itsTunnelOffsetX = opt.tunnelOffsetX * m;
+  itsTunnelOffsetY = opt.tunnelOffsetY * m;
+  //Beam loss monitor (BLM) geometry
+  itsBlmRad = opt.blmRad * m;
+  itsBlmLength = opt.blmLength *m;
+  //Sampler geometry - default diameter is the tunnel diameter
+  if(opt.samplerDiameter==0){
+    itsSamplerDiameter=2*itsTunnelRadius;
+  } else {
+    itsSamplerDiameter = opt.samplerDiameter * m;
+  }
+  itsSamplerLength = 1E-8 * m;
   itsThresholdCutCharged = opt.thresholdCutCharged * GeV;
   itsThresholdCutPhotons = opt.thresholdCutPhotons * GeV;
-  itsTrackWeightFactor = opt.trackWeightFactor;
   itsProdCutPhotons = opt.prodCutPhotons * m;
   itsProdCutPhotonsP = opt.prodCutPhotonsP * m;
   itsProdCutElectrons = opt.prodCutElectrons * m;
   itsProdCutElectronsP = opt.prodCutElectronsP * m;
   itsProdCutPositrons = opt.prodCutPositrons * m;
   itsProdCutPositronsP = opt.prodCutPositronsP * m;
-
   itsDeltaChord = opt.deltaChord * m;
   itsChordStepMinimum = opt.chordStepMinimum * m;
   itsDeltaIntersection= opt.deltaIntersection * m;
   itsMinimumEpsilonStep = opt.minimumEpsilonStep;
   itsMaximumEpsilonStep = opt.maximumEpsilonStep;
+  itsMaxTime=1e-4*s;
   itsDeltaOneStep = opt.deltaOneStep * m;
-
-
   doTwiss = opt.doTwiss;
-
-  itsTurnOnInteractions = opt.turnOnInteractions;
-
-  itsUseLowEMPhysics = opt.useLowEMPhysics;
-
+  itsDoPlanckScattering = opt.doPlanckScattering;
+  itsCheckOverlaps = opt.checkOverlaps;
+  itsTurnOnCerenkov = opt.turnOnCerenkov;
   itsSynchRadOn = opt.synchRadOn;
-
+  G4cout << "BDSGlobalConstants::Instance() synchRadOn = " << itsSynchRadOn << G4endl;
+  itsDecayOn = opt.decayOn;
   itsSynchRescale = opt.synchRescale; // rescale due to synchrotron
-
   itsSynchTrackPhotons= opt.synchTrackPhotons;
-
-  itsSynchPrimaryGen = 0;
-
+  G4cout << "BDSGlobalConstants::Instance() synchTrackphotons = " << itsSynchTrackPhotons << G4endl;
   itsSynchLowX = opt.synchLowX;
-
   itsSynchLowGamE = opt.synchLowGamE * GeV;  // lowest gamma energy
-
-  itsSynchPhotonMultiplicity = 10000; //deacon
-  //opt.synchPhotonMultiplicity;
-
+  itsSynchPhotonMultiplicity = opt.synchPhotonMultiplicity;
   itsSynchMeanFreeFactor = opt.synchMeanFreeFactor;
-
-  itsPlanckOn = opt.planckOn;
-
-  itsBDSeBremOn = opt.eBremOn;
-
-  itsLengthSafety = opt.lengthSafety * m;
-
-  itsNumberOfParticles = opt.numberOfParticles;
-
+  //Synchrotron primary generator
+  itsSynchPrimaryGen = false; //XXX check what this is 19/4/11
+  itsLengthSafety = opt.lengthSafety;
   itsNumberToGenerate = opt.numberToGenerate;
-
   itsNumberOfEventsPerNtuple = opt.numberOfEventsPerNtuple;
-  
   itsEventNumberOffset = opt.eventNumberOffset;
-  
   itsRandomSeed = opt.randomSeed;
- 
-  if(opt.useTimer) {
-    itsTimer=new G4Timer();
-    itsUseTimer = opt.useTimer;
-  }  
-
-  itsUseEMHadronic = opt.useEMHadronic;
-
-  itsUseMuonPairProduction = opt.useMuonPairProduction;
-
-  itsMuonProductionScaleFactor = opt.muonProductionScaleFactor;
-
-  itsHadronInelasticScaleFactor = opt.hadronInelasticScaleFactor;
-
+  itsGammaToMuFe= opt.gammaToMuFe;
+  itsAnnihiToMuFe= opt.annihiToMuFe;
+  itsEeToHadronsFe=opt.eeToHadronsFe;
+  itsUseEMLPB=opt.useEMLPB;
+  itsUseHadLPB=opt.useHadLPB;
+  itsDecayOn=opt.decayOn;
+  SetLPBFraction(opt.LPBFraction);
   itsStoreMuonTrajectories = opt.storeMuonTrajectories;
+  itsTrajCutGTZ = opt.trajCutGTZ;
+  itsTrajCutLTR = opt.trajCutLTR;
   itsStoreNeutronTrajectories = opt.storeNeutronTrajectories;
   itsStoreTrajectory = opt.storeTrajectory;
-
   //G4cout<<"STOREA TRAJ = "<< itsStoreTrajectory<<G4endl;
-
-  itsUseMuonShowers = opt.useMuonShowers;
-
-  itsMuonLowestGeneratedEnergy = opt.muonLowestGeneratedEnergy * GeV;
-
   stopTracks = opt.stopTracks; 
-
   // defaults - parameters of the laserwire process
-
   itsLaserwireWavelength = 0.532 * micrometer;
   itsLaserwireDir = G4ThreeVector(1,0,0);
   itsLaserwireTrackPhotons = 1;
-  itsLaserwireTrackElectrons = 0;
-
-
+  itsLaserwireTrackElectrons = 1;
   isWaitingForDump = false;
   isDumping = false;
   isReading = false;
   isReadFromStack = false;
-
   itsFifo = opt.fifo;
-
   itsRefVolume = opt.refvolume;
   itsRefCopyNo = opt.refcopyno;
-
-  itsIncludeIronMagFields = 0;
-
- //  else if(name=="INCLUDE_IRON_MAG_FIELDS")
-//     {
-//       _READ(itsIncludeIronMagFields);
-//     }
-
-
-//  else if(name  =="OUTPUT_NTUPLE_FILE_NAME")
-//     {_READ(itsOutputNtupleFileName);}
-
-//   else if(name=="NUMBER_OF_EVENTS_PER_NTUPLE")
-//     {_READ(itsNumberOfEventsPerNtuple);}
-
-
-//   else if(name=="USE_SYNCH_PRIMARY_GEN")
-//     {
-//       _READ(itsSynchPrimaryGen);
-//     }
-//   else if(name=="SYNCH_PRIMARY_GEN_ANGLE")
-//     {
-//       _READ(itsSynchPrimaryAngle);
-//       itsSynchPrimaryAngle*=radian;
-//     }
-//   else if(name=="SYNCH_PRIMARY_GEN_LENGTH")
-//     {
-//       _READ(itsSynchPrimaryLength);
-//       itsSynchPrimaryLength*=m;
-//     }
-
-//   else if(name=="USE_LAST_MATERIAL_POINT")
-//     {
-//       _READ(itsUseLastMaterialPoint);
-//     }
-
-//   else
-//     {
-//       G4cout<<" Unknown card in BDSInput.cards:"<<name<<G4endl;
-//       G4Exception("BDSGlobalConstants: UNRECOGNISED CARD");
-//     } 
- 
-
-  itsOutputNtupleFileName="sampler_output.rz";
-  // end of defaults
-
-  
-  // default value (can be renamed later)
-
-  G4UniformMagField* magField = new G4UniformMagField(G4ThreeVector());
+  isReference = 0;
+  itsIncludeIronMagFields = opt.includeIronMagFields;
+  zeroMagField = new G4UniformMagField(G4ThreeVector());
   itsZeroFieldManager=new G4FieldManager();
-  itsZeroFieldManager->SetDetectorField(magField);
-  itsZeroFieldManager->CreateChordFinder(magField);
-   
+  itsZeroFieldManager->SetDetectorField(zeroMagField);
+  itsZeroFieldManager->CreateChordFinder(zeroMagField);
 }
-
 
 // a robust compiler-invariant method to convert from integer to G4String
 G4String BDSGlobalConstants::StringFromInt(G4int N) 
 {
   if (N==0) return "0";
- 
   G4int nLocal=N, nDigit=0, nMax=1;
-
   do { nDigit++;
       nMax*=10;} while(N > nMax-1);
-  
   nMax/=10;
   G4String Cnum;
   do {Cnum+=StringFromDigit(nLocal/nMax);
       nLocal-= nLocal/nMax * nMax;
       nMax/=10;}   while(nMax>1);
   if(nMax!=0)Cnum+=StringFromDigit(nLocal/nMax);
-
   return Cnum;
 }
 
@@ -239,10 +197,8 @@ G4String BDSGlobalConstants::StringFromInt(G4int N)
 G4String BDSGlobalConstants::StringFromDigit(G4int N) 
 {
   if(N<0 || N>9)
-    G4Exception("Invalid Digit in BDSGlobalConstants::StringFromDigit");
-
+    G4Exception("Invalid Digit in BDSGlobalConstants::StringFromDigit", "-1", FatalException, "");
   G4String Cnum;
-
   if(N==0)Cnum="0";
   else if(N==1)Cnum="1";
   else if(N==2)Cnum="2";
@@ -253,11 +209,11 @@ G4String BDSGlobalConstants::StringFromDigit(G4int N)
   else if(N==7)Cnum="7";
   else if(N==8)Cnum="8";
   else if(N==9)Cnum="9"; 
-
   return Cnum;
 }
 
 BDSGlobalConstants::~BDSGlobalConstants()
 {  
-    
+  delete itsZeroFieldManager;
+  delete zeroMagField;
 }

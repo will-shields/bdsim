@@ -23,9 +23,6 @@ extern G4double BDSLocalRadiusOfCurvature;
 
 extern G4int event_number;
 
-
-const G4int DEBUG = 0;
-
 BDSSextStepper::BDSSextStepper(G4Mag_EqRhs *EqRhs)
   : G4MagIntegratorStepper(EqRhs,6)  // integrate over 6 variables only !!
                                        // position & velocity
@@ -35,7 +32,7 @@ BDSSextStepper::BDSSextStepper(G4Mag_EqRhs *EqRhs)
 
 
 void BDSSextStepper::AdvanceHelix( const G4double  yIn[],
-                                   G4ThreeVector Bfld,
+                                   G4ThreeVector,
 				   G4double  h,
 				   G4double  ySext[])
 {
@@ -52,12 +49,14 @@ void BDSSextStepper::AdvanceHelix( const G4double  yIn[],
   G4double kappa=  (-fPtrMagEqOfMot->FCof()*itsBDblPrime) /InitMag;
    
 
-   if(DEBUG) G4cout<<"sextupole stepper:"<<G4endl; 
-  //  G4cout << "kappa: " << kappa << G4endl;
-//    G4cout << "InitMag: " << InitMag << G4endl;
-//    G4cout << "g'': " <<itsBDblPrime<< G4endl;
-//    G4cout << "fPtrMagEqOfMot->FCof(): " << fPtrMagEqOfMot->FCof() << G4endl << G4endl;
-//    G4cout << "h=: " <<h<< G4endl;
+#ifdef DEBUG
+  G4cout<<"sextupole stepper:"<<G4endl; 
+  G4cout << "kappa: " << kappa << G4endl;
+  G4cout << "InitMag: " << InitMag << G4endl;
+  G4cout << "g'': " <<itsBDblPrime<< G4endl;
+  G4cout << "fPtrMagEqOfMot->FCof(): " << fPtrMagEqOfMot->FCof() << G4endl << G4endl;
+  G4cout << "h=: " <<h<< G4endl;
+#endif
 
    if(fabs(kappa)<1.e-12)
      {
@@ -162,7 +161,7 @@ void BDSSextStepper::AdvanceHelix( const G4double  yIn[],
 }
 
 void BDSSextStepper::Stepper( const G4double yInput[],
-			     const G4double dydx[],
+			     const G4double[],
 			     const G4double hstep,
 			     G4double yOut[],
 			     G4double yErr[]      )
@@ -180,12 +179,12 @@ void BDSSextStepper::Stepper( const G4double yInput[],
   G4double h = hstep * 0.5; 
   
   // Do two half steps
-  AdvanceHelix(yIn,   0,  h, yTemp);
-  AdvanceHelix(yTemp, 0, h, yOut); 
+  AdvanceHelix(yIn,   (G4ThreeVector)0,  h, yTemp);
+  AdvanceHelix(yTemp, (G4ThreeVector)0, h, yOut); 
   
   // Do a full Step
   h = hstep ;
-  AdvanceHelix(yIn, 0, h, yTemp); 
+  AdvanceHelix(yIn, (G4ThreeVector)0, h, yTemp); 
   
   for(i=0;i<nvar;i++) yErr[i] = yOut[i] - yTemp[i] ;
   

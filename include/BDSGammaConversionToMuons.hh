@@ -120,7 +120,8 @@ class BDSGammaConversionToMuons : public G4VDiscreteProcess
   private:
 
      // hide assignment operator as private
-     BDSGammaConversionToMuons& operator=(const BDSGammaConversionToMuons &right);
+     BDSGammaConversionToMuons& operator=(const BDSGammaConversionToMuons 
+                                          &right);
      BDSGammaConversionToMuons(const BDSGammaConversionToMuons& );
 
   private:

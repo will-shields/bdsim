@@ -7,6 +7,7 @@
 #define BDSMUSPOILERMAGFIELD
 
 #include "G4Types.hh"
+#include "G4Navigator.hh"
 #include "G4MagneticField.hh"
 
 class BDSMuSpoilerMagField : public G4MagneticField
@@ -28,6 +29,7 @@ public:  // with description
 
 private:
   G4double itsBField;
+  G4Navigator* MuSpoilerNavigator;
 };
 
 inline void BDSMuSpoilerMagField::SetFieldValue(G4double aField)

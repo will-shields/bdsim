@@ -38,7 +38,7 @@ public:
 	static Double_t get_xmin_axis(){return xmin_axis;}
 	static Double_t get_xmax_axis(){return xmax_axis;}
 	
-	void BDSPad::ExecuteEvent(Int_t event, Int_t px, Int_t py);
+  void ExecuteEvent(Int_t event, Int_t px, Int_t py);
 	void UnZoom();
 	void AddBDSBox(Element _item, Double_t s);
 	void Begin();

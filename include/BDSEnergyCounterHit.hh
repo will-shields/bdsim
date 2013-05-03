@@ -15,9 +15,8 @@
 class BDSEnergyCounterHit :public G4VHit
 {
   public:
-   BDSEnergyCounterHit();
-   BDSEnergyCounterHit(G4int nCopy, G4double Energy=0, G4double EnWeightZ=0.,
-	G4int partID=0, G4int parentID=0);
+  BDSEnergyCounterHit();
+  BDSEnergyCounterHit(G4int nCopy, G4double Energy=0, G4double x=0, G4double y=0, G4double z=0, G4String name="", G4int partID=0, G4double weight=1, G4bool precisionRegion=false);
 
   ~BDSEnergyCounterHit();
 
@@ -27,56 +26,99 @@ class BDSEnergyCounterHit :public G4VHit
    inline void* operator new(size_t) ;
    inline void operator delete(void *aHit);
 
-   inline G4double GetEnergy();
-   inline G4int GetCopyNumber();
-   inline G4int GetPartID();
-   inline G4int GetParentID();
-   inline void SetEnergy(G4double Energy);
-   inline void AddEnergy(G4double Energy);
-   inline void AddEnergyWeightedPosition(G4double EnergyWeightedPosition);
-   G4double GetEnergyWeightedPosition(); 
-
-  private:
-   G4double itsEnergy;
-  //   G4String itsName;
-   G4int itsCopyNumber;
-   G4int itsPartID;
-   G4int itsParentID;
-   G4double itsEnergyWeightedPosition;
+  inline G4double GetEnergy();
+  inline G4int GetCopyNumber();
+  inline G4String GetName();
+  inline void SetEnergy(G4double Energy);
+  inline void AddEnergy(G4double Energy, G4double weight);
+  inline void AddEnergyWeightedPosition(G4double Energy, G4double xpos, G4double ypos, G4double zpos, G4double weight);
+  inline G4double GetZ(); 
+  inline G4double GetX(); 
+  inline G4double GetY(); 
+  inline G4double GetEnergyWeightedY(); 
+  inline G4double GetEnergyWeightedZ(); 
+  inline G4double GetEnergyWeightedX(); 
+  inline G4int GetPartID(); 
+  inline G4double GetWeight(); 
+  inline void SetWeight(G4double weight);
+  inline G4bool GetPrecisionRegion();
+  
+private:
+  G4double itsEnergy;
+  G4double itsEnergyWeightedX;
+  G4double itsEnergyWeightedY;
+  G4double itsEnergyWeightedZ;
+  G4double itsX;
+  G4double itsY;
+  G4double itsZ;
+  G4double itsWeight;
+  //   G4String itsName
+  G4int itsCopyNumber;
+  G4int itsPartID;
+  G4String itsName;
+  G4bool itsPrecisionRegion; //Wether or not the hit is in the precision region
 };
 
-    inline G4double BDSEnergyCounterHit::GetEnergy()
-    {return itsEnergy;}
+inline G4double BDSEnergyCounterHit::GetEnergy()
+{return itsEnergy;}
 
-  //    inline G4String GetName()
-  //   {return itsName;}
+inline G4double BDSEnergyCounterHit::GetX()
+{return itsX;}
 
-    inline G4int BDSEnergyCounterHit::GetCopyNumber()
-    {return itsCopyNumber;}
+inline G4double BDSEnergyCounterHit::GetY()
+{return itsY;}
 
-    inline G4int BDSEnergyCounterHit::GetPartID()
-    {return itsPartID;}
-
-    inline G4int BDSEnergyCounterHit::GetParentID()
-    {return itsParentID;}
-
-   inline void BDSEnergyCounterHit::SetEnergy(G4double Energy)
-    {itsEnergy=Energy;}   
-   inline void BDSEnergyCounterHit::AddEnergy(G4double Energy)
-    {
-itsEnergy+=Energy;}   
-
-    inline void BDSEnergyCounterHit::
-       AddEnergyWeightedPosition(G4double EnergyWeightedPosition)
+inline G4double BDSEnergyCounterHit::GetZ()
 {
- itsEnergyWeightedPosition += EnergyWeightedPosition;
+  return itsZ;
 }
 
-    inline G4double BDSEnergyCounterHit::
-       GetEnergyWeightedPosition()
+inline G4double BDSEnergyCounterHit::GetEnergyWeightedX()
+{return itsEnergyWeightedX;}
+
+inline G4double BDSEnergyCounterHit::GetEnergyWeightedY()
+{return itsEnergyWeightedY;}
+
+inline G4double BDSEnergyCounterHit::GetEnergyWeightedZ()
 {
-return itsEnergyWeightedPosition;
+  return itsEnergyWeightedZ;
 }
+
+inline G4double BDSEnergyCounterHit::GetWeight()
+{
+  return itsWeight;
+}
+
+inline G4bool BDSEnergyCounterHit::GetPrecisionRegion()
+{
+  return itsPrecisionRegion;
+}
+
+
+
+inline G4int BDSEnergyCounterHit::GetCopyNumber()
+{return itsCopyNumber;}
+
+inline G4int BDSEnergyCounterHit::GetPartID()
+{return itsPartID;}
+
+inline G4String BDSEnergyCounterHit::GetName()
+{return itsName;}
+
+inline void BDSEnergyCounterHit::SetEnergy(G4double Energy)
+{itsEnergy=Energy;}   
+
+inline void BDSEnergyCounterHit::AddEnergy(G4double Energy, G4double weight)
+{itsEnergy+=Energy*weight;}   
+
+inline void BDSEnergyCounterHit::AddEnergyWeightedPosition(G4double Energy, G4double X, G4double Y, G4double Z, G4double weight){
+  itsEnergyWeightedX+=Energy*X*weight;
+  itsEnergyWeightedY+=Energy*Y*weight;
+  itsEnergyWeightedZ+=Energy*Z*weight;
+  itsEnergy+=Energy*weight;
+  //  G4cout << "BDSEnergyCounterHit.hh::AddEnergyWeightedPosition: weight = " << weight << G4endl;
+  //  G4cout << "BDSEnergyCounterHit.hh::AddEnergyWeightedPosition: itsWeight = " << itsWeight << G4endl;
+}   
 
 typedef G4THitsCollection<BDSEnergyCounterHit> BDSEnergyCounterHitsCollection;
 extern G4Allocator<BDSEnergyCounterHit> BDSEnergyCounterHitAllocator;

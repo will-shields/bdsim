@@ -60,7 +60,7 @@ BDSEventActionMessenger::~BDSEventActionMessenger()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-void BDSEventActionMessenger::SetNewValue(G4UIcommand * command,G4String newValue)
+void BDSEventActionMessenger::SetNewValue(G4UIcommand * /*command*/,G4String /*newValue*/)
 { 
   /*
   if(command == DrawCmd)

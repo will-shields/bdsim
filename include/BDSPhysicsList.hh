@@ -1,4 +1,4 @@
-
+ 
 /** BDSIM, v0.1   
 
 Last modified 01.02.2006 by Ilya Agapov
@@ -21,6 +21,14 @@ public:
   virtual ~BDSPhysicsList();
 
 public:
+
+ void AddParallelWorldName(G4String& pname)
+         {paraWorldName.push_back(pname);}
+
+
+  void AddScoringProcess();
+
+  void AddParameterisation();
   
   void ConstructParticle();
   void ConstructProcess();
@@ -30,8 +38,18 @@ public:
   // construct particular physics list processes
 
   void ConstructEM();
+  void ConstructEMSingleScatter();
+  void ConstructEMMisc();
+  void ConstructMultipleScattering();
+  void ConstructCoulombScattering();
+
+  void ConstructEM_LPB(); //added by M.D. Salt, R.B. Appleby, 15/10/09
 
   void ConstructMuon();
+
+  void ConstructMuon_LPB(); 
+
+  void ConstructMuon_XSBias(); 
 
   void ConstructMerlin();
 
@@ -42,8 +60,17 @@ public:
   void ConstructLaserWire();
 
   void ConstructHadronic();
+  
+  // void ConstructPhotolepton_Hadron();
 
+  void ConstructHad();
 
+  void ConstructQGSP();
+
+  void ConstructDecay();
+
+private:
+    std::vector<G4String>  paraWorldName;
 };
 
 #endif

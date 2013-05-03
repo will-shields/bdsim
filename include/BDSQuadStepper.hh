@@ -62,7 +62,7 @@ protected:
   // A first order Step along a quad inside the field.
 
 private:
-  
+  G4Navigator* QuadNavigator;
   G4Mag_EqRhs*  fPtrMagEqOfMot;
 
   G4double itsBGrad;

@@ -16,7 +16,7 @@ BDSPlanckEngine::BDSPlanckEngine(G4double Temperature)
   : itsTemperature(Temperature)
 {
  if(itsTemperature<=0.)
-      {G4Exception("BDSPlanckEngine: Invalid Temperature");}
+      {G4Exception("BDSPlanckEngine: Invalid Temperature", "-1", FatalException, "");}
   kT=k_Boltzmann*Temperature;
 
   a=1.266;
@@ -76,7 +76,7 @@ G4LorentzVector BDSPlanckEngine::PerformPlanck()
   }while(ntry<ntryMax && repeat);
 
 
- if(ntry==ntryMax)G4Exception("BDSPlanckEngine:Max number of loops exceeded");
+ if(ntry==ntryMax)G4Exception("BDSPlanckEngine:Max number of loops exceeded", "-1", FatalException, "");
 
  G4double Egam=kT*x;
 

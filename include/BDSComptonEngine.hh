@@ -9,8 +9,9 @@
 #include "G4ios.hh" 
 #include "globals.hh"
 #include "Randomize.hh" 
+#include "G4Version.hh"
 
-#if G4VERSION > 8
+#if G4VERSION_NUMBER > 899
 #include "G4VEnergyLossProcess.hh"
 #else
 #include "G4VeEnergyLoss.hh"
@@ -36,9 +37,13 @@ class BDSComptonEngine
  
     ~BDSComptonEngine();
 
-     void PerformCompton();
-     void SetIncomingPhoton4Vec(G4LorentzVector inGam);
-     void SetIncomingElectron4Vec(G4LorentzVector inEl);
+  void PerformCompton();
+  void PerformHighEnergyCompton();
+  void PerformHighEnergyCompton2();
+  G4double ComptonDifferentialCrossSection(G4double costh=0, G4double gamma2=0);
+  G4double PeakAmplitudeOfComptonDifferentialCrossSection(G4double gamma2=0);
+  void SetIncomingPhoton4Vec(G4LorentzVector inGam);
+  void SetIncomingElectron4Vec(G4LorentzVector inEl);
 
      G4LorentzVector GetScatteredElectron();
      G4LorentzVector GetScatteredGamma();
@@ -67,7 +72,7 @@ inline G4LorentzVector BDSComptonEngine::GetScatteredGamma()
 inline void BDSComptonEngine::SetIncomingPhoton4Vec(G4LorentzVector inGam)
 {itsIncomingGam=inGam;
  if(itsIncomingEl.e()<electron_mass_c2)
-      {G4Exception("BDSComptonEngine: Invalid Electron Energy");}
+      {G4Exception("BDSComptonEngine: Invalid Electron Energy", "-1", FatalException, "");}
 
 }
 inline void BDSComptonEngine::SetIncomingElectron4Vec(G4LorentzVector inEl)

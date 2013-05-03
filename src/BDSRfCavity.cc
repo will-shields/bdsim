@@ -1,4 +1,4 @@
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSRfCavity.hh"
 #include "G4Box.hh"
@@ -25,12 +25,11 @@ extern LogVolCountMap* LogVolCount;
 typedef std::map<G4String,G4LogicalVolume*> LogVolMap;
 extern LogVolMap* LogVol;
 
-extern BDSMaterials* theMaterials;
 //============================================================
 
 BDSRfCavity::BDSRfCavity (G4String aName,G4double aLength, G4double bpRad, 
-			  G4double grad, G4String aMaterial):
-  BDSMultipole(aName ,aLength, bpRad, bpRad, SetVisAttributes(), aMaterial)
+			  G4double grad, G4String aTunnelMaterial, G4String aMaterial):
+  BDSMultipole(aName ,aLength, bpRad, bpRad, SetVisAttributes(), aTunnelMaterial, aMaterial)
 {
   itsGrad = grad;
   itsType = "rfcavity";
@@ -46,7 +45,7 @@ BDSRfCavity::BDSRfCavity (G4String aName,G4double aLength, G4double bpRad,
       // build beampipe (geometry + magnetic field)
       //
       itsBPFieldMgr=NULL;
-      BuildBeampipe(itsLength);
+      BuildBeampipe();
 
       //
       // build cavity (geometry + electric field)
@@ -56,9 +55,10 @@ BDSRfCavity::BDSRfCavity (G4String aName,G4double aLength, G4double bpRad,
       //
       // define sensitive volumes for hit generation
       //
-      SetSensitiveVolume(itsBeampipeLogicalVolume);// for laserwire
-      //SetSensitiveVolume(itsOuterLogicalVolume);// for laserwire
-
+      if(BDSGlobalConstants::Instance()->GetSensitiveComponents()){
+        SetMultipleSensitiveVolumes(itsOuterLogicalVolume);
+      }
+    
       //
       // set visualization attributes
       //
@@ -104,7 +104,7 @@ void BDSRfCavity::BuildMarkerFieldAndStepper()
   fStepper = new G4ExplicitEuler( fEquation, nvar );
   //itsStepper = new G4ClassicalRK4( fEquation, nvar );
 
-  G4double fMinStep     = BDSGlobals->GetChordStepMinimum();
+  G4double fMinStep     = BDSGlobalConstants::Instance()->GetChordStepMinimum();
  
 
   fieldManager->SetDetectorField(itsField );
@@ -117,7 +117,7 @@ void BDSRfCavity::BuildMarkerFieldAndStepper()
   
   fChordFinder = new G4ChordFinder(fIntgrDriver);
 
-  fChordFinder->SetDeltaChord(BDSGlobals->GetDeltaChord());
+  fChordFinder->SetDeltaChord(BDSGlobalConstants::Instance()->GetDeltaChord());
   fieldManager->SetChordFinder( fChordFinder );
 
 

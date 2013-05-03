@@ -75,8 +75,6 @@ s/mark/marker/g
 
 s/moni/marker/g
 s/monitor/marker/g
-s/vkic/drift/g
-s/hkic/drift/g
 s/wire/marker/g
 s/prof/marker/g
 

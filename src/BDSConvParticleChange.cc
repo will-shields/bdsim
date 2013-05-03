@@ -234,7 +234,9 @@ G4Step* BDSConvParticleChange::UpdateStepForAlongStep(G4Step* pStep)
 
   G4StepPoint* pPreStepPoint  = pStep->GetPreStepPoint(); 
   G4StepPoint* pPostStepPoint = pStep->GetPostStepPoint(); 
+#ifdef G4VERBOSE
   G4Track*     aTrack  = pStep->GetTrack();
+#endif
   G4double     mass = theMassChange;
 
   // Set Mass/Charge
@@ -281,7 +283,6 @@ G4Step* BDSConvParticleChange::UpdateStepForAlongStep(G4Step* pStep)
 
   G4double newWeight= theWeightChange/(pPreStepPoint->GetWeight())*(pPostStepPoint->GetWeight());
   pPostStepPoint->SetWeight( newWeight );
-
 
 #ifdef G4VERBOSE
   if (debugFlag) CheckIt(*aTrack);
@@ -436,10 +437,6 @@ G4bool BDSConvParticleChange::CheckIt(const G4Track& aTrack)
   G4bool    exitWithError = false;
   G4double  accuracy;
 
-  // No check in case of "fStopAndKill" 
-  //if (GetStatusChange() ==   fStopAndKill )  {
-  //  return G4VParticleChange::CheckIt(aTrack);
-  //}
 
   // MomentumDirection should be unit vector
   G4bool itsOKforMomentum = true;  
@@ -494,7 +491,7 @@ G4bool BDSConvParticleChange::CheckIt(const G4Track& aTrack)
   }
 
   // Exit with error
-  if (exitWithError) G4Exception("BDSConvParticleChange::CheckIt");
+  if (exitWithError) G4Exception("BDSConvParticleChange::CheckIt", "-1", FatalException, "");
 
   //correction
   if (!itsOKforMomentum) {

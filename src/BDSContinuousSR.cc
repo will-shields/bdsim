@@ -12,18 +12,16 @@ Last modified 15.11.2005 by Ilya Agapov
 
 
 
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSContinuousSR.hh"
 #include "G4ios.hh"
 #include "G4UnitsTable.hh"
 
 #include "BDSAcceleratorComponent.hh"
+#include "BDSBeamline.hh"
 
 
 extern G4int event_number;
-
-typedef list<BDSAcceleratorComponent*>  BDSBeamline;
-extern BDSBeamline theBeamline;
 
 
 BDSContinuousSR::BDSContinuousSR(const G4String& processName)

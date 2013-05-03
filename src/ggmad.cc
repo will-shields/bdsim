@@ -1,4 +1,4 @@
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 #include "BDSElement.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
@@ -17,7 +17,6 @@
 
 using namespace std;
 
-extern BDSMaterials* theMaterials;
 //void GetMaterial(G4Material*& theMaterial, G4String material);
 
 
@@ -39,8 +38,10 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
   G4double x1=0, x2=0, y1=0, y2=0;
   G4double phi=0, theta=0, psi=0; // Euler angles - for rotation of components
   G4String material;
+  G4double FieldX, FieldY, FieldZ;
+  FieldX = FieldY = FieldZ = 0.0;
 
-  G4Material *theMaterial = theMaterials->GetMaterial("Vacuum");
+  G4Material *theMaterial = BDSMaterials::Instance()->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial());
 
   G4Box *aBox;
   G4Tubs *aTubs;
@@ -83,7 +84,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 
 	    //create Box
 
-	    theMaterial = theMaterials->GetMaterial(material);
+	    theMaterial = BDSMaterials::Instance()->GetMaterial(material);
 	    
 	  
 	    G4cout<<"creating box : "<<x0<<"  "<<y0<<" "<<z0<<endl;
@@ -114,7 +115,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 		      "vol_"+G4String(count),	     // its name
 		      marker,     // its mother  volume
 		      false,		     // no boolean operation
-		      0);		   
+		      0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		   
 
 	    count++;
 
@@ -146,7 +147,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 	    
 	    //create Box
 	    
-	    theMaterial = theMaterials->GetMaterial(material);
+	    theMaterial = BDSMaterials::Instance()->GetMaterial(material);
 	    
 	    
 	    G4cout<<"creating tubs : "<<x0<<"  "<<y0<<" "<<z0<<endl;
@@ -183,7 +184,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 				"vol_"+G4String(count),	     // its name
 				marker,     // its mother  volume
 				false,		     // no boolean operation
-				0);		   
+				0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		   
 	    
 	    count++;
 	    
@@ -216,7 +217,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 	    
 	    //create Box
 	    
-	    theMaterial = theMaterials->GetMaterial(material);
+	    theMaterial = BDSMaterials::Instance()->GetMaterial(material);
 	    
 	    
 	    G4cout<<"creating cons : "<<x0<<"  "<<y0<<" "<<z0<<endl;
@@ -257,7 +258,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 				"vol_"+G4String(count),	     // its name
 				marker,     // its mother  volume
 				false,		     // no boolean operation
-				0);		   
+				0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		   
 	    
 	    count++;
 	    
@@ -287,7 +288,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 	    
 	    //create Box
 	    
-	    theMaterial = theMaterials->GetMaterial(material);
+	    theMaterial = BDSMaterials::Instance()->GetMaterial(material);
 	    
 	    
 	    G4cout<<"creating trd : "<<x0<<"  "<<y0<<" "<<z0<<
@@ -319,7 +320,7 @@ void GGmadDriver::Construct(G4LogicalVolume *marker)
 				"vol_"+G4String(count),	     // its name
 				marker,     // its mother  volume
 				false,		     // no boolean operation
-				0);		   
+				0, BDSGlobalConstants::Instance()->GetCheckOverlaps());		   
 	    
 	    count++;
 	    
@@ -399,55 +400,55 @@ void GetMaterial(G4Material *&theMaterial, G4String material)
 {
   if(material=="\"Al\"" || material=="Al") 
     { 
-      theMaterial = theMaterials->LCAluminium;
+      theMaterial = BDSMaterials::Instance()->LCAluminium;
       return;
     }
   
   if(material=="\"W\"" || material=="W") 
     { 
-      theMaterial = theMaterials->LCTungsten;
+      theMaterial = BDSMaterials::Instance()->LCTungsten;
       return;
     }
   if(material=="\"Iron\""|| material=="Iron") 
     { 
-      theMaterial = theMaterials->LCIron;
+      theMaterial = BDSMaterials::Instance()->LCIron;
       return;
     }
   if(material=="\"Copper\"" || material=="Copper") 
     { 
-      theMaterial = theMaterials->LCCopper;
+      theMaterial = BDSMaterials::Instance()->LCCopper;
       return;
     }
   
   if(material=="\"Ti\"" || material=="Ti") 
     { 
-      theMaterial = theMaterials->LCTitanium;
+      theMaterial = BDSMaterials::Instance()->LCTitanium;
       return;
     }
   if(material=="\"Graphite\"" || material=="Graphite") 
     { 
-      theMaterial = theMaterials->LCGraphite;
+      theMaterial = BDSMaterials::Instance()->LCGraphite;
       return;
     }
 
   if(material=="\"Lead\"" || material=="Lead")
     {
-      theMaterial = theMaterials->LCLead;
+      theMaterial = BDSMaterials::Instance()->LCLead;
       return;
     }
 
   if(material=="\"Concrete\"" || material=="Concrete")
     {
-      theMaterial = theMaterials->LCConcrete;
+      theMaterial = BDSMaterials::Instance()->LCConcrete;
       return;
     }
   if(material=="\"Soil\"" || material=="Soil")
     {
-      theMaterial = theMaterials->LCSoil;
+      theMaterial = BDSMaterials::Instance()->LCSoil;
       return;
     }
 
 
-  theMaterial = theMaterials->LCVacuum; // default is vacuum
+  theMaterial = BDSMaterials::Instance()->LCVacuum; // default is vacuum
 }
 */

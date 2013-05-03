@@ -5,15 +5,13 @@
 */
 //      ------------ BDSLaserCompton physics process --------
 //                     by Grahame Blair, 18 October 2001
-#include "BDSGlobalConstants.hh" // must be first in include list
+#include "BDSGlobalConstants.hh" 
 
 #include "BDSLaserCompton.hh"
 #include "G4ios.hh"
 #include "G4UnitsTable.hh"
 
-#define DEBUG 0
-
-#if G4VERSION > 8
+#if G4VERSION_NUMBER > 899
 BDSLaserCompton::BDSLaserCompton(const G4String& processName)
   :  G4VDiscreteProcess(processName),isInitialised(false)
 #else
@@ -21,8 +19,8 @@ BDSLaserCompton::BDSLaserCompton(const G4String& processName)
   :  G4VeEnergyLoss(processName)
 #endif
 {
-  itsLaserWavelength=BDSGlobals->GetLaserwireWavelength();
-  itsLaserDirection=BDSGlobals->GetLaserwireDir();
+  itsLaserWavelength=BDSGlobalConstants::Instance()->GetLaserwireWavelength();
+  itsLaserDirection=BDSGlobalConstants::Instance()->GetLaserwireDir();
 
 
   //	if(itsLaserWavelength<=0.)
@@ -46,8 +44,9 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
  aParticleChange.Initialize(trackData);
  
  // ensure that Laserwire can only occur once in an event
+ G4cout << "FireLaserCompton == " << FireLaserCompton << G4endl;
  if(!FireLaserCompton){
-	 #if G4VERSION > 8
+	 #if G4VERSION_NUMBER > 899
    return G4VDiscreteProcess::PostStepDoIt(trackData,stepData);
    #else
 	 return G4VContinuousDiscreteProcess::PostStepDoIt(trackData,stepData);
@@ -55,22 +54,14 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
  }
  G4Material* aMaterial=trackData.GetMaterial() ;
  
- if(aMaterial==theMaterials->GetMaterial("LaserVac"))
+ if(aMaterial==BDSMaterials::Instance()->GetMaterial("LaserVac"))
    {
-     G4LogicalVolume* lVolume = (trackData.GetVolume())->GetLogicalVolume();
+     itsLaserWavelength=BDSGlobalConstants::Instance()->GetLaserwireWavelength();
+     itsLaserDirection=BDSGlobalConstants::Instance()->GetLaserwireDir();
      
-     //     itsLaserWavelength=BDSGlobals->GetLaserwireWavelength();
-     //     itsLaserDirection=BDSGlobals->GetLaserwireDir();
-     itsLaserWavelength=BDSGlobals->GetLaserwireWavelength(lVolume->GetName());
-     itsLaserDirection=BDSGlobals->GetLaserwireDir(lVolume->GetName());
-    
-		 if(DEBUG){
-			 G4cout << "BDSLaserCompton: itLaserWavelength = " << itsLaserWavelength/nm << " nm" << G4endl;
-			 G4cout << "BDSLaserCompton: itLaserDirection  = " << itsLaserDirection << G4endl;
-		 }
      //G4cout << "&&&&&" << itsLaserDirection << "&&&&&\n";
      if(itsLaserWavelength<=0.)
-       {G4Exception("BDSLaserCompton::PostStepDoIt - Invalid Wavelength");}
+       {G4Exception("BDSLaserCompton::PostStepDoIt - Invalid Wavelength", "-1", FatalException, "");}
      itsLaserEnergy=twopi*hbarc/itsLaserWavelength;
      // point laserwire in x:     P_x        Py Pz   E
      G4LorentzVector Laser4mom(itsLaserEnergy*itsLaserDirection.unit(),itsLaserEnergy);
@@ -83,7 +74,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
      
      itsComptonEngine->PerformCompton();
      
-     if(BDSGlobals->GetLaserwireTrackPhotons())
+     if(BDSGlobalConstants::Instance()->GetLaserwireTrackPhotons())
        {
 
 	 // create G4DynamicParticle object for the Gamma 
@@ -96,9 +87,9 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
 	 
 	 aParticleChange.SetNumberOfSecondaries(1);
 	 aParticleChange.AddSecondary(aGamma); 
-	 if(!BDSGlobals->GetLaserwireTrackElectrons())
-	   {
-#if G4VERSION > 6
+	 if(!BDSGlobalConstants::Instance()->GetLaserwireTrackElectrons())
+	 	   {
+#if G4VERSION_NUMBER > 699
 	     aParticleChange.ProposeEnergy( 0. );
 	     aParticleChange.ProposeLocalEnergyDeposit (0.);
 	     aParticleChange.ProposeTrackStatus(fStopAndKill);
@@ -111,7 +102,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
        }
      else
        {
-#if G4VERSION > 6
+#if G4VERSION_NUMBER > 699
 	 aParticleChange.SetNumberOfSecondaries(0);
      	 aParticleChange.ProposeLocalEnergyDeposit (0.);
 #else
@@ -135,7 +126,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
      
      if (NewKinEnergy > 0.)
        {
-#if G4VERSION > 6
+#if G4VERSION_NUMBER > 699
 	 aParticleChange.ProposeMomentumDirection(ScatEl.vect().unit());
 	 aParticleChange.ProposeEnergy(NewKinEnergy);
 	 aParticleChange.ProposeLocalEnergyDeposit (0.); 
@@ -148,7 +139,7 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
      else
        { 
 
-#if G4VERSION > 6
+#if G4VERSION_NUMBER > 699
 	 aParticleChange.ProposeEnergy( 0. );
 	 aParticleChange.ProposeLocalEnergyDeposit (0.);
 	 G4double charge= aDynamicParticle->GetCharge();
@@ -165,17 +156,17 @@ G4VParticleChange* BDSLaserCompton::PostStepDoIt(const G4Track& trackData,
        }    
      
    }
- //commented to allow multiple laserwires in beamline - Steve
- // FireLaserCompton=false;
  
- #if G4VERSION > 8
+ FireLaserCompton=false;
+ 
+ #if G4VERSION_NUMBER > 899
  return G4VDiscreteProcess::PostStepDoIt(trackData,stepData);
  #else
  return G4VContinuousDiscreteProcess::PostStepDoIt(trackData,stepData);
  #endif
 }
 
-#if G4VERSION > 8
+#if G4VERSION_NUMBER > 899
 /*
 #include "G4LossTableManager.hh"
 #include "G4eBremsstrahlungModel.hh"
