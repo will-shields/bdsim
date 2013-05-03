@@ -21,16 +21,30 @@ echo " Checking your system ..."
 
 # Determine if libxml exist...
 # we will uyse at the end of the file
-#xmltest=`which xml2-config`
-#if [ ! -z "$xmltest" ]; then
-#printf "You have libxml installed:\n"
-#printf "Do you want to enable the GDML geometry description format ?\n"
-#read -p "[y/n]" value
-#if test "$value" == "y"; then
-#    USE_XML="USE_XML"
-#	         echo "           BDSIM is able to read GDML format...."
-#fi
-#fi
+#For linear collider detector description format LCDD (in development)
+xmltest=`which xml2-config`
+if [ ! -z "$xmltest" ]; then
+printf "You have libxml installed:\n"
+printf "Do you want to enable the linear collider detector description (LCDD) geometry description format (under development)?\n"
+read -p "[y/n]" value
+if test "$value" == "y"; then
+    USE_LCDD="-DUSE_LCDD"
+    USE_LCDD_CFLAGS=`xml2-config --cflags`
+    LCDD_LIBS="-lxml2"
+	         echo "           BDSIM is able to read LCDD format...."
+fi
+fi
+
+
+if [ $G4LIB_BUILD_GDML ]; then
+printf "You have compiled Geant4 with GDML support enabled:\n"
+printf "Do you want to enable the GDML geometry description format in BDSIM (under development)?\n"
+read -p "[y/n]" value
+if test "$value" == "y"; then
+    USE_GDML="-DUSE_GDML"
+	         echo "           BDSIM is able to read GDML format...."
+fi
+fi
 
 
 # Determine G4 installation directory
@@ -72,7 +86,7 @@ G4_install=$value
 #determine G4 version --- to be fixed x.x.x
 				      # x x
 
-printf "\n \n Determiming Geant4 version ......"
+printf "\n \n Determining Geant4 version ......"
 
 #G4_version=${G4_install##*/geant}
 #G4_version=${G4_version%%.p*}
@@ -86,6 +100,15 @@ if test "$G4_version" != ""; then
      printf " 4.$G4_version.$G4_minor_version\n"
    else
      printf " 4.$G4_version\n"
+   fi
+   read -p "Is this correct[y/n]? :" value
+   if test $value != "y"; then
+       read -p "Choose version 4.[0-9]" value
+       G4_version=$value
+       if test $G4_version = 9; then
+	   read -p "Choose minor version 4.9.[0-9]" minor_value
+	   G4_minor_version=$minor_value
+       fi
    fi
 else
    G4_version="0"
@@ -254,6 +277,10 @@ s%@G4VERSION@%$G4_version%g;
 s%@G4MINORVERSION@%$G4_minor_version%g;
 s%@CLHEP_VERSION@%$CLHEP_version%g;
 s%@USE_ROOT@%$USE_ROOT%g;
+s%@USE_GDML@%$USE_GDML%g;
+s%@USE_LCDD@%$USE_LCDD%g;
+s%@LCDD_CFLAGS@%$LCDD_CFLAGS%g;
+s%@LCDD_LIBS@%$LCDD_LIBS%g;
 s%@OGLLIBS@%$opengllib%g;
 " >> $Makefile
 else
@@ -265,6 +292,10 @@ s%@G4VERSION@%$G4_version%g;
 s%@G4MINORVERSION@%$G4_minor_version%g;
 s%@CLHEP_VERSION@%$CLHEP_version%g;
 s%@USE_ROOT@%$USE_ROOT%g;
+s%@USE_GDML@%$USE_GDML%g;
+s%@USE_LCDD@%$USE_LCDD%g;
+s%@LCDD_CFLAGS@%$LCDD_CFLAGS%g;
+s%@LCDD_LIBS@%$LCDD_LIBSS%g;
 s%@OGLLIBS@%$opengllib%g;
 " >> $Makefile
 fi
