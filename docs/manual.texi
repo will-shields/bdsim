@@ -1,10 +1,9 @@
 \input texinfo @c -*-texinfo-*-
-@c %**start of header
+@c %**staart of header0.4
 @setfilename bdsim.info
-@settitle BDSIM User's Manual v0.4
-@c This date is automatically updated when you save this file:
-@set lastupdate Feb 19, 2008
-@set revision 0.4
+@settitle BDSIM User's Manual v0.6-dev
+@set lastupdate May 4, 2011
+@set revision 0.6-dev
 @c %**end of header
 
 @setchapternewpage off
@@ -15,8 +14,8 @@
 
 
 @titlepage
-@title BDSIM User's Manual v0.4
-@author I. Agapov, S.Malton
+@title BDSIM User's Manual v0.6-dev
+@author L. C. Deacon, I. Agapov, S. Malton
 @author revision @value{revision}, last updated @value{lastupdate}
 @end titlepage
 @setcontentsaftertitlepage
@@ -26,7 +25,7 @@
 
 
 @node Top, Intro, (dir), (dir)
-@top BDSIM v0.4 User's Manual
+@top BDSIM v0.5 User's Manual
 
 
 This file is updated automatically from @file{manual.texi} last updated on
@@ -42,7 +41,6 @@ This file is updated automatically from @file{manual.texi} last updated on
 * Visualization::                        
 * Physics:: 
 * Output::                 
-* Architecture::                
 * Geometry::                    
 * Fields::     
 * Bunch description formats::
@@ -58,12 +56,12 @@ This file is updated automatically from @file{manual.texi} last updated on
 @node Intro, Installation, Top, Top
 @chapter About BDSIM
 
-BDSIM is a Geant4 (@ref{Geant}) extension toolkit for simulation of particle
+BDSIM is a Geant4 (@ref{1}) extension toolkit for simulation of particle
 transport in accelerator beamlines.
 It provides a collection of classes representing typical accelerator
 components, a collection of physics processes for fast tracking, procedures of
 ``on the fly'' geometry construction and interfacing to ROOT analysis 
-(@ref{Root}). 
+(@ref{2}). 
  
 
 @c cccccccccccccccccccccccccccccccccccccccccc
@@ -127,7 +125,7 @@ where the options are
 
 
 To run bdsim one first has to define the beamline geometry in a file which is
-then passes to bdsim via the @code{--file} command line option, for example
+then passed to bdsim via the @code{--file} command line option, for example
 
 @example
 bdsim --file=line.gmad --output=root --batch
@@ -152,7 +150,7 @@ The next section describes how to do it in more detail.
 
 The beamline, beam properties and physics processes are specified in the input
 file written in the GMAD language which is a variation of MAD-X language
-(@ref{MAD}) extended to handle sophisticated geometry and parameters relevant
+(@ref{3}) extended to handle sophisticated geometry and parameters relevant
 to radiation transport.
 GMAD is described in this section.
 Examples of input files can be found in the @code{BDSIM} distribution in the
@@ -282,6 +280,7 @@ Available functions @footnote{see add_func(..) in @code{parser/gmad.cc}} are:
 @item @code{tan}
 @item @code{asin}
 @item @code{acos}
+@item @code{atan}
 @item @code{abs}
 @end itemize
 
@@ -302,6 +301,7 @@ Available functions @footnote{see add_func(..) in @code{parser/gmad.cc}} are:
 * rf::
 * rcol::
 * ecol::
+* muspoiler::
 * solenoid::
 * kickers::
 * transform3d::
@@ -312,6 +312,7 @@ Available functions @footnote{see add_func(..) in @code{parser/gmad.cc}} are:
 * spec keyword::
 * Element number::
 * Element attributes::
+* Editing apertures::
 * Material table::
 @end menu
 
@@ -383,7 +384,7 @@ qq:q,k1=0.2;
 @node coordinate-system
 @subsection Coordinate system
 
-The usual accelerator coordinate system is assumed (see @ref{MAD}).
+The usual accelerator coordinate system is assumed (see @ref{3}).
 
 @node units
 @subsection Units
@@ -715,6 +716,28 @@ Example :
 
 @end example
 
+@node muspoiler
+
+@subsection @code{muspoiler}
+
+@code{muspoiler} defines a muon spoiler, which is a rotationally megnetised iron cylinder with an inner radius, outer radius, magnetic field strength and length. 
+Attributes:
+
+@itemize @bullet 
+@item @code{l} - length [m] (default 0)
+@item @code{inR} - inner radius [m] (default is outer beam pipe radius)
+@item @code{outR} - outer radius [m] (default set to @code{boxSize})
+@item @code{B} - magnetic field [T] (default set to 1)
+@end itemize
+
+
+Example : 
+
+@example
+
+@code{musp1 : muspoiler,l=5*m, inR=1*cm, outR=60*cm, B=1.5}
+
+@end example
 
 @node solenoid
 @subsection @code{solenoid}
@@ -816,8 +839,6 @@ A sequence of FODO cells can be defines as
 @code{beamline : line=(section,section,section);}
 
 @end example
-
-@c @subsection aperture
 
 @node matdef
 @subsection @code{matdef}
@@ -1055,7 +1076,7 @@ To be implemented in v0.5
 
 @node spec keyword
 @subsection @code{spec} keyword
-This has been removed in v0.4 and no longer has an effect. For setting the outer
+This was removed in v0.4 and no longer has an effect. For setting the outer
 radius of a quadrupole, use the @code{outR} parameter in the same way as for 
 other elements.
 
@@ -1082,6 +1103,15 @@ after the element name, e.g.
 
 @code{x=d[l];}
 
+@end example
+
+@node Editing apertures
+@subsection Editing apertures
+
+Apertures can be set after an element has already been defined by writing the element name followed by a semicolon followed by the attributes. For example, if quadrupole @code{qf} has already been defined then its aperture can be set to 4 mm using:
+
+@example
+@code{qf: aper=4*mm;}
 @end example
 
 @node Material table
@@ -1120,11 +1150,20 @@ For more details see the file @code{src/BDSMaterials.cc} or run the command
 @node Run control
 @section Run control and output
 
+@menu
+* option::
+* beam::
+* sample and csample::
+* dump::
+* use::
+@end menu
+
 The execution control is performed in the GMAD input file through @code{option} and @code{sample}
 commands. How the results are recorded is controlledby the @code{sample} command.
 When the visualization is turned on, it is also controlled through Geant4 command prompt
 @*
 
+@node option
 @subsection @code{option}
 
 Most of the options in @code{bdsim} are set up by the command
@@ -1137,11 +1176,29 @@ The following options influence the geometry:
 @multitable @columnfractions .3 .7
 @item @code{beampipeRadius} @tab default beampipe outer radius [m] 
 @item @code{beampipeThickness} @tab default beampipe thickness [m]
-@item @code{beampipeMaterial} @tab default beampipe material
-@item @code{tunnelRadius} @tab tunnel Radius [m]
+@item @code{pipeMaterial} @tab default beampipe material
 @item @code{boxSize} @tab default accelerator component size [m]
+@item @code{vacMaterial} @tab the beam pipe gas material (default ``Vacuum'', which is composed of 48.2\% H, 22.1\% C and 29.7 \% O, and has a temperature of 300K)
+@item @code{vacuumPressure} @tab the pressure of the beam pipe gas in bar (default 1e-12)
+@item @code{buildTunnel} @tab whether to build a tunnel (default=0)
+@item @code{buildTunnelFloor} @tab whether to add a floor to the tunnel (default=0)
+@item @code{tunnelRadius} @tab tunnel radius [m]
+@item @code{tunnelThickness} @tab the thickness of the tunnel wall [m]
+@item @code{tunnelSoilThickness} @tab the thickness of the soil surrounding the tunnel [m]
+@item @code{tunnelMaterial} @tab the material of the tunnel (default concrete)
+@item @code{soilMaterial} @tab the material of the soil surrounding the tunnel (default soil)
+@item @code{tunnelOffsetX} @tab the horizontal offset of the tunnel with respect to the beam line
+@item @code{tunnelOffsetY} @tab the vertical offset of the tunnel with respect to the beam line
+@item @code{tunnelFloorOffset} @tab the offset of the tunnel floor from the centre of the tunnel
+@item @code{samplerDiameter} @tab the diameter of the sampler planes (default is 2 times @code{tunnelRadius})
+@item @code{blmRad} @tab the radius of the beam loss monitor cylinders
+@item @code{blmLength} @tab the lengths of the beam loss monitor cylinders
+@item @code{includeIronMagFields} @tab whether to include the magnetic fields in the magnet iron (default=1)
+
 @end multitable
 @*
+
+
 
 The following options influence the tracking:
 
@@ -1153,6 +1210,8 @@ The following options influence the tracking:
 @item @code{minimumEpsilonStep}   @tab minimum relative error acceptable in stepping
 @item @code{maximumEpsilonStep}   @tab maximum relative error acceptable in stepping
 @item @code{deltaOneStep}         @tab set position error acceptable in an integration steps
+@c @item @code{doTwiss}              @tab calculate twiss parameters if set. Not set by default
+@c @item @code{synchRescale}         @tab if @code{doTwiss} is set, then the magnets are rescaled to account for energy loss by synchrotron radiation
 @end multitable
 @*
 
@@ -1168,14 +1227,26 @@ The following options influence the physics:
 @item @code{srTrackPhotons}      @tab whether to track the SR photons
 @item @code{srLowX}              @tab sets lowest energy of SR to X*E_critical
 @item @code{srLowGamE}           @tab lowest energy of propagating SR photons
+@item @code{srMultiplicity}         @tab a factor multiplying the number of synchrotron radiation photons
 @item @code{prodCutPhotons}      @tab standard overall production cuts for photons
 @item @code{prodCutPhotonsP}     @tab precision production cuts for photons in @code{element}
 @item @code{prodCutElectrons}    @tab standard overall production cuts for electrons
 @item @code{prodCutElectronsP}   @tab precision production cuts for electrons in @code{element}
 @item @code{prodCutPositrons}    @tab standard overall production cuts for positrons
 @item @code{prodCutPositronsP}   @tab precision production cuts for positrons in @code{element}
+@item @code{turnOnCerenkov}      @tab if set, Cerenkov radiation is turned on
+@item @code{defaultRangeCut}     @tab the default predicted range at which a particle is cut. Default is 0.7mm
+@item @code{gammaToMuFe}         @tab the cross section enhancement factor for the gamma to muon process
+@item @code{annihiToMuFe}        @tab the cross section enhancement factor for the electron-positron annihilation to muon process
+@item @code{eetoHadronsFe}       @tab the cross section enhancement factor for the electron-positron annihilation to hadrons process
+@item @code{useEMLPB}            @tab if set, electromagnetic lead particle biasing is used. Default is 0
+@item @code{LPBFraction}         @tab the fraction of EM processes in which electromagnetic lead particle biasing is used, from 0.0=never to 1.0=always
+
+
 @end multitable
 @*
+
+
 
 The following options influence the generation:
 @multitable @columnfractions .3 .7
@@ -1184,6 +1255,21 @@ The following options influence the generation:
 @item @code{ngenerate}            @tab number of primary particles fired when in batch mode
 @end multitable
 @*
+
+
+The following options influence the output
+@multitable @columnfractions .3 .7
+@item @code{elossHistoBinWidth }    @tab bin width in metres for the energy loss histogram
+@item @code{sensitiveBeamlineComponents } @tab if set, energy losses in beamline components are recorded in the energy loss histogram. Set by default
+@item @code{sensitiveBeamPipe } @tab if set, energy losses in the beam pipe are recorded in the energy loss histogram. Set by default
+@item @code{sensitiveBLMs } @tab if set, energy losses in the beam loss monitors are recorded in the energy loss histogram. Set by default
+@item @code{storeTrajectory} @tab if set, the trajectories are stored in the root file
+@item @code{storeMuonTrajectories} @tab if set, the muon trajectories are stored in the root file
+@item @code{storeNeutronTrajectories} @tab if set, the neutron trajectories are stored in the root file
+@item @code{trajCutGTZ} @tab do not store any trajectories who end less than this z distance
+@item @code{trajCutLTR} @tab do not store any trajectories who end outside of this radius
+@end multitable
+
 
 Miscellaneous options:
 @multitable @columnfractions .3 .7
@@ -1196,6 +1282,7 @@ For a more detailed description of how the option influence the tracking see
 @ref{Physics}
 @*
 
+@node beam
 @subsection @code{beam}
 
 The parameters related to the beam are set with the @code{beam} command
@@ -1240,12 +1327,25 @@ has been chosen:
 @item @code{sigmaT} - RMS of time distribution in [s]
 @end itemize
 
+@item @code{distrType}=''gausstwiss'': a gaussian bunch defined by twiss parameters @ref{4}, emittance, energy and time:
+@itemize @bullet
+@item @code{betx} - @math{\beta_x} in [m]
+@item @code{bety} - @math{\beta_y} in [m]
+@item @code{alfx} - @math{\alpha_x}
+@item @code{alfy} - @math{\alpha_y}
+@item @code{emitx} - @math{\epsilon_x} in [m] 
+@item @code{emity} - @math{\epsilon_y} in [m] 
+@item @code{sigmaE} - RMS of energy distribution divided by nominal beam kinetic energy
+@item @code{sigmaT} - RMS of time distribution in [s]
+@end itemize
+
+
 @item @code{distrType}=''eshell'': a thin elliptic shell in @code{x,x'} and @code{y,y'} with given semiaxes:
 @itemize @bullet
-@item @code{x}
-@item @code{xp}
-@item @code{y}
-@item @code{yp}
+@item @code{shellX}
+@item @code{shellXp}
+@item @code{shellY}
+@item @code{shellYp}
 @item @code{sigmaE}
 @end itemize
 
@@ -1282,7 +1382,7 @@ In alternative, one can pass to the simulation a file containing a list of
 particles to be generated. 
 For more details see @ref{Bunch description formats}.
 
-
+@node sample and csample
 @subsection @code{sample} and @code{csample}
 
 To record the tracking results one uses the @code{sample} and @code{csample}
@@ -1325,6 +1425,7 @@ Samplers output the following parameters at the specified location:
 @item nEvent @tab Event number @tab partID @tab PDG particle identifier
 @end multitable
 
+@node dump
 @subsection @code{dump}
 Used in conjuction with @code{option,fifo=<filename>} to output the bunch 
 distribution at a given point. If the specified output file is a fifo, the 
@@ -1340,6 +1441,8 @@ multi-particle effects such as wakefields at given points in the lattice.
 Output is in the standard Guineapig format, with a header line stating the 
 number of particles to be output. The file to be read back should be in the 
 same format as this.
+
+@node use
 @subsection @code{use}
 
 @code{use} command selects the beam line for study
@@ -1423,7 +1526,7 @@ To display help menu
 
 @code{/help};
 
-For more details see @ref{Geant}.
+For more details see @ref{1}.
 
 @c float Figure, fig1
 @c caption{ An screenshot with an example BDSIM visualization }
@@ -1436,7 +1539,7 @@ For more details see @ref{Geant}.
 @c
 @c cccccccccccccccccccccccccccccccccccccccccc
 
-@node Physics,Output,Visualization,Top
+@node Physics, Output, Visualization, Top
 @chapter Physics
 
 @code{BDSIM} can exploit all physics processes that come with Geant4. In addition fast tracking inside multipole 
@@ -1457,16 +1560,25 @@ option, physicsList="em_standard";
 
 
 
-Several predefined physics lists are available
+Several predefined physics lists are available. Some physics lists allow biasing and re-weighting for some processes e.g. muon production. To set the amount of biasing see @ref{option}. Further details of the QGSP, FTFP and BERT hadronic physics lists can be found in @ref{5}. 
 
 @multitable @columnfractions .3 .7
 @item @code{standard}          @tab transportation of primary particles only
 @item @code{em_standard}       @tab transportation of primary particles, ionization, bremsstrahlung, Cerenkov, multiple scattering 
 @item @code{em_low}            @tab the same but using low energy electromagnetic models
-@item @code{em_muon}           @tab the same but using biased muon cross-sections
+@item @code{em_muon}           @tab em_standard plus muon production processes with biased muon cross-sections
 @item @code{lw}                @tab list for laser wire simulation - standard electromagnetic 
 @item                          @tab physics and "laser wire" physics which is Compton Scattering with total cross-section renormalized to 1.
-@item @code{hadronic_standard} @tab standard electromagnetic, fission, neutron capture, neutron and proton elastic and inelastic scattering
+@item @code{merlin}            @tab transportation of primary particles, and the following processes for electrons: multiple scattering, ionisation, and bremsstrahlung
+@item @code{hadronic_standard} @tab @code{em_standard} plus fission, neutron capture, neutron and proton elastic and inelastic scattering
+@item @code{hadronic_muon} @tab @code{hadronic_standard} plus muon production processes with biased muon cross-sections
+@item @code{hadronic_QGSP_BERT} @tab @code{em_standard} plus hadron physics using the quark gluon string plasma (QGSP) model and the Bertini cascade model (BERT)
+@item @code{hadronic_QGSP_BERT_muon} @tab @code{hadron_QGSP_BERT} plus muon production processes with biased muon cross-sections
+@item @code{hadronic_QGSP_BERT_HP_muon} @tab @code{hadron_QGSP_BERT_muon} with high precision neutron tracking
+@item @code{hadronic_FTFP_BERT} @tab @code{em_standard} plus hadron physics using the Fritiof model followed by Reggion cascade and Precompound and evaporation models for the nucleus de-excitation (FTFP) model and the Bertini cascade model (BERT)
+@item @code{hadronic_FTFP_BERT_muon} @tab @code{hadronic_FTFP_BERT} plus muon production processes with biased muon cross-sections
+
+
 
 @end multitable
 
@@ -1480,7 +1592,7 @@ to the boundary of the ``logical volume'' it is currently in (which could be, e.
 boundary between two adjacent elements) or by the mean free path of the activated processes. Then the particle is pushed
 to the new position and secondaries are generated if necessary. Each volume has an associated transportation algorithm.
 For an on-energy particle travelling close to the optical axis of a quadrupole, dipole or a drift, standard matrix transportation 
-algorithms are used @ref{Course}. For multipoles of higher orders and for off-axis/energy particles Runge-Kutta methods are used.
+algorithms are used @ref{4}. For multipoles of higher orders and for off-axis/energy particles Runge-Kutta methods are used.
 
 
 
@@ -1503,7 +1615,7 @@ volume. This may influence the results especially in the case when EM fields are
 @c
 @c cccccccccccccccccccccccccccccccccccccccccc
 
-@node Output,Architecture,Physics,Top
+@node Output, Geometry, Physics, Top
 @chapter Output Analysis
 
 During the execution the following things are recorded:
@@ -1533,49 +1645,7 @@ If @code{ROOT} output is used then the @code{root} files @code{output_0.root},
 The file contains the energy loss histogram and a tree for every sampler in 
 the line with self-explanatory branch names.
 
-
-@c This example presents a simple simulation of the ILC collimation system
-
-
-
-@c cccccccccccccccccccccccccccccccccccccccccc
-@c
-@c cccccccccccccccccccccccccccccccccccccccccc
-
-@node Architecture,Geometry,Output,Top
-@chapter Implementation Notes
-
-@section Architecture
-
-In this section the architecture of @code{BDSIM} is briefly described for someone wishing to use it
-as a class library.
-
-
-@c @float Figure, fig3
-@c @caption{ An example a cryomodule described as @code{element} }
-@c @image{bdsim-chart,,4in}
-@c @end float
-
-
-- BDSMultipole
-
-- gmad
-
-- Physics list - adding own physics processes
-
-
-
-
-@section Features to be added in next releases
-
-Current development is focused on the beam-gas scattering and neutron transport.
-
-
-@c cccccccccccccccccccccccccccccccccccccccccc
-@c
-@c cccccccccccccccccccccccccccccccccccccccccc
-
-@node Geometry,Fields,Architecture,Top
+@node Geometry,Fields,Output,Top
 @appendix Geometry description formats
 
 The element with user-defined physical geometry is defined by
@@ -1802,30 +1872,35 @@ the bunch, please use the parameter @var{s} instead.
 @node References, , Known Issues, Top
 @chapter References
 
-@enumerate
+@itemize @w{}
 
-@anchor{Blair}
-@item [Blair]
-G. Blair, Simulation of the CLIC Beam Delivery System Using BDSIM, CLIC Note 509
-
-@anchor{Root}
-@item [Root] 
-Root User's Guide, @uref{http://root.cern.ch/root/doc/RootDoc.html}
-
-@anchor{Geant}
-@item [Geant]
+@anchor{1}
+@item [1]
 Geant4 User's Guide, @uref{http://geant4.cern.ch/support/userdocuments.shtml}
 
-@anchor{MAD}
-@item [MAD]
+@anchor{2}
+@item [2] 
+Root User's Guide, @uref{http://root.cern.ch/root/doc/RootDoc.html}
+
+@anchor{3}
+@item [3]
 MAD-X User's Guide, @uref{http://mad.home.cern.ch/mad/uguide.html}
 
-@anchor{Course}
-@item [Course]
+@anchor{4}
+@item [4]
 for example 'Basic course on Accelerator optics' by Schmuesser, Rossbach, CERN Accelerator school
 
+@anchor{5}
+@item [5]
+A. Ribon et. al., Status of @code{GEANT4} hadronic physics for the simulation of LHC experiments at the start of LHC physics program, CERN-LCGAPP-2010-02, July 20 2010
 
-@end enumerate
+@c @anchor{6}
+@c @item [6]
+@c G. Blair, Simulation of the CLIC Beam Delivery System Using BDSIM, CLIC Note 509
+
+
+
+@end itemize
 
 @bye
 @c  LocalWords:  dir texi lastupdate uref http www org html helpgnu ifinfo ftp
