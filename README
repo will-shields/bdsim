@@ -4,6 +4,9 @@ General Information
 BDSIM version 0.6_dev, Geant4 toolkit for radiation transport in accelerators
 
 The official web site is:
+        http://www.rhul.ac.uk/physics/research/particlephysics/johnadamsinstitute/bdsim.aspx
+
+The official twiki site is 
 	https://twiki.ph.rhul.ac.uk/twiki/bin/view/PP/JAI/BdSim
 
 The official Geant4 web site is:
@@ -14,6 +17,7 @@ Written by G.A. Blair (g.blair@rhul.ac.uk)
 
 Maintained by Lawrence Deacon (l.deacon@cern.ch),
 and Jochem Snuverink (jochem.snuverink@rhul.ac.uk)
+and Stewart Boogert (stewart.boogert@rhul.ac.uk) 
 
 This development version x.x.2013
 
