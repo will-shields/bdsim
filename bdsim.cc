@@ -415,15 +415,17 @@ int main(int argc,char** argv) {
   G4cout<<"user init phys list"<<G4endl;
 #endif
 
-
-
-
-  //Set the geometry tolerance
+  // Set the geometry tolerance
   static G4GeometryTolerance* theGeometryTolerance = G4GeometryTolerance::GetInstance();
-  G4cout << "main> default geometry tolerances: surface " << theGeometryTolerance->GetSurfaceTolerance() << " " << theGeometryTolerance->GetAngularTolerance() << " " << theGeometryTolerance->GetRadialTolerance() << " " <<G4endl;
+  G4cout << "main> default geometry tolerances: surface " << theGeometryTolerance->GetSurfaceTolerance() << " " 
+	 << theGeometryTolerance->GetAngularTolerance() << " " 
+	 << theGeometryTolerance->GetRadialTolerance() << " " <<G4endl;
   G4double worldMaximumExtent=1000*m;
-  G4GeometryManager::GetInstance()->SetWorldMaximumExtent(worldMaximumExtent); //This sets the tolerances for the geometry (1e-11 times this value)
-  G4cout << "main> geometry toleranceswith worldMaximumExtent=" << worldMaximumExtent/m << "m: surface: " << theGeometryTolerance->GetSurfaceTolerance() << " angular: " << theGeometryTolerance->GetAngularTolerance() << " radial: " << theGeometryTolerance->GetRadialTolerance() << " " <<G4endl;
+  // This sets the tolerances for the geometry (1e-11 times this value)
+  G4GeometryManager::GetInstance()->SetWorldMaximumExtent(worldMaximumExtent); 
+  G4cout << "main> geometry toleranceswith worldMaximumExtent=" << worldMaximumExtent/m << "m: surface: " 
+	 << theGeometryTolerance->GetSurfaceTolerance() << " angular: " << theGeometryTolerance->GetAngularTolerance() 
+	 << " radial: " << theGeometryTolerance->GetRadialTolerance() << " " <<G4endl;
   
   
 #ifdef DEBUG 
@@ -431,18 +433,15 @@ int main(int argc,char** argv) {
 #endif
   BDSDetectorConstruction* detector = new BDSDetectorConstruction;
  
-
 #ifdef DEBUG 
   G4cout<<"user init detector"<<G4endl;
 #endif
   runManager->SetUserInitialization(detector);
 
 
-
   //
-  // set user action classes
+  // Set user action classes
   //
-
 #ifdef DEBUG 
   G4cout<<"main: user action - runaction"<<G4endl;
 #endif
@@ -476,9 +475,8 @@ int main(int argc,char** argv) {
   
 
   //
-  // initialize G4 kernel
+  // Initialize G4 kernel
   //
-
 #ifdef DEBUG 
   G4cout<<"init kernel"<<G4endl;
 #endif
@@ -497,19 +495,17 @@ int main(int argc,char** argv) {
 
 
   //
-  // set verbosity levels
+  // Set verbosity levels
   //
-  runManager
-    ->SetVerboseLevel(verboseRunLevel);
-  G4EventManager::GetEventManager()
-    ->SetVerboseLevel(verboseEventLevel);
-  G4EventManager::GetEventManager()->GetTrackingManager()
-    ->SetVerboseLevel(verboseTrackingLevel);
-  G4EventManager::GetEventManager()->GetTrackingManager()->GetSteppingManager()
-    ->SetVerboseLevel(verboseSteppingLevel);
+  runManager->SetVerboseLevel(verboseRunLevel);
+  G4EventManager::GetEventManager()->SetVerboseLevel(verboseEventLevel);
+  G4EventManager::GetEventManager()->GetTrackingManager()->SetVerboseLevel(verboseTrackingLevel);
+  G4EventManager::GetEventManager()->GetTrackingManager()->GetSteppingManager()->SetVerboseLevel(verboseSteppingLevel);
 
-  //Close the geometry
-  try{
+  //
+  // Close the geometry
+  //
+  try {
     G4bool bCloseGeometry = G4GeometryManager::GetInstance()->CloseGeometry(true,true);
     if(!bCloseGeometry) throw "bdsim.cc: error - geometry not closed.";
   }
@@ -522,7 +518,7 @@ int main(int argc,char** argv) {
                      // be appended with _0
 
   //
-  // write survey file
+  // Write survey file
   //
 
   if(outline) {
@@ -543,11 +539,11 @@ int main(int argc,char** argv) {
     delete BDSGI;
   }
 
-
+  //
   // Track nptwiss particles for beta functions 
   // and SR Rescaling. SR rescaling is adjusting the magnet fields according to
   // k-values considering the beam energy loss due to SR
-
+  //
   if(BDSGlobalConstants::Instance()->DoTwiss())
     {
 
@@ -670,21 +666,17 @@ int main(int argc,char** argv) {
       runManager->BeamOn(BDSGlobalConstants::Instance()->GetNumberToGenerate());
     }
 
-
   //
   // job termination
   //
-
   G4GeometryManager::GetInstance()->OpenGeometry();
-
 
 #ifdef DEBUG 
   G4cout<<"BDSOutput deleting..."<<G4endl;
 #endif
   delete bdsOutput;
 
-  
-#ifdef DEBUG 
+  #ifdef DEBUG 
   G4cout<<"BDSGlobalConstants::Instance() deleting..."<<G4endl;
 #endif
   delete BDSGlobalConstants::Instance();
