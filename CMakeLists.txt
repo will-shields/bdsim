@@ -152,9 +152,9 @@ endif()
 
 find_package(Geant4 REQUIRED)
 # check version, should be 9.4 or lower
-if(Geant4_VERSION AND ${Geant4_VERSION} VERSION_GREATER "9.4.9")
-   message(FATAL_ERROR "BDSIM Currently requires Geant4 version 9.4 or below")
-endif()
+#if(Geant4_VERSION AND ${Geant4_VERSION} VERSION_GREATER "9.4.9")
+#   message(FATAL_ERROR "BDSIM Currently requires Geant4 version 9.4 or below")
+#endif()
 
 set(Geant4_USE_FILE UseGeant4.cmake)
 include(${Geant4_USE_FILE})
