@@ -80,8 +80,10 @@
 #include "G4MuPairProduction.hh"
 #if G4VERSION_NUMBER < 950
 #include "G4MuonNucleusProcess.hh"
-#else
-#include "G4MuNuclearInteraction.hh"
+#elif G4VERSION_NUMBER < 953
+#include "G4MuNuclearInteraction.hh"*/
+#else 
+#include "G4MuonVDNuclearModel.hh"
 #endif
 
 //ions
@@ -754,8 +756,10 @@ void BDSPhysicsList::ConstructMuon()
 #endif
 #if G4VERSION_NUMBER < 950
         pmanager->AddDiscreteProcess(new G4MuonNucleusProcess);     
-#else
+#elif G4VERSION_NUMBER < 953
 	pmanager->AddDiscreteProcess(new G4MuNuclearInteraction);     
+#else 
+	/*	pmanager->AddProcess(new G4MuonVDNuclearModel);     */
 #endif
       }
     }
