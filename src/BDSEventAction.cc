@@ -11,6 +11,7 @@
 
 //======================================================
 //======================================================
+#include "BDSExecOptions.hh"
 #include "BDSGlobalConstants.hh" 
 
 #include "BDSEventAction.hh"
@@ -74,12 +75,6 @@ G4bool FireLaserCompton;
 extern BDSOutput* bdsOutput;
 extern G4bool isBatch;
 
-extern G4bool verbose;      // run options
-extern G4bool verboseStep;
-extern G4bool verboseEvent;
-extern G4int verboseEventNumber;
-extern G4bool isBatch;
-
 extern G4int nptwiss;
 
 
@@ -90,6 +85,12 @@ BDSEventAction::BDSEventAction():
   LWCalorimeterCollID(-1),drawFlag("all"),
   Traj(NULL),trajEndPoint(NULL)
 { 
+  verbose            = BDSExecOptions::Instance()->GetVerbose();
+  verboseStep        = BDSExecOptions::Instance()->GetVerboseStep();
+  verboseEvent       = BDSExecOptions::Instance()->GetVerboseEvent();
+  verboseEventNumber = BDSExecOptions::Instance()->GetVerboseEventNumber();
+  isBatch            = BDSExecOptions::Instance()->GetBatch();
+
   if(isBatch) printModulo=10;
   else printModulo=1;
   

@@ -85,6 +85,12 @@ public:
   std::ifstream fifoReader;
 
 private:
+  // options
+  G4bool verbose;
+  G4bool verboseStep;
+  G4bool verboseEvent;
+  G4bool verboseEventNumber;
+
   // distribution centre
   G4double X0;
   G4double Y0;

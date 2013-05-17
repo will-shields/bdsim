@@ -37,6 +37,12 @@ public:
   void SetDrawFlag   (G4String val)  {drawFlag = val;};
  
 private:
+  G4bool verbose;
+  G4bool verboseStep;
+  G4bool verboseEvent;
+  G4int  verboseEventNumber;
+  G4bool isBatch;
+
   G4int                       SamplerCollID_plane;                
   G4int                       SamplerCollID_cylin;                
   G4int                       LWCalorimeterCollID;

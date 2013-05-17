@@ -19,6 +19,7 @@
 
 //=================================================================
 
+#include "BDSExecOptions.hh"
 #include "BDSGlobalConstants.hh"
 
 #include "BDSDetectorConstruction.hh"
@@ -138,10 +139,6 @@ G4RotationMatrix* RotYM90XM90=new G4RotationMatrix();
 //G4Navigator* QuadNavigator;
 
 //=========================================
-extern BDSOutput* bdsOutput;
-extern G4bool verbose;
-extern G4bool outline;
-
 
 #ifdef DEBUG
 bool debug = true;
@@ -158,7 +155,12 @@ BDSDetectorConstruction::BDSDetectorConstruction():
   solidWorld(NULL),logicWorld(NULL),physiWorld(NULL),
   magField(NULL),BDSUserLimits(NULL),BDSSensitiveDetector(NULL),
   itsIStore(NULL)
-{  // create commands for interactive definition of the beamline  
+{  
+  verbose = BDSExecOptions::Instance()->GetVerbose();
+  outline = BDSExecOptions::Instance()->GetOutline();
+  
+
+  // create commands for interactive definition of the beamline  
   G4double pi_ov_2 = asin(1.);
 
   RotY90->rotateY(pi_ov_2);

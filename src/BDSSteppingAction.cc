@@ -19,6 +19,7 @@
 //
 //====================================================
 
+#include "BDSExecOptions.hh"
 #include "BDSGlobalConstants.hh" 
 
 #include "BDSSteppingAction.hh"
@@ -72,11 +73,6 @@ extern G4int event_number;
 
 extern G4double initial_x,initial_xp,initial_y,initial_yp,initial_z,initial_E;
 
-extern G4bool verbose;      // run options
-extern G4bool verboseStep;
-extern G4bool verboseEvent;
-extern G4int verboseEventNumber;
-
 extern G4int nptwiss;
 
 //static G4LogicalVolume* LastLogVol;
@@ -84,9 +80,12 @@ extern G4int nptwiss;
 
 BDSSteppingAction::BDSSteppingAction()
 { 
+  verbose           = BDSExecOptions::Instance()->GetVerbose();     
+  verboseStep       = BDSExecOptions::Instance()->GetVerboseStep();     
+  verboseEvent      = BDSExecOptions::Instance()->GetVerboseEvent();     
+  verboseEventNumber= BDSExecOptions::Instance()->GetVerboseEventNumber();
 
-
-  //  //  itsZposTolerance=1.e-11*m;
+  //  itsZposTolerance=1.e-11*m;
   //  itsZposTolerance=1.e-4*m;
   //  itsPosKick=1.e-11*m;
   //  itsNmax=10000;

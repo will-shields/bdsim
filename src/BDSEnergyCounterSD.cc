@@ -3,6 +3,7 @@
    Last modified 24.7.2002
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
+#include "BDSExecOptions.hh"
 #include "BDSGlobalConstants.hh"
 
 #include "BDSEnergyCounterSD.hh"
@@ -23,16 +24,17 @@
 
 #include "G4RunManager.hh"
 #include "G4Version.hh"
-#include<string>
+
+#include <string>
 
 extern G4int event_number;
-extern G4bool verbose;
 
 
 BDSEnergyCounterSD::BDSEnergyCounterSD(G4String name)
   :G4VSensitiveDetector(name),BDSEnergyCounterCollection(NULL),
    enrg(0.0),xpos(0.0),ypos(0.0),zpos(0.0)
 {
+  verbose = BDSExecOptions::Instance()->GetVerbose();
   itsName = name;
   collectionName.insert("EC_"+name);
   #define NMAXCOPY 5

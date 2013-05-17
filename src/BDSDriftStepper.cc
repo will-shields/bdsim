@@ -3,6 +3,7 @@
    Last modified 24.7.2002
    Copyright (c) 2002 by G.A.Blair.  ALL RIGHTS RESERVED. 
 */
+#include "BDSExecOptions.hh"
 #include "BDSGlobalConstants.hh" 
 
 #include "BDSDriftStepper.hh"
@@ -12,10 +13,6 @@
 
 extern G4int event_number;
 
-extern G4bool verbose;      // run options
-extern G4bool verboseStep;
-extern G4bool verboseEvent;
-extern G4int verboseEventNumber;
 
 BDSDriftStepper::BDSDriftStepper(G4Mag_EqRhs *EqRhs)
    : G4MagIntegratorStepper(EqRhs,6)  // integrate over 6 variables only !!
@@ -28,6 +25,11 @@ void BDSDriftStepper::AdvanceHelix( const G4double  yIn[],
 				   G4double  h,
 				   G4double  yDrift[])
 {
+  verbose            = BDSExecOptions::Instance()->GetVerbose();  
+  verboseStep        = BDSExecOptions::Instance()->GetVerboseStep();
+  verboseEvent       = BDSExecOptions::Instance()->GetVerboseEvent();
+  verboseEventNumber = BDSExecOptions::Instance()->GetVerboseEventNumber();
+
   G4ThreeVector positionMove, endTangent;
 
   const G4double *pIn = yIn+3;
