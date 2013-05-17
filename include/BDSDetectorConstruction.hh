@@ -72,7 +72,10 @@ public:
 
 public:
 
-  private:
+private:
+  G4bool verbose;
+  G4bool outline;
+  
   G4GeometrySampler* itsGeometrySampler;
 
   G4Region* precisionRegion;

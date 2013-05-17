@@ -73,9 +73,9 @@ BDSSamplerSD* BDSSamplerSensDet; // sampler???
 
 // G4String outputFilename="output";  //receives a .txt or .root in BDSOutput
 // G4bool verbose = false;  // run options
-G4bool    verboseStep = false;
-G4bool    verboseEvent = false;
-G4int     verboseEventNumber = -1;
+//G4bool    verboseStep = false;
+//G4bool    verboseEvent = false;
+//G4int     verboseEventNumber = -1;
 G4int     gflash = 0;
 G4double  gflashemax = 10000;
 G4double  gflashemin = 0.1;
@@ -104,7 +104,8 @@ int main(int argc,char** argv) {
   G4cout<<"Using input file: "<<BDSExecOptions::Instance()->GetInputFilename()<<G4endl;
   if( gmad_parser(BDSExecOptions::Instance()->GetInputFilename()) == -1)
     {
-      G4cout<<"can't open input file "<< BDSExecOptions::Instance()->GetInputFilename()<<G4endl;
+      G4cout << __FUNCTION__ << ">can't open input file "
+	     << BDSExecOptions::Instance()->GetInputFilename()<<G4endl;
       exit(1);
     }
 

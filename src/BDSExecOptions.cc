@@ -33,7 +33,11 @@ BDSExecOptions::BDSExecOptions() {
   verboseEventLevel    = 0;
   verboseTrackingLevel = 0;
   verboseSteppingLevel = 0;
-  verboseEventNumber   = 0;
+
+  verbose              = false;
+  verboseEvent         = false;
+  verboseStep          = false;
+  verboseEventNumber   = -1;
 }
 
 void BDSExecOptions::Parse(int argc, char **argv) {

@@ -9,11 +9,6 @@
 
 using namespace std;
 
-extern G4bool verbose;      // run options
-extern G4bool verboseStep;
-extern G4bool verboseEvent;
-extern G4int verboseEventNumber;
-
 extern G4int nptwiss;
 
 BDSBunch::BDSBunch():  
@@ -26,7 +21,7 @@ BDSBunch::BDSBunch():
   verbose            = BDSExecOptions::Instance()->GetVerbose();
   verboseStep        = BDSExecOptions::Instance()->GetVerboseStep();
   verboseEvent       = BDSExecOptions::Instance()->GetVerboseEvent();
-  verboseEventNumber = BDSExecOPtions::Instance()->GetVerboseEventNumber();
+  verboseEventNumber = BDSExecOptions::Instance()->GetVerboseEventNumber();
 
   GaussGen =new CLHEP::RandGauss(*CLHEP::HepRandom::getTheEngine());
   FlatGen =new CLHEP::RandFlat(*CLHEP::HepRandom::getTheEngine());

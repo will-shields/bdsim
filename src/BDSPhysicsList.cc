@@ -10,6 +10,7 @@
 //
 
 
+#include "BDSExecOptions.hh"
 #include "BDSGlobalConstants.hh" 
 #include "BDSPhysicsList.hh"
 
@@ -191,10 +192,12 @@
 #include "G4ShortLivedConstructor.hh"
 
 
-extern G4bool verbose;
+
 
 BDSPhysicsList::BDSPhysicsList():  G4VUserPhysicsList()
 {
+  verbose = BDSExecOptions::Instance()->GetVerbose();
+
   // construct particles
 
   //defaultCutValue = 0.7*mm;  

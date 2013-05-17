@@ -48,11 +48,17 @@ public:
   G4double GetGFlashEMin()           {return gflashemin;}  
   void     SetGFlashEMin(G4double d) {gflashemin = d;}
   
+  G4bool   GetVerbose()              {return verbose;}
+  G4bool   GetVerboseEvent()         {return verboseEvent;}
+  G4bool   GetVerboseStep()          {return verboseStep;}
+  G4int    GetVerboseEventNumber()   {return verboseEventNumber;}
+  G4bool   GetBatch()                {return batch;}
+
   G4int    GetVerboseRunLevel()      {return verboseRunLevel;}
   G4int    GetVerboseEventLevel()    {return verboseEventLevel;}
   G4int    GetVerboseTrackingLevel() {return verboseTrackingLevel;}
   G4int    GetVerboseSteppingLevel() {return verboseSteppingLevel;}
-  G4int    GetVerboseEventNumber()   {return verboseEventNumber;}
+
 
 protected : 
   BDSExecOptions();
@@ -76,14 +82,16 @@ private :
   G4bool verbose;
   G4bool verboseEvent;
   G4bool verboseStep;
+  G4int  verboseEventNumber;
   G4bool batch; 
   G4bool listMaterials;
   
-  G4int verboseRunLevel;
-  G4int verboseEventLevel;
-  G4int verboseTrackingLevel;
-  G4int verboseSteppingLevel;
-  G4int verboseEventNumber;
+  G4int  verboseRunLevel;
+  G4int  verboseEventLevel;
+  G4int  verboseTrackingLevel;
+  G4int  verboseSteppingLevel;
+
+
 };
 
 #endif
