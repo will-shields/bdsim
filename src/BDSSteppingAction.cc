@@ -84,6 +84,8 @@ extern G4int nptwiss;
 
 BDSSteppingAction::BDSSteppingAction()
 { 
+
+
   //  //  itsZposTolerance=1.e-11*m;
   //  itsZposTolerance=1.e-4*m;
   //  itsPosKick=1.e-11*m;
