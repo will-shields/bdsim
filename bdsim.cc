@@ -15,6 +15,8 @@
 //     
 //
 
+#include "BDSDebug.hh" 
+#include "BDSExecOptions.hh"     // executable command line options 
 #include "BDSGlobalConstants.hh" // global parameters
 
 #include "G4UImanager.hh"        // G4 session managers
@@ -95,10 +97,11 @@ static void usage()
 	<<"--materials           : list materials included in bdsim by default"<<G4endl;
 }
 
-BDSOutput* bdsOutput; // output interface
-BDSBunch theBunch;  // bunch information
-G4String outputFilename="output";  //receives a .txt or .root in BDSOutput
+BDSOutput*    bdsOutput;         // output interface
+BDSBunch      bdsBunch;          // bunch information 
+BDSSamplerSD* BDSSamplerSensDet; // sampler???
 
+G4String outputFilename="output";  //receives a .txt or .root in BDSOutput
 G4bool verbose = false;  // run options
 G4bool verboseStep = false;
 G4bool verboseEvent = false;
@@ -108,13 +111,19 @@ G4double gflashemax = 10000;
 G4double gflashemin = 0.1;
 G4bool isBatch = false;
 
-BDSSamplerSD* BDSSamplerSensDet;
+
 
 G4int nptwiss = 200; // number of particles for twiss parameters matching (by tracking) and reference bunch for wakefields
 
 //=======================================================
 
 int main(int argc,char** argv) {
+
+  /* Executable command line options reader object */
+  BDSExecOptions *bdsOptions = BDSExecOptions::Instance();
+  bdsOptions->Parse(argc,argv);
+  bdsOptions->Usage();
+  bdsOptions->Print();
 
   BDSOutputFormat outputFormat=_ASCII;
   char *fifoName=NULL;  //receives a .txt or .root in BDSOutput
@@ -129,8 +138,9 @@ int main(int argc,char** argv) {
   G4int verboseTrackingLevel = 0;
   G4int verboseSteppingLevel = 0;
 
+
 #ifdef DEBUG
-  G4cout << "DEBUG mode is on." << G4endl;
+  G4cout << __METHOD_NAME__ << " DEBUG mode is on." << G4endl;
 #endif  
 
   //
@@ -349,7 +359,7 @@ int main(int argc,char** argv) {
   G4cout << "Setting bunch options." << G4endl;
 #endif  
 
-  theBunch.SetOptions(options);
+  bdsBunch.SetOptions(options);
 
   //
   // set default output formats:

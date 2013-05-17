@@ -30,7 +30,7 @@
 
 #include<iostream>
 
-extern BDSBunch theBunch;
+extern BDSBunch bdsBunch;
 
 //===================================================
 // Keep initial point in phase space for diagnostics
@@ -106,7 +106,7 @@ void BDSPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   particleGun->SetParticleDefinition(BDSGlobalConstants::Instance()->GetParticleDefinition());
 
   if(!BDSGlobalConstants::Instance()->getReadFromStack()){
-    theBunch.GetNextParticle(x0,y0,z0,xp,yp,zp,t,E,weight); // get next starting point
+    bdsBunch.GetNextParticle(x0,y0,z0,xp,yp,zp,t,E,weight); // get next starting point
   }
   else if(BDSGlobalConstants::Instance()->holdingQueue.size()!=0){
     tmpParticle holdingParticle = BDSGlobalConstants::Instance()->holdingQueue.front();
