@@ -73,8 +73,6 @@ extern G4int event_number;
 
 extern G4double initial_x,initial_xp,initial_y,initial_yp,initial_z,initial_E;
 
-extern G4int nptwiss;
-
 //static G4LogicalVolume* LastLogVol;
 //====================================================
 
@@ -84,6 +82,7 @@ BDSSteppingAction::BDSSteppingAction()
   verboseStep       = BDSExecOptions::Instance()->GetVerboseStep();     
   verboseEvent      = BDSExecOptions::Instance()->GetVerboseEvent();     
   verboseEventNumber= BDSExecOptions::Instance()->GetVerboseEventNumber();
+  nptwiss           = BDSExecOptions::Instance()->GetNPTwiss();
 
   //  itsZposTolerance=1.e-11*m;
   //  itsZposTolerance=1.e-4*m;

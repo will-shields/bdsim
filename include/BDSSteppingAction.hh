@@ -45,7 +45,8 @@ private:
   G4bool verbose;     
   G4bool verboseStep;
   G4bool verboseEvent;
-  G4int verboseEventNumber;
+  G4int  verboseEventNumber;
+  G4int  nptwiss;
 
   //  G4double itsTrackWeight;
   //  G4double itsInverseTrackWeight;

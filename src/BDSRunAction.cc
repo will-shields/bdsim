@@ -7,6 +7,7 @@
 //==========================================================
 //==========================================================
 
+#include "BDSExecOptions.hh"
 #include "BDSGlobalConstants.hh" 
 
 #include "BDSRunAction.hh"
@@ -30,13 +31,12 @@
 
 typedef std::list<BDSAcceleratorComponent*>  myBeamline;
 extern myBeamline theBeamline;
-extern G4int nptwiss;
-
 
 //==========================================================
 
 BDSRunAction::BDSRunAction()
 {
+  nptwiss = BDSExecOptions::Instance()->GetNPTwiss();
 }
 
 //==========================================================
@@ -49,6 +49,7 @@ BDSRunAction::~BDSRunAction()
 void BDSRunAction::BeginOfRunAction(const G4Run* aRun)
 {
   G4cout << "### Run " << aRun->GetRunID() << " start." << G4endl;
+  
 
   //  if (G4VVisManager::GetConcreteInstance())
   //    {

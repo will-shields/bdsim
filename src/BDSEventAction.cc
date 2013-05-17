@@ -73,10 +73,6 @@ G4int event_number;
 G4bool FireLaserCompton;
 
 extern BDSOutput* bdsOutput;
-extern G4bool isBatch;
-
-extern G4int nptwiss;
-
 
 //======================================================
 
@@ -90,6 +86,7 @@ BDSEventAction::BDSEventAction():
   verboseEvent       = BDSExecOptions::Instance()->GetVerboseEvent();
   verboseEventNumber = BDSExecOptions::Instance()->GetVerboseEventNumber();
   isBatch            = BDSExecOptions::Instance()->GetBatch();
+  nptwiss            = BDSExecOptions::Instance()->GetNPTwiss();
 
   if(isBatch) printModulo=10;
   else printModulo=1;

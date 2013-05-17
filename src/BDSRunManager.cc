@@ -12,6 +12,7 @@
 // SPM: Altered BeamOn function to account for Placet synchronisation
 //
 
+#include "BDSExecOptions.hh"
 #include "BDSGlobalConstants.hh"
 #include "G4Timer.hh"
 
@@ -25,10 +26,14 @@ extern G4int nptwiss;
 
 BDSRunManager* BDSRunManager::fRunManager = 0;
 
-BDSRunManager* BDSRunManager::GetRunManager()
-{ return fRunManager; }
+BDSRunManager* BDSRunManager::GetRunManager() { 
+  return fRunManager; 
+}
 
-BDSRunManager::BDSRunManager(){ fRunManager = this;}
+BDSRunManager::BDSRunManager() { 
+  fRunManager = this;
+  nptwiss     = BDSExecOptions::Instance()->GetNPTwiss();
+}
 
 BDSRunManager::~BDSRunManager(){
 }

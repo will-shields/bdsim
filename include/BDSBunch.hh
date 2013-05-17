@@ -90,6 +90,7 @@ private:
   G4bool verboseStep;
   G4bool verboseEvent;
   G4bool verboseEventNumber;
+  G4int  nptwiss;
 
   // distribution centre
   G4double X0;
