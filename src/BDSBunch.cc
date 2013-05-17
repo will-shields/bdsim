@@ -1,8 +1,11 @@
+#include <iostream>
+#include <cmath>
+
+#include "globals.hh" // from Geant4
+
+#include "BDSExecOptions.hh"
 #include "BDSGlobalConstants.hh"
 #include "BDSBunch.hh"
-#include <iostream>
-#include "globals.hh" // from Geant4
-#include <cmath>
 
 using namespace std;
 
@@ -13,13 +16,18 @@ extern G4int verboseEventNumber;
 
 extern G4int nptwiss;
 
-BDSBunch::BDSBunch():
+BDSBunch::BDSBunch():  
   X0(0.0),Y0(0.0),Z0(0.0),T0(0.0),Xp0(0.0),Yp0(0.0),Zp0(1.0),
   sigmaX(0.0),sigmaY(0.0),sigmaT(0.0),sigmaXp(0.0),sigmaYp(0.0),
   rMin(0.0),rMax(0.0),shellx(0.0),shelly(0.0),shellxp(0.0),shellyp(0.0),
   betaX(0.0),betaY(0.0),alphaX(0.0),alphaY(0.0),emitX(0.0),emitY(0.0),
   distribType(-1),energySpread(0.0),nlinesIgnore(0),partId(0)
 { 
+  verbose            = BDSExecOptions::Instance()->GetVerbose();
+  verboseStep        = BDSExecOptions::Instance()->GetVerboseStep();
+  verboseEvent       = BDSExecOptions::Instance()->GetVerboseEvent();
+  verboseEventNumber = BDSExecOPtions::Instance()->GetVerboseEventNumber();
+
   GaussGen =new CLHEP::RandGauss(*CLHEP::HepRandom::getTheEngine());
   FlatGen =new CLHEP::RandFlat(*CLHEP::HepRandom::getTheEngine());
 }

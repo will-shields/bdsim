@@ -1,9 +1,10 @@
+#include "BDSExecOptions.hh"
 #include "BDSOutput.hh"
 #include "BDSSamplerSD.hh"
 
 #include <ctime>
 
-extern G4String outputFilename;
+// extern G4String outputFilename;
 
 BDSOutput::BDSOutput():outputFileNumber(1)
 {
@@ -48,7 +49,7 @@ void BDSOutput::SetFormat(BDSOutputFormat val)
 
   if( format == _ASCII)
     {
-      G4String filename = outputFilename+".txt";
+      G4String filename = BDSExecOptions::Instance()->GetOutputFilename()+".txt";
       G4cout<<"output format ASCII, filename: "<<filename<<G4endl;
       of.open(filename);
       of<<"### BDSIM output created "<<ctime(&tm)<<" ####"<<G4endl;
@@ -68,7 +69,7 @@ void BDSOutput::Init(G4int FileNum)
   if(format != _ROOT) return;
 
   // set up the root file
-  G4String filename = outputFilename + "_" 
+  G4String filename = BDSExecOptions::Instance()->GetOutputFilename() + "_" 
     + BDSGlobalConstants::Instance()->StringFromInt(FileNum) + ".root";
   
   G4cout<<"Setting up new file: "<<filename<<G4endl;

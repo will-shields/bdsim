@@ -13,8 +13,10 @@ BDSExecOptions::BDSExecOptions() {
   inputFilename       = "optics.mad";
   visMacroFilename    = "vis.mac";
   outputFilename      = "output";
-  outputFormat = _ASCII;
+  outputFormat        = _ASCII;
+  outline             = false;
   outlineFilename     = "outline.dat";
+  outlineFormat       = "";
 
   gflash      = 0;
   gflashemax  = 10000;
@@ -29,12 +31,157 @@ BDSExecOptions::BDSExecOptions() {
   
   verboseRunLevel      = 0;
   verboseEventLevel    = 0;
-  verboseTrackLevel    = 0;
+  verboseTrackingLevel = 0;
   verboseSteppingLevel = 0;
+  verboseEventNumber   = 0;
 }
 
 void BDSExecOptions::Parse(int argc, char **argv) {
+  static struct option LongOptions[] = {{ "help" , 0, 0, 0 },
+					{ "outline", 1, 0, 0 },
+					{ "outline_type", 1, 0, 0 },
+					{ "verbose", 0, 0, 0 },
+					{ "verbose_step", 0, 0, 0 },
+					{ "verbose_event", 0, 0, 0 },
+					{ "verbose_event_num", 1, 0, 0 },
+					{ "verbose_G4run", 1, 0, 0 },
+					{ "verbose_G4event", 1, 0, 0 },
+					{ "verbose_G4tracking", 1, 0, 0 },
+					{ "verbose_G4stepping", 1, 0, 0 },
+					{ "file", 1, 0, 0 },
+					{ "vis_mac", 1, 0, 0 },
+					{ "gflash", 1, 0, 0 },
+					{ "gflashemax", 1, 0, 0 },
+					{ "gflashemin", 1, 0, 0 },
+					{ "output", 1, 0, 0 },
+					{ "outfile", 1, 0, 0 },
+					{ "fifo", 1, 0, 0 },
+					{ "batch", 0, 0, 0 },
+					{ "materials", 0, 0, 0 },
+					{ 0, 0, 0, 0 }};
   
+  int OptionIndex = 0;
+  int c;
+ 
+  for(;;) {      
+    OptionIndex = 0;
+  
+    c = getopt_long(argc, argv, "Vv",
+		    LongOptions, &OptionIndex );
+      
+    if ( c == -1 ) // end of options list
+      break;
+      
+    switch (c) {
+    case 0:
+      if( !strcmp(LongOptions[OptionIndex].name , "help") ) {
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "batch") ) {
+	batch = true;
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "verbose") ) {
+	verbose = true; 
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "verbose_step") ) {
+	verboseStep = true; 
+	// we shouldn't have verbose steps without verbose events etc.
+	verboseEvent = true;
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "verbose_event") ) {
+	verboseEvent = true; 
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "verbose_event_num") ){
+	if(optarg)
+	  verboseEventNumber = atoi(optarg); 
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "verbose_G4run") ) {
+	if(optarg)
+	  verboseRunLevel = atoi(optarg);
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "verbose_G4event") ) {
+	if(optarg)
+	  verboseEventLevel = atoi(optarg);
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "verbose_G4tracking") )  {
+	if(optarg)
+	  verboseTrackingLevel = atoi(optarg);
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "verbose_G4stepping") ) {
+	if(optarg)
+	  verboseSteppingLevel = atoi(optarg);
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "output") ) {
+	if(optarg) {
+	  if(!strcmp(optarg,"ascii") || !strcmp(optarg,"ASCII")) outputFormat=_ASCII;
+	  else if (!strcmp(optarg,"root") || !strcmp(optarg,"ROOT")) outputFormat=_ROOT;
+	  else {
+	    G4cerr<<"unknown output format "<<optarg<<G4endl;
+	    exit(1);
+	  }
+#ifndef USE_ROOT
+	  if (outputFormat == _ROOT) {
+	    G4cerr << "ERROR outputFormat root, but BDSIM not configured with ROOT support!" << G4endl;
+	    G4cerr << "Use ascii instead, or recompile with ROOT!" << G4endl;
+	    exit(1);
+	  }
+#endif
+	}
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "outfile") ) {
+	if(optarg) {
+	  outputFilename=optarg;
+	}
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "fifo") ) {
+	if(optarg) {
+	  outputFilename=optarg;
+	}
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "outline") ) {
+	if(optarg) outlineFilename = optarg; 
+	outline=true;
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "outline_type") ) {
+	if(optarg) outlineFormat = optarg; 
+	outline=true;  // can't have outline type without turning on outline!
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "file") ) {
+	if(optarg) {
+	  inputFilename=optarg;
+	}
+	else {
+	  G4cout<<"please specify the lattice filename"<<G4endl;
+	}
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "vis_mac") ) {
+	if(optarg) {
+	  visMacroFilename=optarg;
+	}
+	else {
+	  G4cout<<"please specify the visualization macro file"<<G4endl;
+	}
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "gflash") ) {
+	if(optarg)
+	  gflash = atoi(optarg); 
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "gflashemax") ) {
+	if(optarg)
+	  gflashemax = atof(optarg); 
+      }
+      if( !strcmp(LongOptions[OptionIndex].name , "gflashemin") ) {
+	if(optarg)
+	  gflashemin = atof(optarg); 
+      }
+      if( !strcmp(LongOptions[OptionIndex].name, "materials") ) {
+	BDSMaterials::ListMaterials();
+      }
+      break;
+      
+    default:
+      break;
+    }      
+  } 
 }
 
 void BDSExecOptions::Usage() {
@@ -64,6 +211,7 @@ void BDSExecOptions::Usage() {
 	<<"                        where fmt = optics | survey"<<G4endl
 	<<"--materials           : list materials included in bdsim by default"<<G4endl;
 }
+
 void BDSExecOptions::Print() {
   G4cout << __METHOD_NAME__ << G4endl;
   G4cout << __METHOD_NAME__ << inputFilename       << G4endl;
@@ -82,7 +230,7 @@ void BDSExecOptions::Print() {
   G4cout << __METHOD_NAME__ << listMaterials       << G4endl;
   G4cout << __METHOD_NAME__ << verboseRunLevel     << G4endl;  
   G4cout << __METHOD_NAME__ << verboseEventLevel   << G4endl;
-  G4cout << __METHOD_NAME__ << verboseTrackLevel   << G4endl;  
+  G4cout << __METHOD_NAME__ << verboseTrackingLevel<< G4endl;  
   G4cout << __METHOD_NAME__ << verboseSteppingLevel<< G4endl;
 
   return;

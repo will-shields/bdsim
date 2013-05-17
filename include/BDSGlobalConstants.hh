@@ -65,7 +65,7 @@ public:
   G4bool GetCheckOverlaps();
 
   G4bool DoTwiss();
-  void SetDoTwiss(G4bool val); 
+  void   SetDoTwiss(G4bool val); 
 
 
   G4double GetMinimumEpsilonStep();
@@ -83,10 +83,10 @@ public:
   void SetParticleDefinition(G4ParticleDefinition* aBeamParticleDefinition);
 
   G4String GetParticleName();
-  void SetParticleName(G4String aParticleName);
+  void     SetParticleName(G4String aParticleName);
 
   G4double GetLPBFraction();
-  void SetLPBFraction(G4double val);
+  void     SetLPBFraction(G4double val);
 
   G4double GetElossHistoBinWidth();
   G4double GetElossHistoTransBinWidth(); //The transverse (x,y) bin width
@@ -95,13 +95,13 @@ public:
   G4double GetFFact();
 
   G4double GetBeamKineticEnergy();
-  void SetBeamKineticEnergy(G4double val);
+  void     SetBeamKineticEnergy(G4double val);
 
   G4double GetBeamTotalEnergy();
-  void SetBeamTotalEnergy(G4double val);
+  void     SetBeamTotalEnergy(G4double val);
 
   G4double GetBeamMomentum();
-  void SetBeamMomentum(G4double val);
+  void     SetBeamMomentum(G4double val);
   
   G4double GetVacuumPressure();
   G4double GetPlanckScatterFe();
@@ -115,12 +115,12 @@ public:
   G4bool GetUseEMLPB();
   G4bool GetUseHadLPB();
 
-//Booleans determining which types of components are sensitive
+  // Booleans determining which types of components are sensitive
   G4bool GetSensitiveComponents();
   G4bool GetSensitiveBeamPipe();
   G4bool GetSensitiveBLMs();
  
-  void SetTotalS(G4double TotalS);
+  void     SetTotalS(G4double TotalS);
   G4double GetTotalS();  
 
   G4double GetComponentBoxSize();
@@ -131,14 +131,14 @@ public:
   G4bool   GetBuildTunnelFloor(); 
   G4bool   GetShowTunnel(); 
   G4double GetTunnelRadius(); 
-  void SetTunnelRadius(G4double radius); 
+  void     SetTunnelRadius(G4double radius); 
   G4double GetTunnelThickness(); 
   G4double GetTunnelSoilThickness(); 
   G4double GetTunnelFloorOffset(); 
   G4double GetTunnelOffsetX(); 
   G4double GetTunnelOffsetY(); 
 
-  //Beam loss monitors
+  // Beam loss monitors
   G4double GetBlmRad();
   G4double GetBlmLength();
 
@@ -161,10 +161,10 @@ public:
   G4double GetProdCutPositrons();
   G4double GetProdCutPositronsP();
 
-  //Environment variables
+  // Environment variables
   G4String GetBDSIMHOME();
 
-  // physical processes etc.
+  // Physical processes etc.
 
   G4String GetPhysListName();
   void SetPhysListName(G4String val);
@@ -183,19 +183,19 @@ public:
   G4double GetLaserwireWavelength();
   G4ThreeVector GetLaserwireDir();
 
-  //use map to generate multiple laserwires with independent wavelength 
-  //and direction
-  G4double GetLaserwireWavelength(G4String aName); 
+  // Use map to generate multiple laserwires with independent wavelength 
+  // and direction
+  G4double      GetLaserwireWavelength(G4String aName); 
   G4ThreeVector GetLaserwireDir(G4String aName); 
-  void SetLaserwireWavelength(G4String aName, G4double aWavelength);
-  void SetLaserwireDir(G4String aName, G4ThreeVector aDirection);
+  void          SetLaserwireWavelength(G4String aName, G4double aWavelength);
+  void          SetLaserwireDir(G4String aName, G4ThreeVector aDirection);
 
   G4bool GetLaserwireTrackPhotons();
   G4bool GetLaserwireTrackElectrons();
 
   G4bool GetTurnOnCerenkov();
 
-  G4bool GetStoreMuonTrajectories();
+  G4bool   GetStoreMuonTrajectories();
   G4double GetTrajCutGTZ();
   G4double GetTrajCutLTR();
 
@@ -224,34 +224,34 @@ public:
 
   G4FieldManager* GetZeroFieldManager();
 
-  G4bool GetUseSynchPrimaryGen();
+  G4bool   GetUseSynchPrimaryGen();
   G4double GetSynchPrimaryAngle();
   G4double GetSynchPrimaryLength();
 
   // AI : for placet synchronization
-  void setWaitingForDump(G4bool flag);
+  void   setWaitingForDump(G4bool flag);
   G4bool getWaitingForDump();
 
-  void setDumping(G4bool flag);
+  void   setDumping(G4bool flag);
   G4bool getDumping();
 
-  void setReading(G4bool flag);
+  void   setReading(G4bool flag);
   G4bool getReading();
 
-  void setReadFromStack(G4bool flag);
+  void   setReadFromStack(G4bool flag);
   G4bool getReadFromStack();
 
   G4String GetFifo();
-  void SetFifo(G4String fileName);
+  void    SetFifo(G4String fileName);
 
   G4AffineTransform GetDumpTransform();
-  void SetDumpTransform(G4AffineTransform tf);
+  void              SetDumpTransform(G4AffineTransform tf);
 
   G4String GetRefVolume();
-  G4int GetRefCopyNo();
+  G4int    GetRefCopyNo();
 
   const G4AffineTransform* GetRefTransform();
-  void SetRefTransform(G4AffineTransform& aTransform);
+  void                     SetRefTransform(G4AffineTransform& aTransform);
 
   // SPM : temp filestream for placet to read and write
   std::ofstream fileDump;
@@ -264,7 +264,6 @@ public:
   G4bool isReference;
 
 protected:
-
   BDSGlobalConstants(struct Options&);
 
 
