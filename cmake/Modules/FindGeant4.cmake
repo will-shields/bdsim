@@ -15,6 +15,17 @@ message(STATUS "Looking for Geant4...")
 
 # include directory
 
+if (Geant4_PREFIX)
+   if(EXISTS "${Geant4_PREFIX}/include/geant4")
+      set(Geant4_INCLUDE_DIR ${Geant4_PREFIX}/include/geant4)
+   elseif(EXISTS "${Geant4_PREFIX}/include")
+      set(Geant4_INCLUDE_DIR ${Geant4_PREFIX}/include)
+   endif()
+   if(EXISTS "${Geant4_PREFIX}/lib")
+      set(Geant4_LIBRARY_DIR ${Geant4_PREFIX}/lib)
+   endif()
+endif()
+
 if (NOT Geant4_INCLUDE_DIR)
   FIND_PATH(Geant4_INCLUDE_DIR NAMES geant4)
 endif (NOT Geant4_INCLUDE_DIR)
@@ -86,7 +97,11 @@ if($ENV{VERBOSE})
 endif()
 
 if (Geant4_FOUND)
-  find_program(_G4_CONFIG geant4-config)
+  if(Geant4_PREFIX AND EXISTS ${Geant4_PREFIX}/bin/geant4-config)
+     set(_G4_CONFIG ${Geant4_PREFIX}/bin/geant4-config)
+  else()
+     find_program(_G4_CONFIG geant4-config)
+  endif()
   if(_G4_CONFIG)
      execute_process(COMMAND ${_G4_CONFIG} --version
         OUTPUT_VARIABLE Geant4_VERSION
