@@ -35,15 +35,15 @@ class G4UIcmdWithoutParameter;
 
 class BDSDetectorMessenger: public G4UImessenger
 {
-  public:
-    BDSDetectorMessenger(BDSDetectorConstruction* );
-   ~BDSDetectorMessenger();
-    
-    void SetNewValue(G4UIcommand*, G4String);
-    
-  private:
-    BDSDetectorConstruction* BDSDetector;
-    
+public:
+  BDSDetectorMessenger(BDSDetectorConstruction* );
+  ~BDSDetectorMessenger();
+  
+  void SetNewValue(G4UIcommand*, G4String);
+  
+private:
+  BDSDetectorConstruction* BDSDetector;    
+
   //    G4UIdirectory*             BDSdetDir;
   //    G4UIcmdWithAString*        AbsMaterCmd;
   //    G4UIcmdWithAString*        GapMaterCmd;

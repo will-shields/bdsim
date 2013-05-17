@@ -71,17 +71,6 @@ BDSBunch      bdsBunch;          // bunch information
 BDSSamplerSD* BDSSamplerSensDet; // sampler???
 //=======================================================
 
-// G4String outputFilename="output";  //receives a .txt or .root in BDSOutput
-// G4bool verbose = false;  // run options
-//G4bool    verboseStep = false;
-//G4bool    verboseEvent = false;
-//G4int     verboseEventNumber = -1;
-G4int     gflash = 0;
-G4double  gflashemax = 10000;
-G4double  gflashemin = 0.1;
-G4bool    isBatch = false;
-G4int     nptwiss = 200; // number of particles for twiss parameters matching (by tracking) and reference bunch for wakefields
-
 //=======================================================
 // Main 
 //=======================================================
@@ -108,7 +97,6 @@ int main(int argc,char** argv) {
 	     << BDSExecOptions::Instance()->GetInputFilename()<<G4endl;
       exit(1);
     }
-
 
   //
   // pass the run control and beam options read from the lattice
@@ -356,7 +344,7 @@ int main(int argc,char** argv) {
       // do not need secondaries whatsoever
       BDSGlobalConstants::Instance()->SetStopTracks(true);
 
-      runManager->BeamOn(nptwiss);
+      runManager->BeamOn(BDSExecOptions::Instance()->GetNPTwiss());
 
       // Clear Stack
       G4EventManager::GetEventManager()->GetStackManager()->ClearPostponeStack();
@@ -411,7 +399,7 @@ int main(int argc,char** argv) {
   G4VisManager* visManager=0;
 
  
-  if(!isBatch)   // Interactive mode
+  if(!BDSExecOptions::Instance()->GetBatch())   // Interactive mode
     {
 #ifdef G4UI_USE_TCSH
       session = new G4UIterminal(new G4UItcsh);

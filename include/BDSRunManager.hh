@@ -18,24 +18,25 @@
 
 class BDSRunManager:public G4RunManager
 {
-  public: // with description
+public: // with description
 
-    static BDSRunManager* GetRunManager();
-    //  Static method which returns the singleton pointer of BDSRunManager or
-    // its derived class.
+  static BDSRunManager* GetRunManager();
+  //  Static method which returns the singleton pointer of BDSRunManager or
+  // its derived class.
+  
+private:
+  static BDSRunManager* fRunManager;
+  G4int nptwiss;
 
-  private:
-    static BDSRunManager* fRunManager;
-
-  public: // with description
-    BDSRunManager();
-    virtual ~BDSRunManager();
-    //  The constructor and the destructor. The user must construct this class
-    // object at the beginning of his/her main() and must delete it at the 
-    // bottom of the main().
-
-  public: // with description
-//SPM
+public: // with description
+  BDSRunManager();
+  virtual ~BDSRunManager();
+  //  The constructor and the destructor. The user must construct this class
+  // object at the beginning of his/her main() and must delete it at the 
+  // bottom of the main().
+  
+public: // with description
+  //SPM
   virtual void DoEventLoop(G4int n_event,const char* macroFile,G4int n_select);
   virtual void BeamOn(G4int n_event,const char* macroFile=0,G4int n_select=-1);
   inline void RunInit(){

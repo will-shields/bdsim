@@ -75,13 +75,17 @@ public:
 private:
   G4bool verbose;
   G4bool outline;
-  
+
+  G4int    gflash;
+  G4double gflashemax;
+  G4double gflashemin;
+    
   G4GeometrySampler* itsGeometrySampler;
 
   G4Region* precisionRegion;
   G4Region* gasRegion;
 
-  G4Box*            solidWorld;    //pointer to the solid World 
+  G4Box*             solidWorld;    //pointer to the solid World 
   G4LogicalVolume*   logicWorld;    //pointer to the logical World
   G4VPhysicalVolume* physiWorld;    //pointer to the physical World
   std::vector< G4VPhysicalVolume * > fPhysicalVolumeVector; //a vector with all the physical volumes

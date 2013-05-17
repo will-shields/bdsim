@@ -10,6 +10,7 @@
 //    beam dumper/reader for online exchange with external codes
 //
 
+#include "BDSExecOptions.hh"
 #include "BDSGlobalConstants.hh" 
 #include "BDSDump.hh"
 #include "G4Box.hh"
@@ -47,6 +48,8 @@ BDSDump::BDSDump (G4String aName,G4double aLength, G4String aTunnelMaterial):
 			 SetVisAttributes(), aTunnelMaterial),
   itsVisAttributes(NULL)
 {
+  nptwiss = BDSExecOptions::Instance()->GetNPTwiss();
+  
   SetName("Dump_"+BDSGlobalConstants::Instance()->StringFromInt(nDumps)+"_"+itsName);
   DumpLogicalVolume();
   const int nParticles = nptwiss;

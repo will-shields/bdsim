@@ -9,8 +9,6 @@
 
 using namespace std;
 
-extern G4int nptwiss;
-
 BDSBunch::BDSBunch():  
   X0(0.0),Y0(0.0),Z0(0.0),T0(0.0),Xp0(0.0),Yp0(0.0),Zp0(1.0),
   sigmaX(0.0),sigmaY(0.0),sigmaT(0.0),sigmaXp(0.0),sigmaYp(0.0),
@@ -22,6 +20,7 @@ BDSBunch::BDSBunch():
   verboseStep        = BDSExecOptions::Instance()->GetVerboseStep();
   verboseEvent       = BDSExecOptions::Instance()->GetVerboseEvent();
   verboseEventNumber = BDSExecOptions::Instance()->GetVerboseEventNumber();
+  nptwiss            = BDSExecOptions::Instance()->GetNPTwiss();
 
   GaussGen =new CLHEP::RandGauss(*CLHEP::HepRandom::getTheEngine());
   FlatGen =new CLHEP::RandFlat(*CLHEP::HepRandom::getTheEngine());

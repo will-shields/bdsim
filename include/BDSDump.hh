@@ -39,6 +39,8 @@ public:
 protected:
 
 private:
+  G4int nptwiss;
+
   void DumpLogicalVolume();
   G4VisAttributes* SetVisAttributes();
 

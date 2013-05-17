@@ -42,6 +42,7 @@ private:
   G4bool verboseEvent;
   G4int  verboseEventNumber;
   G4bool isBatch;
+  G4int  nptwiss;
 
   G4int                       SamplerCollID_plane;                
   G4int                       SamplerCollID_cylin;                

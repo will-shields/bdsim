@@ -47,6 +47,9 @@ public:
   void     SetGFlashEMax(G4double d) {gflashemax = d;}
   G4double GetGFlashEMin()           {return gflashemin;}  
   void     SetGFlashEMin(G4double d) {gflashemin = d;}
+
+  G4int    GetNPTwiss()              {return nptwiss;}
+  void     SetNPTwiss(G4int i)       {nptwiss = i;}
   
   G4bool   GetVerbose()              {return verbose;}
   G4bool   GetVerboseEvent()         {return verboseEvent;}
@@ -78,6 +81,8 @@ private :
   G4int    gflash;
   G4double gflashemax;
   G4double gflashemin;
+
+  G4int    nptwiss;
 
   G4bool verbose;
   G4bool verboseEvent;

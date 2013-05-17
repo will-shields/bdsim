@@ -108,9 +108,6 @@ ECList* theECList;
 BDSMaterials* theMaterials;
 
 //extern BDSGlobalConstants* BDSGlobalConstants::Instance();
-extern G4int gflash;
-extern G4double gflashemax;
-extern G4double gflashemin;
 
 //--------------------------
 // SYNCHROTRON RAD ***
@@ -156,10 +153,12 @@ BDSDetectorConstruction::BDSDetectorConstruction():
   magField(NULL),BDSUserLimits(NULL),BDSSensitiveDetector(NULL),
   itsIStore(NULL)
 {  
-  verbose = BDSExecOptions::Instance()->GetVerbose();
-  outline = BDSExecOptions::Instance()->GetOutline();
+  verbose    = BDSExecOptions::Instance()->GetVerbose();
+  outline    = BDSExecOptions::Instance()->GetOutline();
+  gflash     = BDSExecOptions::Instance()->GetGFlash();
+  gflashemax = BDSExecOptions::Instance()->GetGFlashEMax();
+  gflashemin = BDSExecOptions::Instance()->GetGFlashEMin();
   
-
   // create commands for interactive definition of the beamline  
   G4double pi_ov_2 = asin(1.);
 
