@@ -1,3 +1,4 @@
+add_subdirectory(ATF2)
 add_subdirectory(ggmad)
 add_subdirectory(ILC)
 add_subdirectory(Mokka)
