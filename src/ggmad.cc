@@ -1,5 +1,9 @@
 #include "BDSGlobalConstants.hh" 
 #include "BDSElement.hh"
+#include "BDSDebug.hh"
+#include "BDSAcceleratorComponent.hh"
+#include "ggmad.hh"
+
 #include "G4Box.hh"
 #include "G4Tubs.hh"
 #include "G4Cons.hh"
@@ -10,14 +14,11 @@
 #include "G4PVPlacement.hh"
 #include "G4UserLimits.hh"
 
-#include "BDSAcceleratorComponent.hh"
-#include "ggmad.hh"
-
 extern BDSMaterials* theMaterials;
 
 GGmadDriver::GGmadDriver(G4String file)
 {
-  G4cout<<"reading file "<<file<<G4endl;
+  G4cout << __METHOD_NAME__ << "> reading file : " << file << G4endl;
   inputf.open(file);
   if(!inputf.good()) {G4cerr<<"ggmad driver: error  opening input file "<<file<<G4endl; exit(1);}
 }
