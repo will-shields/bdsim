@@ -94,7 +94,7 @@ int main(int argc,char** argv) {
   G4cout << __FUNCTION__ << "> Using input file : "<< BDSExecOptions::Instance()->GetInputFilename()<<G4endl;
   if( gmad_parser(BDSExecOptions::Instance()->GetInputFilename()) == -1)
     {
-      G4cout << __FUNCTION__ << ">c an't open input file "
+      G4cout << __FUNCTION__ << "> Can't open input file "
 	     << BDSExecOptions::Instance()->GetInputFilename()<<G4endl;
       exit(1);
     }
