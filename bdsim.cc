@@ -64,6 +64,8 @@
 
 #include "parser/gmad.h"  // GMAD parser
 
+#define DEBUG 1
+
 //=======================================================
 // Global variables 
 BDSOutput*    bdsOutput;         // output interface
@@ -80,20 +82,19 @@ int main(int argc,char** argv) {
   /* Executable command line options reader object */
   BDSExecOptions *bdsOptions = BDSExecOptions::Instance();
   bdsOptions->Parse(argc,argv);
-  bdsOptions->Usage();
   bdsOptions->Print();
   
 #ifdef DEBUG
-  G4cout << __METHOD_NAME__ << " DEBUG mode is on." << G4endl;
+  G4cout << __FUNCTION__ << "> DEBUG mode is on." << G4endl;
 #endif  
 
   //
   // Parse lattice file
   //
-  G4cout<<"Using input file: "<<BDSExecOptions::Instance()->GetInputFilename()<<G4endl;
+  G4cout << __FUNCTION__ << "> Using input file : "<< BDSExecOptions::Instance()->GetInputFilename()<<G4endl;
   if( gmad_parser(BDSExecOptions::Instance()->GetInputFilename()) == -1)
     {
-      G4cout << __FUNCTION__ << ">can't open input file "
+      G4cout << __FUNCTION__ << ">c an't open input file "
 	     << BDSExecOptions::Instance()->GetInputFilename()<<G4endl;
       exit(1);
     }
@@ -105,7 +106,7 @@ int main(int argc,char** argv) {
   //
 
 #ifdef DEBUG
-  G4cout << "Setting global constants." << G4endl;
+  G4cout << __FUNCTION__ << "> Setting global constants." << G4endl;
 #endif  
 
   //  BDSGlobals = new BDSGlobalConstants(options);
@@ -115,7 +116,7 @@ int main(int argc,char** argv) {
   }
 
 #ifdef DEBUG
-  G4cout << "Setting bunch options." << G4endl;
+  G4cout << __FUNCTION__ << "> Setting bunch options." << G4endl;
 #endif  
 
   bdsBunch.SetOptions(options);
@@ -124,8 +125,9 @@ int main(int argc,char** argv) {
   // set default output formats:
   //
 #ifdef DEBUG
-  G4cout << "Setting up output." << G4endl;
+  G4cout << __FUNCTION__ << "> Setting up output." << G4endl;
 #endif  
+
   bdsOutput = new BDSOutput();
   bdsOutput->SetFormat(BDSExecOptions::Instance()->GetOutputFormat());
   G4cout.precision(10);
@@ -136,7 +138,7 @@ int main(int argc,char** argv) {
 
   // choose the Random engine
 #ifdef DEBUG
-  G4cout << "Initialising random number generator." << G4endl;
+  G4cout << __FUNCTION__ << "> Initialising random number generator." << G4endl;
 #endif  
   CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine);
 
@@ -154,10 +156,12 @@ int main(int argc,char** argv) {
   CLHEP::HepRandom::setTheSeed(seed);
 
 #ifdef DEBUG
-  G4cout<<"Seed from BDSGlobalConstants="<<BDSGlobalConstants::Instance()->GetRandomSeed()<<G4endl;
+  G4cout << __FUNCTION__ << "> Seed from BDSGlobalConstants=" 
+	 << BDSGlobalConstants::Instance()->GetRandomSeed() << G4endl;
 #endif
 
-  G4cout<<"Random number generator's seed="<<CLHEP::HepRandom::getTheSeed()<<G4endl;
+  G4cout << __FUNCTION__ << "> Random number generator's seed=" 
+	 << CLHEP::HepRandom::getTheSeed() << G4endl;
 
 
   //
@@ -166,14 +170,14 @@ int main(int argc,char** argv) {
   //
 
 #ifdef DEBUG 
-  G4cout<<"constructing run manager"<<G4endl;
+  G4cout << __FUNCTION__ << "> Constructing run manager"<<G4endl;
 #endif
   BDSRunManager * runManager = new BDSRunManager;
   // runManager->SetNumberOfAdditionalWaitingStacks(1);
 
   //For geometry sampling, phys list must be initialized before detector.
 #ifdef DEBUG 
-  G4cout<<"constructing phys list"<<G4endl;
+  G4cout << __FUNCTION__ << "> Constructing phys list" << G4endl;
 #endif
 
   BDSPhysicsList* PhysList=new BDSPhysicsList;
@@ -185,24 +189,24 @@ int main(int argc,char** argv) {
 
   // Set the geometry tolerance
   static G4GeometryTolerance* theGeometryTolerance = G4GeometryTolerance::GetInstance();
-  G4cout << "main> default geometry tolerances: surface " << theGeometryTolerance->GetSurfaceTolerance() << " " 
+  G4cout << __FUNCTION__ << "> Default geometry tolerances: surface " << theGeometryTolerance->GetSurfaceTolerance() << " " 
 	 << theGeometryTolerance->GetAngularTolerance() << " " 
 	 << theGeometryTolerance->GetRadialTolerance() << " " <<G4endl;
   G4double worldMaximumExtent=1000*m;
   // This sets the tolerances for the geometry (1e-11 times this value)
   G4GeometryManager::GetInstance()->SetWorldMaximumExtent(worldMaximumExtent); 
-  G4cout << "main> geometry toleranceswith worldMaximumExtent=" << worldMaximumExtent/m << "m: surface: " 
+  G4cout << __FUNCTION__ << "> Geometry toleranceswith worldMaximumExtent=" << worldMaximumExtent/m << "m: surface: " 
 	 << theGeometryTolerance->GetSurfaceTolerance() << " angular: " << theGeometryTolerance->GetAngularTolerance() 
 	 << " radial: " << theGeometryTolerance->GetRadialTolerance() << " " <<G4endl;
   
   
 #ifdef DEBUG 
-  G4cout<<"constructing detector"<<G4endl;
+  G4cout << __FUNCTION__ << "> Constructing detector"<<G4endl;
 #endif
   BDSDetectorConstruction* detector = new BDSDetectorConstruction;
  
 #ifdef DEBUG 
-  G4cout<<"user init detector"<<G4endl;
+  G4cout << __FUNCTION__ << "> User init detector"<<G4endl;
 #endif
   runManager->SetUserInitialization(detector);
 
@@ -211,32 +215,32 @@ int main(int argc,char** argv) {
   // Set user action classes
   //
 #ifdef DEBUG 
-  G4cout<<"main: user action - runaction"<<G4endl;
+  G4cout << __FUNCTION__ << "> User action - runaction"<<G4endl;
 #endif
   runManager->SetUserAction(new BDSRunAction);
 
 #ifdef DEBUG 
-  G4cout<<"main: user action - eventaction"<<G4endl;
+  G4cout << __FUNCTION__ << "> User action - eventaction"<<G4endl;
 #endif
   runManager->SetUserAction(new BDSEventAction());
 
 #ifdef DEBUG 
-  G4cout<<"main: user action - steppingaction"<<G4endl;
+  G4cout << __FUNCTION__ << "> User action - steppingaction"<<G4endl;
 #endif
   runManager->SetUserAction(new BDSSteppingAction);
 
 #ifdef DEBUG 
-  G4cout<<"main: user action - trackingaction"<<G4endl;
+  G4cout << __FUNCTION__ << "> User action - trackingaction"<<G4endl;
 #endif
   runManager->SetUserAction(new BDSUserTrackingAction);
 
 #ifdef DEBUG 
-  G4cout<<"main: user action - stackingaction"<<G4endl;
+  G4cout << __FUNCTION__ << "> User action - stackingaction"<<G4endl;
 #endif
   runManager->SetUserAction(new BDSStackingAction);
 
 #ifdef DEBUG 
-  G4cout<<"main: user action - detector"<<G4endl;
+  G4cout << __FUNCTION__ << "> User action - detector"<<G4endl;
 #endif
   runManager->SetUserAction(new BDSPrimaryGeneratorAction(detector));
 
@@ -246,7 +250,7 @@ int main(int argc,char** argv) {
   // Initialize G4 kernel
   //
 #ifdef DEBUG 
-  G4cout<<"init kernel"<<G4endl;
+  G4cout << __FUNCTION__ << "> Init kernel"<<G4endl;
 #endif
   runManager->Initialize();
 
@@ -296,7 +300,7 @@ int main(int argc,char** argv) {
     BDSGeometryInterface* BDSGI = new BDSGeometryInterface(BDSExecOptions::Instance()->GetOutlineFilename());
 
 #ifdef DEBUG 
-    G4cout<<"writing survey file"<<G4endl;
+    G4cout << __FUNCTION__ << "> Writing survey file"<<G4endl;
 #endif
     if(BDSExecOptions::Instance()->GetOutlineFormat()=="survey") BDSGI->Survey();
     if(BDSExecOptions::Instance()->GetOutlineFormat()=="optics") BDSGI->Optics();
@@ -328,14 +332,14 @@ int main(int argc,char** argv) {
 	  G4String pName=(*procVec)[iProc]->GetProcessName(); 	 
 	  if(pName=="BDSSynchRad")  	 
 	    { 	 
-	      G4cout<<"Disabling SR"<<G4endl;
+	      G4cout << __FUNCTION__ << "> Disabling SR"<<G4endl;
 	      pManager->SetProcessActivation(iProc, false);
 
 	    } 	 
 
 	  if(pName=="contSR")  	 
 	    { 	 
-	      G4cout<<"Enabling constSR"<<G4endl;
+	      G4cout << __FUNCTION__ << "> Enabling constSR"<<G4endl;
 	      pManager->SetProcessActivation(iProc, true);
 	      
 	    } 	 
@@ -360,7 +364,7 @@ int main(int argc,char** argv) {
 	  G4String pName=(*procVec)[iProc]->GetProcessName(); 	 
 	  if(pName=="BDSSynchRad")  	 
 	    { 	 
-	      G4cout<<"Enabling SR"<<G4endl;
+	      G4cout<< __FUNCTION__ << "> Enabling SR"<<G4endl;
 	      pManager->SetProcessActivation(iProc, true);
 	      
 	    } 	 
@@ -397,7 +401,6 @@ int main(int argc,char** argv) {
 
   G4UIsession* session=0;
   G4VisManager* visManager=0;
-
  
   if(!BDSExecOptions::Instance()->GetBatch())   // Interactive mode
     {
@@ -409,7 +412,7 @@ int main(int argc,char** argv) {
 
 #ifdef G4VIS_USE
 #ifdef DEBUG 
-      G4cout<<"Initializing Visualisation Manager"<<G4endl;
+      G4cout<< __FUNCTION__ << "> Initializing Visualisation Manager"<<G4endl;
 #endif
       visManager = new BDSVisManager;
       visManager->Initialize();
@@ -424,7 +427,7 @@ int main(int argc,char** argv) {
 
 #ifdef G4VIS_USE
 #ifdef DEBUG 
-      G4cout<<"Visualisation Manager deleting..."<<G4endl;
+      G4cout << __FUNCTION__ << "> Visualisation Manager deleting..." << G4endl;
 #endif
       delete visManager;
 #endif
@@ -440,21 +443,21 @@ int main(int argc,char** argv) {
   G4GeometryManager::GetInstance()->OpenGeometry();
 
 #ifdef DEBUG 
-  G4cout<<"BDSOutput deleting..."<<G4endl;
+  G4cout << __FUNCTION__ << "> BDSOutput deleting..."<<G4endl;
 #endif
   delete bdsOutput;
 
-  #ifdef DEBUG 
-  G4cout<<"BDSGlobalConstants::Instance() deleting..."<<G4endl;
+#ifdef DEBUG 
+  G4cout << __FUNCTION__ << "> BDSGlobalConstants::Instance() deleting..."<<G4endl;
 #endif
   delete BDSGlobalConstants::Instance();
   
 #ifdef DEBUG 
-  G4cout<<"BDSRunManager deleting..."<<G4endl;
+  G4cout<< __FUNCTION__ << ">BDSRunManager deleting..."<<G4endl;
 #endif
   delete runManager;
  
-  G4cout << "End of Run, Thank you for using BDSIM!" << G4endl;
+  G4cout << __FUNCTION__ << "> End of Run, Thank you for using BDSIM!" << G4endl;
 
   return 0;
 }
