@@ -148,7 +148,7 @@ dump  { return DUMP; }
 <incl>[ \t]*  // eat the whitespace
 <incl>[^ \t\n;]+ {
 string filename = sBDSHOME+(string)yytext;
-  printf("reading file %s \n",(char*)filename.c_str());//yytext
+  printf("parser> reading file %s \n",(char*)filename.c_str());//yytext
   if( include_stack_ptr >= MAX_INCLUDE_DEPTH )
     {
       fprintf(stderr , "Error : Include depth exceeds %d\n",MAX_INCLUDE_DEPTH);

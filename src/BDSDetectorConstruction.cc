@@ -21,6 +21,7 @@
 
 #include "BDSExecOptions.hh"
 #include "BDSGlobalConstants.hh"
+#include "BDSDebug.hh"
 
 #include "BDSDetectorConstruction.hh"
 
@@ -190,13 +191,18 @@ BDSDetectorConstruction::BDSDetectorConstruction():
   theParticleBoundsVac->SetMaxEneToParametrise(*G4Electron::ElectronDefinition(),0*GeV);
   theParticleBoundsVac->SetMaxEneToParametrise(*G4Positron::PositronDefinition(),0*GeV);
 
-  G4cout << "BDSDetectorConstruction: theParticleBounds - min E - electron: " << theParticleBounds->GetMinEneToParametrise(*G4Electron::ElectronDefinition())/GeV<< " GeV" << G4endl;
-  G4cout << "BDSDetectorConstruction: theParticleBounds - max E - electron: " << theParticleBounds->GetMaxEneToParametrise(*G4Electron::ElectronDefinition())/GeV<< G4endl;
-  G4cout << "BDSDetectorConstruction: theParticleBounds - kill E - electron: " << theParticleBounds->GetEneToKill(*G4Electron::ElectronDefinition())/GeV<< G4endl;
-
-G4cout << "BDSDetectorConstruction: theParticleBounds - min E - positron: " << theParticleBounds->GetMinEneToParametrise(*G4Positron::PositronDefinition())/GeV<< G4endl;
-G4cout << "BDSDetectorConstruction: theParticleBounds - max E - positron: " << theParticleBounds->GetMaxEneToParametrise(*G4Positron::PositronDefinition())/GeV<< G4endl;
-G4cout << "BDSDetectorConstruction: theParticleBounds - kill E - positron: " << theParticleBounds->GetEneToKill(*G4Positron::PositronDefinition())/GeV<< G4endl;
+  G4cout << __METHOD_NAME__ << "theParticleBounds - min E - electron: " 
+	 << theParticleBounds->GetMinEneToParametrise(*G4Electron::ElectronDefinition())/GeV<< " GeV" << G4endl;
+  G4cout << __METHOD_NAME__ << "theParticleBounds - max E - electron: " 
+	 << theParticleBounds->GetMaxEneToParametrise(*G4Electron::ElectronDefinition())/GeV<< G4endl;
+  G4cout << __METHOD_NAME__ << "theParticleBounds - kill E - electron: " 
+	 << theParticleBounds->GetEneToKill(*G4Electron::ElectronDefinition())/GeV<< G4endl;
+  G4cout << __METHOD_NAME__ << "theParticleBounds - min E - positron: " 
+	 << theParticleBounds->GetMinEneToParametrise(*G4Positron::PositronDefinition())/GeV<< G4endl;
+  G4cout << __METHOD_NAME__ << "theParticleBounds - max E - positron: " 
+	 << theParticleBounds->GetMaxEneToParametrise(*G4Positron::PositronDefinition())/GeV<< G4endl;
+  G4cout << __METHOD_NAME__ << "theParticleBounds - kill E - positron: " 
+	 << theParticleBounds->GetEneToKill(*G4Positron::PositronDefinition())/GeV<< G4endl;
 
   theHitMaker          = new GFlashHitMaker();                    // Makes the EnergieSpots 
 

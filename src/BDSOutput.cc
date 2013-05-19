@@ -50,7 +50,7 @@ void BDSOutput::SetFormat(BDSOutputFormat val)
   if( format == _ASCII)
     {
       G4String filename = BDSExecOptions::Instance()->GetOutputFilename()+".txt";
-      G4cout<<"output format ASCII, filename: "<<filename<<G4endl;
+      G4cout << __METHOD_NAME__ << "Output format ASCII, filename: "<<filename<<G4endl;
       of.open(filename);
       of<<"### BDSIM output created "<<ctime(&tm)<<" ####"<<G4endl;
       of<<"# PT E[GeV] X[mum] Y[mum] Z[m] Xp[rad] Yp[rad]  "<<G4endl;

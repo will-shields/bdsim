@@ -184,26 +184,29 @@ int main(int argc,char** argv) {
   runManager->SetUserInitialization(PhysList);
   
 #ifdef DEBUG 
-  G4cout<<"user init phys list"<<G4endl;
+  G4cout<< __FUNCTION__ << "> User init phys list"<<G4endl;
 #endif
 
   // Set the geometry tolerance
   static G4GeometryTolerance* theGeometryTolerance = G4GeometryTolerance::GetInstance();
-  G4cout << __FUNCTION__ << "> Default geometry tolerances: surface " << theGeometryTolerance->GetSurfaceTolerance() << " " 
+  G4cout << __FUNCTION__ << "> Default geometry tolerances: surface " 
+	 << theGeometryTolerance->GetSurfaceTolerance() << " " 
 	 << theGeometryTolerance->GetAngularTolerance() << " " 
-	 << theGeometryTolerance->GetRadialTolerance() << " " <<G4endl;
+	 << theGeometryTolerance->GetRadialTolerance()  << " " <<G4endl;
   G4double worldMaximumExtent=1000*m;
   // This sets the tolerances for the geometry (1e-11 times this value)
   G4GeometryManager::GetInstance()->SetWorldMaximumExtent(worldMaximumExtent); 
-  G4cout << __FUNCTION__ << "> Geometry toleranceswith worldMaximumExtent=" << worldMaximumExtent/m << "m: surface: " 
-	 << theGeometryTolerance->GetSurfaceTolerance() << " angular: " << theGeometryTolerance->GetAngularTolerance() 
+  G4cout << __FUNCTION__ << "> Geometry toleranceswith worldMaximumExtent=" 
+	 << worldMaximumExtent/m << "m: surface: " 
+	 << theGeometryTolerance->GetSurfaceTolerance() 
+	 << " angular: " << theGeometryTolerance->GetAngularTolerance() 
 	 << " radial: " << theGeometryTolerance->GetRadialTolerance() << " " <<G4endl;
   
   
 #ifdef DEBUG 
   G4cout << __FUNCTION__ << "> Constructing detector"<<G4endl;
 #endif
-  BDSDetectorConstruction* detector = new BDSDetectorConstruction;
+  BDSDetectorConstruction* detector = new BDSDetectorConstruction();
  
 #ifdef DEBUG 
   G4cout << __FUNCTION__ << "> User init detector"<<G4endl;
