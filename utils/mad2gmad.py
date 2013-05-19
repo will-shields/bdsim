@@ -103,7 +103,15 @@ def main() :
             lta = lta.replace('monitor','marker');
             lta = lta.replace('wire','marker');
             lta = lta.replace('prof','marker');
-                        
+                
+            # remove aperture parameters
+            iap = lta.find('aperture')
+            if iap != -1 : 
+                lta = lta[0:iap-2]+'; ! removed aperture'
+        
+            # remove multipoles 
+            if lta.find('multipole') != -1 : 
+                lta = '! removed multipole'+lta
             o.write(lta+'\n')
             # clean up
             ba = False

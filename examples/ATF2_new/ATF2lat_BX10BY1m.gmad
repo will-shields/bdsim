@@ -286,80 +286,80 @@ sd1r31: sextupole, l=0.03, k2=1.068379715593e3;
 sd1r32: sextupole, l=0.03, k2=1.068379715593e3;
 sd1r33: sextupole, l=0.03, k2=1.068379715593e3;
 sd1r34: sextupole, l=0.03, k2=1.068379715593e3;
-sqsf1: multipole, k1l=0.0, t1=0.785398163397;
-sqsf2: multipole, k1l=0.0, t1=0.785398163397;
-sqsf3: multipole, k1l=0.0, t1=0.785398163397;
-sqsf4: multipole, k1l=0.0, t1=0.785398163397;
-sqsf5: multipole, k1l=0.0, t1=0.785398163397;
-sqsf6: multipole, k1l=0.0, t1=0.785398163397;
-sqsf7: multipole, k1l=0.0, t1=0.785398163397;
-sqsf8: multipole, k1l=0.0, t1=0.785398163397;
-sqsf9: multipole, k1l=0.0, t1=0.785398163397;
-sqsf10: multipole, k1l=0.0, t1=0.785398163397;
-sqsf11: multipole, k1l=0.0, t1=0.785398163397;
-sqsf12: multipole, k1l=0.0, t1=0.785398163397;
-sqsf13: multipole, k1l=0.0, t1=0.785398163397;
-sqsf14: multipole, k1l=0.0, t1=0.785398163397;
-sqsf15: multipole, k1l=0.0, t1=0.785398163397;
-sqsf16: multipole, k1l=0.0, t1=0.785398163397;
-sqsf17: multipole, k1l=0.0, t1=0.785398163397;
-sqsf18: multipole, k1l=0.0, t1=0.785398163397;
-sqsf19: multipole, k1l=0.0, t1=0.785398163397;
-sqsf20: multipole, k1l=0.0, t1=0.785398163397;
-sqsf21: multipole, k1l=0.0, t1=0.785398163397;
-sqsf22: multipole, k1l=0.0, t1=0.785398163397;
-sqsf23: multipole, k1l=0.0, t1=0.785398163397;
-sqsf24: multipole, k1l=0.0, t1=0.785398163397;
-sqsf25: multipole, k1l=0.0, t1=0.785398163397;
-sqsf26: multipole, k1l=0.0, t1=0.785398163397;
-sqsf27: multipole, k1l=0.0, t1=0.785398163397;
-sqsf28: multipole, k1l=0.0, t1=0.785398163397;
-sqsf29: multipole, k1l=0.0, t1=0.785398163397;
-sqsf30: multipole, k1l=0.0, t1=0.785398163397;
-sqsf31: multipole, k1l=0.0, t1=0.785398163397;
-sqsf32: multipole, k1l=0.0, t1=0.785398163397;
-sqsf33: multipole, k1l=0.0, t1=0.785398163397;
-sqsf34: multipole, k1l=0.0, t1=0.785398163397;
-sqsd1: multipole, k1l=0.0, t1=0.785398163397;
-sqsd2: multipole, k1l=0.0, t1=0.785398163397;
-sqsd3: multipole, k1l=0.0, t1=0.785398163397;
-sqsd4: multipole, k1l=0.0, t1=0.785398163397;
-sqsd5: multipole, k1l=0.0, t1=0.785398163397;
-sqsd6: multipole, k1l=0.0, t1=0.785398163397;
-sqsd7: multipole, k1l=0.0, t1=0.785398163397;
-sqsd8: multipole, k1l=0.0, t1=0.785398163397;
-sqsd9: multipole, k1l=0.0, t1=0.785398163397;
-sqsd10: multipole, k1l=0.0, t1=0.785398163397;
-sqsd11: multipole, k1l=0.0, t1=0.785398163397;
-sqsd12: multipole, k1l=0.0, t1=0.785398163397;
-sqsd13: multipole, k1l=0.0, t1=0.785398163397;
-sqsd14: multipole, k1l=0.0, t1=0.785398163397;
-sqsd15: multipole, k1l=0.0, t1=0.785398163397;
-sqsd16: multipole, k1l=0.0, t1=0.785398163397;
-sqsd17: multipole, k1l=0.0, t1=0.785398163397;
-sqsd18: multipole, k1l=0.0, t1=0.785398163397;
-sqsd19: multipole, k1l=0.0, t1=0.785398163397;
-sqsd20: multipole, k1l=0.0, t1=0.785398163397;
-sqsd21: multipole, k1l=0.0, t1=0.785398163397;
-sqsd22: multipole, k1l=0.0, t1=0.785398163397;
-sqsd23: multipole, k1l=0.0, t1=0.785398163397;
-sqsd24: multipole, k1l=0.0, t1=0.785398163397;
-sqsd25: multipole, k1l=0.0, t1=0.785398163397;
-sqsd26: multipole, k1l=0.0, t1=0.785398163397;
-sqsd27: multipole, k1l=0.0, t1=0.785398163397;
-sqsd28: multipole, k1l=0.0, t1=0.785398163397;
-sqsd29: multipole, k1l=0.0, t1=0.785398163397;
-sqsd30: multipole, k1l=0.0, t1=0.785398163397;
-sqsd31: multipole, k1l=0.0, t1=0.785398163397;
-sqsd32: multipole, k1l=0.0, t1=0.785398163397;
-sqsd33: multipole, k1l=0.0, t1=0.785398163397;
-sqsd34: multipole, k1l=0.0, t1=0.785398163397;
-qm12r1mult: multipole, k2l=0.019627151377, t2=-0.224733375474, k3l=7.471734057587, t3=0.514500411709, aperture=0.01;
-qm13r1mult: multipole, k2l=-0.03449745458, t2=-0.995565519184, k3l=-2.255170277321, t3=0.226252395046, aperture=0.01;
-qm14r1mult: multipole, k2l=0.02169462223, t2=-0.774732525393, k3l=2.95522901036, t3=0.234253726868, aperture=0.01;
-qm12r2mult: multipole, k2l=0.548369416395e-2, t2=0.183432656339, k3l=2.523071915596, t3=-0.633545951598, aperture=0.01;
-qm13r2mult: multipole, k2l=-0.817186919124e-2, t2=0.854768797608, k3l=-1.392899288934, t3=0.026764185132, aperture=0.01;
-qm14r2mult: multipole, k2l=0.017696512893, t2=-0.587064753355, k3l=1.57873424358, t3=0.303272888504, aperture=0.01;
+! removed multipolesqsf1: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf2: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf3: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf4: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf5: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf6: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf7: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf8: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf9: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf10: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf11: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf12: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf13: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf14: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf15: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf16: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf17: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf18: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf19: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf20: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf21: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf22: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf23: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf24: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf25: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf26: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf27: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf28: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf29: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf30: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf31: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf32: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf33: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsf34: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd1: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd2: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd3: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd4: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd5: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd6: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd7: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd8: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd9: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd10: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd11: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd12: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd13: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd14: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd15: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd16: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd17: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd18: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd19: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd20: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd21: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd22: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd23: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd24: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd25: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd26: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd27: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd28: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd29: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd30: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd31: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd32: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd33: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipolesqsd34: multipole, k1l=0.0, t1=0.785398163397;
+! removed multipoleqm12r1mult: multipole, k2l=0.019627151377, t2=-0.224733375474, k3l=7.471734057587, t3=0.514500411709; ! removed aperture
+! removed multipoleqm13r1mult: multipole, k2l=-0.03449745458, t2=-0.995565519184, k3l=-2.255170277321, t3=0.226252395046; ! removed aperture
+! removed multipoleqm14r1mult: multipole, k2l=0.02169462223, t2=-0.774732525393, k3l=2.95522901036, t3=0.234253726868; ! removed aperture
+! removed multipoleqm12r2mult: multipole, k2l=0.548369416395e-2, t2=0.183432656339, k3l=2.523071915596, t3=-0.633545951598; ! removed aperture
+! removed multipoleqm13r2mult: multipole, k2l=-0.817186919124e-2, t2=0.854768797608, k3l=-1.392899288934, t3=0.026764185132; ! removed aperture
+! removed multipoleqm14r2mult: multipole, k2l=0.017696512893, t2=-0.587064753355, k3l=1.57873424358, t3=0.303272888504; ! removed aperture
 cav: rfcavity, l=0.0, volt=0.3, lag=0.5, harmon=330;
 cavd: drift, l=0.0;
 bhe: drift, l=0.011;
@@ -730,49 +730,49 @@ bh2xa: sbend, l=0.4, angle=-0.0941996781, e1=0.0, hgap=0.016, fint=0.5, fintx=0.
 bh2xb: sbend, l=0.4, angle=-0.0941996781, e2=0.0, hgap=0.016, fint=0.0, fintx=0.5;
 bh3xa: sbend, l=0.675, angle=-0.171424095584, e1=0.0, hgap=0.016, fint=0.5, fintx=0.0;
 bh3xb: sbend, l=0.675, angle=-0.171424095584, e2=0.0, hgap=0.016, fint=0.0, fintx=0.5;
-qf1x: quadrupole, l=0.099305, k1=5.416765001747, aperture=0.016;
-qd2x: quadrupole, l=0.099305, k1=-4.741371347017, aperture=0.016;
-qf3x: quadrupole, l=0.099305, k1=3.376808939404, aperture=0.016;
-qf4x: quadrupole, l=0.099305, k1=3.41729617407, aperture=0.016;
-qd5x: quadrupole, l=0.099305, k1=-4.639975907593, aperture=0.016;
-qf6x: quadrupole, l=0.099305, k1=5.690030838709, aperture=0.016;
-qf7x: quadrupole, l=0.039335, k1=4.868835433838, aperture=0.016;
-qd8x: quadrupole, l=0.099305, k1=-2.970835531287, aperture=0.016;
-qf90x: quadrupole, l=0.099245, k1=5.155581408635, aperture=0.016;
-qd90x: quadrupole, l=0.099245, k1=-5.155581408635, aperture=0.016;
-qf180x: quadrupole, l=0.0993725, k1=6.884394059347, aperture=0.016;
-qd180x: quadrupole, l=0.0993725, k1=-5.109242848434, aperture=0.016;
-qfwx: quadrupole, l=0.039335, k1=3.878951293492, aperture=0.016;
-qdwx: quadrupole, l=0.039335, k1=-3.878951293492, aperture=0.016;
-qf9x: quadrupole, l=0.099305, k1=3.841531467343, aperture=0.016;
-qd10x: quadrupole, l=0.099245, k1=-5.877494598368, aperture=0.016;
-qf11x: quadrupole, l=0.099245, k1=5.155581408635, aperture=0.016;
-qd12x: quadrupole, l=0.099245, k1=-5.155581408635, aperture=0.016;
-qf13x: quadrupole, l=0.0993725, k1=6.884394059347, aperture=0.016;
-qd14x: quadrupole, l=0.0993725, k1=-5.109242848434, aperture=0.016;
-qf15x: quadrupole, l=0.0993725, k1=6.884394059347, aperture=0.016;
-qd16x: quadrupole, l=0.099245, k1=-5.155581408635, aperture=0.016;
-qf17x: quadrupole, l=0.099245, k1=5.155581408635, aperture=0.016;
-qd18x: quadrupole, l=0.099245, k1=-3.45645692786, aperture=0.016;
-qf19x: quadrupole, l=0.099245, k1=3.300750873812, aperture=0.016;
-qd20x: quadrupole, l=0.039335, k1=-3.865472613512, aperture=0.016;
-qf21x: quadrupole, l=0.039335, k1=5.720096606076, aperture=0.016;
-qs1x: quadrupole, l=0.039335, k1=0.0, tilt=0.785398163397, aperture=0.016;
-qs2x: quadrupole, l=0.039335, k1=0.0, tilt=0.785398163397, aperture=0.016;
-qk1x: quadrupole, l=0.039335, k1=0.0, tilt=0.785398163397, aperture=0.016;
-qk2x: quadrupole, l=0.039335, k1=0.0, tilt=0.785398163397, aperture=0.016;
-qk3x: quadrupole, l=0.039335, k1=0.0, tilt=0.785398163397, aperture=0.016;
-qk4x: quadrupole, l=0.039335, k1=0.0, tilt=0.785398163397, aperture=0.016;
-kex1mult: multipole, k1l=-0.01846929, t1=0.0, k2l=-3.824591, t2=0.0, aperture=0.635e-2;
-bh1xmult: multipole, k2l=-0.183983746289, t2=0.0, aperture=0.016;
-bh2xmult: multipole, k2l=0.183983746289, t2=0.0, aperture=0.016;
-qd10xmult: multipole, k2l=-0.057540224135, t2=-0.272897948461, k3l=-6.966319642164, t3=0.451002509595, aperture=0.016;
-qf11xmult: multipole, k2l=0.029095357051, t2=0.225600259676, k3l=9.212898678558, t3=-0.122499622574, aperture=0.016;
-qd12xmult: multipole, k2l=-0.071285262106, t2=-0.171402807853, k3l=-5.009309309986, t3=-0.643546056014, aperture=0.016;
-qd16xmult: multipole, k2l=-0.019989754665, t2=0.231937741307, k3l=-2.427444304349, t3=0.603498650377, aperture=0.016;
-qf17xmult: multipole, k2l=0.594043850881e-2, t2=-0.674848646098, k3l=4.753578804672, t3=-0.092000951336, aperture=0.016;
-qd18xmult: multipole, k2l=-0.857590169514e-2, t2=-0.530866035046, k3l=-1.348131746476, t3=-0.567703028647, aperture=0.016;
-qf19xmult: multipole, k2l=0.216532376532e-2, t2=-0.485110162368, k3l=1.700254151153, t3=0.30600509311, aperture=0.016;
+qf1x: quadrupole, l=0.099305, k1=5.416765001747; ! removed aperture
+qd2x: quadrupole, l=0.099305, k1=-4.741371347017; ! removed aperture
+qf3x: quadrupole, l=0.099305, k1=3.376808939404; ! removed aperture
+qf4x: quadrupole, l=0.099305, k1=3.41729617407; ! removed aperture
+qd5x: quadrupole, l=0.099305, k1=-4.639975907593; ! removed aperture
+qf6x: quadrupole, l=0.099305, k1=5.690030838709; ! removed aperture
+qf7x: quadrupole, l=0.039335, k1=4.868835433838; ! removed aperture
+qd8x: quadrupole, l=0.099305, k1=-2.970835531287; ! removed aperture
+qf90x: quadrupole, l=0.099245, k1=5.155581408635; ! removed aperture
+qd90x: quadrupole, l=0.099245, k1=-5.155581408635; ! removed aperture
+qf180x: quadrupole, l=0.0993725, k1=6.884394059347; ! removed aperture
+qd180x: quadrupole, l=0.0993725, k1=-5.109242848434; ! removed aperture
+qfwx: quadrupole, l=0.039335, k1=3.878951293492; ! removed aperture
+qdwx: quadrupole, l=0.039335, k1=-3.878951293492; ! removed aperture
+qf9x: quadrupole, l=0.099305, k1=3.841531467343; ! removed aperture
+qd10x: quadrupole, l=0.099245, k1=-5.877494598368; ! removed aperture
+qf11x: quadrupole, l=0.099245, k1=5.155581408635; ! removed aperture
+qd12x: quadrupole, l=0.099245, k1=-5.155581408635; ! removed aperture
+qf13x: quadrupole, l=0.0993725, k1=6.884394059347; ! removed aperture
+qd14x: quadrupole, l=0.0993725, k1=-5.109242848434; ! removed aperture
+qf15x: quadrupole, l=0.0993725, k1=6.884394059347; ! removed aperture
+qd16x: quadrupole, l=0.099245, k1=-5.155581408635; ! removed aperture
+qf17x: quadrupole, l=0.099245, k1=5.155581408635; ! removed aperture
+qd18x: quadrupole, l=0.099245, k1=-3.45645692786; ! removed aperture
+qf19x: quadrupole, l=0.099245, k1=3.300750873812; ! removed aperture
+qd20x: quadrupole, l=0.039335, k1=-3.865472613512; ! removed aperture
+qf21x: quadrupole, l=0.039335, k1=5.720096606076; ! removed aperture
+qs1x: quadrupole, l=0.039335, k1=0.0, tilt=0.785398163397; ! removed aperture
+qs2x: quadrupole, l=0.039335, k1=0.0, tilt=0.785398163397; ! removed aperture
+qk1x: quadrupole, l=0.039335, k1=0.0, tilt=0.785398163397; ! removed aperture
+qk2x: quadrupole, l=0.039335, k1=0.0, tilt=0.785398163397; ! removed aperture
+qk3x: quadrupole, l=0.039335, k1=0.0, tilt=0.785398163397; ! removed aperture
+qk4x: quadrupole, l=0.039335, k1=0.0, tilt=0.785398163397; ! removed aperture
+! removed multipolekex1mult: multipole, k1l=-0.01846929, t1=0.0, k2l=-3.824591, t2=0.0; ! removed aperture
+! removed multipolebh1xmult: multipole, k2l=-0.183983746289, t2=0.0; ! removed aperture
+! removed multipolebh2xmult: multipole, k2l=0.183983746289, t2=0.0; ! removed aperture
+! removed multipoleqd10xmult: multipole, k2l=-0.057540224135, t2=-0.272897948461, k3l=-6.966319642164, t3=0.451002509595; ! removed aperture
+! removed multipoleqf11xmult: multipole, k2l=0.029095357051, t2=0.225600259676, k3l=9.212898678558, t3=-0.122499622574; ! removed aperture
+! removed multipoleqd12xmult: multipole, k2l=-0.071285262106, t2=-0.171402807853, k3l=-5.009309309986, t3=-0.643546056014; ! removed aperture
+! removed multipoleqd16xmult: multipole, k2l=-0.019989754665, t2=0.231937741307, k3l=-2.427444304349, t3=0.603498650377; ! removed aperture
+! removed multipoleqf17xmult: multipole, k2l=0.594043850881e-2, t2=-0.674848646098, k3l=4.753578804672, t3=-0.092000951336; ! removed aperture
+! removed multipoleqd18xmult: multipole, k2l=-0.857590169514e-2, t2=-0.530866035046, k3l=-1.348131746476, t3=-0.567703028647; ! removed aperture
+! removed multipoleqf19xmult: multipole, k2l=0.216532376532e-2, t2=-0.485110162368, k3l=1.700254151153, t3=0.30600509311; ! removed aperture
 l001: drift, l=0.923139039214;
 l002: drift, l=1.546029682371;
 l003: drift, l=0.147830505778;
@@ -1004,67 +1004,67 @@ b1ffa: sbend, l=0.306436961215, angle=-0.02690209037, e1=-0.02690209037, hgap=0.
 b1ffb: sbend, l=0.306436961215, angle=-0.02690209037, e2=-0.02690209037, hgap=0.01905, fint=0.0, fintx=0.5;
 bdumpa: sbend, l=0.678439164133, angle=0.174532925199, e1=0.174532925199, hgap=0.016, fint=0.5, fintx=0.0;
 bdumpb: sbend, l=0.678439164133, angle=0.174532925199, e2=0.174532925199, hgap=0.016, fint=0.0, fintx=0.5;
-qm16ff: quadrupole, l=0.099245, k1=0.0, aperture=0.016;
-qm15ff: quadrupole, l=0.099245, k1=3.247555522031, aperture=0.016;
-qm14ff: quadrupole, l=0.099245, k1=-7.644963383455, aperture=0.016;
-qm13ff: quadrupole, l=0.099245, k1=4.650183659212, aperture=0.016;
-qm12ff: quadrupole, l=0.099245, k1=-1.172139100836, aperture=0.016;
-qm11ff: quadrupole, l=0.099245, k1=0.805999709774, aperture=0.016;
-qd10bff: quadrupole, l=0.099245, k1=-1.461128174991, aperture=0.016;
-qd10aff: quadrupole, l=0.099245, k1=-1.461128174991, aperture=0.016;
-qf9bff: quadrupole, l=0.099245, k1=1.907652615915, aperture=0.016;
-qf9aff: quadrupole, l=0.099245, k1=1.907652615915, aperture=0.016;
-qd8ff: quadrupole, l=0.099245, k1=-3.044764968558, aperture=0.016;
-qf7ff: quadrupole, l=0.099245, k1=2.771735789763, aperture=0.016;
-qd6ff: quadrupole, l=0.099245, k1=-3.034546888634, aperture=0.016;
-qf5bff: quadrupole, l=0.099245, k1=1.894587305708, aperture=0.016;
-qf5aff: quadrupole, l=0.099245, k1=1.894587305708, aperture=0.016;
-qd4bff: quadrupole, l=0.099245, k1=-1.495250509431, aperture=0.016;
-qd4aff: quadrupole, l=0.099245, k1=-1.495250509431, aperture=0.016;
-qf3ff: quadrupole, l=0.099245, k1=2.78462327415, aperture=0.016;
-qd2bff: quadrupole, l=0.099245, k1=-1.001123325704, aperture=0.016;
-qd2aff: quadrupole, l=0.099245, k1=-1.459660920908, aperture=0.016;
-qf1ff: quadrupole, l=0.22205, k1=1.663913281968, aperture=0.05;
-qd0ff: quadrupole, l=0.2375, k1=-2.868126019663, aperture=0.025;
-sf6ff: sextupole, l=0.050039016, k2=85.579046502253, tilt=0.0, aperture=0.020638;
-sf5ff: sextupole, l=0.050039016, k2=-7.902516359594, tilt=0.0, aperture=0.020638;
-sd4ff: sextupole, l=0.050039016, k2=1.489846047804e2, tilt=0.0, aperture=0.020638;
-sf1ff: sextupole, l=0.05, k2=-25.78005437993, tilt=0.0, aperture=0.02705;
-sd0ff: sextupole, l=0.05, k2=43.11874995178, tilt=0.0, aperture=0.02705;
-sk4ff: sextupole, l=0.115, k2=0.0, tilt=0.523598775598, aperture=0.08;
-sk3ff: sextupole, l=0.115, k2=0.0, tilt=0.523598775598, aperture=0.08;
-sk2ff: sextupole, l=0.115, k2=0.0, tilt=0.523598775598, aperture=0.08;
-sk1ff: sextupole, l=0.115, k2=0.0, tilt=0.523598775598, aperture=0.08;
-b5ffmult: multipole, k1l=-0.199583732856e-4, t1=0.0, k2l=-0.051173138721, t2=-0.011377693169, k3l=-0.673595098389, t3=-0.785398163397, k4l=-8.681892379236e2, t4=0.0, aperture=0.01905;
-b2ffmult: multipole, k1l=-0.15087937324e-4, t1=0.0, k2l=-0.49553940796e-2, t2=-0.288380768277, k3l=-0.22631905986, t3=0.0, k4l=-4.345325949312e2, t4=0.0, aperture=0.01905;
-b1ffmult: multipole, k1l=-0.309374039255e-4, t1=0.0, k2l=-0.048622132906, t2=-0.04625572479, k3l=-0.08070627111, t3=0.0, k4l=-1.097605287096e3, t4=0.0, aperture=0.01905;
-qm16ffmult: multipole, k2l=0.0, t2=0.367602013898, k3l=0.0, t3=0.663496967128, aperture=0.016;
-qm15ffmult: multipole, k2l=0.308766894577e-2, t2=-0.50722423299, k3l=0.934035971278, t3=-0.183896507664, aperture=0.016;
-qm14ffmult: multipole, k2l=-0.031763237904, t2=0.847767049206, k3l=-6.528975129356, t3=-0.122000746531, aperture=0.016;
-qm13ffmult: multipole, k2l=0.257982679788e-2, t2=-0.494231547108, k3l=6.276317087725, t3=-0.040266307998, aperture=0.016;
-qm12ffmult: multipole, k2l=-0.939507459008e-2, t2=-1.041419047919, k3l=-0.198573509222, t3=0.633761635946, aperture=0.016;
-qm11ffmult: multipole, k2l=0.118635306439e-2, t2=-0.429294726669, k3l=0.375703801012, t3=-0.76397502052, aperture=0.016;
-qd10bffmult: multipole, k2l=-0.30602839855e-2, t2=0.882813608023, k3l=-1.407797337777, t3=0.707752872197, aperture=0.016;
-qd10affmult: multipole, k2l=-0.587405153927e-2, t2=0.856106009392, k3l=-0.622352483367, t3=0.020293342601, aperture=0.016;
-qf9bffmult: multipole, k2l=0.03016325643, t2=-0.978900204396, k3l=0.488458458376, t3=0.593571155462, aperture=0.016;
-qf9affmult: multipole, k2l=0.025221874351, t2=-0.297225583005, k3l=2.578833470242, t3=-0.756537217861, aperture=0.016;
-qd8ffmult: multipole, k2l=-0.021408383463, t2=-0.636230716954, k3l=-6.229332835622, t3=-0.0402518337, aperture=0.016;
-qf7ffmult: multipole, k2l=0.044824435662, t2=-0.039899822692, k3l=4.720636133514, t3=0.71299987685, aperture=0.016;
-qd6ffmult: multipole, k2l=-0.047433267939, t2=-0.862729249032, k3l=-9.146941040293, t3=0.849643077763e-2, aperture=0.016;
-qf5bffmult: multipole, k2l=0.017728437911, t2=-0.850566206643, k3l=3.762728668747, t3=-0.011997744741, aperture=0.016;
-qf5affmult: multipole, k2l=0.748540730594e-2, t2=-0.329232792273, k3l=1.246966193709, t3=-0.512545994012, aperture=0.016;
-qd4bffmult: multipole, k2l=-0.035674431289, t2=0.067099686355, k3l=-1.413206090055, t3=0.127503616355, aperture=0.016;
-qd4affmult: multipole, k2l=-0.033902581415, t2=0.285269374232, k3l=-0.191431016483, t3=-0.11175428143, aperture=0.016;
-qf3ffmult: multipole, k2l=0.044256280286, t2=0.657438798637, k3l=3.770240438381, t3=-0.044991894059, aperture=0.016;
-qd2bffmult: multipole, k2l=-0.014968054384, t2=-0.657198061092e-2, k3l=-1.488201166828, t3=-0.692547783836, aperture=0.016;
-qd2affmult: multipole, k2l=-0.997852536091e-2, t2=-0.450563208782, k3l=-3.237581097291, t3=0.973433414675e-2, aperture=0.016;
-qf1ffmult: multipole, k2l=0.118809245756e-2, t2=-0.335626815159, k3l=0.068594313812, t3=0.743161195499, k4l=1.640400011727, t4=-0.35482543693, k5l=1.983925788702e3, t5=-0.401425727959e-2, k6l=1.04042837664e4, t6=-0.091507612682, k7l=1.49945801099e6, t7=-0.38938295612, k8l=9.579539255619e8, t8=0.107163216072, k9l=5.022275089453e11, t9=-0.302814625221, aperture=0.05;
-qd0ffmult: multipole, k2l=-0.017362833606, t2=-0.25411993909, k3l=-1.071399826551, t3=-0.641757565958, k4l=-5.858377849241e2, t4=-0.541052068118, k5l=-1.472601565775e6, t5=-0.513475865937, k6l=-1.374315252589e7, t6=-0.126137438369, k7l=-4.355582095953e8, t7=-0.364424747816, k8l=-5.137097969169e12, t8=0.012391837689, k9l=-3.354260438923e16, t9=0.10471975512e-2, aperture=0.025;
-sf6ffmult: multipole, k3l=0.910820887947, t3=0.552047642406, k4l=80.255176524296, t4=0.272794962087, k5l=1.607867616747e4, t5=0.190240888467, k6l=3.618488472566e6, t6=-0.207694180987, k7l=5.577544822609e8, t7=-0.013613568166, k8l=8.245593383605e12, t8=0.523598775598e-3, k9l=1.749355500912e14, t9=-0.293564380185, aperture=0.020638;
-sf5ffmult: multipole, k3l=-0.094435660678, t3=0.049392817831, k4l=-10.79174071102, t4=-0.58206730554, k5l=-6.750332919046e2, t5=-0.367042741694, k6l=-3.324629386264e5, t6=0.349739048825, k7l=-7.717114586966e7, t7=0.083601271171, k8l=-7.624939238902e11, t8=-0.383972435439e-2, k9l=-9.827724392573e12, t9=-0.217642557724, aperture=0.020638;
-sd4ffmult: multipole, k3l=1.536794889731, t3=0.544019127847, k4l=34.207651702012, t4=0.370358867273, k5l=1.139831327616e4, t5=0.05707226654, k6l=1.716865640607e6, t6=0.32373364297, k7l=1.547386705252e9, t7=0.347669586997, k8l=1.382417942629e13, t8=0.191986217719e-2, k9l=3.168368378647e14, t9=-0.024085543678, aperture=0.020638;
-sf1ffmult: multipole, k3l=-0.185616391535, t3=0.439822971503, k4l=-64.192335406026, t4=-0.628318530718, k5l=-6.573913866882e3, t5=0.270526034059, k6l=-3.248286851871e6, t6=-0.845986021717, k7l=-1.624143425936e9, t7=-4.19664418642, k8l=-6.106779281518e12, t8=-3.380702761113, k9l=-1.169383266674e13, t9=-1.082104136236, aperture=0.02705;
-sd0ffmult: multipole, k3l=0.307221093406, t3=-0.076794487088, k4l=78.907312411757, t4=-0.628318530718, k5l=5.82103124349e3, t5=-0.239110107523, k6l=1.552274998264e6, t6=-0.566733341398, k7l=2.988129371658e9, t7=0.344702527269, k8l=9.996650988821e12, t8=0.286233997327, k9l=7.823465991251e13, t9=-0.251327412287, aperture=0.02705;
+qm16ff: quadrupole, l=0.099245, k1=0.0; ! removed aperture
+qm15ff: quadrupole, l=0.099245, k1=3.247555522031; ! removed aperture
+qm14ff: quadrupole, l=0.099245, k1=-7.644963383455; ! removed aperture
+qm13ff: quadrupole, l=0.099245, k1=4.650183659212; ! removed aperture
+qm12ff: quadrupole, l=0.099245, k1=-1.172139100836; ! removed aperture
+qm11ff: quadrupole, l=0.099245, k1=0.805999709774; ! removed aperture
+qd10bff: quadrupole, l=0.099245, k1=-1.461128174991; ! removed aperture
+qd10aff: quadrupole, l=0.099245, k1=-1.461128174991; ! removed aperture
+qf9bff: quadrupole, l=0.099245, k1=1.907652615915; ! removed aperture
+qf9aff: quadrupole, l=0.099245, k1=1.907652615915; ! removed aperture
+qd8ff: quadrupole, l=0.099245, k1=-3.044764968558; ! removed aperture
+qf7ff: quadrupole, l=0.099245, k1=2.771735789763; ! removed aperture
+qd6ff: quadrupole, l=0.099245, k1=-3.034546888634; ! removed aperture
+qf5bff: quadrupole, l=0.099245, k1=1.894587305708; ! removed aperture
+qf5aff: quadrupole, l=0.099245, k1=1.894587305708; ! removed aperture
+qd4bff: quadrupole, l=0.099245, k1=-1.495250509431; ! removed aperture
+qd4aff: quadrupole, l=0.099245, k1=-1.495250509431; ! removed aperture
+qf3ff: quadrupole, l=0.099245, k1=2.78462327415; ! removed aperture
+qd2bff: quadrupole, l=0.099245, k1=-1.001123325704; ! removed aperture
+qd2aff: quadrupole, l=0.099245, k1=-1.459660920908; ! removed aperture
+qf1ff: quadrupole, l=0.22205, k1=1.663913281968; ! removed aperture
+qd0ff: quadrupole, l=0.2375, k1=-2.868126019663; ! removed aperture
+sf6ff: sextupole, l=0.050039016, k2=85.579046502253, tilt=0.0; ! removed aperture
+sf5ff: sextupole, l=0.050039016, k2=-7.902516359594, tilt=0.0; ! removed aperture
+sd4ff: sextupole, l=0.050039016, k2=1.489846047804e2, tilt=0.0; ! removed aperture
+sf1ff: sextupole, l=0.05, k2=-25.78005437993, tilt=0.0; ! removed aperture
+sd0ff: sextupole, l=0.05, k2=43.11874995178, tilt=0.0; ! removed aperture
+sk4ff: sextupole, l=0.115, k2=0.0, tilt=0.523598775598; ! removed aperture
+sk3ff: sextupole, l=0.115, k2=0.0, tilt=0.523598775598; ! removed aperture
+sk2ff: sextupole, l=0.115, k2=0.0, tilt=0.523598775598; ! removed aperture
+sk1ff: sextupole, l=0.115, k2=0.0, tilt=0.523598775598; ! removed aperture
+! removed multipoleb5ffmult: multipole, k1l=-0.199583732856e-4, t1=0.0, k2l=-0.051173138721, t2=-0.011377693169, k3l=-0.673595098389, t3=-0.785398163397, k4l=-8.681892379236e2, t4=0.0; ! removed aperture
+! removed multipoleb2ffmult: multipole, k1l=-0.15087937324e-4, t1=0.0, k2l=-0.49553940796e-2, t2=-0.288380768277, k3l=-0.22631905986, t3=0.0, k4l=-4.345325949312e2, t4=0.0; ! removed aperture
+! removed multipoleb1ffmult: multipole, k1l=-0.309374039255e-4, t1=0.0, k2l=-0.048622132906, t2=-0.04625572479, k3l=-0.08070627111, t3=0.0, k4l=-1.097605287096e3, t4=0.0; ! removed aperture
+! removed multipoleqm16ffmult: multipole, k2l=0.0, t2=0.367602013898, k3l=0.0, t3=0.663496967128; ! removed aperture
+! removed multipoleqm15ffmult: multipole, k2l=0.308766894577e-2, t2=-0.50722423299, k3l=0.934035971278, t3=-0.183896507664; ! removed aperture
+! removed multipoleqm14ffmult: multipole, k2l=-0.031763237904, t2=0.847767049206, k3l=-6.528975129356, t3=-0.122000746531; ! removed aperture
+! removed multipoleqm13ffmult: multipole, k2l=0.257982679788e-2, t2=-0.494231547108, k3l=6.276317087725, t3=-0.040266307998; ! removed aperture
+! removed multipoleqm12ffmult: multipole, k2l=-0.939507459008e-2, t2=-1.041419047919, k3l=-0.198573509222, t3=0.633761635946; ! removed aperture
+! removed multipoleqm11ffmult: multipole, k2l=0.118635306439e-2, t2=-0.429294726669, k3l=0.375703801012, t3=-0.76397502052; ! removed aperture
+! removed multipoleqd10bffmult: multipole, k2l=-0.30602839855e-2, t2=0.882813608023, k3l=-1.407797337777, t3=0.707752872197; ! removed aperture
+! removed multipoleqd10affmult: multipole, k2l=-0.587405153927e-2, t2=0.856106009392, k3l=-0.622352483367, t3=0.020293342601; ! removed aperture
+! removed multipoleqf9bffmult: multipole, k2l=0.03016325643, t2=-0.978900204396, k3l=0.488458458376, t3=0.593571155462; ! removed aperture
+! removed multipoleqf9affmult: multipole, k2l=0.025221874351, t2=-0.297225583005, k3l=2.578833470242, t3=-0.756537217861; ! removed aperture
+! removed multipoleqd8ffmult: multipole, k2l=-0.021408383463, t2=-0.636230716954, k3l=-6.229332835622, t3=-0.0402518337; ! removed aperture
+! removed multipoleqf7ffmult: multipole, k2l=0.044824435662, t2=-0.039899822692, k3l=4.720636133514, t3=0.71299987685; ! removed aperture
+! removed multipoleqd6ffmult: multipole, k2l=-0.047433267939, t2=-0.862729249032, k3l=-9.146941040293, t3=0.849643077763e-2; ! removed aperture
+! removed multipoleqf5bffmult: multipole, k2l=0.017728437911, t2=-0.850566206643, k3l=3.762728668747, t3=-0.011997744741; ! removed aperture
+! removed multipoleqf5affmult: multipole, k2l=0.748540730594e-2, t2=-0.329232792273, k3l=1.246966193709, t3=-0.512545994012; ! removed aperture
+! removed multipoleqd4bffmult: multipole, k2l=-0.035674431289, t2=0.067099686355, k3l=-1.413206090055, t3=0.127503616355; ! removed aperture
+! removed multipoleqd4affmult: multipole, k2l=-0.033902581415, t2=0.285269374232, k3l=-0.191431016483, t3=-0.11175428143; ! removed aperture
+! removed multipoleqf3ffmult: multipole, k2l=0.044256280286, t2=0.657438798637, k3l=3.770240438381, t3=-0.044991894059; ! removed aperture
+! removed multipoleqd2bffmult: multipole, k2l=-0.014968054384, t2=-0.657198061092e-2, k3l=-1.488201166828, t3=-0.692547783836; ! removed aperture
+! removed multipoleqd2affmult: multipole, k2l=-0.997852536091e-2, t2=-0.450563208782, k3l=-3.237581097291, t3=0.973433414675e-2; ! removed aperture
+! removed multipoleqf1ffmult: multipole, k2l=0.118809245756e-2, t2=-0.335626815159, k3l=0.068594313812, t3=0.743161195499, k4l=1.640400011727, t4=-0.35482543693, k5l=1.983925788702e3, t5=-0.401425727959e-2, k6l=1.04042837664e4, t6=-0.091507612682, k7l=1.49945801099e6, t7=-0.38938295612, k8l=9.579539255619e8, t8=0.107163216072, k9l=5.022275089453e11, t9=-0.302814625221; ! removed aperture
+! removed multipoleqd0ffmult: multipole, k2l=-0.017362833606, t2=-0.25411993909, k3l=-1.071399826551, t3=-0.641757565958, k4l=-5.858377849241e2, t4=-0.541052068118, k5l=-1.472601565775e6, t5=-0.513475865937, k6l=-1.374315252589e7, t6=-0.126137438369, k7l=-4.355582095953e8, t7=-0.364424747816, k8l=-5.137097969169e12, t8=0.012391837689, k9l=-3.354260438923e16, t9=0.10471975512e-2; ! removed aperture
+! removed multipolesf6ffmult: multipole, k3l=0.910820887947, t3=0.552047642406, k4l=80.255176524296, t4=0.272794962087, k5l=1.607867616747e4, t5=0.190240888467, k6l=3.618488472566e6, t6=-0.207694180987, k7l=5.577544822609e8, t7=-0.013613568166, k8l=8.245593383605e12, t8=0.523598775598e-3, k9l=1.749355500912e14, t9=-0.293564380185; ! removed aperture
+! removed multipolesf5ffmult: multipole, k3l=-0.094435660678, t3=0.049392817831, k4l=-10.79174071102, t4=-0.58206730554, k5l=-6.750332919046e2, t5=-0.367042741694, k6l=-3.324629386264e5, t6=0.349739048825, k7l=-7.717114586966e7, t7=0.083601271171, k8l=-7.624939238902e11, t8=-0.383972435439e-2, k9l=-9.827724392573e12, t9=-0.217642557724; ! removed aperture
+! removed multipolesd4ffmult: multipole, k3l=1.536794889731, t3=0.544019127847, k4l=34.207651702012, t4=0.370358867273, k5l=1.139831327616e4, t5=0.05707226654, k6l=1.716865640607e6, t6=0.32373364297, k7l=1.547386705252e9, t7=0.347669586997, k8l=1.382417942629e13, t8=0.191986217719e-2, k9l=3.168368378647e14, t9=-0.024085543678; ! removed aperture
+! removed multipolesf1ffmult: multipole, k3l=-0.185616391535, t3=0.439822971503, k4l=-64.192335406026, t4=-0.628318530718, k5l=-6.573913866882e3, t5=0.270526034059, k6l=-3.248286851871e6, t6=-0.845986021717, k7l=-1.624143425936e9, t7=-4.19664418642, k8l=-6.106779281518e12, t8=-3.380702761113, k9l=-1.169383266674e13, t9=-1.082104136236; ! removed aperture
+! removed multipolesd0ffmult: multipole, k3l=0.307221093406, t3=-0.076794487088, k4l=78.907312411757, t4=-0.628318530718, k5l=5.82103124349e3, t5=-0.239110107523, k6l=1.552274998264e6, t6=-0.566733341398, k7l=2.988129371658e9, t7=0.344702527269, k8l=9.996650988821e12, t8=0.286233997327, k9l=7.823465991251e13, t9=-0.251327412287; ! removed aperture
 l200: drift, l=0.019755;
 l201: drift, l=1.30151;
 l202: drift, l=1.30151;
