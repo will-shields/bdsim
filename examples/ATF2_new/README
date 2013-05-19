@@ -1,0 +1,2 @@
+1) Run mad8 and run saveline command 
+2) ../../util/mad2gmad.py -i SAVELINE -o FILENAME.gmad

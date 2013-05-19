@@ -49,7 +49,7 @@ def main() :
                 lta = lta+l[0:-1] 
                 ba  = False 
             elif len(lta) != 0 : 
-                lta = lta+l[0:-1]
+                lta = lta+l[0:]
                 ba  = True
             else :                
                 lta = l
