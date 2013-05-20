@@ -5,7 +5,7 @@
 
 # Invoke the OGLSX driver 
 #  Create a scene handler and a viewer for the OGLSX driver
-/vis/open OGLIX
+/vis/open OGLSX
 #/vis/open DAWNFILE
 
 # Create an empty scene 
@@ -20,7 +20,9 @@
 
 /vis/viewer/set/background white
 /vis/viewer/set/viewpointThetaPhi 90 89.999
-/vis/viewer/scaleTo 1 200 1
+/vis/viewer/pan -20 0 m
+
+# /vis/viewer/scaleTo 1 200 1
 
 /tracking/storeTrajectory 1
 
