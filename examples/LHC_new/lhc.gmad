@@ -1,4 +1,4 @@
-include ATF2lat_BX10BY1m.gmad;
+include XXXXXX.gmad;
 include options.gmad
 
 beam,  particle="e-",
