@@ -19,8 +19,9 @@
 /vis/sceneHandler/attach
 
 /vis/viewer/set/background white
-/vis/viewer/set/viewpointThetaPhi 90 89.999
+/vis/viewer/set/viewpointThetaPhi 45 45 
 /vis/viewer/pan -20 0 m
+/vis/viewer/zoom 10
 
 # /vis/viewer/scaleTo 1 200 1
 
