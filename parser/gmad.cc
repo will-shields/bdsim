@@ -167,7 +167,7 @@ int gmad_parser(FILE *f)
   fclose(f);
 
   return 0;
-};
+}
 
 int gmad_parser(string name)
 {
@@ -184,4 +184,4 @@ int gmad_parser(string name)
   gmad_parser(f);
 
   return 0;
-};
+}

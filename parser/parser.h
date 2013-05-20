@@ -110,7 +110,7 @@ const char *typestr(int type) {
   default:
     return "none";
   }
-};
+}
 struct Parameters params;
 struct Options options;
 struct Element element;
@@ -122,7 +122,7 @@ void print(struct Parameters pars)
   for(it = pars.knl.begin();it!=pars.knl.end();++it)
     printf(" %f ", (*it));
   printf("\n");
-};
+}
 
 void flush(struct Element& e )
 {
@@ -187,7 +187,7 @@ void flush(struct Element& e )
   e.tunnelCavityMaterial="Air";
   e.tunnelRadius=0;
   e.tunnelOffsetX=1e6;
-};
+}
 
 void copy_properties(std::list<struct Element>::iterator dest, std::list<struct Element>::iterator src)
 {
@@ -266,7 +266,7 @@ void copy_properties(std::list<struct Element>::iterator dest, std::list<struct 
   (*dest).spec = (*src).spec;
 
   return;
-}; 
+} 
 
 void inherit_properties(struct Element e)
 {
@@ -341,7 +341,7 @@ void inherit_properties(struct Element e)
 
 
 
-};
+}
 
 void set_vector(std::list<double>& dst, struct Array *src)
 {
@@ -355,7 +355,7 @@ void set_vector(std::list<double>& dst, struct Array *src)
   std::cout << std::endl;
 #endif
   
-};
+}
 
 
 void set_vector(std::list<char*>& dst, struct Array *src)
@@ -369,7 +369,7 @@ void set_vector(std::list<char*>& dst, struct Array *src)
 #ifdef DEBUG 
   std::cout << std::endl;
 #endif
-};
+}
 
 void set_vector(std::list<const char*>& dst, struct Array *src)
 {
@@ -382,7 +382,7 @@ void set_vector(std::list<const char*>& dst, struct Array *src)
 #ifdef DEBUG 
   std::cout << std::endl;
 #endif
-};
+}
 
 void set_vector(std::list<std::string>& dst, struct Array *src)
 {
@@ -395,7 +395,7 @@ void set_vector(std::list<std::string>& dst, struct Array *src)
 #ifdef DEBUG 
   std::cout << std::endl;
 #endif
-};
+}
 
 
 void set_vector(std::list<int>& dst, struct Array *src)
@@ -409,7 +409,7 @@ void set_vector(std::list<int>& dst, struct Array *src)
 #ifdef DEBUG 
   std::cout << std::endl;
 #endif
-};
+}
 
 
 // list of all encountered elements
