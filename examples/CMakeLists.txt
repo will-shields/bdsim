@@ -1,3 +1,4 @@
+add_subdirectory(Components)
 add_subdirectory(ATF2)
 add_subdirectory(ATF2_new)
 add_subdirectory(ggmad)
