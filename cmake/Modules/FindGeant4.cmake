@@ -6,7 +6,7 @@
 # Once done this will define
 #
 #  Geant4_FOUND - system has Geant4
-#  Geant4_INCLUDE_DIR - the Geant4 include directory
+#  Geant4_INCLUDE_DIRS - the Geant4 include directory
 #  Geant4_LIBRARIES - The libraries needed to use Geant4
 #  Geant4_VERSION - The version of Geant4
 #
@@ -17,29 +17,29 @@ message(STATUS "Looking for Geant4...")
 
 if (Geant4_PREFIX)
    if(EXISTS "${Geant4_PREFIX}/include/geant4")
-      set(Geant4_INCLUDE_DIR ${Geant4_PREFIX}/include/geant4)
+      set(Geant4_INCLUDE_DIRS ${Geant4_PREFIX}/include/geant4)
    elseif(EXISTS "${Geant4_PREFIX}/include")
-      set(Geant4_INCLUDE_DIR ${Geant4_PREFIX}/include)
+      set(Geant4_INCLUDE_DIRS ${Geant4_PREFIX}/include)
    endif()
    if(EXISTS "${Geant4_PREFIX}/lib")
       set(Geant4_LIBRARY_DIR ${Geant4_PREFIX}/lib)
    endif()
 endif()
 
-if (NOT Geant4_INCLUDE_DIR)
-  FIND_PATH(Geant4_INCLUDE_DIR NAMES geant4)
-endif (NOT Geant4_INCLUDE_DIR)
+if (NOT Geant4_INCLUDE_DIRS)
+  FIND_PATH(Geant4_INCLUDE_DIRS NAMES geant4)
+endif (NOT Geant4_INCLUDE_DIRS)
 
-if (NOT Geant4_INCLUDE_DIR)
-   message(STATUS "Geant4 include directory not found, trying default, please provide it with -DGeant4_INCLUDE_DIR=")
+if (NOT Geant4_INCLUDE_DIRS)
+   message(STATUS "Geant4 include directory not found, trying default, please provide it with -DGeant4_INCLUDE_DIRS=")
    if (APPLE)
-       set(Geant4_INCLUDE_DIR /usr/local/include/geant4)
+       set(Geant4_INCLUDE_DIRS /usr/local/include/geant4)
    else()
-       set(Geant4_INCLUDE_DIR /usr/include/geant4)
+       set(Geant4_INCLUDE_DIRS /usr/include/geant4)
    endif()
 else()
-   if(EXISTS "${Geant4_INCLUDE_DIR}/geant4")
-       set(Geant4_INCLUDE_DIR ${Geant4_INCLUDE_DIR}/geant4)
+   if(EXISTS "${Geant4_INCLUDE_DIRS}/geant4")
+       set(Geant4_INCLUDE_DIRS ${Geant4_INCLUDE_DIRS}/geant4)
    endif()
 endif()
 
@@ -86,12 +86,12 @@ if (NOT Geant4_LIBRARIES)
     endif()
 endif(NOT Geant4_LIBRARIES)
 
-if (Geant4_INCLUDE_DIR AND Geant4_LIBRARIES)
+if (Geant4_INCLUDE_DIRS AND Geant4_LIBRARIES)
     set(Geant4_FOUND TRUE)
-endif (Geant4_INCLUDE_DIR AND Geant4_LIBRARIES)
+endif (Geant4_INCLUDE_DIRS AND Geant4_LIBRARIES)
 
 if($ENV{VERBOSE})
-    message(STATUS "Geant4_INCLUDE_DIR: ${Geant4_INCLUDE_DIR}")
+    message(STATUS "Geant4_INCLUDE_DIRS: ${Geant4_INCLUDE_DIRS}")
     message(STATUS "Geant4_LIBRARY_DIR: ${Geant4_LIBRARY_DIR}")
     message(STATUS "Geant4_LIBRARIES: ${Geant4_LIBRARIES}")
 endif()
