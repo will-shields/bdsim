@@ -8,9 +8,11 @@ option, beampipeRadius = 10 * cm,
         deltaIntersection = 0.00000001 * m,
         deltaChord = 0.001 * m,
         lengthSafety = 0.00001 * m,
-        thresholdCutCharged = 100 * MeV,
-        thresholdCutPhotons = 1000 * KeV;
+!        thresholdCutCharged = 100 * MeV,
+!        thresholdCutPhotons = 1000 * KeV;
+        samplerDiameter = 4.0*m,
+        stopTracks = 1;	 
 
-
-option,physicsList="standard";
-option,ngenerate=10;
+! option,physicsList="standard";
+option,physicsList="em_standard";
+option,ngenerate=1;
