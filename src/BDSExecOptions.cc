@@ -81,6 +81,8 @@ void BDSExecOptions::Parse(int argc, char **argv) {
     switch (c) {
     case 0:
       if( !strcmp(LongOptions[OptionIndex].name , "help") ) {
+	Usage();
+	exit(0);
       }
       if( !strcmp(LongOptions[OptionIndex].name , "batch") ) {
 	batch = true;

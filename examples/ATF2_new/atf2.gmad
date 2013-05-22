@@ -13,7 +13,7 @@ beam,  particle="e-",
 all  : line = (atfdr, ext, ff, post);
 atf2 : line = (iex,ext,ff,post);
 
-use ,period=all;
+use ,period=atf2;
 
 sample, range = iex;
 sample, range = qm16ff;

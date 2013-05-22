@@ -23,5 +23,11 @@
 /vis/viewer/pan -20 0 m
 /vis/viewer/zoom 10
 
+# /vis/viewer/scaleTo 1 200 1
+
 /tracking/storeTrajectory 1
 
+#
+# for BDS:
+#/vis/viewer/zoom 300
+#/vis/viewer/set/viewpointThetaPhi 3 45
