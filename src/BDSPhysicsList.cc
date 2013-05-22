@@ -192,7 +192,7 @@
 #include "G4ShortLivedConstructor.hh"
 
 
-
+#define DEBUG 1
 
 BDSPhysicsList::BDSPhysicsList():  G4VUserPhysicsList()
 {
@@ -211,8 +211,7 @@ BDSPhysicsList::BDSPhysicsList():  G4VUserPhysicsList()
   G4cout  << __METHOD_NAME__ << "Default range cut=" 
 	  << BDSGlobalConstants::Instance()->GetDefaultRangeCut()/m<<" m"<<G4endl;
 
-  SetVerboseLevel(1);
-   
+  SetVerboseLevel(1);   
 }
 
 BDSPhysicsList::~BDSPhysicsList()
@@ -221,6 +220,10 @@ BDSPhysicsList::~BDSPhysicsList()
 
 void BDSPhysicsList::ConstructProcess()
 { 
+#if DEBUG
+  G4cout << __METHOD_NAME__ << G4endl;
+#endif 
+
   bool plistFound=false;
   //standard physics lists
   if(BDSGlobalConstants::Instance()->GetPhysListName() == "QGSP_BERT_HP"){
