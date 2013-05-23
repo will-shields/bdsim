@@ -16,6 +16,7 @@
 //
 
 #include "BDSGlobalConstants.hh" 
+#include "BDSDebug.hh"
 
 #include "BDSQuadrupole.hh"
 #include "G4Box.hh"
@@ -33,6 +34,7 @@
 
 #include <map>
 
+#define DEBUG 1 
 
 //============================================================
 
@@ -57,12 +59,12 @@ BDSQuadrupole::BDSQuadrupole(G4String aName, G4double aLength,
   itsStepper(NULL),itsMagField(NULL),itsEqRhs(NULL)
 {
 #ifdef DEBUG 
-  G4cout<<"BDSQUADRUPOLE : SPEC : "<<spec<<G4endl;
+  G4cout<< __METHOD_NAME__ << "spec=" << spec << G4endl;
 #endif
   // get specific quadrupole type
   G4String qtype = getParameterValueString(spec, "type");
 #ifdef DEBUG 
-  G4cout<<"qtype : "<<qtype<<G4endl;
+  G4cout<< __METHOD_NAME__ << "qtype="<<qtype<<G4endl;
 #endif
 
   SetOuterRadius(outR);
