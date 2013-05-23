@@ -12,8 +12,8 @@
 // SPM: Altered BeamOn function to account for Placet synchronisation
 //
 
-#include "BDSExecOptions.hh"
 #include "BDSGlobalConstants.hh"
+#include "BDSExecOptions.hh"
 #include "G4Timer.hh"
 
 #include "BDSRunManager.hh"
@@ -40,6 +40,13 @@ BDSRunManager::~BDSRunManager(){
 
 void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
 {
+  // Print seed to try and recreate an event in a run
+  G4cout << __METHOD_NAME__ << "> Random number generator's seed=" 
+         << CLHEP::HepRandom::getTheSeed() << G4endl;
+  // Print generator full state to output 
+  G4cout << __METHOD_NAME__ << "Random number generator's state: " << G4endl;
+  CLHEP::HepRandom::saveFullState(G4cout);
+
   G4bool cond = ConfirmBeamOnCondition();
   G4StackManager* SM;
   SM = G4EventManager::GetEventManager()->GetStackManager();
@@ -91,7 +98,11 @@ void BDSRunManager::BeamOn(G4int n_event,const char* macroFile,G4int n_select)
 
 void BDSRunManager::DoEventLoop(G4int n_event,const char* macroFile,G4int n_select)
 {
-  //G4StateManager* stateManager = G4StateManager::GetStateManager();
+  // Print seed to try and recreate an event in a run 
+  G4cout << __METHOD_NAME__ << "Random number generator's seed=" 
+         << CLHEP::HepRandom::getTheSeed() << G4endl;
+
+ //G4StateManager* stateManager = G4StateManager::GetStateManager();
 
   if(verboseLevel>0) 
   { timer->Start(); }
@@ -109,7 +120,15 @@ void BDSRunManager::DoEventLoop(G4int n_event,const char* macroFile,G4int n_sele
   G4int i_event;
   for( i_event=0; i_event<n_event; i_event++ )
   {
+    G4cout << __METHOD_NAME__ << "event="<<i_event<<G4endl;
 
+    // Print seed to try and recreate an event in a run
+    G4cout << __METHOD_NAME__ << "Random number generator's seed=" 
+	   << CLHEP::HepRandom::getTheSeed() << G4endl;
+    // Print generator full state to output 
+    G4cout << __METHOD_NAME__ << "Random number generator's state: " << G4endl;
+    CLHEP::HepRandom::saveFullState(G4cout);
+    G4cout.flush();
 
     //    stateManager->SetNewState(EventProc);
 

@@ -155,6 +155,10 @@ int main(int argc,char** argv) {
   // set the seed
   CLHEP::HepRandom::setTheSeed(seed);
 
+  // Print generator full state to output 
+  G4cout << __FUNCTION__ << "Random number generator's state: " << G4endl;
+  CLHEP::HepRandom::saveFullState(G4cout);
+
 #ifdef DEBUG
   G4cout << __FUNCTION__ << "> Seed from BDSGlobalConstants=" 
 	 << BDSGlobalConstants::Instance()->GetRandomSeed() << G4endl;
