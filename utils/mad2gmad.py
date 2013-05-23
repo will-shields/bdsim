@@ -13,7 +13,12 @@ def main() :
     parser.add_option("-o","--output",dest="outputFilename",
                       action="store_true",
                       default=False)
-
+    parser.add_option("-m","--removeMultipole",dest="removeMultipole",
+                      action="store_true",
+                      default=False)
+    parser.add_option("-a","--removeAperture",dest="removeAperture",
+                      action="store_true",
+                      default=False)
     
     (options, args) = parser.parse_args()
 
@@ -27,7 +32,6 @@ def main() :
 
     i = open(iFilename,'r')
     o = open(oFilename,'w')
-
 
     # line for analysis 
     lta = str()
@@ -106,11 +110,13 @@ def main() :
                 
             # remove aperture parameters
             iap = lta.find('aperture')
-            if iap != -1 : 
+            if options.removeAperture and (iap != -1) : 
                 lta = lta[0:iap-2]+'; ! removed aperture'
         
             # remove multipoles 
-            if lta.find('multipole') != -1 : 
+            
+                
+            if options.removeMultipole and (lta.find('multipole') != -1) : 
                 lta = '! removed multipole'+lta
             o.write(lta+'\n')
             # clean up
