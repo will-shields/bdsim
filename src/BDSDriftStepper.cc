@@ -50,7 +50,7 @@ void BDSDriftStepper::AdvanceHelix( const G4double  yIn[],
       G4int verboseEventNumber = BDSExecOptions::Instance()->GetVerboseEventNumber();
       if(verboseStep && verboseEventNumber == event_number)
 	{
-	  int precision = G4cout.precision();
+	  int G4precision = G4cout.precision();
 	  G4cout.precision(10);
 	  G4cout<<" h="<<h/m<<G4endl;
 	  G4cout<<"xIn="<<yIn[0]/m<<" yIn="<<yIn[1]/m<<
@@ -58,7 +58,7 @@ void BDSDriftStepper::AdvanceHelix( const G4double  yIn[],
 	  G4cout<<"xOut="<<yDrift[0]/m<<" yOut="<<yDrift[1]/m<<
 	    "zOut="<<yDrift[2]/m<<G4endl;
 	  // set precision back
-	  G4cout.precision(precision);
+	  G4cout.precision(G4precision);
 	}
 }
 
