@@ -385,6 +385,7 @@ void BDSConvParticleChange::DumpInfo() const
 // use base-class DumpInfo
   G4VParticleChange::DumpInfo();
 
+  int G4precision = G4cout.precision();
   G4cout.precision(3);
 
   G4cout << "        Mass (GeV)   : " 
@@ -432,6 +433,8 @@ void BDSConvParticleChange::DumpInfo() const
   G4cout << "        Track Weight      : " 
          << std::setw(20) <<  theWeightChange
          << G4endl;	
+  // set precision back
+  G4cout.precision(G4precision);
 }
 
 G4bool BDSConvParticleChange::CheckIt(const G4Track& aTrack)

@@ -200,7 +200,8 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
   if((verboseStep || verboseEventNumber == event_number) && (!BDSGlobalConstants::Instance()->GetSynchRescale()) )
     {
 	int ID=ThisStep->GetTrack()->GetTrackID();
-
+	
+	int G4precision = G4cout.precision();
 	G4cout.precision(10);
 	G4cout<<"This volume="<< ThisStep->GetTrack()->GetVolume()->GetName()<<G4endl;
 	
@@ -233,6 +234,9 @@ void BDSSteppingAction::UserSteppingAction(const G4Step* ThisStep)
 	    GetProcessDefinedStep() );
 
        	  if(proc)G4cout<<" pre-step process="<<proc->GetProcessName()<<G4endl<<G4endl;
+
+	  // set precision back
+	  G4cout.precision(G4precision);
     }
 
 
