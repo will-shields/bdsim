@@ -405,13 +405,22 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
 	 << " l= " << itsLength/(2.)/m << " m"
 	 << G4endl;
 #endif
-  
+
+#ifdef DEBUG 
+  double dZhl = itsLength/2-BDSGlobalConstants::Instance()->GetLengthSafety();
+  if (dZhl< 0) {
+    G4cout << __METHOD_NAME__ << "negative G4Cons Z half-length" << G4cout;    
+    dZhl = 0.0;
+  } 
+#endif  
       itsInnerBeampipeSolid=new G4Cons(itsName+"_inner_bmp_solid",
 				       0.,
 				       startAper-BDSGlobalConstants::Instance()->GetBeampipeThickness(),
 				       0.,
 				       endAper-BDSGlobalConstants::Instance()->GetBeampipeThickness(),
-				       itsLength/2-BDSGlobalConstants::Instance()->GetLengthSafety(),
+				       //				       itsLength/2-BDSGlobalConstants::Instance()->GetLengthSafety(),
+				       dZhl,
+
 				       0,twopi*radian);
       
     itsBeampipeLogicalVolume=	
@@ -456,7 +465,6 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
       
       itsBeampipeLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
       itsInnerBPLogicalVolume->SetUserLimits(itsBeampipeUserLimits);
-
 #endif
 
   itsBeampipeLogicalVolume->SetFieldManager(BDSGlobalConstants::Instance()->GetZeroFieldManager(),false);

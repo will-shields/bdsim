@@ -20,4 +20,4 @@ sample, range = qm16ff;
 
 option, ngenerate=100;
 
-!print, line;
+print, line;
