@@ -14,6 +14,8 @@
 #include "BDSDebug.hh"
 
 #include <cstdlib>
+#include <cstddef>
+#include <cmath>
 
 #include "BDSMultipole.hh"
 #include "G4Box.hh"
@@ -40,7 +42,7 @@
 #include <map>
 #include <string>
 
-#define DEBUG 1
+// #define DEBUG 1
 //============================================================
 
 typedef std::map<G4String,int> LogVolCountMap;
@@ -406,11 +408,11 @@ void BDSMultipole::BuildBeampipe(G4double startAper,
 	 << G4endl;
 #endif
 
-#ifdef DEBUG 
   double dZhl = itsLength/2-BDSGlobalConstants::Instance()->GetLengthSafety();
+  #ifdef DEBUG
   if (dZhl< 0) {
     G4cout << __METHOD_NAME__ << "negative G4Cons Z half-length" << G4cout;    
-    dZhl = 0.0;
+    dZhl = 1e-6*m;
   } 
 #endif  
       itsInnerBeampipeSolid=new G4Cons(itsName+"_inner_bmp_solid",
@@ -643,15 +645,22 @@ void BDSMultipole::BuildDefaultOuterLogicalVolume(G4double aLength,
   if(OuterMaterialIsVacuum){
     material=  theMaterials->GetMaterial(BDSGlobalConstants::Instance()->GetVacuumMaterial());
   }
-   
+
+  double dZhl = aLength/2-BDSGlobalConstants::Instance()->GetLengthSafety();
+#ifdef DEBUG
+  if (dZhl < 0 ) {
+	  dZhl = 1e-7*m;
+  }
+#endif
 
   itsOuterLogicalVolume=
     new G4LogicalVolume(  new G4SubtractionSolid(itsName+"_outer_solid",
                                                  new G4Tubs(itsName+"_outer_solid_tmp_1",
                                                             itsInnerIronRadius+BDSGlobalConstants::Instance()->GetLengthSafety()/2.0,
                                                             outerRadius,
-                                                            aLength/2-BDSGlobalConstants::Instance()->GetLengthSafety(),
-							    0,twopi*radian),
+//                                                            aLength/2-BDSGlobalConstants::Instance()->GetLengthSafety(),
+                                                            dZhl,
+                                                            0,twopi*radian),
                                                  new G4EllipticalTube(itsName+"_outer_solid_tmp_2",
                                                                       this->GetAperX()+BDSGlobalConstants::Instance()->GetBeampipeThickness()+BDSGlobalConstants::Instance()->GetLengthSafety()/2.0,
                                                                       this->GetAperY()+BDSGlobalConstants::Instance()->GetBeampipeThickness()+BDSGlobalConstants::Instance()->GetLengthSafety()/2.0,

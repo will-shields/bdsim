@@ -42,6 +42,10 @@ BDSExecOptions::BDSExecOptions() {
   verboseEventNumber   = -1;
 }
 
+/** <Parse the command line options>
+ * @param command line input number of variables
+ * @param array of char* of the input parameters
+ */
 void BDSExecOptions::Parse(int argc, char **argv) {
   static struct option LongOptions[] = {{ "help" , 0, 0, 0 },
 					{ "outline", 1, 0, 0 },

@@ -180,6 +180,7 @@ if (NOT Geant4_FOUND)
    option(VIS_RAYTRACERX "RayTracerX visualisation" OFF)
    option(VIS_OPENGLQT "OpenGLQT visualisation" OFF)
    option(VIS_OPENGLX "OpenGLX visualisation" OFF)
+   option(VIS_OPENINVENTOR "Open Inventor Visualisation" OFF)
 
    set(VIS_FLAGS "-DG4VIS_USE")
    if(VIS_RAYTRACER)
@@ -194,6 +195,10 @@ if (NOT Geant4_FOUND)
    if(VIS_OPENGLX)
 	set(VIS_FLAGS "-DG4VIS_USE_OPENGLX ${VIS_FLAGS}")
    endif()
+   if(VIS_OPENINVENTOR)
+	set(VIS_FLAGS "-DG4VIS_USE_OPENINVENTOR ${VIS_FLAGS}")
+   endif()
+
 
    message(STATUS "Visualisation Flags: ${VIS_FLAGS}")
 endif()
