@@ -25,11 +25,6 @@ void BDSDriftStepper::AdvanceHelix( const G4double  yIn[],
 				   G4double  h,
 				   G4double  yDrift[])
 {
-  verbose            = BDSExecOptions::Instance()->GetVerbose();  
-  verboseStep        = BDSExecOptions::Instance()->GetVerboseStep();
-  verboseEvent       = BDSExecOptions::Instance()->GetVerboseEvent();
-  verboseEventNumber = BDSExecOptions::Instance()->GetVerboseEventNumber();
-
   G4ThreeVector positionMove, endTangent;
 
   const G4double *pIn = yIn+3;
@@ -51,17 +46,20 @@ void BDSDriftStepper::AdvanceHelix( const G4double  yIn[],
 
 
       // dump step information for particular event
-      if(verboseStep)
-	if(verboseEventNumber == event_number)
-	  {
-	    G4cout.precision(10);
-	    G4cout<<" h="<<h/m<<G4endl;
-            G4cout<<"xIn="<<yIn[0]/m<<" yIn="<<yIn[1]/m<<
-		  " zIn="<<yIn[2]/m<<" v0="<<v0<<G4endl;
-            G4cout<<"xOut="<<yDrift[0]/m<<" yOut="<<yDrift[1]/m<<
-	      "zOut="<<yDrift[2]/m<<G4endl;
-
-	  } 
+      G4bool verboseStep        = BDSExecOptions::Instance()->GetVerboseStep();
+      G4int verboseEventNumber = BDSExecOptions::Instance()->GetVerboseEventNumber();
+      if(verboseStep && verboseEventNumber == event_number)
+	{
+	  int G4precision = G4cout.precision();
+	  G4cout.precision(10);
+	  G4cout<<" h="<<h/m<<G4endl;
+	  G4cout<<"xIn="<<yIn[0]/m<<" yIn="<<yIn[1]/m<<
+	    " zIn="<<yIn[2]/m<<" v0="<<v0<<G4endl;
+	  G4cout<<"xOut="<<yDrift[0]/m<<" yOut="<<yDrift[1]/m<<
+	    "zOut="<<yDrift[2]/m<<G4endl;
+	  // set precision back
+	  G4cout.precision(G4precision);
+	}
 }
 
 void BDSDriftStepper::Stepper( const G4double yInput[],

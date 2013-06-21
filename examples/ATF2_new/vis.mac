@@ -5,6 +5,7 @@
 
 # Invoke the OGLSX driver 
 #  Create a scene handler and a viewer for the OGLSX driver
+#/vis/open OGLSQt 600x600-0+0
 /vis/open OGLSX
 #/vis/open DAWNFILE
 

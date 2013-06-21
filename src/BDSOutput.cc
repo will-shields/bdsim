@@ -195,7 +195,7 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
   if( format == _ASCII) {
     
     //of<<"#hits (PDGtype  E[GeV],x[micron],y[micron],z[m],x'[rad],y'[rad]):"<<G4endl;
-    
+    int G4precision = G4cout.precision();
     G4cout.precision(15);
     
     for (G4int i=0; i<hc->entries(); i++)
@@ -219,6 +219,9 @@ void BDSOutput::WriteHits(BDSSamplerHitsCollection *hc)
 //    of<<G4endl; // remove whitespace in output file when no events hit sampler
       of.flush();
     //of<<"end of hits collection"<<G4endl;
+      
+      // set precision back
+      G4cout.precision(G4precision);
   }
  
   if( format == _ROOT) {

@@ -66,11 +66,6 @@ public: // without description
     G4int IntegratorOrder()const { return 2; }
 
 protected:
-  G4bool verbose;   
-  G4bool verboseStep;
-  G4bool verboseEvent;
-  G4int  verboseEventNumber;
-
   
   //  --- Methods used to implement all the derived classes -----
   
