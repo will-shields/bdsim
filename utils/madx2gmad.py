@@ -1,4 +1,4 @@
-import MadX as _MadX
+import pymadx.MadX as _MadX
 
 """
 madx2gmad
