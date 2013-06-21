@@ -592,6 +592,22 @@ void BDSBunch::GetNextParticle(G4double& x0,G4double& y0,G4double& z0,
  
  
   switch(distribType){
+  case _REFERENCE: 
+    {
+      x0 = X0 + 0.0;
+      y0 = Y0 + 0.0;
+      z0 = Z0 + 0.0;
+      xp = Xp0 + 0.0;
+      yp = Yp0 + 0.0;
+      if (Zp0<0)
+        zp = -sqrt(1.-xp*xp -yp*yp);
+      else
+        zp = sqrt(1.-xp*xp -yp*yp);      
+      t  = 0.0; 
+      E = BDSGlobalConstants::Instance()->GetBeamKineticEnergy();
+      weight = 1.0;
+      break;
+    }
   case _GAUSSIAN:
     {
       G4double phiX= twopi * G4UniformRand();
