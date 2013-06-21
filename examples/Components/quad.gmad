@@ -1,6 +1,0 @@
-d1: drift, l=0.5;
-q1: quadrupole, l=0.1, k1=5.0;
-d2: drift, l=0.5;
-
-lat : line = (d1,q1,d2);
-
