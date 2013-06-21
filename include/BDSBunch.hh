@@ -139,7 +139,7 @@ private:
 
  // Gaussian Random number generator:
   CLHEP::RandGauss* GaussGen;
-  CLHEP::RandFlat* FlatGen;
+  CLHEP::RandFlat*  FlatGen;
   
   // event number for phase for ellipse for SR rescaling
   G4int partId;

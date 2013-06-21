@@ -68,16 +68,17 @@ enum {
 };
 
 enum {
-  _GAUSSIAN = 0,
-  _RING = 1,
-  _SQUARE = 2,
-  _CIRCLE = 3,
-  _GUINEAPIG_BUNCH = 4,
-  _GUINEAPIG_PAIRS = 5,
-  _GUINEAPIG_SLAC = 6,
-  _CAIN = 7,
-  _ESHELL = 8,
-  _GAUSSIAN_TWISS = 9,
+  _REFERENCE = 0,
+  _GAUSSIAN = 1,
+  _RING = 2,
+  _SQUARE = 3,
+  _CIRCLE = 4,
+  _GUINEAPIG_BUNCH = 5,
+  _GUINEAPIG_PAIRS = 6,
+  _GUINEAPIG_SLAC = 7,
+  _CAIN = 8,
+  _ESHELL = 9,
+  _GAUSSIAN_TWISS = 10,
   _UDEF = 32
 };
 

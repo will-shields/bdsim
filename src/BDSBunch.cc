@@ -23,8 +23,9 @@ BDSBunch::BDSBunch():
   verboseEventNumber = BDSExecOptions::Instance()->GetVerboseEventNumber();
   nptwiss            = BDSExecOptions::Instance()->GetNPTwiss();
 
-  GaussGen =new CLHEP::RandGauss(*CLHEP::HepRandom::getTheEngine());
-  FlatGen =new CLHEP::RandFlat(*CLHEP::HepRandom::getTheEngine());
+  // Instanciate random number generators
+  GaussGen = new CLHEP::RandGauss(*CLHEP::HepRandom::getTheEngine());
+  FlatGen  = new CLHEP::RandFlat(*CLHEP::HepRandom::getTheEngine());
 }
 
 BDSBunch::~BDSBunch()
@@ -44,16 +45,17 @@ void BDSBunch::skip(G4int nvalues){
 void BDSBunch::SetOptions(struct Options& opt)
 {
   map<const G4String, int, strCmp> distType;
-  distType["gauss"]=_GAUSSIAN;
-  distType["ring"]=_RING;
-  distType["square"]=_SQUARE;
-  distType["circle"]=_CIRCLE;
-  distType["guineapig_bunch"]=_GUINEAPIG_BUNCH;
-  distType["guineapig_pairs"]=_GUINEAPIG_PAIRS;
-  distType["guineapig_slac"]=_GUINEAPIG_SLAC;
-  distType["cain"]=_CAIN;
-  distType["eshell"]=_ESHELL;
-  distType["gausstwiss"]=_GAUSSIAN_TWISS;
+  distType["reference"]=_REFERENCE;             // Reference orbit
+  distType["gauss"]=_GAUSSIAN;                  // Gaussian with only diagonal sigma matrix
+  distType["ring"]=_RING;                       // Ring in cannonical phase space
+  distType["square"]=_SQUARE;                   // Square phase space (flat)
+  distType["circle"]=_CIRCLE;                   // Circular phase space (flat) 
+  distType["guineapig_bunch"]=_GUINEAPIG_BUNCH; // (LC) Bunch bunch collision 
+  distType["guineapig_pairs"]=_GUINEAPIG_PAIRS; // (LC) Electron and positron pair from bunch bunch collision
+  distType["guineapig_slac"]=_GUINEAPIG_SLAC;   // (LC) SLAC variant of same code
+  distType["cain"]=_CAIN;                       // (LC) Bunch bunch collision
+  distType["eshell"]=_ESHELL;                   // ?? 
+  distType["gausstwiss"]=_GAUSSIAN_TWISS;       // Normal Gaussian Twiss 
 
   nlinesIgnore = opt.nlinesIgnore;
   inputfile=opt.distribFile;
@@ -93,7 +95,17 @@ void BDSBunch::SetOptions(struct Options& opt)
   // specific parameters which depend on distribution type
   //
   switch(distribType){
-    
+  
+  case _REFERENCE :
+    {
+      SetSigmaX(0.0); 
+      SetSigmaY(0.0);
+      SetSigmaXp(0.0);
+      SetSigmaYp(0.0);
+      SetSigmaT(opt.sigmaT);
+      energySpread = opt.sigmaE;            
+    }
+
   case _GAUSSIAN:
     {
       SetSigmaX(opt.sigmaX); 
