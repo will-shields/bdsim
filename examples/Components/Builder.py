@@ -1,5 +1,9 @@
 import pylab as pl 
-def RingBuilder(ndipole = 10, ldipole = 0.5, clength = 10.0, cell = []) : 
+
+def Linac() : 
+    pass
+
+def Ring(ndipole = 20, ldipole = 2.0, clength = 10.0, cell = []) : 
     '''Build a random ring
     ndipole : number of dipole magnets
     ldipole : length of dipole 
@@ -11,23 +15,24 @@ def RingBuilder(ndipole = 10, ldipole = 0.5, clength = 10.0, cell = []) :
     
     for i in range(0,ndipole,1) : 
         name = 'dipole.'+str(i)
-        type = 'sben' 
+        type = 'sbend' 
         angl = 2*pl.pi/ndipole
-        leng = ldipole 
-        
+        leng = ldipole         
         line.append([name,type,leng,angl])
 
         name = 'drift.'+str(i)
-        type = 'drif' 
-        leng = clength-ldipole 
+        type = 'drift' 
+        leng = clength-ldipole
         line.append([name,type,leng])
         
+#        name = 'quadrupole.'+str(i)
+#        line.append([name,'quadrupole',0.5,0.2])
 
     totalbl = 0.0
     totall  = 0.0 
     for e in line : 
         # total bending length
-        if e[1] == 'sben' : 
+        if e[1] == 'sbend' : 
             totalbl += e[2]
             
         # sum all component lengths
@@ -44,10 +49,12 @@ def RingBuilder(ndipole = 10, ldipole = 0.5, clength = 10.0, cell = []) :
     # write components
     for e in line : 
         wl = ''
-        if e[1] == 'sben' : 
+        if e[1] == 'sbend' : 
             wl = '{0} : {1}, l={2}, angle={3};\n'.format(e[0],e[1],e[2],e[3])
-        elif e[1] == 'drif' : 
+        elif e[1] == 'drift' : 
             wl = '{0} : {1}, l={2};\n'.format(e[0],e[1],e[2])         
+        elif e[1] == 'quadrupole' : 
+            wl = '{0} : {1}, l={2}, k={3};\n'.format(e[0],e[1],e[2],e[3])
         f.write(wl)
 
     # write line  
