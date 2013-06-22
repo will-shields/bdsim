@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import pymadx.MadX as _MadX
 
 """
@@ -93,9 +95,9 @@ def LHC(ifilename, ofilename ,markers='all') :
         #elif kw[i] == 'MULTIPOLE':
         #    stw = elementname+': quadrupole, l='+str(l[i])+', k1='+str(k1l[i])
         elif kw[i] == 'VKICKER':
-            stw = elementname+': vkicker, l='+str(l[i])
+            stw = elementname+': vkick, l='+str(l[i])
         elif kw[i] == 'HKICKER':
-            stw = elementname+': hkicker, l='+str(l[i])
+            stw = elementname+': hkick, l='+str(l[i])
         elif kw[i] == 'MARKER':
             stw = elementname+': marker'
         elif kw[i] == 'DRIFT' : 

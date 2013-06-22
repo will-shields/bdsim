@@ -10,6 +10,7 @@ beam,  particle="proton",
        sigmaYp=0.02*0.004;
 
 use ,period=all;
+!use ,period=test;
 
 sample, range = startl;
 sample, range = endl;

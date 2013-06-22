@@ -19,9 +19,9 @@
 /vis/sceneHandler/attach
 
 /vis/viewer/set/background white
-/vis/viewer/set/viewpointThetaPhi 45 45 
-/vis/viewer/pan -20 0 m
-/vis/viewer/zoom 10
+#/vis/viewer/set/viewpointThetaPhi 45 45 
+#/vis/viewer/pan -20 0 m
+#/vis/viewer/zoom 10
 
 /tracking/storeTrajectory 1
 

@@ -102,6 +102,9 @@ class Loader :
         
         return [name,type,length,angle]
 
+    def getElementByName(self, name) :
+        pass
+
     def parseLattice(self) : 
         return 
 
