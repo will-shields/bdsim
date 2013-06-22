@@ -185,3 +185,52 @@ int gmad_parser(string name)
 
   return 0;
 }
+
+
+/** Python interface **/ 
+int gmad_parser_c(char *name) 
+{
+  gmad_parser(name);
+  return 0;
+}
+
+int get_nelements() 
+{
+  return beamline_list.size();
+}  
+
+char* get_name(int i) 
+{
+  std::list<Element>::iterator it = beamline_list.begin();
+  std::advance(it, i);
+  return it->name;
+}
+
+int get_name(int i, char *name) 
+{
+  std::list<Element>::iterator it = beamline_list.begin();
+  std::advance(it, i);
+  strcpy(name,it->name);
+  return 0;
+}
+
+short get_type(int i) 
+{
+  std::list<Element>::iterator it = beamline_list.begin();
+  std::advance(it, i);
+  return it->type;
+}
+
+double get_length(int i) 
+{
+  std::list<Element>::iterator it = beamline_list.begin();
+  std::advance(it, i);
+  return it->l;
+}
+
+double get_angle(int i) 
+{
+  std::list<Element>::iterator it = beamline_list.begin();
+  std::advance(it, i);
+  return it->angle;  
+}

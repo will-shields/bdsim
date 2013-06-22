@@ -256,8 +256,6 @@ struct Element {
   
   // in case the element is a list itself (line)
   std::list <Element> *lst;
-
-  
 };
 
 
@@ -447,8 +445,16 @@ extern Options options;
 
 // parse the input file and construct beamline_list and options 
 int gmad_parser(FILE *f);
-
 int gmad_parser(std::string name);
 
 
+/** Python interface **/ 
+extern "C" {   
+  int    gmad_parser_c(char *name);
+  int    get_nelements();
+  short  get_type(int);
+  char*  get_name(int);
+  double get_length(int);
+  double get_angle(int); 
+}
 #endif
