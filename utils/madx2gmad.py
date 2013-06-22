@@ -87,6 +87,7 @@ def LHC(ifilename, ofilename ,markers='all') :
         if kw[i] == 'SBEND':
             stw = elementname+': sbend, l='+str(l[i])+', angle='+str(angle[i])
         elif kw[i] == 'RBEND':
+            print 'madx2gmad.LHC> warning RBEND not implemented :',elementname
             stw = elementname+': sbend, l='+str(l[i])+', angle='+str(angle[i])
         elif kw[i] == 'QUADRUPOLE':
             stw = elementname+': quadrupole, l='+str(l[i])+', k1='+str(k1l[i])
@@ -130,10 +131,10 @@ def LHC(ifilename, ofilename ,markers='all') :
     o.write(linestring)
     o.close()
 
-    print 'madx2gmad>LHC> All done'
-    print 'madx2gmad>LHC>',elementcount,'elements written to ',ofilename
-    print 'madx2gmad>LHC>',missedelementcount,'elements omitted'
-    print 'madx2gmad>LHC> line written in ',len(linelist),' line-lets'
+    print 'madx2gmad.LHC> All done'
+    print 'madx2gmad.LHC>',elementcount,'elements written to ',ofilename
+    print 'madx2gmad.LHC>',missedelementcount,'elements omitted'
+    print 'madx2gmad.LHC> line written in ',len(linelist),' line-lets'
 
 def General(ifilename, ofilename) :
     """
@@ -184,6 +185,7 @@ def General(ifilename, ofilename) :
         if kw[i] == 'SBEND':
             stw = elementname+': sbend, l='+str(l[i])+', angle='+str(angle[i])
         elif kw[i] == 'RBEND':
+            print 'madx2gmad.LHC> warning RBEND not implemented :',elementname
             stw = elementname+': sbend, l='+str(l[i])+', angle='+str(angle[i])
         elif kw[i] == 'QUADRUPOLE':
             stw = elementname+': quadrupole, l='+str(l[i])+', k1='+str(k1l[i])
@@ -192,9 +194,9 @@ def General(ifilename, ofilename) :
         #elif kw[i] == 'MULTIPOLE':
         #    stw = elementname+': quadrupole, l='+str(l[i])+', k1='+str(k1l[i])
         elif kw[i] == 'VKICKER':
-            stw = elementname+': vkicker, l='+str(l[i])
+            stw = elementname+': vkick, l='+str(l[i])
         elif kw[i] == 'HKICKER':
-            stw = elementname+': hkicker, l='+str(l[i])
+            stw = elementname+': hkick, l='+str(l[i])
         elif kw[i] == 'MARKER':
             stw = elementname+': marker'
         elif kw[i] == 'DRIFT' : 
@@ -228,10 +230,10 @@ def General(ifilename, ofilename) :
     o.write(linestring)
     o.close()
 
-    print 'madx2gmad>General> All done'
-    print 'madx2gmad>General> ',elementcount,' elements written to ',ofilename
-    print 'madx2gmad>General> ',missedelementcount,' elements omitted'
-    print 'madx2gmad>General> line written in ',len(linelist),' line-lets'
+    print 'madx2gmad.General> All done'
+    print 'madx2gmad.General> ',elementcount,' elements written to ',ofilename
+    print 'madx2gmad.General> ',missedelementcount,' elements omitted'
+    print 'madx2gmad.General> line written in ',len(linelist),' line-lets'
 
 
 def Chunks(l, n):
