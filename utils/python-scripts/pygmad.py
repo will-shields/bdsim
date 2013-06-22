@@ -16,11 +16,11 @@ class Survey :
         self.file = Loader() 
         self.file.load(fileName) 
         
-        nelement = self.parserLib.get_nelements()
+        nelement = self.file.parserLib.get_nelements()
         
         for i in range(0,nelement,1) : 
-            length = self.parserLib.get_length(i)
-            angle  = self.parserLib.get_angle(i)
+            length = self.file.parserLib.get_length(i)
+            angle  = self.file.parserLib.get_angle(i)
             self.Step(angle,length)
             i += 1    
                
@@ -51,6 +51,10 @@ class Survey :
         _plt.xlabel('X (m)')
         _plt.ylabel('Y (m)')
         _plt.show()
+
+    def CompareMadX(self, fileName) : 
+        import pymadx as _pymadx
+        
 
 class Loader :
     def __init__(self) :
