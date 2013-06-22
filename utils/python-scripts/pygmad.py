@@ -7,20 +7,23 @@ class Survey :
         self.x_current = 0 
         self.y_current = 0
         self.theta     = _np.pi
+        self.names     = []
         self.beamline  = []
         self.x_coords  = [] 
         self.y_coords  = []
         self.lentotal  = 0
 
-    def load(self, fileName) : 
+    def Load(self, fileName) : 
         self.file = Loader() 
         self.file.load(fileName) 
         
         nelement = self.file.parserLib.get_nelements()
         
         for i in range(0,nelement,1) : 
+            name   = self.file.parserLib.get_name(i) 
             length = self.file.parserLib.get_length(i)
             angle  = self.file.parserLib.get_angle(i)
+            self.names.append(name)
             self.Step(angle,length)
             i += 1    
                
@@ -55,6 +58,24 @@ class Survey :
     def CompareMadX(self, fileName) : 
         import pymadx as _pymadx
         
+        mxs = _pymadx.Survey()
+        mxs.Load(fileName) 
+
+        self.Plot()
+
+        _plt.plot(mxs.x_coords,mxs.y_coords,'rx')
+        _plt.plot(mxs.x_coords,mxs.y_coords,'r-')
+        _plt.show()        
+        
+    def FindClosetElement(self, coord) : 
+        arr = _np.arange(0,len(self.x_coords),1) 
+        xdiff = _np.array(self.x_coords)-coord[0]
+        ydiff = _np.array(self.y_coords)-coord[1]
+        d     = _np.sqrt(xdiff**2+ydiff**2)
+        print arr[d == min(d)]
+        
+        
+
 
 class Loader :
     def __init__(self) :
@@ -72,10 +93,19 @@ class Loader :
     
     def load(self, fileName) :
         self.parserLib.gmad_parser_c(fileName)
-                   
+    
+    def getElement(self, i) : 
+        name   = self.parserLib.get_name(i) 
+        type   = self.parserLib.get_type(i) 
+        length = self.parserLib.get_length(i)
+        angle  = self.parserLib.get_angle(i)
+        
+        return [name,type,length,angle]
+
     def parseLattice(self) : 
         return 
-        
+
+    
     def printToScreen(self) :
         nelement = self.parserLib.get_nelements()
 

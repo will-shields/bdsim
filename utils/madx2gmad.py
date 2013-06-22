@@ -84,6 +84,8 @@ def LHC(ifilename, ofilename ,markers='all') :
         names.append(elementname)
         if kw[i] == 'SBEND':
             stw = elementname+': sbend, l='+str(l[i])+', angle='+str(angle[i])
+        elif kw[i] == 'RBEND':
+            stw = elementname+': sbend, l='+str(l[i])+', angle='+str(angle[i])
         elif kw[i] == 'QUADRUPOLE':
             stw = elementname+': quadrupole, l='+str(l[i])+', k1='+str(k1l[i])
         elif kw[i] == 'SEXTUPOLE':
@@ -113,15 +115,14 @@ def LHC(ifilename, ofilename ,markers='all') :
         i += 1
         
 
-    stw2 = ''
     linelist = []
     
     ti = 0
     for ministring in Chunks(names,100):
-        stw2 += 'l'+str(ti)+': line = ('+', '.join(ministring)+');\n'
+        stw2 = 'l'+str(ti)+': line = ('+', '.join(ministring)+');\n'
         o.write(stw2)
-        ti += 1
         linelist.append('l'+str(ti))
+        ti += 1
 
     linestring = 'all: line = ('+', '.join(linelist)+');\n'
     o.write(linestring)
@@ -180,6 +181,8 @@ def General(ifilename, ofilename) :
         names.append(elementname)
         if kw[i] == 'SBEND':
             stw = elementname+': sbend, l='+str(l[i])+', angle='+str(angle[i])
+        elif kw[i] == 'RBEND':
+            stw = elementname+': sbend, l='+str(l[i])+', angle='+str(angle[i])
         elif kw[i] == 'QUADRUPOLE':
             stw = elementname+': quadrupole, l='+str(l[i])+', k1='+str(k1l[i])
         elif kw[i] == 'SEXTUPOLE':
@@ -209,15 +212,15 @@ def General(ifilename, ofilename) :
             
         i += 1
 
-    stw2 = ''
+
     linelist = []
     
     ti = 0
     for ministring in Chunks(names,100):
-        stw2 += 'l'+str(ti)+': line = ('+', '.join(ministring)+');\n'
+        stw2 = 'l'+str(ti)+': line = ('+', '.join(ministring)+');\n'
         o.write(stw2)
-        ti += 1
         linelist.append('l'+str(ti))
+        ti += 1
 
     linestring = 'all: line = ('+', '.join(linelist)+');\n'
     o.write(linestring)
@@ -230,7 +233,6 @@ def General(ifilename, ofilename) :
 
 
 def Chunks(l, n):
-    """ Yield successive n-sized chunks from l.
-    """
-    for i in xrange(0, len(l), n):
-        yield l[i:i+n]
+    """ Yield successive n-sized chunks from l.    """
+    return [l[i:i+n] for i in range(0,len(l),n)]
+
