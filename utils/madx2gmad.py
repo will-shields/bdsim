@@ -1,6 +1,37 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2.7
 
+import optparse as _optparse
 import pymadx.MadX as _MadX
+
+def main() :
+
+    usage = "usage: %prog -i mad8.saveline -o filename.gmad"
+    parser = _optparse.OptionParser(usage)
+    
+    parser.add_option("-i","--input",dest="inputFilename",
+                      action="store_true",
+                      default=False)
+    parser.add_option("-o","--output",dest="outputFilename",
+                      action="store_true",
+                      default=False)
+    parser.add_option("-m","--removeMultipole",dest="removeMultipole",
+                      action="store_true",
+                      default=False)
+    parser.add_option("-a","--removeAperture",dest="removeAperture",
+                      action="store_true",
+                      default=False)
+    
+    (options, args) = parser.parse_args()
+
+    if not options.inputFilename : 
+        parser.error("must give input filename")
+    if not options.outputFilename : 
+        parser.error("must give output filename")
+    
+    iFilename = args[0]
+    oFilename = args[1]
+
+    LHC(iFilename,oFilename)
 
 """
 madx2gmad
@@ -240,3 +271,5 @@ def Chunks(l, n):
     """ Yield successive n-sized chunks from l.    """
     return [l[i:i+n] for i in range(0,len(l),n)]
 
+if __name__ == "__main__":
+    main()
