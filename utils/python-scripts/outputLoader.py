@@ -44,6 +44,10 @@ class ascii :
         '''Return array of true/false for a given sampler'''
         return self.sampzround == self.sampz[isamp]
     
+    def getData(self) : 
+        '''Return array of all data'''
+        return self.dataSet
+    
     def getSamplerData(self, isamp = 0) : 
         '''Return slice of data for a given sampler'''
         if isamp < self.nsamp and isamp > -1 : 
@@ -54,7 +58,4 @@ class ascii :
 
     def __getitem__(self, key) : 
         '''Get a array of data''' 
-        return self.dataSet[:,self.keys[key]]
-
-    
-    
+        return self.dataSet[:,self.keys[key]]       
