@@ -1,7 +1,10 @@
 import Tester as _Tester 
 
 class BeamTester(_Tester.Tester) : 
-    def __init__(self, particle, energy, distribution) :
+    def __init__(self, particle = 'e-', energy = 1.5, distribution = 'gauss') :
+        print 'BeamTester.BeamTester.__init__>'
+        _Tester.Tester()
+
         self.particle     = particle 
         self.energy       = energy 
         self.distribution = distribution

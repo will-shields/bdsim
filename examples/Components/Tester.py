@@ -1,5 +1,6 @@
 class Tester : 
     def __init__(self) : 
+        print 'Tester.Tester.__init__>'
         self.optionDict = dict() 
         self.optionDict['beampipeRadius']      = '10 * cm'
         self.optionDict['boxSize']             = '1.9 * m'
@@ -105,9 +106,6 @@ class Tester :
     def setSigmaXp(self,value) : 
         ''' Set SigmaX in mm ''' 
         self.beamDict['sigmaYp'] = str(value);
-
-    def setBeamSigma(self, sigmaMatrix) : 
-        ''' Set Beam sigma matrix''' 
             
     #######################################################################
     # Class methods
@@ -127,5 +125,5 @@ class Tester :
         for k in self.optionDict : 
             f.write('option, '+k+' = '+self.optionDict[k]+';\n')
     
-        f.close()
-        
+        f.close()    
+    

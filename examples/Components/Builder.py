@@ -1,5 +1,12 @@
 import pylab as pl 
 
+class MachineRep(list) : 
+    def __init__(self) : 
+        list()
+       
+    def writeLattice() :
+        pass
+           
 def Linac() : 
     pass
 
