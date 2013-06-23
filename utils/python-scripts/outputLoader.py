@@ -20,5 +20,6 @@ def Load(filename):
         dataSet.append(map(np.double,line.strip("\n").split()))
 
     dataSet=np.array(dataSet)
-    np.sort[
+
     return dataSet
+

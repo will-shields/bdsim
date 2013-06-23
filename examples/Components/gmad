@@ -1,8 +1,6 @@
-include lattice.gmad;
 include options.gmad
 include beam.gmad
+include lattice.gmad;
 
-use, period=lat;
-
-option, ngenerate=100;
+option, ngenerate=1000;
 
