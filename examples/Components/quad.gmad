@@ -1,11 +1,23 @@
-d1: drift, l=0.01;
-q1: quadrupole, l=0.3, k1=20.0;
-d2: drift, l=5.0;
+d01: drift, l=0.25;
+d02: drift, l=0.25;
+d03: drift, l=0.25;
+d04: drift, l=0.25;
+q1: quadrupole, l=0.5, k1=5.0;
+d11: drift, l=0.25;
+d12: drift, l=0.25;
+d13: drift, l=0.25;
+d14: drift, l=0.25;
 
-lat : line = (d1,q1,d2);
-
+lat : line = (d01,d02,d03,d04,q1,d11,d12,d13,d14);
 use, period=lat;
-sample, range = d1;
+
+sample, range = d01;
+sample, range = d02;
+sample, range = d03;
+sample, range = d04;
 sample, range = q1;
-sample, range = d2;
+sample, range = d11;
+sample, range = d12;
+sample, range = d13;
+sample, range = d14;
 
