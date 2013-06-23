@@ -1,4 +1,6 @@
-class ComponentTester : 
+import Tester as _Tester
+
+class ComponentTester(_Tester.Tester) : 
     def __init__(self, particle, energy, component) :
         self.particle  = particle 
         self.energy    = energy 

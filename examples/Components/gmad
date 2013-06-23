@@ -2,5 +2,5 @@ include options.gmad
 include beam.gmad
 include lattice.gmad;
 
-option, ngenerate=1000;
+option, ngenerate=10000;
 
