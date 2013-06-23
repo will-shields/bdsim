@@ -1,4 +1,28 @@
-d1: drift, l=0.5;
+d01: drift, l=0.25;
+d02: drift, l=0.25;
+d03: drift, l=0.25;
+d04: drift, l=0.25;
+d05: drift, l=0.25;
+d06: drift, l=0.25;
+d07: drift, l=0.25;
+d08: drift, l=0.25;
+d09: drift, l=0.25;
+d10: drift, l=0.25;
+d11: drift, l=0.25;
+d12: drift, l=0.25;
 
-lat : line = (d1);
+lat : line = (d01,d02,d03,d04,d05,d06,d07,d08,d09,d10,d11,d12;
+use, period=lat;
 
+sample, range = d01;
+sample, range = d02;
+sample, range = d03;
+sample, range = d04;
+sample, range = d05;
+sample, range = d06;
+sample, range = d07;
+sample, range = d08;
+sample, range = d09;
+sample, range = d10;
+sample, range = d11;
+sample, range = d12;

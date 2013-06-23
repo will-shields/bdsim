@@ -4,4 +4,4 @@ beam,  particle="e-",
        sigmaX=0.002*mm,
        sigmaY=0.002*mm,
        sigmaXp=0.02*0.005,
-       sigmaYp=0.02*0.004;
+       sigmaYp=0.02*0.005;
