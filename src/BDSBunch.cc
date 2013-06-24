@@ -104,6 +104,7 @@ void BDSBunch::SetOptions(struct Options& opt)
       SetSigmaYp(0.0);
       SetSigmaT(opt.sigmaT);
       energySpread = opt.sigmaE;            
+      break;
     }
 
   case _GAUSSIAN:
