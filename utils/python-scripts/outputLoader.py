@@ -24,20 +24,20 @@ class asciiData(_np.ndarray) :
             print 'outputLoader.asciiData.__init__>'
 
         # keys for different columns 
-        self.keys = dict() 
-        self.keys['part']   = 0
-        self.keys['energy'] = 1
-        self.keys['x']      = 2
-        self.keys['y']      = 3
-        self.keys['z']      = 4 
-        self.keys['xp']     = 5
-        self.keys['yp']     = 6
+        self._keys = dict() 
+        self._keys['part']   = 0
+        self._keys['energy'] = 1
+        self._keys['x']      = 2
+        self._keys['y']      = 3
+        self._keys['z']      = 4 
+        self._keys['xp']     = 5
+        self._keys['yp']     = 6
 
         # assign data
         self.data = data
         
         # rounded z sampler locations
-        z = self[:,self.keys['z']]
+        z = self[:,self._keys['z']]
         round = 7
         self.sampzround = _np.round(z,round)                 
         self.sampz      = _np.unique(self.sampzround)
@@ -69,7 +69,7 @@ class ascii :
     def __init__(self) : 
         pass
 
-    def Load(self,filename):
+    def load(self,filename):
         """
         Parses raw ASCII output from BDSIM into a numpy array.
         
