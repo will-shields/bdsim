@@ -160,6 +160,12 @@ def LHC(ifilename, ofilename ,markers='all') :
 
     linestring = 'all: line = ('+', '.join(linelist)+');\n'
     o.write(linestring)
+
+    o.write('use, period=all;\n') 
+    
+    for n in names : 
+        o.write('sample, range='+n+';\n')
+
     o.close()
 
     print 'madx2gmad.LHC> All done'
