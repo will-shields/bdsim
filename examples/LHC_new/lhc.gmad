@@ -2,19 +2,15 @@ include twiss.3.5tev.b2.gmad;
 include options.gmad
 
 beam,  particle="proton",
-       energy=3500 * GeV,
+       energy=450 * GeV,
        distrType="gauss",
        sigmaX=0.002*mm,
        sigmaY=0.002*mm,
        sigmaXp=0.02*0.005,
        sigmaYp=0.02*0.004;
 
-use ,period=all;
-!use ,period=test;
+!use ,period=all;
 
-sample, range = startl;
-sample, range = endl;
-
-option, ngenerate=100;
+option, ngenerate=1;
 
 !print, line;
