@@ -66,42 +66,48 @@ public:
   }
 
   inline G4VPhysicalVolume* GetWorldVolume(){
-    return physiWorld;
+    return _worldPhysicalVolume;
   }
 
   inline G4GeometrySampler* GetGeometrySampler(){
     return itsGeometrySampler;
   }
 
-public:
-
-  G4double* GetWorldSize();
-  G4double GetWorldSizeX();
-  G4double GetWorldSizeY();
-  G4double GetWorldSizeZ();
-  
 private:
-  void SetWorldSize(G4double*);
-  void SetWorldSizeX(G4double);
-  void SetWorldSizeY(G4double);
-  void SetWorldSizeZ(G4double);
+  void buildAtoms();
+  void buildMaterials();
+  void buildBeamline();
+  void buildWorld();
+
+  //====================================
+  //Stuff to do with "world"
+  void placeWorld();
+  void calcWorldSize();
+  void constructWorldSolid();
+  void constructWorldLogical();
+  void setWorldVisAttributes();
+  void setWorldUserLimits();
+  G4ThreeVector _worldSize;
+  G4VSolid* _worldSolidVolume;
+  G4LogicalVolume* _worldLogicalVolume;
+  G4VPhysicalVolume* _worldPhysicalVolume;
+  G4UserLimits* _worldUserLimits;
+  G4VisAttributes* _worldVisAttributes;
+  G4Material* _worldMaterial;
+  //------------------------------------
+  //Tunnel cavity
+  void placeTunnelCavity();
 
   G4GeometrySampler* itsGeometrySampler;
 
   G4Region* precisionRegion;
   G4Region* gasRegion;
 
-  BDSWorld* _world;
-
-  G4Box*            solidWorld;    //pointer to the solid World 
-  G4LogicalVolume*   logicWorld;    //pointer to the logical World
-  G4VPhysicalVolume* physiWorld;    //pointer to the physical World
-  vector<G4double> itsWorldSize;
   std::vector< G4VPhysicalVolume * > fPhysicalVolumeVector; //a vector with all the physical volumes
 
   void DefineMaterials();
 
-  G4VPhysicalVolume* ConstructBDS(std::list<struct Element>& beamline_list);
+  G4VPhysicalVolume* ConstructBDS();
   G4UniformMagField* magField;      //pointer to the magnetic field
   G4UserLimits* BDSUserLimits;
 

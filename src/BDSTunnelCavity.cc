@@ -1,7 +1,9 @@
 #include "BDSTunnelCavity.hh"
 #include "BDSBeamline.hh"
 #include "BDSMaterials.hh"
+#include "BDSTunnelSolid.hh"
 #include "G4UnionSolid.hh"
+
 
 
 BDSTunnelCavity* BDSTunnelCavity::_instance = 0;
@@ -14,17 +16,13 @@ BDSTunnelCavity* BDSTunnelCavity::Instance(){
 }
 
 BDSTunnelCavity::BDSTunnelCavity(){
-  _first=true;
-  _straightSectionBuilder = new BDSStraightTunnelCavitySectionBuilder();
-  _angleSectionBuilder = new BDSAngleTunnelCavitySectionBuilder();
-  _widthMax = new G4ThreeVector(0,0,0);
+  G4cout << "BDSTunnelCavity::BDSTunnelCavity() ... " << G4endl;
   build();
+  G4cout << "BDSTunnelCavity::BDSTunnelCavity() finished. " << G4endl;
 }
 
 BDSTunnelCavity::~BDSTunnelCavity(){
-  delete _straightSectionBuilder;
-  delete _angleSectionBuilder;
-  delete _widthMax;
+  G4cout << "BDSTunnelCavity::~BDSTunnelCavity() ... " << G4endl;
   delete _solidVolume;
   delete _logicalVolume;
   delete _physicalVolume;
@@ -32,66 +30,41 @@ BDSTunnelCavity::~BDSTunnelCavity(){
 }
 
 void BDSTunnelCavity::build(){
+  G4cout << "BDSTunnelCavity::build() ... " << G4endl;
   inspectBeamline();
-  for(BDSBeamline::Instance()->first();!BDSBeamline::Instance()->isDone();BDSBeamline::Instance()->next()){
-    _acceleratorComponent = BDSBeamline::Instance()->currentItem();
-    G4cout << "BDSTunnelCavity::build() - making tunnel cavity for " << _acceleratorComponent->GetName() << G4endl;
-    
-    constructSection();
-    calcWidthMax();
-    appendSection();    
-  }
-  G4cout << "BDSTunnelCavity::build() - constructing logical" << G4endl;
+  G4cout << "BDSTunnelCavity::build() making solid factory " << G4endl;
+  BDSTunnelSolid solidFactory;
+  G4cout << "BDSTunnelCavity::build() producing solid" << G4endl;
+  _solidVolume=solidFactory.create();
+  calcWidthMax(solidFactory);
+  G4cout << "BDSTunnelCavity::build() constructing logical volume" << G4endl;
   constructLogical();
+  G4cout << "BDSTunnelCavity::build() setting vis attributes" << G4endl;
+  setVisAttributes();
   G4cout << "BDSTunnelCavity::build() - finished" << G4endl;
 }
 
-
-void BDSTunnelCavity::constructSection(){
-  //Select the appropriate builder
-  if (_acceleratorComponent->GetAngle() != 0){
-    _sectionGenerator.tunnelCavitySectionBuilder(_angleSectionBuilder);
-  } else {
-    _sectionGenerator.tunnelCavitySectionBuilder(_straightSectionBuilder);
-  }
-  //Build the tunnel section
-  _sectionGenerator.constructTunnelCavitySection(_acceleratorComponent);
+void BDSTunnelCavity::calcWidthMax(BDSTunnelSolid var){
+  G4cout << "BDSTunnelCavity::calcWidthMax() ... " << G4endl;
+  _widthMax=var.widthMax();
+  /*
+  _widthMax.setX(std::max(_widthMax.x(),(2*(_acceleratorComponent->GetTunnelRadius() + std::abs(_acceleratorComponent->GetTunnelOffsetX() + BDSBeamline::Instance()->positionEnd()->x())))));
+  _widthMax.setY(std::max(_widthMax.y(),2*(_acceleratorComponent->GetTunnelRadius() + std::abs(BDSGlobalConstants::Instance()->GetTunnelOffsetY() + BDSBeamline::Instance()->positionEnd()->y()))));
+  _widthMax.setZ(std::max(_widthMax.z(),BDSBeamline::Instance()->positionEnd()->z()));
+  */
+  G4cout << "BDSTunnelCavity::calcWidthMax() finished. " << G4endl;
 }
 
-void BDSTunnelCavity::calcWidthMax(){
-  _widthMax -> setX(2*(_acceleratorComponent->GetTunnelRadius() + std::abs(_acceleratorComponent->GetTunnelOffsetX() + BDSBeamline::Instance()->positionEnd()->x())));
-  _widthMax -> setY(2*(_acceleratorComponent->GetTunnelRadius() + std::abs(BDSGlobalConstants::Instance()->GetTunnelOffsetY() + BDSBeamline::Instance()->positionEnd()->y())));
-  _widthMax -> setZ(BDSBeamline::Instance()->positionEnd()->z());
-}
-
-G4ThreeVector* BDSTunnelCavity::widthMax(){
+G4ThreeVector BDSTunnelCavity::widthMax(){
+  G4cout << "BDSTunnelCavity::widthmax() ... " << G4endl;
+  G4cout << "BDSTunnelCavity::widthmax() x= " << _widthMax.x()/m << " m" << G4endl;
+  G4cout << "BDSTunnelCavity::widthmax() y= " << _widthMax.y()/m << " m" << G4endl;
+  G4cout << "BDSTunnelCavity::widthmax() z= " << _widthMax.z()/m << " m" << G4endl;
   return _widthMax;
 }
 
-void BDSTunnelCavity::appendSection(){ 
-  G4cout << "BDSTunnelCavity::appendSection()" << G4endl;
-  if(_first){
-    _first=false;
-    G4cout << "BDSTunnelCavity::appendSection() - making new solid volume" << G4endl;
-    _solidVolume = _sectionGenerator.tunnelCavitySection()->solid();
-  } else {
-    G4cout << "BDSTunnelCavity::appendSection() - appending to solid volume" << G4endl;
-    const G4String tunnelCavityName = "tunnelCavitySol";
-    G4VSolid* solidVolumeCopy = _solidVolume->Clone();
-    (*_solidVolume) = 
-      G4UnionSolid(tunnelCavityName,
-		   solidVolumeCopy,
-		   _sectionGenerator.tunnelCavitySection()->solid(),
-		   BDSBeamline::Instance()->rotation(),
-		   *BDSBeamline::Instance()->positionFromCurrentCenter());
-    G4cout << "BDSTunnelCavity::appendSection() - deleting solid volume copy" << G4endl;
-    delete solidVolumeCopy;
-  }
-  G4cout << "BDSTunnelCavity::appendSection() - finished" << G4endl;
-}
-
-  void BDSTunnelCavity::constructLogical(){
-    G4cout << "BDSTunnelCavity::constructLogical() - making logical volume" << G4endl;
+void BDSTunnelCavity::constructLogical(){
+  G4cout << "BDSTunnelCavity::constructLogical() - making logical volume" << G4endl;
   const G4String logicalVolumeName = "tunnelCavityLog";
   _logicalVolume = new G4LogicalVolume(_solidVolume,
 				       //				       BDSMaterials::Instance()->GetMaterial(BDSGlobalConstants::Instance()->GetTunnelCavityMaterialName()),
@@ -101,7 +74,30 @@ void BDSTunnelCavity::appendSection(){
 }
 
 void BDSTunnelCavity::inspectBeamline(){
+  G4cout << "BDSTunnelCavity::inspectBeamline()" << G4endl;
   if (BDSBeamline::Instance()->size() == 0){
     G4Exception("BDSTunnelCavity: beam line is empty!", "-1", FatalException, "");
   }
+}
+
+void BDSTunnelCavity::place(G4LogicalVolume* motherVolume){
+  G4cout << "BDSTunnelCavity::place() ..." << G4endl;
+  _physicalVolume = new G4PVPlacement(0, // no rotation
+				      (G4ThreeVector)0,     // at (0,0,0)
+				      _logicalVolume,      
+				      "tunnel_cavity_physical",
+				      motherVolume,                // its mother  volume
+				      false,               // no boolean operation
+				      0,                   // copy number
+				      true
+				      );
+  G4cout << "BDSTunnelCavity::place() finished." << G4endl;
+}
+
+void BDSTunnelCavity::setVisAttributes(){
+  _visAttributes = new G4VisAttributes(G4Colour(0.2,0.2,0.2));;
+  _visAttributes->SetVisibility(true);
+  //  _visAttributes->SetForceWireframe(true);
+  _visAttributes->SetForceSolid(true);
+  _logicalVolume->SetVisAttributes(_visAttributes);
 }

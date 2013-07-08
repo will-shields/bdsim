@@ -60,7 +60,6 @@
 
 #include "G4Timer.hh"
 
-extern BDSMaterials* theMaterials;
 
 extern G4double BDS_Threshold_Energy;
 extern G4double BDSLocalRadiusOfCurvature;

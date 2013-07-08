@@ -1,5 +1,6 @@
 #include "BDSStraightTunnelCavitySectionBuilder.hh"
 #include "BDSGlobalConstants.hh"
+#include "BDSMaterials.hh"
 
 BDSStraightTunnelCavitySectionBuilder::BDSStraightTunnelCavitySectionBuilder(){
 }
@@ -14,6 +15,6 @@ void BDSStraightTunnelCavitySectionBuilder::build(){
 					   _tunnelCavitySection->length(),
 					   0,twopi*radian)
 			      );
-  _tunnelCavitySection->logicalVolume(new G4LogicalVolume(_tunnelCavitySection->solid(),_tunnelCavitySection->material(),(G4String)_tunnelCavitySection->name()+"_logical_volume"));
+
 }
 

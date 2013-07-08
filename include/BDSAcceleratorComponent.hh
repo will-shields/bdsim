@@ -176,6 +176,11 @@ public:
   G4double GetSynchEnergyLoss();
   
   BDSAcceleratorComponent();
+  //Copy constructor
+  /*
+  BDSAcceleratorComponent(const BDSAcceleratorComponent& source);
+  void copy(const BDSAcceleratorComponent& source);
+  */
   void BuildOuterFieldManager();
 
   // in case a mapped field is provided creates a field mesh in global coordinates

@@ -65,10 +65,12 @@ void BDSOutput::Init(G4int FileNum)
   //build sampler tree
   for(G4int i=0;i<BDSSampler::GetNSamplers();i++)
     {
-      //G4String name="samp"+BDSGlobalConstants::Instance()->StringFromInt(i+1);
-      G4String name=SampName[i];
+      G4cout << "BDSOutput::Init() - getting sampler name ..." << G4endl;
+      G4String name="samp"+BDSGlobalConstants::Instance()->StringFromInt(i+1);
+      //      G4String name=SampName[i];
+      G4cout << "BDSOutput::Init() - newing sampler ..." << G4endl;
       TTree* SamplerTree = new TTree(name, "Sampler output");
-      
+      G4cout << "BDSOutput::Init() - setting sampler branches ..." << G4endl;
       SamplerTree->Branch("E0",&E0,"E0 (GeV)/F");
       SamplerTree->Branch("x0",&x0,"x0 (mum)/F");
       SamplerTree->Branch("y0",&y0,"y0 (mum)/F");

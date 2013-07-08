@@ -46,6 +46,121 @@ extern G4RotationMatrix* RotXM90;
 extern G4RotationMatrix* RotYM90X90;
 extern G4RotationMatrix* RotYM90XM90;
 
+//Copy constructor
+/*
+BDSAcceleratorComponent::BDSAcceleratorComponent(const BDSAcceleratorComponent& source){
+  copy(source);
+}
+
+void BDSAcceleratorComponent::copy(const BDSAcceleratorComponent& source){
+  itsOuterLogicalVolume=source.itsOuterLogicalVolume->Clone();
+  itsMarkerLogicalVolume=source.itsMarkerLogicalVolume->Clone();
+  itsTunnelLogicalVolume=source.itsTunnelLogicalVolume->Clone();
+  itsTunnelFloorLogicalVolume=source.itsTunnelFloorLogicalVolume->Clone();
+  itsBlmLocationR=source.itsBlmLocationR;
+  itsBlmRadius=source.itsBlmRadius;
+  itsName=source.itsName;
+  itsLength=source.itsLength;
+  itsXLength=source.itsXLength;
+  itsYLength=source.itsYLength;
+  itsOuterR=source.itsOuterR;
+  itsBpRadius=source.itsBpRadius;
+  itsXAper=source.itsXAper;
+  itsYAper=source.itsYAper;
+  itsAngle=source.itsAngle;
+  itsMaterial=source.itsMaterial;
+  itsVisAttributes=new G4VisAttributes(source.itsVisAttributes);
+  itsBlmLocZ=source.itsBlmLocZ;
+  itsBlmLocTheta=source.itsBlmLocTheta;
+  itsTunnelMaterial=source.itsTunnelMaterial;
+  //Tunnel geom
+  itsXOffset=source.  itsXOffset;
+  itsYOffset=source.  itsYOffset;
+  itsZOffset=source.  itsZOffset;
+  itsTunnelRadius=source.  itsTunnelRadius;
+  itsTunnelOffsetX=source.    itsTunnelOffsetX;  
+  itsType=source.itsType;
+  itsTilt=source.  itsTilt;
+  itsPhiAngleIn=source.  itsPhiAngleIn;
+  itsPhiAngleOut=source.  itsPhiAngleOut;
+  itsMagScaleFactor=source.  itsMagScaleFactor;
+  itsPhi=source.  itsPhi;
+  itsTheta=source.  itsTheta;
+  itsPsi=source.  itsPsi;
+  itsK1=source.   itsK1; 
+  itsK2=source.   itsK2; 
+  itsK3=source.    itsK3;
+  itsRotation=new G4RotationMatrix(( CLHEP::HepRotation&)source.itsRotation);
+  itsPosition=source.itsPosition;
+  //  BDSBeamPipe* itsBeamPipe;
+  itsOuterMagField=new G4MagneticField( source.itsOuterMagField);
+  itsOuterEqRhs=new G4Mag_EqRhs( source.itsOuterEqRhs);
+  itsOuterStepper=new G4MagIntegratorStepper( source.itsOuterStepper);
+  itsOuterChordFinder=new G4ChordFinder( source.itsOuterChordFinder);
+  itsOuterFieldMgr=new G4FieldManager( source.itsOuterFieldMgr);
+  itsOuterUserLimits=new G4UserLimits(source.itsOuterUserLimits);
+  itsMarkerUserLimits=new G4UserLimits(source.itsMarkerUserLimits);
+  itsInnerBeampipeUserLimits=new G4UserLimits(source.itsInnerBeampipeUserLimits);
+  itsInnerMostLogicalVolume=new G4LogicalVolume(source.itsInnerMostLogicalVolume);
+  itsTunnelCavityMaterial=source.itsTunnelCavityMaterial;
+  itsPrecisionRegion=source.itsPrecisionRegion;
+  //Marker solid
+  itsMarkerSolidVolume=source.itsMarkerSolidVolume->Clone();
+  //Solid shapes used in building tunnel
+  itsTunnelSolid=source.itsTunnelSolid->Clone();
+  itsSoilSolid=source.itsSoilSolid->Clone();
+  itsInnerTunnelSolid=source.itsInnerTunnelSolid->Clone();
+  itsTunnelCavity=source.itsTunnelCavity->Clone();
+  itsLargerTunnelCavity=source.itsLargerTunnelCavity->Clone();
+  itsTunnelFloor=source.itsTunnelFloor->Clone();
+  itsLargerInnerTunnelSolid=source. itsLargerInnerTunnelSolid->Clone(); 
+  itsTunnelMinusCavity=source.itsTunnelMinusCavity->Clone();
+  itsTunnelSizedBlock=source.itsTunnelSizedBlock->Clone();
+  //BLM logical volumes
+  itsBLMLogicalVolume=new G4LogicalVolume(source.itsBLMLogicalVolume);
+  itsBlmCaseLogicalVolume=new G4LogicalVolume(source.itsBlmCaseLogicalVolume);
+  //BLM physical volumes
+  itsBLMPhysiComp=source.itsBLMPhysiComp;
+  //Tunnel logical volumes
+  itsSoilTunnelLogicalVolume=new G4LogicalVolume(source.itsSoilTunnelLogicalVolume);
+  itsTunnelCavityLogicalVolume=new G4LogicalVolume(source.itsTunnelCavityLogicalVolume);
+  itsTunnelMinusCavityLogicalVolume=new G4LogicalVolume(source.itsTunnelMinusCavityLogicalVolume);
+  //Tunnel physical volumes
+  itsTunnelPhysiInner=new G4VPhysicalVolume(source.itsTunnelPhysiInner);
+  itsTunnelPhysiComp=new G4VPhysicalVolume(source.itsTunnelPhysiComp);
+  itsTunnelFloorPhysiComp=new G4VPhysicalVolume(source.itsTunnelFloorPhysiComp);
+  itsTunnelPhysiCompSoil=new G4VPhysicalVolume(source.itsTunnelPhysiCompSoil);
+  //Tunnel user limits
+  itsTunnelUserLimits=new G4UserLimits(source.itsTunnelUserLimits);
+  itsSoilTunnelUserLimits=new G4UserLimits(source.itsSoilTunnelUserLimits);
+  itsInnerTunnelUserLimits=new G4UserLimits(source.itsInnerTunnelUserLimits);
+  nullRotationMatrix=new G4RotationMatrix(( CLHEP::HepRotation&)source.nullRotationMatrix);
+  tunnelRot=new G4RotationMatrix(( CLHEP::HepRotation&)source.tunnelRot);
+  gateRot=new G4RotationMatrix(( CLHEP::HepRotation&)source.gateRot);
+  gateMaterial=new G4Material(source.gateMaterial);
+  VisAtt=new G4VisAttributes( source.VisAtt);
+  VisAtt1=new G4VisAttributes( source.VisAtt1);
+  VisAtt2=new G4VisAttributes( source.VisAtt2);
+  VisAtt3=new G4VisAttributes( source.VisAtt3);
+  VisAtt4=new G4VisAttributes( source.VisAtt4);
+  VisAtt5=new G4VisAttributes( source.VisAtt5);
+  itsBLMSolid=new G4Tubs(source.itsBLMSolid);
+  itsBlmOuterSolid=new G4Tubs(source.itsBlmOuterSolid);
+  itsSPos=source.  itsSPos;
+  itsCopyNumber=source.itsCopyNumber;
+  itsBDSEnergyCounter=new BDSEnergyCounterSD(source.itsBDSEnergyCounter);
+  itsCollectionID=source.itsCollectionID;
+  itsSensitiveVolume=new G4LogicalVolume(source.itsSensitiveVolume);
+  itsMultipleSensitiveVolumes=source.itsMultipleSensitiveVolumes;
+  itsGFlashVolumes=source.itsGFlashVolumes;
+  itsMultiplePhysicalVolumes=source.itsMultiplePhysicalVolumes;
+  itsZLower=source.itsZLower;
+  itsZUpper=source.itsZUpper;
+  itsSynchEnergyLoss=source.itsSynchEnergyLoss;
+}
+
+*/
+
 void BDSAcceleratorComponent::PrepareField(G4VPhysicalVolume*)
 {//do nothing by default
   return;
@@ -379,7 +494,8 @@ void BDSAcceleratorComponent::BuildTunnel()
 
   std::string tunnelCavityMaterialName;
   if(itsTunnelCavityMaterial!=""){
-    tunnelCavityMaterialName=itsTunnelCavityMaterial;
+    tunnelCavityMaterialName =BDSGlobalConstants::Instance()->GetTunnelCavityMaterialName();
+    //    tunnelCavityMaterialName=itsTunnelCavityMaterial;
   } else {
     tunnelCavityMaterialName =BDSGlobalConstants::Instance()->GetTunnelCavityMaterialName();
   }

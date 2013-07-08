@@ -372,7 +372,7 @@ int main(int argc,char** argv) {
 
   // choose the Random engine
 #ifdef DEBUG
-  G4cout << "Initialising random number generator." << G4endl;
+  G4cout << "Initialising random number generator.... setting the engine..." << G4endl;
 #endif  
   HepRandom::setTheEngine(new RanecuEngine);
 
@@ -380,12 +380,25 @@ int main(int argc,char** argv) {
 
   // get the seed from options if positive, else
   // user time as a seed
+#ifdef DEBUG
+  G4cout << "...getting the seed..." << G4endl;
+#endif  
+
 #include <time.h>
-  if(BDSGlobalConstants::Instance()->GetRandomSeed()>=0)
+  if(BDSGlobalConstants::Instance()->GetRandomSeed()>=0){
+#ifdef DEBUG
+    G4cout << "...getting the seed from BDSGlobalConstants..." << G4endl;
+#endif  
     seed = BDSGlobalConstants::Instance()->GetRandomSeed();
-  else
+  } else {
+#ifdef DEBUG
+    G4cout << "...getting the seed from the clock..." << G4endl;
+#endif  
     seed = time(NULL);
-  
+  }
+#ifdef DEBUG
+  G4cout << "...setting the seed..." << G4endl;
+#endif  
   // set the seed
   HepRandom::setTheSeed(seed);
 
@@ -677,9 +690,13 @@ int main(int argc,char** argv) {
 #ifdef G4UI_USE
       G4UIExecutive* session = new G4UIExecutive(argc, argv);
 #ifdef G4VIS_USE
+      G4cout << "in main() - executing macro file: " << visMacroFile << G4endl;
       UIManager->ApplyCommand("/control/execute " + visMacroFile);    
+      G4cout << "...finished executing macro file. " << G4endl;
 #endif
+      G4cout << "in main() - starting session." << G4endl;
       session->SessionStart();
+      G4cout << "in main() - finishing session." << G4endl;
 #ifdef DEBUG 
       G4cout<<"Visualisation Manager deleting..."<<G4endl;
 #endif
@@ -714,9 +731,9 @@ int main(int argc,char** argv) {
   delete BDSGlobalConstants::Instance();
   
 #ifdef DEBUG 
-  G4cout<<"BDSRunManager deleting..."<<G4endl;
+  //  G4cout<<"BDSRunManager deleting..."<<G4endl;
 #endif
-  delete runManager;
+  //  delete runManager;
 
    
   return 0;
