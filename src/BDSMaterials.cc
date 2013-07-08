@@ -12,7 +12,7 @@
    Added Initialise function
    Added Add/GetElement/Material functions
    Cleanup in destructor
-   Added ListMaterials function
+   Added ListMaterials  function
 */
 
 #include "BDSGlobalConstants.hh" 
