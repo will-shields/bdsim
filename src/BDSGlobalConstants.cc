@@ -49,13 +49,10 @@ BDSGlobalConstants::BDSGlobalConstants(struct Options& opt)
     itsTunnelMaterialName = "concrete";
   else
     itsTunnelMaterialName = opt.tunnelMaterial;
- if(opt.tunnelCavityMaterial == "") {
-   G4cout << "BDSGlobalConstants - setting tunnelCavityMaterial to air" << G4endl;
-   itsTunnelCavityMaterialName = "air";
- } else {
-   G4cout << "BDSGlobalConstants - setting tunnelCavityMaterial to opt.tunnelCavityMaterial = " << opt.tunnelCavityMaterial << G4endl;
-   itsTunnelCavityMaterialName = opt.tunnelCavityMaterial;
- }
+ if(opt.tunnelCavityMaterial == "") 
+    itsTunnelCavityMaterialName = "Air";
+  else
+    itsTunnelCavityMaterialName = opt.tunnelCavityMaterial;
  if(opt.soilMaterial == "") 
     itsSoilMaterialName = "soil";
   else

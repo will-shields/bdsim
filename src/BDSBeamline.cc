@@ -143,6 +143,8 @@ void BDSBeamline::print(){
     G4cout << (*_iterComponent)->GetName() << G4endl;
     printNavigation();
   }
+
+
 }
 
 void BDSBeamline::printNavigation(){

@@ -4,7 +4,6 @@
 
 const char* getEnv(const char* env)
 {
-  std::cout << "getEnv() - getting env ##" << env << "##" << std::endl;
   const char* tmp = std::getenv(env);
   if(tmp==NULL){
     std::cout << "getEnv - no environment variable \"" << env << "\" is set" << std::endl;
