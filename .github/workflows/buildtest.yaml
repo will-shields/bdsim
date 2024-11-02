@@ -55,8 +55,10 @@ jobs:
 
       - name: Test bdsim
         run: |
+          cd /usr/local/bin/ 
+          source geant4.sh
+
           cd /tmp/bdsim-build
-          . /usr/local/bin/geant4.sh
           ctest -j${{ steps.cpu-cores.outputs.count }}
 
   btmac:
