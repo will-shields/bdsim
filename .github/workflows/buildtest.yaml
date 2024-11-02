@@ -34,14 +34,13 @@ jobs:
           pwd
 
       - name: Build bdsim
+        shell: bash
         run: |
           #
           rm -rfv /usr/local/lib/Geant4-10.7.4/Geant4PackageCache.cmake
 
           # ROOT 
-          cd /tmp/root/bin
-          . ./thisroot.sh                                                
-          cd -
+          source /tmp/root/bin/thisroot.sh
 
           # git trusted dir 
           git config --global --add safe.directory $GITHUB_WORKSPACE
@@ -54,13 +53,10 @@ jobs:
           make -j${{ steps.cpu-cores.outputs.count }} install
 
       - name: Test bdsim
+        shell: bash
         run: |
-          if [[ "${{ matrix.container }}" == "ubuntu20-g4.11.1" ]]; then
-            . /usr/local/bin/geant4.sh
-          else   
-            cd /usr/local/bin/ 
-            . geant4.sh
-          fi 
+          source /usr/local/bin/geant4.sh
+          source /tmp/bdsim-install/bin/bdsim.sh
 
           cd /tmp/bdsim-build
           ctest -j${{ steps.cpu-cores.outputs.count }}
@@ -98,6 +94,7 @@ jobs:
 
 
       - name: Get Geant4
+        shell: bash
         run: |
           # download geant4 build
           wget -q https://github.com/bdsim-collaboration/mac_geant4/releases/download/v0.0.21/geant4-${{ matrix.os}}-${{ matrix.geant4-version }}.tgz
@@ -105,7 +102,8 @@ jobs:
           tar zxf geant4-${{ matrix.os }}-${{ matrix.geant4-version }}.tgz -C /tmp/
 
 
-      - name: Build bdsim 
+      - name: Build bdsim
+        shell: bash
         run: |
           rm -rfv /tmp/geant4-v11.0.4/lib/Geant4-11.0.4/Geant4PackageCache.cmake
           rm -rfv /tmp/geant4-v10.7.4/lib/Geant4-10.7.4/Geant4PackageCache.cmake
@@ -122,6 +120,7 @@ jobs:
           make -j${{ steps.cpu-cores.outputs.count }} install
 
       - name: Test bdsim
+        shell: bash
         run: |
           cd /tmp/bdsim-build
           source /tmp/geant4-${{ matrix.geant4-version }}/bin/geant4.sh
