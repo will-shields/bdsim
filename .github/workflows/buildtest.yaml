@@ -55,8 +55,12 @@ jobs:
 
       - name: Test bdsim
         run: |
-          cd /usr/local/bin/ 
-          . geant4.sh
+          if [[ "${{ matrix.container }}" == "ubuntu20-g4.11.1" ]]; then
+            . /usr/local/bin/geant4.sh
+          else; then   
+            cd /usr/local/bin/ 
+            . geant4.sh
+          fi 
 
           cd /tmp/bdsim-build
           ctest -j${{ steps.cpu-cores.outputs.count }}
