@@ -43,6 +43,9 @@ jobs:
           . ./thisroot.sh                                                
           cd -
 
+          # git trusted dir 
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+
           # build
           mkdir /tmp/bdsim-build
           mkdir /tmp/bdsim-install
