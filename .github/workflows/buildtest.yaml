@@ -57,7 +57,7 @@ jobs:
         run: |
           cd /tmp/bdsim-build
           . /usr/local/bin/geant4.sh
-          ctest -V -R example-air-water -j${{ steps.cpu-cores.outputs.count }}
+          ctest -j${{ steps.cpu-cores.outputs.count }}
 
   btmac:
     name: bt mac
@@ -120,4 +120,4 @@ jobs:
         run: |
           cd /tmp/bdsim-build
           source /tmp/geant4-${{ matrix.geant4-version }}/bin/geant4.sh
-          ctest -V -R example-air-water -j${{ steps.cpu-cores.outputs.count }}
+          ctest -j${{ steps.cpu-cores.outputs.count }}
