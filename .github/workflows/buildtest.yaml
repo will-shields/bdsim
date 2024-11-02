@@ -97,7 +97,6 @@ jobs:
           wget -q https://github.com/bdsim-collaboration/mac_geant4/releases/download/v0.0.21/geant4-${{ matrix.os}}-${{ matrix.geant4-version }}.tgz
           # unpack geant4
           tar zxf geant4-${{ matrix.os }}-${{ matrix.geant4-version }}.tgz -C /tmp/
-          realpath /tmp/geant4-${{ matrix.geant4-version }}/bin/geant4.sh  
 
 
       - name: Build bdsim 
