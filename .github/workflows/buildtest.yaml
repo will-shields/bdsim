@@ -57,7 +57,7 @@ jobs:
         run: |
           if [[ "${{ matrix.container }}" == "ubuntu20-g4.11.1" ]]; then
             . /usr/local/bin/geant4.sh
-          else; then   
+          else   
             cd /usr/local/bin/ 
             . geant4.sh
           fi 
