@@ -63,9 +63,6 @@ jobs:
           cd /tmp/bdsim-build
           ctest -j${{ steps.cpu-cores.outputs.count }}
 
-          # dump test log 
-          cat /tmp/bdsim-build/Testing/Temporary/LastTest.log
-
   btmac:
     name: bt mac
     runs-on: ${{ matrix.os }}
@@ -164,6 +161,3 @@ jobs:
           # run tests          
           cd /tmp/bdsim-build
           ctest -j${{ steps.cpu-cores.outputs.count }}
-
-          # dump test log
-          cat /tmp/bdsim-build/Testing/Temporary/LastTest.log
