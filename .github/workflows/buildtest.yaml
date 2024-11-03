@@ -3,7 +3,7 @@ name: bdsim
 on:
   pull_request:
     branches:
-      - develop
+      - 'develop'
 
 jobs:
   btlinux:
