@@ -125,7 +125,8 @@ jobs:
         shell: bash
         run: |
           
-          # Set upt geant4 and bdsim 
+          # Set up root, geant4 and bdsim 
+          source /opt/homebrew/bin/thisroot.csh
           source /tmp/geant4-${{ matrix.geant4-version }}/bin/geant4.sh
           source /tmp/bdsim-install/bin/bdsim.sh
 
