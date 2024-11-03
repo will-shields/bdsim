@@ -114,6 +114,13 @@ jobs:
           # source geant4 setup
           source /tmp/geant4-${{ matrix.geant4-version }}/bin/geant4.sh
 
+          # Set up root, geant4 and bdsim
+          if [[ "${{ matrix.os }}" == "macOS-13" ]]; then
+            source /usr/local/bin/thisroot.sh
+          elif [[ "${{ matrix.os }}" == "macOS-14" ]]; then
+            source /opt/homebrew/bin/thisroot.sh  
+          fi 
+          
           # build
           mkdir /tmp/bdsim-build
           mkdir /tmp/bdsim-install
@@ -124,13 +131,6 @@ jobs:
       - name: Test bdsim
         shell: bash
         run: |
-          
-          # Set up root, geant4 and bdsim
-          if [[ "${{ matrix.os }}" == "macOS-13" ]]; then
-            source /usr/local/bin/thisroot.sh
-          elif [[ "${{ matrix.os }}" == "macOS-14" ]]; then
-            source /opt/homebrew/bin/thisroot.sh  
-          fi 
           source /tmp/geant4-${{ matrix.geant4-version }}/bin/geant4.sh
           source /tmp/bdsim-install/bin/bdsim.sh
 
