@@ -55,11 +55,16 @@ jobs:
       - name: Test bdsim
         shell: bash
         run: |
+          # Set upt geant4 and bdsim 
           source /usr/local/bin/geant4.sh
           source /tmp/bdsim-install/bin/bdsim.sh
 
+          # run tests
           cd /tmp/bdsim-build
           ctest -j${{ steps.cpu-cores.outputs.count }}
+
+          # dump test log 
+          cat /tmp/bdsim-build/Testing/Temporary/LastTest.log
 
   btmac:
     name: bt mac
@@ -86,6 +91,7 @@ jobs:
       - name: Bison path
         shell: bash      
         run: |
+          # Switch bison depending on macOS
           if [[ "${{ matrix.os }}" == "macOS-13" ]]; then
             echo "BISON_PATH=/usr/local/opt/bison/bin/bison" >> $GITHUB_ENV
           elif [[ "${{ matrix.os }}" == "macOS-14" ]]; then
@@ -121,9 +127,11 @@ jobs:
       - name: Test bdsim
         shell: bash
         run: |
-          cd /tmp/bdsim-build
+          
+          # Set upt geant4 and bdsim 
           source /tmp/geant4-${{ matrix.geant4-version }}/bin/geant4.sh
           source /tmp/bdsim-install/bin/bdsim.sh
+
           # geant4 contains absolute paths
           if [[ "${{ matrix.geant4-version }}" == "v10.7.4" ]]; then
             export G4NEUTRONHPDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4NDL4.6"
@@ -152,6 +160,10 @@ jobs:
             export G4INCLDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4INCL1.0"
             export G4ENSDFSTATEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4ENSDFSTATE2.3"
           fi 
-          
-          env
+
+          # run tests          
+          cd /tmp/bdsim-build
           ctest -j${{ steps.cpu-cores.outputs.count }}
+
+          # dump test log
+          cat /tmp/bdsim-build/Testing/Temporary/LastTest.log
