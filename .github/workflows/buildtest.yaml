@@ -125,4 +125,5 @@ jobs:
           cd /tmp/bdsim-build
           source /tmp/geant4-${{ matrix.geant4-version }}/bin/geant4.sh
           source /tmp/bdsim-install/bin/bdsim.sh
+          env
           ctest -V -j${{ steps.cpu-cores.outputs.count }}
