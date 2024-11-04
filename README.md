@@ -7,13 +7,14 @@ BDSIM version 1.7.7.develop program for radiation transport in accelerators
 The official web site is:
 	http://www.pp.rhul.ac.uk/bdsim
 
+Mailing list is:
+https://www.jiscmail.ac.uk/cgi-bin/webadmin?A0=BDSIM
+
 Currently maintained and developed by:
 
   * Laurie Nevay          <laurie.nevay@cern.ch> (main contact)
   * Will Shields          <william.shields@rhul.ac.uk>
   * Stewart Boogert       <stewart.boogert@cockcroft.ac.uk>
-  * Andrey Abramov        <andrey.abramov@cern.ch>
-  * Stuart Walker         <stuart.walker@desy.de>
   * Jochem Snuverink      <jochem.snuverink@psi.ch>
 
 Originally started by G.A. Blair. See manual for full authorship.
@@ -21,13 +22,12 @@ Originally started by G.A. Blair. See manual for full authorship.
 ## Installation
 
 Regularly tested on:
-  * OS: Linux (Scientific Linux CentOS 7, RHEL9, Alma9, Ubuntu 20,22), Mac OS 13 onwards
+  * OS: Linux (RHEL9, Alma9, Ubuntu 20,22, 24), Mac OS 13 onwards
   * Architecture: x86_64, ARM64
   * Compiler: GCC 8,9,11,13, Clang 12-15 (fully C++ 11 compliant)
 
 
 ## System requirements:
-
   * compiler with C++11 support
   * CMake 3.5 or higher
   * BISON
