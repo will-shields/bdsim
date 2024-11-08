@@ -21,6 +21,9 @@ v1.8.0 - 2024 / XX / XX
 
 New Features
 ------------
+* New Gabor lens beam line component. Constructed with a radial electric field that would be generated
+  with a confined plasma in a Penning-Malmberg trap configuration. The electric and magnetic confinement
+  fields are not constructed.
 
 **Fields**
 
